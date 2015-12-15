@@ -1,0 +1,28 @@
+{
+"widgets":[
+	{
+	"type":"videoplayer",
+	"id":"vp",
+	"left":"0px",
+	"top":"0px",
+	"width":"50%",
+	"height":"50%",
+	"playlist":["data/video/1.mp4", "data/video/2.mp4"]
+	},
+	{
+	"type":"videoplayer",
+	"id":"vp1",
+	"left":"50%",
+	"top":"50px",
+	"width":"50%",
+	"height":"50%",
+	"playlist":["data/video/1.mp4"]
+	}
+],
+"sound":[
+	{
+	"id":"vp1",
+	"volume":100
+	}
+]
+}
