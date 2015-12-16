@@ -13,16 +13,25 @@
 	"type":"videoplayer",
 	"id":"vp1",
 	"left":"50%",
-	"top":"50px",
+	"top":"0px",
 	"width":"50%",
 	"height":"50%",
 	"playlist":["data/video/1.mp4"]
+	},
+	{
+	"type":"yandexweather",
+	"id":"yw",
+	"left":"0%",
+	"top":"50%",
+	"width":"50%",
+	"height":"50%",
+	"src":"https://export.yandex.ru/weather-ng/forecasts/26898.xml"
 	}
 ],
 "sound":[
 	{
-	"id":"vp1",
-	"volume":100
+	"id":"vp",
+	"volume":10
 	}
 ]
 }

@@ -1,4 +1,7 @@
 #include <QJsonArray>
+#include <abstractwidget.h>
+#include <videoplayer.h>
+#include <yandexweatherwidget.h>
 #include "widgetfabric.h"
 
 WidgetFabric::WidgetFabric(QObject *parent) : QObject(parent)
@@ -42,6 +45,15 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         videoplayer->play();
         videoplayer->setSound(0);
         return videoplayer;
+    }
+    else if (widgetType.toLower() == "yandexweather")
+    {
+        YandexWeatherWidget * yandexWeather = new YandexWeatherWidget(parent);
+        yandexWeather->setId(widgetId);
+        yandexWeather->move(widgetLeftValue,widgetTopValue);
+        yandexWeather->resize(widgetWidthValue, widgetHeightValue);
+        yandexWeather->loadInfo(object["src"].toString());
+        return yandexWeather;
     }
     return NULL;
 }

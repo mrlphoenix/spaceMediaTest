@@ -5,8 +5,7 @@
 #include <QWidget>
 #include <QJsonObject>
 
-#include <abstractwidget.h>
-#include <videoplayer.h>
+
 
 class WidgetFabric : public QObject
 {
