@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QHash>
-#include "abstractwidget.h"
+#include "iwidgetinfo.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,12 +19,12 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_2_clicked();
+    void onLoad();
 
 private:
     Ui::MainWindow *ui;
-    QVector<AbstractWidget*> widgets;
-    QHash<QString,AbstractWidget*> widgetsTable;
+    QVector<IWidgetInfo*> widgets;
+    QHash<QString,IWidgetInfo*> widgetsTable;
 };
 
 #endif // MAINWINDOW_H

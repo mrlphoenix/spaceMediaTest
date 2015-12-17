@@ -6,9 +6,9 @@
 #include <QJsonObject>
 #include <QMediaPlaylist>
 #include <QMediaPlayer>
-#include <abstractwidget.h>
+#include <iwidgetinfo.h>
 
-class VideoPlayer : public QVideoWidget,public AbstractWidget
+class VideoPlayer : public QVideoWidget,public IWidgetInfo
 {
     Q_OBJECT
 public:

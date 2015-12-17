@@ -1,8 +1,9 @@
 #include <QJsonArray>
-#include <abstractwidget.h>
+#include <iwidgetinfo.h>
 #include <videoplayer.h>
 #include <yandexweatherwidget.h>
 #include <instagramrecentpostviewer.h>
+#include <iptvwidget.h>
 #include "widgetfabric.h"
 
 WidgetFabric::WidgetFabric(QObject *parent) : QObject(parent)
@@ -67,6 +68,15 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         instagramWidget->move(widgetLeftValue,widgetTopValue);
         instagramWidget->resize(widgetWidthValue, widgetHeightValue);
         return instagramWidget;
+    }
+    else if (widgetType.toLower() == "iptv")
+    {
+        QString src = object["src"].toString();
+        IPTVWidget * iptvWidget = new IPTVWidget(src,parent);
+        iptvWidget->setId(widgetId);
+        iptvWidget->move(widgetLeftValue,widgetTopValue);
+        iptvWidget->resize(widgetWidthValue, widgetHeightValue);
+        return iptvWidget;
     }
     return NULL;
 }

@@ -10,15 +10,6 @@
 	"playlist":["data/video/1.mp4", "data/video/2.mp4"]
 	},
 	{
-	"type":"videoplayer",
-	"id":"vp1",
-	"left":"50%",
-	"top":"0px",
-	"width":"50%",
-	"height":"50%",
-	"playlist":["data/video/1.mp4"]
-	},
-	{
 	"type":"yandexweather",
 	"id":"yw",
 	"left":"0%",
@@ -38,12 +29,25 @@
 	"tag":"wow",
 	"access-token":"2307400505.efdfb89.095d0afb10d841f38579ebe60e1bbb8e",
 	"update-time":20000
+	},
+	{
+	"type":"iptv",
+	"id":"iptv",
+	"left":"50%",
+	"top":"0%",
+	"width":"50%",
+	"height":"50%",
+	"src":"http://91.210.20.50:1234/udp/239.2.2.20:1234"
 	}
 ],
 "sound":[
 	{
 	"id":"vp",
 	"volume":10
+	},
+	{
+	"id":"iptv",
+	"volume":100
 	}
 ]
 }

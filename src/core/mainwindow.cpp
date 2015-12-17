@@ -2,6 +2,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QFile>
+#include <QDebug>
+#include <QTimer>
 #include <widgetfabric.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -11,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QTimer::singleShot(1000,this,SLOT(onLoad()));
+
 }
 
 MainWindow::~MainWindow()
@@ -18,7 +23,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::onLoad()
 {
     QFile jsonFile("data/config.txt");
     jsonFile.open(QFile::ReadOnly);
@@ -28,11 +33,16 @@ void MainWindow::on_pushButton_2_clicked()
     foreach (const QJsonValue &value, widgets)
     {
         QWidget * w = WidgetFabric::create(value.toObject(),this);
-        w->show();
-        this->widgets.append(dynamic_cast<AbstractWidget*>(w));
-        widgetsTable[dynamic_cast<AbstractWidget*>(w)->getId()] = dynamic_cast<AbstractWidget*>(w);
+        if (w)
+        {
+            w->show();
+            this->widgets.append(dynamic_cast<IWidgetInfo*>(w));
+            widgetsTable[dynamic_cast<IWidgetInfo*>(w)->getId()] = dynamic_cast<IWidgetInfo*>(w);
+        }
+        else
+            qDebug() << "ERROR! Widget of type " + value.toObject()["type"].toString() + " [" +value.toObject()["id"].toString() + "] cant be created";
     }
-    QJsonArray soundProperties = root["sound"].toArray();
+     QJsonArray soundProperties = root["sound"].toArray();
     foreach (const QJsonValue &value, soundProperties)
     {
         QJsonObject soundProperty = value.toObject();

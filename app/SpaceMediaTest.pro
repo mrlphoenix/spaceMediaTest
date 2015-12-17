@@ -20,3 +20,9 @@ include(../src/widgets/widgets.pri)
 SOURCES += main.cpp \
 
 RESOURCES +=
+
+
+LIBS       += -lVLCQtCore -lVLCQtWidgets
+LIBS       += -LC:/lib-vlc/lib -lVLCQtCore -lVLCQtWidgets
+
+INCLUDEPATH += C:/lib-vlc/include

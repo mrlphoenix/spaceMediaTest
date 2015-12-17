@@ -5,14 +5,14 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <QNetworkAccessManager>
-#include <abstractwidget.h>
+#include <iwidgetinfo.h>
 #include <yandexweathermodel.h>
 
 namespace Ui {
 class YandexWeatherWidget;
 }
 
-class YandexWeatherWidget : public QWidget, public AbstractWidget
+class YandexWeatherWidget : public QWidget, public IWidgetInfo
 {
     Q_OBJECT
 
@@ -24,7 +24,6 @@ public:
     ~YandexWeatherWidget();
 
 private slots:
-    void on_pushButton_clicked();
     void replyFinished(QNetworkReply* reply);
 
 

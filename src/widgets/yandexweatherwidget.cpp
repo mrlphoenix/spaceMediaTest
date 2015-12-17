@@ -54,12 +54,10 @@ void YandexWeatherWidget::updateInfo()
 YandexWeatherWidget::~YandexWeatherWidget()
 {
     delete ui;
+    foreach (const QWidget* widget, dayWidgets)
+        delete widget;
 }
 
-void YandexWeatherWidget::on_pushButton_clicked()
-{
-
-}
 
 void YandexWeatherWidget::replyFinished(QNetworkReply *reply)
 {
