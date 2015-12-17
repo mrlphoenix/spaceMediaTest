@@ -18,3 +18,5 @@ include(../src/widgets/widgets.pri)
 
 
 SOURCES += main.cpp \
+
+RESOURCES +=

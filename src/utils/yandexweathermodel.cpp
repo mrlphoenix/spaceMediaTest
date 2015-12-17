@@ -82,6 +82,8 @@ YandexWeatherModel YandexWeatherModel::fromXml(QByteArray data)
                     result.yesterday.temperature = temperature;
                 else if (node == "informer")
                     result.informer.temperatures.append(temperature);
+                else if (node == "day_part")
+                    result.days[dayIndex].dayParts[dayPartIndex].temperature = temperature.value;
             }
             else if (xml.name().toString() == "weather_type")
             {

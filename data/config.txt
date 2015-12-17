@@ -25,7 +25,8 @@
 	"top":"50%",
 	"width":"50%",
 	"height":"50%",
-	"src":"https://export.yandex.ru/weather-ng/forecasts/26898.xml"
+	"src":"https://export.yandex.ru/weather-ng/forecasts/26898.xml",
+	"background-image":"data/img/yandex_weather_background.jpg"
 	}
 ],
 "sound":[

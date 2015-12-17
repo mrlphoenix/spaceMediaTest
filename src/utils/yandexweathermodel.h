@@ -71,6 +71,7 @@ public:
             QString type;
             int temperature_from;
             int temperature_to;
+            int temperature;
             QString weather_type;
             QString wind_direction;
             double wind_speed;

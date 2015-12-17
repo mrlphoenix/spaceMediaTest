@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../data/img/yandex_weather_background.png</file>
+    </qresource>
+</RCC>

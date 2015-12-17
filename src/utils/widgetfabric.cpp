@@ -53,6 +53,7 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         yandexWeather->move(widgetLeftValue,widgetTopValue);
         yandexWeather->resize(widgetWidthValue, widgetHeightValue);
         yandexWeather->loadInfo(object["src"].toString());
+        yandexWeather->setStyleSheet("YandexWeatherWidget{background-image: url(" + object["background-image"].toString() +");}");
         return yandexWeather;
     }
     return NULL;
