@@ -70,7 +70,6 @@ void YandexWeatherWidget::replyFinished(QNetworkReply *reply)
         data = YandexWeatherModel::fromXml(reply->readAll());
         updateInfo();
     }
-    show();
 }
 
 QString YandexWeatherWidget::windDescription(QString wind)

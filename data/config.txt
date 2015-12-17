@@ -27,6 +27,17 @@
 	"height":"50%",
 	"src":"https://export.yandex.ru/weather-ng/forecasts/26898.xml",
 	"background-image":"data/img/yandex_weather_background.jpg"
+	},
+	{
+	"type":"instagram",
+	"id":"iw",
+	"left":"50%",
+	"top":"50%",
+	"width":"50%",
+	"height":"50%",
+	"tag":"wow",
+	"access-token":"2307400505.efdfb89.095d0afb10d841f38579ebe60e1bbb8e",
+	"update-time":20000
 	}
 ],
 "sound":[

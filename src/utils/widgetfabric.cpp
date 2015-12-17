@@ -2,6 +2,7 @@
 #include <abstractwidget.h>
 #include <videoplayer.h>
 #include <yandexweatherwidget.h>
+#include <instagramrecentpostviewer.h>
 #include "widgetfabric.h"
 
 WidgetFabric::WidgetFabric(QObject *parent) : QObject(parent)
@@ -55,6 +56,17 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         yandexWeather->loadInfo(object["src"].toString());
         yandexWeather->setStyleSheet("YandexWeatherWidget{background-image: url(" + object["background-image"].toString() +");}");
         return yandexWeather;
+    }
+    else if (widgetType.toLower() == "instagram")
+    {
+        QString accessToken = object["access-token"].toString();
+        QString tag = object["tag"].toString();
+        int updateTime = object["update-time"].toInt();
+        InstagramRecentPostViewer * instagramWidget = new InstagramRecentPostViewer(accessToken,tag,updateTime,parent);
+        instagramWidget->setId(widgetId);
+        instagramWidget->move(widgetLeftValue,widgetTopValue);
+        instagramWidget->resize(widgetWidthValue, widgetHeightValue);
+        return instagramWidget;
     }
     return NULL;
 }
