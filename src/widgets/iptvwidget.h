@@ -2,7 +2,7 @@
 #define IPTVWIDGET_H
 
 #include <QWidget>
-#include <iwidgetinfo.h>
+#include <soundwidgetinfo.h>
 
 namespace Ui {
 class IPTVWidget;
@@ -11,7 +11,7 @@ class VlcInstance;
 class VlcMedia;
 class VlcMediaPlayer;
 
-class IPTVWidget : public QWidget, public IWidgetInfo
+class IPTVWidget : public QWidget, public SoundWidgetInfo
 {
     Q_OBJECT
 

@@ -1,5 +1,5 @@
 #include <QJsonArray>
-#include <iwidgetinfo.h>
+#include <soundwidgetinfo.h>
 #include <videoplayer.h>
 #include <yandexweatherwidget.h>
 #include <instagramrecentpostviewer.h>

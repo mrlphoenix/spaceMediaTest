@@ -36,8 +36,8 @@ void MainWindow::onLoad()
         if (w)
         {
             w->show();
-            this->widgets.append(dynamic_cast<IWidgetInfo*>(w));
-            widgetsTable[dynamic_cast<IWidgetInfo*>(w)->getId()] = dynamic_cast<IWidgetInfo*>(w);
+            this->widgets.append(dynamic_cast<SoundWidgetInfo*>(w));
+            widgetsTable[dynamic_cast<SoundWidgetInfo*>(w)->getId()] = dynamic_cast<SoundWidgetInfo*>(w);
         }
         else
             qDebug() << "ERROR! Widget of type " + value.toObject()["type"].toString() + " [" +value.toObject()["id"].toString() + "] cant be created";

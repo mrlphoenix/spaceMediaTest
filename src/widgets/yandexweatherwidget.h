@@ -5,14 +5,14 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <QNetworkAccessManager>
-#include <iwidgetinfo.h>
+#include <soundwidgetinfo.h>
 #include <yandexweathermodel.h>
 
 namespace Ui {
 class YandexWeatherWidget;
 }
 
-class YandexWeatherWidget : public QWidget, public IWidgetInfo
+class YandexWeatherWidget : public QWidget, public SoundWidgetInfo
 {
     Q_OBJECT
 

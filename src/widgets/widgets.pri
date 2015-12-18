@@ -7,14 +7,14 @@ SOURCES += \
     $$PWD/yandexweatherdaywidget.cpp \
     $$PWD/instagramrecentpostviewer.cpp \
     $$PWD/iptvwidget.cpp \
-    $$PWD/iwidgetinfo.cpp
+    $$PWD/soundwigetinfo.cpp
 HEADERS += \
     $$PWD/videoplayer.h \
     $$PWD/yandexweatherwidget.h \
     $$PWD/yandexweatherdaywidget.h \
     $$PWD/instagramrecentpostviewer.h \
     $$PWD/iptvwidget.h \
-    $$PWD/iwidgetinfo.h
+    $$PWD/soundwidgetinfo.h
 
 FORMS += \
     $$PWD/yandexweatherwidget.ui \

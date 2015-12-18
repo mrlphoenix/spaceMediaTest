@@ -7,13 +7,13 @@
 #include <QNetworkReply>
 #include <QWidget>
 #include <QTimer>
-#include <iwidgetinfo.h>
+#include <soundwidgetinfo.h>
 
 namespace Ui {
 class InstagramRecentPostViewer;
 }
 
-class InstagramRecentPostViewer : public QWidget, public IWidgetInfo
+class InstagramRecentPostViewer : public QWidget, public SoundWidgetInfo
 {
     Q_OBJECT
 

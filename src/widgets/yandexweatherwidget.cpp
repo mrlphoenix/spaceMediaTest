@@ -56,6 +56,7 @@ YandexWeatherWidget::~YandexWeatherWidget()
     delete ui;
     foreach (const QWidget* widget, dayWidgets)
         delete widget;
+    delete manager;
 }
 
 

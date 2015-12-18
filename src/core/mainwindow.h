@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QHash>
-#include "iwidgetinfo.h"
+#include "soundwidgetinfo.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,8 +23,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QVector<IWidgetInfo*> widgets;
-    QHash<QString,IWidgetInfo*> widgetsTable;
+    QVector<SoundWidgetInfo*> widgets;
+    QHash<QString,SoundWidgetInfo*> widgetsTable;
 };
 
 #endif // MAINWINDOW_H

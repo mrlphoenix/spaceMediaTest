@@ -2,12 +2,12 @@
 #define ABSTRACTWIDGET_H
 
 #include <QString>
-class IWidgetInfo
+class SoundWidgetInfo
 {
 public:
-    IWidgetInfo();
-    virtual ~IWidgetInfo(){;}
-    virtual void setSound(int volume)=0;
+    SoundWidgetInfo();
+    virtual ~SoundWidgetInfo(){;}
+    virtual void setSound(int){;}
     QString getId() const {return id;}
     void setId(QString id){this->id = id;}
 private:
