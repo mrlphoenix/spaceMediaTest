@@ -6,14 +6,12 @@ SOURCES += \
     $$PWD/yandexweatherwidget.cpp \
     $$PWD/yandexweatherdaywidget.cpp \
     $$PWD/instagramrecentpostviewer.cpp \
-    $$PWD/iptvwidget.cpp \
     $$PWD/soundwigetinfo.cpp
 HEADERS += \
     $$PWD/videoplayer.h \
     $$PWD/yandexweatherwidget.h \
     $$PWD/yandexweatherdaywidget.h \
     $$PWD/instagramrecentpostviewer.h \
-    $$PWD/iptvwidget.h \
     $$PWD/soundwidgetinfo.h
 
 FORMS += \
