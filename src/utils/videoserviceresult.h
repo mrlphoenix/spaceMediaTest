@@ -15,11 +15,19 @@ struct InitRequestResult
 
     QString player_id;
     QString public_key;
+    QString session_key;
 };
 
 struct PlayerConfig
 {
     static PlayerConfig fromJson(QJsonObject json);
+    static PlayerConfig fromErrorJson(QJsonObject json);
+
+    static QString fromUtfEscapes(QString str);
+    QString status;
+    int error;
+    QString error_text;
+
     struct Area
     {
         int id;
@@ -66,12 +74,21 @@ public:
     explicit VideoServiceResultProcessor(QObject *parent = 0);
 
 signals:
+    void initResult(InitRequestResult result);
+    void enablePlayerResult(QString result);
+    void assignPlaylistResult(QString result);
+    void getPlaylistResult(PlayerConfig result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void enablePlayerResultReply(QNetworkReply * reply);
     void assignPlaylistResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
+private:
+    QString getRandomString(int length);
+
+    QString publicKey;
+    QString sessionKey;
 };
 
 #endif // VIDEOSERVICERESULT_H

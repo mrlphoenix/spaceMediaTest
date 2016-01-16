@@ -9,6 +9,15 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     manager = new QNetworkAccessManager(this);
     this->serverURL = serverURL;
     currentRequest = NULL;
+    connect(this,SIGNAL(initVideoRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(initRequestResultReply(QNetworkReply*)));
+    connect(this,SIGNAL(enablePlayerRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(enablePlayerResultReply(QNetworkReply*)));
+    connect(this,SIGNAL(assignPlaylistToPlayerRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(assignPlaylistResultReply(QNetworkReply*)));
+    connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
+
+    connect(&resultProcessor,SIGNAL(initResult(InitRequestResult)),this,SIGNAL(initResult(InitRequestResult)));
+    connect(&resultProcessor,SIGNAL(enablePlayerResult(QString)),this,SIGNAL(enablePlayerResult(QString)));
+    connect(&resultProcessor,SIGNAL(assignPlaylistResult(QString)),this,SIGNAL(assignPlaylistResult(QString)));
+    connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfig)),this,SIGNAL(getPlaylistResult(PlayerConfig)));
 }
 
 void VideoService::init()

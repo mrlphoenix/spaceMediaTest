@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include "videoserviceresult.h"
 
 //http://api.teleds.com/initialization
 
@@ -72,6 +73,11 @@ public:
     void executeRequest(VideoServiceRequest* request);
 
 signals:
+    void initResult(InitRequestResult result);
+    void enablePlayerResult(QString result);
+    void assignPlaylistResult(QString result);
+    void getPlaylistResult(PlayerConfig result);
+
     void initVideoRequestFinished(QNetworkReply * reply);
     void enablePlayerRequestFinished(QNetworkReply * reply);
     void assignPlaylistToPlayerRequestFinished(QNetworkReply * reply);
@@ -93,6 +99,7 @@ private:
     QNetworkAccessManager * manager;
     VideoServiceRequest * currentRequest;
     QString serverURL;
+    VideoServiceResultProcessor resultProcessor;
 };
 
 #endif // VIDEOSERVICE_H
