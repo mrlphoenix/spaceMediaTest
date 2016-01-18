@@ -8,6 +8,7 @@
 #include "soundwidgetinfo.h"
 #include "videoservice.h"
 #include "videodownloader.h"
+#include "rpivideoplayer.h"
 
 namespace Ui {
 class MainWindow;
@@ -39,6 +40,7 @@ private slots:
 private:
     void setupDownloader(PlayerConfig& config);
     Ui::MainWindow *ui;
+    QVector<rpiVideoPlayer*> rpiPlayers;
     QVector<SoundWidgetInfo*> widgets;
     QHash<QString,SoundWidgetInfo*> widgetsTable;
     VideoService * videoService;
@@ -47,6 +49,7 @@ private:
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;
+    PlayerConfig currentConfig;
 };
 
 #endif // MAINWINDOW_H

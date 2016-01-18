@@ -65,8 +65,8 @@ struct PlayerConfig
                 int duration;
 
 
-                bool checkTimeTargeting();
-                bool checkDateRange();
+                bool checkTimeTargeting() const;
+                bool checkDateRange() const;
             };
             QVector<Item> items;
         };

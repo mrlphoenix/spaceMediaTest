@@ -253,7 +253,7 @@ QString PlayerConfig::fromUtfEscapes(QString str)
     return str;
 }
 
-bool PlayerConfig::Area::Playlist::Item::checkTimeTargeting()
+bool PlayerConfig::Area::Playlist::Item::checkTimeTargeting() const
 {
     //check for 7 days in week
     if (ttargeting.count() != 7)
@@ -268,7 +268,7 @@ bool PlayerConfig::Area::Playlist::Item::checkTimeTargeting()
         return true;
 }
 
-bool PlayerConfig::Area::Playlist::Item::checkDateRange()
+bool PlayerConfig::Area::Playlist::Item::checkDateRange() const
 {
     bool pstart = false, pend = false;
     QDateTime currentTime = QDateTime::currentDateTime();

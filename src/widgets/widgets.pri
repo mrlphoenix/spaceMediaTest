@@ -6,13 +6,15 @@ SOURCES += \
     $$PWD/yandexweatherwidget.cpp \
     $$PWD/yandexweatherdaywidget.cpp \
     $$PWD/instagramrecentpostviewer.cpp \
-    $$PWD/soundwigetinfo.cpp
+    $$PWD/soundwigetinfo.cpp \
+    $$PWD/rpivideoplayer.cpp
 HEADERS += \
     $$PWD/videoplayer.h \
     $$PWD/yandexweatherwidget.h \
     $$PWD/yandexweatherdaywidget.h \
     $$PWD/instagramrecentpostviewer.h \
-    $$PWD/soundwidgetinfo.h
+    $$PWD/soundwidgetinfo.h \
+    $$PWD/rpivideoplayer.h
 
 FORMS += \
     $$PWD/yandexweatherwidget.ui \

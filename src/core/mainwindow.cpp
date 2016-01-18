@@ -119,8 +119,12 @@ void MainWindow::initResult(InitRequestResult result)
 void MainWindow::playlistResult(PlayerConfig result)
 {
     ui->label->setText(playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]");
-    getPlaylistTimer->stop();
-    setupDownloader(result);
+    if (result.areas.count() > 0)
+    {
+        getPlaylistTimer->stop();
+        setupDownloader(result);
+        currentConfig = result;
+    }
 }
 
 void MainWindow::getPlaylistTimerSlot()
@@ -142,7 +146,19 @@ void MainWindow::downloaded()
     ui->download_status->hide();
 
     getPlaylistTimer->start(30000);
-
+    if (rpiPlayers.count() == 0)
+    {
+        rpiVideoPlayer *player = new rpiVideoPlayer(this);
+        player->setConfig(currentConfig.areas[0]);
+        player->resize(this->width(),this->height());
+        player->play();
+        player->show();
+        rpiPlayers.append(player);
+    }
+    else
+    {
+        rpiPlayers[0]->update(currentConfig);
+    }
 }
 
 void MainWindow::setupDownloader(PlayerConfig &config)
@@ -153,6 +169,7 @@ void MainWindow::setupDownloader(PlayerConfig &config)
         delete downloader;
     }
     downloader = new VideoDownloader(config,this);
+    currentConfig = config;
     connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
     ui->totalPB->show();
     ui->currentPB->show();

@@ -7,13 +7,15 @@ SOURCES += \
     $$PWD/instagramrecentpostmodel.cpp \
     $$PWD/videoservice.cpp \
     $$PWD/videoserviceresult.cpp \
-    $$PWD/videodownloader.cpp
+    $$PWD/videodownloader.cpp \
+    $$PWD/randomplaylist.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
     $$PWD/instagramrecentpostmodel.h \
     $$PWD/videoservice.h \
     $$PWD/videoserviceresult.h \
-    $$PWD/videodownloader.h
+    $$PWD/videodownloader.h \
+    $$PWD/randomplaylist.h
 FORMS   +=
 
