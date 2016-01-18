@@ -184,7 +184,7 @@ GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionK
     playerIdParam.key = "player_id";
     playerIdParam.value = playerId;
 
-    cryptedSessionKeyParam.key = "playlist";
+    cryptedSessionKeyParam.key = "ctypted_session_key";
     cryptedSessionKeyParam.value = cryptedSessionKey;
     params.append(playerIdParam);
     params.append(cryptedSessionKeyParam);

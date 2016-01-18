@@ -19,6 +19,7 @@ VideoServiceResultProcessor::VideoServiceResultProcessor(QObject *parent) : QObj
 
 void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
 {
+   // QString s = reply->readAll();
     if (reply->error())
     {
         InitRequestResult result;
@@ -28,12 +29,11 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
     }
     else
     {
-        QJsonDocument doc;
-        doc.fromJson(reply->readAll());
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
 
         publicKey = result.public_key;
-        result.session_key = QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5);
+        result.session_key = QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5).toHex();
         sessionKey = result.session_key;
         emit initResult(result);
     }
@@ -68,8 +68,9 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
     {
         QJsonDocument doc;
         QJsonParseError error;
-        doc.fromJson(reply->readAll(),&error);
-        if (error.error != QJsonParseError::NoError)
+        QByteArray replyData = reply->readAll();
+        doc = QJsonDocument::fromJson(replyData,&error);
+        if (error.error == QJsonParseError::NoError)
             emit getPlaylistResult(PlayerConfig::fromErrorJson(doc.object()));
         else
         {
@@ -77,7 +78,7 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
             hexSessionKey = hexSessionKey.toLocal8Bit().toHex();
             QFile cryptedDataFile("playlist.bin");
             cryptedDataFile.open(QFile::WriteOnly);
-            QByteArray binaryData = QByteArray::fromBase64(reply->readAll());
+            QByteArray binaryData = QByteArray::fromBase64(replyData);
             cryptedDataFile.write(binaryData);
             cryptedDataFile.close();
 
@@ -89,10 +90,14 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
             QByteArray decodedPlaylist;
             decodeProcess.waitForFinished();
             decodedPlaylist.append(decodeProcess.readAll());
+            QFile playlistJson("playlist.json");
+            playlistJson.open(QFile::WriteOnly);
+            playlistJson.write(decodedPlaylist);
+            playlistJson.close();
 
             QJsonDocument playlistDoc;
             QJsonParseError playlistError;
-            playlistDoc.fromJson(decodedPlaylist,&playlistError);
+            playlistDoc = QJsonDocument::fromJson(decodedPlaylist,&playlistError);
             if (playlistError.error == QJsonParseError::NoError)
                 emit getPlaylistResult(PlayerConfig::fromJson(playlistDoc.object()));
             else
@@ -100,7 +105,7 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
                 qDebug() << "ERROR while parsing playlist";
                 PlayerConfig config;
                 config.error = -1;
-                config.error_text = "UNPARSABLE";
+                config.error_text = "UNPARSABLE Playlist";
                 emit getPlaylistResult(config);
             }
         }
@@ -180,10 +185,25 @@ PlayerConfig PlayerConfig::fromJson(QJsonObject json)
 
             //http:\/\/u1501.storage3.spcdn.ru\/915\/6uwmp\/original.mp4
             item.path = itemObject["path"].toString().replace("\\","");
-
-            item.pend = itemObject["pend"].toBool();
             item.position = itemObject["position"].toInt();
-            item.pstart = itemObject["pstart"].toBool();
+
+           // item.pend = itemObject["pend"].toBool();
+           // item.pstart = itemObject["pstart"].toBool();
+            if (itemObject["pstart"].isBool())
+                item.pdate.pstart = false;
+            else
+            {
+                item.pdate.pstart = true;
+                item.pdate.pstartDate = locale.toDateTime(itemObject["pstart"].toString().replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss");
+            }
+            if (itemObject["pend"].isBool())
+                item.pdate.pend = false;
+            else
+            {
+                item.pdate.pend = true;
+                item.pdate.pendDate = locale.toDateTime(itemObject["pend"].toString().replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss");
+            }
+
             item.sha1 = itemObject["sha1"].toString();
             item.size = itemObject["size"].toInt();
             item.version = itemObject["version"].toInt();
@@ -217,7 +237,7 @@ PlayerConfig PlayerConfig::fromJson(QJsonObject json)
 PlayerConfig PlayerConfig::fromErrorJson(QJsonObject json)
 {
     PlayerConfig result;
-    result.error = json["error"].toInt();
+    result.error = json["error_id"].toInt();
     result.error_text = json["error_text"].toString();
     result.status = json["status"].toString();
     return result;
@@ -232,6 +252,46 @@ QString PlayerConfig::fromUtfEscapes(QString str)
     }
     return str;
 }
+
+bool PlayerConfig::Area::Playlist::Item::checkTimeTargeting()
+{
+    //check for 7 days in week
+    if (ttargeting.count() != 7)
+        return true;
+    QDateTime currentTime = QDateTime::currentDateTime();
+    int hour = currentTime.time().hour();
+    int dayOfWeek = currentTime.date().dayOfWeek();
+    //check for 24 hour items
+    if (ttargeting[dayOfWeek].count() == 24)
+        return ttargeting[dayOfWeek][hour] == "1";
+    else
+        return true;
+}
+
+bool PlayerConfig::Area::Playlist::Item::checkDateRange()
+{
+    bool pstart = false, pend = false;
+    QDateTime currentTime = QDateTime::currentDateTime();
+    if (pdate.pstart)
+    {
+        if (pdate.pstartDate < currentTime)
+            pstart = true;
+    }
+    else
+        pstart = true;
+
+    if (pdate.pend)
+    {
+        if (pdate.pendDate > currentTime)
+            pend = true;
+    }
+    else
+        pend = true;
+
+    return pstart && pend;
+}
+
+
 
 
 

@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QDebug>
 #include <QTimer>
+#include <QProcess>
+#include <QUrl>
 #include <widgetfabric.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -14,13 +16,53 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QTimer::singleShot(1000,this,SLOT(onLoad()));
+    videoService = new VideoService("http://api.teleds.com");
+    connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
+    connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
+
+    getPlaylistTimer = new QTimer();
+    connect (getPlaylistTimer,SIGNAL(timeout()),this,SLOT(getPlaylistTimerSlot()));
+
+    QTimer::singleShot(1000,this,SLOT(initPlayer()));
 
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+QString MainWindow::encryptSessionKey()
+{
+    QFile pubKey("pubkey.key");
+    pubKey.open(QFile::WriteOnly);
+    pubKey.write(playerInitParams.public_key.toLocal8Bit());
+    pubKey.close();
+
+    QProcess echoProcess, rsaEncodeProcess, base64Process;
+    echoProcess.setStandardOutputProcess(&rsaEncodeProcess);
+    rsaEncodeProcess.setProcessChannelMode(QProcess::ForwardedChannels);
+    rsaEncodeProcess.setStandardOutputProcess(&base64Process);
+    base64Process.setStandardOutputFile("base64result.txt");
+    //base64Process.setProcessChannelMode(QProcess::ForwardedChannels);
+    connect (&echoProcess,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
+
+    echoProcess.start("cmd.exe",QStringList("/c echo " + playerInitParams.session_key));
+    rsaEncodeProcess.start("openssl rsautl -encrypt -inkey pubkey.key -pubin");
+    base64Process.start("openssl base64");
+
+    if(!echoProcess.waitForStarted())
+        return "";
+    bool retval = false;
+
+    while ((retval = base64Process.waitForFinished()));
+    QFile base64Encoded("base64result.txt");
+    base64Encoded.open(QFile::ReadOnly);
+    QString result = base64Encoded.readAll();
+    result = result.mid(0,result.length()-1).replace("\n","").replace("\r","");
+    base64Encoded.close();
+    result = QUrl::toPercentEncoding(result);
+    return result;
 }
 
 void MainWindow::onLoad()
@@ -53,3 +95,38 @@ void MainWindow::onLoad()
 
     jsonFile.close();
 }
+
+void MainWindow::initPlayer()
+{
+    videoService->init();
+}
+
+void MainWindow::processError(QProcess::ProcessError error)
+{
+    qDebug() << error;
+}
+
+void MainWindow::initResult(InitRequestResult result)
+{
+    ui->label->setText(result.player_id);
+    playerInitParams = result;
+    encryptedSessionKey = encryptSessionKey();
+    getPlaylistTimer->start(10000);
+}
+
+void MainWindow::playlistResult(PlayerConfig result)
+{
+    ui->label->setText(playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]");
+}
+
+void MainWindow::getPlaylistTimerSlot()
+{
+    videoService->getPlaylist(playerInitParams.player_id,encryptedSessionKey);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    videoService->enablePlayer(playerInitParams.player_id);
+    videoService->assignPlaylist(playerInitParams.player_id,10);
+}
+

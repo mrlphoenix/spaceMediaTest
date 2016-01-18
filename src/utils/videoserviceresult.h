@@ -48,8 +48,12 @@ struct PlayerConfig
                 QDateTime lastupdate;
                 int delay;
                 QString dtype;
-                bool pstart;
-                bool pend;
+                struct PDate
+                {
+                    bool pstart, pend;
+                    QDateTime pstartDate, pendDate;
+                };
+                PDate pdate;
                 QVector<QVector<QString> > ttargeting;
                 QVector<QVector<double> > gtargeting;
                 QString name;
@@ -59,6 +63,10 @@ struct PlayerConfig
                 int width;
                 int height;
                 int duration;
+
+
+                bool checkTimeTargeting();
+                bool checkDateRange();
             };
             QVector<Item> items;
         };
