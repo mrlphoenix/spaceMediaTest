@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QTimer::singleShot(1000,this,SLOT(initPlayer()));
 
+    downloader = 0;
+
 }
 
 MainWindow::~MainWindow()
@@ -117,6 +119,8 @@ void MainWindow::initResult(InitRequestResult result)
 void MainWindow::playlistResult(PlayerConfig result)
 {
     ui->label->setText(playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]");
+    getPlaylistTimer->stop();
+    setupDownloader(result);
 }
 
 void MainWindow::getPlaylistTimerSlot()
@@ -128,5 +132,33 @@ void MainWindow::on_pushButton_clicked()
 {
     videoService->enablePlayer(playerInitParams.player_id);
     videoService->assignPlaylist(playerInitParams.player_id,10);
+}
+
+void MainWindow::downloaded()
+{
+    ui->label->hide();
+    ui->totalPB->hide();
+    ui->currentPB->hide();
+    ui->download_status->hide();
+
+    getPlaylistTimer->start(30000);
+
+}
+
+void MainWindow::setupDownloader(PlayerConfig &config)
+{
+    if (downloader)
+    {
+        downloader->disconnect();
+        delete downloader;
+    }
+    downloader = new VideoDownloader(config,this);
+    connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
+    ui->totalPB->show();
+    ui->currentPB->show();
+    ui->download_status->show();
+    downloader->setOutput(ui->totalPB,ui->currentPB,ui->download_status);
+    downloader->checkDownload();
+    downloader->start();
 }
 

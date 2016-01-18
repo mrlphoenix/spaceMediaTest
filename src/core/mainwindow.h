@@ -7,6 +7,7 @@
 #include <QHash>
 #include "soundwidgetinfo.h"
 #include "videoservice.h"
+#include "videodownloader.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,13 +34,16 @@ private slots:
     void getPlaylistTimerSlot();
 
     void on_pushButton_clicked();
+    void downloaded();
 
 private:
+    void setupDownloader(PlayerConfig& config);
     Ui::MainWindow *ui;
     QVector<SoundWidgetInfo*> widgets;
     QHash<QString,SoundWidgetInfo*> widgetsTable;
     VideoService * videoService;
     QTimer * getPlaylistTimer;
+    VideoDownloader * downloader;
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;

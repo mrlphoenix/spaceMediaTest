@@ -173,7 +173,7 @@ PlayerConfig PlayerConfig::fromJson(QJsonObject json)
             item.dtype = itemObject["dtype"].toString();
             item.duration = itemObject["duration"].toInt();
             item.height = itemObject["height"].toInt();
-            item.iid = itemObject["iid"].toInt();
+            item.iid = itemObject["iid"].toString();
             item.itype = itemObject["itype"].toString();
 
             //"Fri, 04 Dec 2015 15:56:02 +0000"

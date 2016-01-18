@@ -6,12 +6,14 @@ SOURCES += \
     $$PWD/yandexweathermodel.cpp \
     $$PWD/instagramrecentpostmodel.cpp \
     $$PWD/videoservice.cpp \
-    $$PWD/videoserviceresult.cpp
+    $$PWD/videoserviceresult.cpp \
+    $$PWD/videodownloader.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
     $$PWD/instagramrecentpostmodel.h \
     $$PWD/videoservice.h \
-    $$PWD/videoserviceresult.h
+    $$PWD/videoserviceresult.h \
+    $$PWD/videodownloader.h
 FORMS   +=
 

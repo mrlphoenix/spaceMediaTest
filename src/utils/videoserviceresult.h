@@ -41,7 +41,7 @@ struct PlayerConfig
 
             struct Item
             {
-                int iid;
+                QString iid;
                 QString itype;
                 int position;
                 int version;
