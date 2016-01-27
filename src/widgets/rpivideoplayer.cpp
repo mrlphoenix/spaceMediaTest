@@ -1,47 +1,73 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
 
-rpiVideoPlayer::rpiVideoPlayer(QWidget *parent) : QVideoWidget(parent)
+RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
-    player.setVideoOutput(this);
-    connect(&player,SIGNAL(stateChanged(QMediaPlayer::State)),this,SLOT(playerStateChanged(QMediaPlayer::State)));
+    QSurfaceFormat curSurface = view.format();
+    curSurface.setRedBufferSize(8);
+    curSurface.setGreenBufferSize(8);
+    curSurface.setBlueBufferSize(8);
+    curSurface.setAlphaBufferSize(0);
+    view.setFormat(curSurface);
+    this->config = config;
+    setConfig(config);
+
+    view.setSource(QUrl(QStringLiteral("qrc:///simple_player.qml")));
+    viewRootObject = dynamic_cast<QObject*>(view.rootObject());
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
+    QTimer::singleShot(1000,this,SLOT(next()));
+    view.showFullScreen();
 }
 
-void rpiVideoPlayer::setConfig(PlayerConfig::Area area)
+RpiVideoPlayer::~RpiVideoPlayer()
 {
-    config = area;
-    randomPlaylist.updatePlaylist(area.playlist);
+
 }
 
-void rpiVideoPlayer::play()
+QString RpiVideoPlayer::getFullPath(QString fileName)
 {
-    if (config.playlist.type == "random")
-        next();
-}
-
-void rpiVideoPlayer::next()
-{
-    QString nextFile = "data/video/" + randomPlaylist.next() + ".mp4";
+    QString nextFile = "data/video/" + fileName + ".mp4";
     QFileInfo fileInfo(nextFile);
-    player.setMedia(QMediaContent(QUrl::fromLocalFile(fileInfo.absoluteFilePath())));
-    player.play();
+    return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }
 
-void rpiVideoPlayer::update(PlayerConfig config)
+void RpiVideoPlayer::update(PlayerConfig config)
 {
     foreach (const PlayerConfig::Area& area, config.areas)
-        if (area.id == area.id)
+        if (area.id == this->config.id)
             setConfig(area);
 }
 
-void rpiVideoPlayer::playerStateChanged(QMediaPlayer::State state)
+void RpiVideoPlayer::setConfig(PlayerConfig::Area area)
 {
-    if (config.playlist.type == "random")
+    config = area;
+    if (area.playlist.type == "random")
     {
-        if (state == QMediaPlayer::StoppedState)
-        {
-            next();
-        }
+        randomPlaylist.updatePlaylist(area.playlist);
+        isPlaylistRandom = true;
     }
 }
 
+void RpiVideoPlayer::invokeNextVideoMethod(QString name)
+{
+    qDebug() << "invoke next";
+    QVariant source = QUrl(getFullPath(name));
+    qDebug() << source;
+    QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
+}
+
+void RpiVideoPlayer::next()
+{
+    qDebug() << "next method is called";
+    if (isPlaylistRandom)
+    {
+        qDebug() << "playlist is trandom";
+        invokeNextVideoMethod(randomPlaylist.next());
+    }
+}
+
+void RpiVideoPlayer::bindObjects()
+{
+    qDebug() << "bind Next Item";
+    QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
+}

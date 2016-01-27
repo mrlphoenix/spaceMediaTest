@@ -53,6 +53,10 @@ void VideoService::executeRequest(VideoServiceRequest *request)
 
 void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 {
+    if (reply->error()){
+        qDebug() << "init:error" + reply->errorString();
+
+    }
     emit initVideoRequestFinished(reply);
     nextRequest();
 }

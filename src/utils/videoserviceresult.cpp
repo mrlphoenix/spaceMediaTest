@@ -19,7 +19,6 @@ VideoServiceResultProcessor::VideoServiceResultProcessor(QObject *parent) : QObj
 
 void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
 {
-   // QString s = reply->readAll();
     if (reply->error())
     {
         InitRequestResult result;
@@ -31,7 +30,7 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
     {
         QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
-
+        qDebug() << "videoSErviceResult::" + result.public_key;
         publicKey = result.public_key;
         result.session_key = QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5).toHex();
         sessionKey = result.session_key;

@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     downloader = 0;
 
 }
+//
 
 MainWindow::~MainWindow()
 {
@@ -43,12 +44,12 @@ QString MainWindow::encryptSessionKey()
 
     QProcess echoProcess, rsaEncodeProcess, base64Process;
     echoProcess.setStandardOutputProcess(&rsaEncodeProcess);
-    rsaEncodeProcess.setProcessChannelMode(QProcess::ForwardedChannels);
+    //rsaEncodeProcess.setProcessChannelMode(QProcess::ForwardedChannels);
     rsaEncodeProcess.setStandardOutputProcess(&base64Process);
     base64Process.setStandardOutputFile("base64result.txt");
     //base64Process.setProcessChannelMode(QProcess::ForwardedChannels);
     connect (&echoProcess,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
-
+    //replace with echo command instead of cmd
     echoProcess.start("cmd.exe",QStringList("/c echo " + playerInitParams.session_key));
     rsaEncodeProcess.start("openssl rsautl -encrypt -inkey pubkey.key -pubin");
     base64Process.start("openssl base64");
@@ -140,7 +141,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::downloaded()
 {
-    ui->label->hide();
+ /*   ui->label->hide();
     ui->totalPB->hide();
     ui->currentPB->hide();
     ui->download_status->hide();
@@ -148,7 +149,7 @@ void MainWindow::downloaded()
     getPlaylistTimer->start(30000);
     if (rpiPlayers.count() == 0)
     {
-        rpiVideoPlayer *player = new rpiVideoPlayer(this);
+        RpiVideoPlayer *player = new RpiVideoPlayer(this);
         player->setConfig(currentConfig.areas[0]);
         player->resize(this->width(),this->height());
         player->play();
@@ -158,7 +159,7 @@ void MainWindow::downloaded()
     else
     {
         rpiPlayers[0]->update(currentConfig);
-    }
+    }*/
 }
 
 void MainWindow::setupDownloader(PlayerConfig &config)

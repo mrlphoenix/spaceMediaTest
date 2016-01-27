@@ -40,7 +40,7 @@ private slots:
 private:
     void setupDownloader(PlayerConfig& config);
     Ui::MainWindow *ui;
-    QVector<rpiVideoPlayer*> rpiPlayers;
+    QVector<RpiVideoPlayer*> rpiPlayers;
     QVector<SoundWidgetInfo*> widgets;
     QHash<QString,SoundWidgetInfo*> widgetsTable;
     VideoService * videoService;
