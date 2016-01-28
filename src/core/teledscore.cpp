@@ -9,6 +9,7 @@
 
 #include <widgetfabric.h>
 #include "teledscore.h"
+#include "globalconfig.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
@@ -19,7 +20,25 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     getPlaylistTimer = new QTimer();
     connect (getPlaylistTimer,SIGNAL(timeout()),this,SLOT(getPlaylistTimerSlot()));
 
-    QTimer::singleShot(1000,this,SLOT(initPlayer()));
+    if (GlobalConfigInstance.isConfigured())
+    {
+        InitRequestResult result;
+        result.player_id = GlobalConfigInstance.getPlayerId();
+        result.public_key = GlobalConfigInstance.getPublicKey();
+        result.status = "success";
+        result.session_key = InitRequestResult::generateSessionKey();
+        qDebug()<< "loading: plid = " << result.player_id << " public key = " << result.public_key;
+        qDebug() << "session key = " << result.session_key;
+        playerInitParams = result;
+        encryptedSessionKey = encryptSessionKey();
+        qDebug() << "encryptedSessionKey = " << encryptedSessionKey;
+        GlobalConfigInstance.setSessionKey(result.session_key);
+        getPlaylistTimer->start(10000);
+    } else
+    {
+        qDebug() << "player is not configurated";
+        QTimer::singleShot(1000,this,SLOT(initPlayer()));
+    }
 
     downloader = 0;
     rpiPlayer = 0;
@@ -87,12 +106,20 @@ void TeleDSCore::initResult(InitRequestResult result)
     qDebug() << "ENC KEY: " << encryptedSessionKey;
     getPlaylistTimer->start(10000);
 
+    GlobalConfigInstance.setPlayerId(result.player_id);
+    GlobalConfigInstance.setPublicKey(result.public_key);
 
     fakeInit();
 }
 
 void TeleDSCore::playlistResult(PlayerConfig result)
 {
+    if (result.error == 300)
+    {
+        qDebug() << "player is not activated" << endl << "running fake init";
+        fakeInit();
+        return;
+    }
     QString info = playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]";
     qDebug() << info;
     emit playerIdUpdate(info);
@@ -103,6 +130,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         setupDownloader(result);
         currentConfig = result;
     }
+    GlobalConfigInstance.setPlayerConfig(result.data);
 }
 
 void TeleDSCore::getPlaylistTimerSlot()

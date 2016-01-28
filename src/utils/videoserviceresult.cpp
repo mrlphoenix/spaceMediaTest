@@ -11,7 +11,28 @@
 #include <QLocale>
 
 #include "videoserviceresult.h"
+#include "globalconfig.h"
 
+
+QString InitRequestResult::getRandomString(int length)
+{
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+    QString randomString;
+    qsrand(QDateTime::currentDateTime().toTime_t());
+    for(int i=0; i < length; ++i)
+    {
+        int index = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+    return randomString;
+}
+
+QString InitRequestResult::generateSessionKey()
+{
+    return QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5).toHex();
+}
 VideoServiceResultProcessor::VideoServiceResultProcessor(QObject *parent) : QObject(parent)
 {
 
@@ -32,7 +53,7 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
         qDebug() << "videoSErviceResult::" + result.public_key;
         publicKey = result.public_key;
-        result.session_key = QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5).toHex();
+        result.session_key = InitRequestResult::generateSessionKey();
         sessionKey = result.session_key;
         emit initResult(result);
     }
@@ -74,6 +95,8 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
         else
         {
             QString hexSessionKey = sessionKey;
+            if (hexSessionKey == "")
+                hexSessionKey = GlobalConfigInstance.getSessionKey();
             hexSessionKey = hexSessionKey.toLocal8Bit().toHex();
             QFile cryptedDataFile("playlist.bin");
             cryptedDataFile.open(QFile::WriteOnly);
@@ -147,6 +170,8 @@ InitRequestResult InitRequestResult::fromJson(QJsonObject data)
 PlayerConfig PlayerConfig::fromJson(QJsonObject json)
 {
     PlayerConfig result;
+    QJsonDocument dataDoc(json);
+    result.data = dataDoc.toJson();
     QJsonArray areas = json["areas"].toArray();
     foreach (const QJsonValue& item, areas)
     {

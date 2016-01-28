@@ -9,6 +9,8 @@
 struct InitRequestResult
 {
     static InitRequestResult fromJson(QJsonObject data);
+    static QString getRandomString(int length);
+    static QString generateSessionKey();
     QString status;
     int error_id;
     QString error_text;
@@ -27,6 +29,7 @@ struct PlayerConfig
     QString status;
     int error;
     QString error_text;
+    QString data;
 
     struct Area
     {

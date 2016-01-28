@@ -75,6 +75,8 @@ void VideoService::assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply *repl
 
 void VideoService::getPlaylistRequestFinishedSlot(QNetworkReply *reply)
 {
+  //  qDebug() << reply->readAll();
+  //  return;
     emit getPlaylistRequestFinished(reply);
     nextRequest();
 }

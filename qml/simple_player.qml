@@ -12,12 +12,12 @@ Item {
         mediaplayer.source = filename;
         mediaplayer.play();
         invokeNext = true
+        mediaplayer.volume = 1.0
     }
 
     MediaPlayer {
         id: mediaplayer
         autoLoad: true
-        autoPlay: true
         source: "file:///home/pi/data/video/2.mp4"
         onStopped:{
             console.debug("on stopped")

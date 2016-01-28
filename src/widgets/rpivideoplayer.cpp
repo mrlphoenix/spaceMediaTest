@@ -15,6 +15,7 @@ RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QOb
     view.setSource(QUrl(QStringLiteral("qrc:///simple_player.qml")));
     viewRootObject = dynamic_cast<QObject*>(view.rootObject());
     view.setResizeMode(QQuickView::SizeRootObjectToView);
+    QTimer::singleShot(1000,this,SLOT(bindObjects()));
     QTimer::singleShot(1000,this,SLOT(next()));
     view.showFullScreen();
 }
@@ -50,7 +51,7 @@ void RpiVideoPlayer::setConfig(PlayerConfig::Area area)
 
 void RpiVideoPlayer::invokeNextVideoMethod(QString name)
 {
-    qDebug() << "invoke next";
+    qDebug() << "invoking next";
     QVariant source = QUrl(getFullPath(name));
     qDebug() << source;
     QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
@@ -70,4 +71,5 @@ void RpiVideoPlayer::bindObjects()
 {
     qDebug() << "bind Next Item";
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
+    qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
 }

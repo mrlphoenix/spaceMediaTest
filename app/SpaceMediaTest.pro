@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SpaceMediaTest1
+TARGET = SpaceMediaTest
 target.path = /home/pi/
 INSTALLS += target
 TEMPLATE = app
