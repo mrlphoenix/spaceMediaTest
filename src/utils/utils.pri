@@ -10,7 +10,8 @@ SOURCES += \
     $$PWD/videodownloader.cpp \
     $$PWD/randomplaylist.cpp \
     $$PWD/teledsconfig.cpp \
-    $$PWD/globalconfig.cpp
+    $$PWD/globalconfig.cpp \
+    $$PWD/statisticdatabase.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
@@ -20,6 +21,7 @@ HEADERS += \
     $$PWD/videodownloader.h \
     $$PWD/randomplaylist.h \
     $$PWD/teledsconfig.h \
-    $$PWD/globalconfig.h
+    $$PWD/globalconfig.h \
+    $$PWD/statisticdatabase.h
 FORMS   +=
 

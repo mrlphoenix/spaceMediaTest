@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = /home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-gcc
 CXX           = /home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-g++
-DEFINES       = -DQT_NO_DEBUG -DQT_MULTIMEDIAWIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_WIDGETS_LIB -DQT_QUICK_LIB -DQT_GUI_LIB -DQT_QML_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_NO_DEBUG -DQT_MULTIMEDIAWIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_WIDGETS_LIB -DQT_QUICK_LIB -DQT_GUI_LIB -DQT_QML_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_SQL_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -march=armv7-a -marm -mthumb-interwork -mfpu=neon-vfpv4 -mtune=cortex-a7 -mabi=aapcs-linux -mfloat-abi=hard --sysroot=/home/nother/raspi/sysroot -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -march=armv7-a -marm -mthumb-interwork -mfpu=neon-vfpv4 -mtune=cortex-a7 -mabi=aapcs-linux -mfloat-abi=hard --sysroot=/home/nother/raspi/sysroot -O2 -std=c++0x -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../app -I. -I../src/core -I../src/utils -I../src/widgets -I../../raspi/qt5pi/include -I../../raspi/qt5pi/include/QtMultimediaWidgets -I../../raspi/qt5pi/include/QtMultimedia -I../../raspi/qt5pi/include/QtWidgets -I../../raspi/qt5pi/include/QtQuick -I../../raspi/qt5pi/include/QtGui -I../../raspi/qt5pi/include/QtQml -I../../raspi/qt5pi/include/QtNetwork -I../../raspi/qt5pi/include/QtXml -I../../raspi/qt5pi/include/QtCore -I. -I../../raspi/sysroot/opt/vc/include -I../../raspi/sysroot/opt/vc/include/interface/vcos/pthreads -I../../raspi/sysroot/opt/vc/include/interface/vmcs_host/linux -I. -I../../raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++
+INCPATH       = -I../app -I. -I../src/core -I../src/utils -I../src/widgets -I../../raspi/qt5pi/include -I../../raspi/qt5pi/include/QtMultimediaWidgets -I../../raspi/qt5pi/include/QtMultimedia -I../../raspi/qt5pi/include/QtWidgets -I../../raspi/qt5pi/include/QtQuick -I../../raspi/qt5pi/include/QtGui -I../../raspi/qt5pi/include/QtQml -I../../raspi/qt5pi/include/QtNetwork -I../../raspi/qt5pi/include/QtXml -I../../raspi/qt5pi/include/QtSql -I../../raspi/qt5pi/include/QtCore -I. -I../../raspi/sysroot/opt/vc/include -I../../raspi/sysroot/opt/vc/include/interface/vcos/pthreads -I../../raspi/sysroot/opt/vc/include/interface/vmcs_host/linux -I. -I../../raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++
 QMAKE         = /home/nother/raspi/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -36,7 +36,7 @@ DISTNAME      = SpaceMediaTest1.0.0
 DISTDIR = /home/nother/spaceMediaTest/build-SpaceMediaTest-raspi-Release/.tmp/SpaceMediaTest1.0.0
 LINK          = /home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-g++
 LFLAGS        = -Wl,-rpath-link,/home/nother/raspi/sysroot/opt/vc/lib -mfloat-abi=hard --sysroot=/home/nother/raspi/sysroot -Wl,-O1 -Wl,-rpath,/usr/local/qt5pi/lib -Wl,-rpath-link,/home/nother/raspi/qt5pi/lib
-LIBS          = $(SUBLIBS) -L/home/nother/raspi/sysroot/opt/vc/lib -L/home/nother/raspi/qt5pi/lib -lQt5MultimediaWidgets -L/home/nother/raspi/sysroot/usr/lib/arm-linux-gnueabihf -lQt5Multimedia -lQt5Widgets -lQt5Quick -lQt5Gui -lQt5Qml -lQt5Network -lQt5Xml -lQt5Core -lGLESv2 -lpthread 
+LIBS          = $(SUBLIBS) -L/home/nother/raspi/sysroot/opt/vc/lib -L/home/nother/raspi/qt5pi/lib -lQt5MultimediaWidgets -L/home/nother/raspi/sysroot/usr/lib/arm-linux-gnueabihf -lQt5Multimedia -lQt5Widgets -lQt5Quick -lQt5Gui -lQt5Qml -lQt5Network -lQt5Xml -lQt5Sql -lQt5Core -lGLESv2 -lpthread 
 AR            = /home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-ar cqs
 RANLIB        = 
 SED           = sed
@@ -59,6 +59,7 @@ SOURCES       = ../src/core/mainwindow.cpp \
 		../src/utils/randomplaylist.cpp \
 		../src/utils/teledsconfig.cpp \
 		../src/utils/globalconfig.cpp \
+		../src/utils/statisticdatabase.cpp \
 		../src/widgets/videoplayer.cpp \
 		../src/widgets/yandexweatherwidget.cpp \
 		../src/widgets/yandexweatherdaywidget.cpp \
@@ -75,6 +76,7 @@ SOURCES       = ../src/core/mainwindow.cpp \
 		moc_randomplaylist.cpp \
 		moc_teledsconfig.cpp \
 		moc_globalconfig.cpp \
+		moc_statisticdatabase.cpp \
 		moc_videoplayer.cpp \
 		moc_yandexweatherwidget.cpp \
 		moc_yandexweatherdaywidget.cpp \
@@ -91,6 +93,7 @@ OBJECTS       = mainwindow.o \
 		randomplaylist.o \
 		teledsconfig.o \
 		globalconfig.o \
+		statisticdatabase.o \
 		videoplayer.o \
 		yandexweatherwidget.o \
 		yandexweatherdaywidget.o \
@@ -108,6 +111,7 @@ OBJECTS       = mainwindow.o \
 		moc_randomplaylist.o \
 		moc_teledsconfig.o \
 		moc_globalconfig.o \
+		moc_statisticdatabase.o \
 		moc_videoplayer.o \
 		moc_yandexweatherwidget.o \
 		moc_yandexweatherdaywidget.o \
@@ -242,6 +246,7 @@ DIST          = ../qml/simple_player.qml \
 		../src/utils/randomplaylist.h \
 		../src/utils/teledsconfig.h \
 		../src/utils/globalconfig.h \
+		../src/utils/statisticdatabase.h \
 		../src/widgets/videoplayer.h \
 		../src/widgets/yandexweatherwidget.h \
 		../src/widgets/yandexweatherdaywidget.h \
@@ -258,6 +263,7 @@ DIST          = ../qml/simple_player.qml \
 		../src/utils/randomplaylist.cpp \
 		../src/utils/teledsconfig.cpp \
 		../src/utils/globalconfig.cpp \
+		../src/utils/statisticdatabase.cpp \
 		../src/widgets/videoplayer.cpp \
 		../src/widgets/yandexweatherwidget.cpp \
 		../src/widgets/yandexweatherdaywidget.cpp \
@@ -420,6 +426,7 @@ Makefile: ../app/SpaceMediaTest.pro ../../raspi/qt5/mkspecs/devices/linux-rasp-p
 		/home/nother/raspi/qt5pi/lib/libQt5Qml.prl \
 		/home/nother/raspi/qt5pi/lib/libQt5Network.prl \
 		/home/nother/raspi/qt5pi/lib/libQt5Xml.prl \
+		/home/nother/raspi/qt5pi/lib/libQt5Sql.prl \
 		/home/nother/raspi/qt5pi/lib/libQt5Core.prl
 	$(QMAKE) -spec devices/linux-rasp-pi2-g++ -o Makefile ../app/SpaceMediaTest.pro
 ../../raspi/qt5/mkspecs/features/spec_pre.prf:
@@ -547,6 +554,7 @@ Makefile: ../app/SpaceMediaTest.pro ../../raspi/qt5/mkspecs/devices/linux-rasp-p
 /home/nother/raspi/qt5pi/lib/libQt5Qml.prl:
 /home/nother/raspi/qt5pi/lib/libQt5Network.prl:
 /home/nother/raspi/qt5pi/lib/libQt5Xml.prl:
+/home/nother/raspi/qt5pi/lib/libQt5Sql.prl:
 /home/nother/raspi/qt5pi/lib/libQt5Core.prl:
 qmake: FORCE
 	@$(QMAKE) -spec devices/linux-rasp-pi2-g++ -o Makefile ../app/SpaceMediaTest.pro
@@ -563,8 +571,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../app/qml.qrc $(DISTDIR)/
-	$(COPY_FILE) --parents ../src/core/mainwindow.h ../src/core/teledscore.h ../src/core/singleton.h ../src/core/call_once.h ../src/utils/widgetfabric.h ../src/utils/yandexweathermodel.h ../src/utils/instagramrecentpostmodel.h ../src/utils/videoservice.h ../src/utils/videoserviceresult.h ../src/utils/videodownloader.h ../src/utils/randomplaylist.h ../src/utils/teledsconfig.h ../src/utils/globalconfig.h ../src/widgets/videoplayer.h ../src/widgets/yandexweatherwidget.h ../src/widgets/yandexweatherdaywidget.h ../src/widgets/instagramrecentpostviewer.h ../src/widgets/soundwidgetinfo.h ../src/widgets/rpivideoplayer.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../src/core/mainwindow.cpp ../src/core/teledscore.cpp ../src/utils/widgetfabric.cpp ../src/utils/yandexweathermodel.cpp ../src/utils/instagramrecentpostmodel.cpp ../src/utils/videoservice.cpp ../src/utils/videoserviceresult.cpp ../src/utils/videodownloader.cpp ../src/utils/randomplaylist.cpp ../src/utils/teledsconfig.cpp ../src/utils/globalconfig.cpp ../src/widgets/videoplayer.cpp ../src/widgets/yandexweatherwidget.cpp ../src/widgets/yandexweatherdaywidget.cpp ../src/widgets/instagramrecentpostviewer.cpp ../src/widgets/soundwigetinfo.cpp ../src/widgets/rpivideoplayer.cpp ../app/main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../src/core/mainwindow.h ../src/core/teledscore.h ../src/core/singleton.h ../src/core/call_once.h ../src/utils/widgetfabric.h ../src/utils/yandexweathermodel.h ../src/utils/instagramrecentpostmodel.h ../src/utils/videoservice.h ../src/utils/videoserviceresult.h ../src/utils/videodownloader.h ../src/utils/randomplaylist.h ../src/utils/teledsconfig.h ../src/utils/globalconfig.h ../src/utils/statisticdatabase.h ../src/widgets/videoplayer.h ../src/widgets/yandexweatherwidget.h ../src/widgets/yandexweatherdaywidget.h ../src/widgets/instagramrecentpostviewer.h ../src/widgets/soundwidgetinfo.h ../src/widgets/rpivideoplayer.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../src/core/mainwindow.cpp ../src/core/teledscore.cpp ../src/utils/widgetfabric.cpp ../src/utils/yandexweathermodel.cpp ../src/utils/instagramrecentpostmodel.cpp ../src/utils/videoservice.cpp ../src/utils/videoserviceresult.cpp ../src/utils/videodownloader.cpp ../src/utils/randomplaylist.cpp ../src/utils/teledsconfig.cpp ../src/utils/globalconfig.cpp ../src/utils/statisticdatabase.cpp ../src/widgets/videoplayer.cpp ../src/widgets/yandexweatherwidget.cpp ../src/widgets/yandexweatherdaywidget.cpp ../src/widgets/instagramrecentpostviewer.cpp ../src/widgets/soundwigetinfo.cpp ../src/widgets/rpivideoplayer.cpp ../app/main.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../src/core/mainwindow.ui ../src/widgets/yandexweatherwidget.ui ../src/widgets/yandexweatherdaywidget.ui ../src/widgets/instagramrecentpostviewer.ui ../src/widgets/iptvwidget.ui $(DISTDIR)/
 
 
@@ -593,9 +601,9 @@ qrc_qml.cpp: ../app/qml.qrc \
 		../qml/simple_player.qml
 	/home/nother/raspi/qt5/bin/rcc -name qml ../app/qml.qrc -o qrc_qml.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_teledscore.cpp moc_widgetfabric.cpp moc_videoservice.cpp moc_videoserviceresult.cpp moc_videodownloader.cpp moc_randomplaylist.cpp moc_teledsconfig.cpp moc_globalconfig.cpp moc_videoplayer.cpp moc_yandexweatherwidget.cpp moc_yandexweatherdaywidget.cpp moc_instagramrecentpostviewer.cpp moc_rpivideoplayer.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_teledscore.cpp moc_widgetfabric.cpp moc_videoservice.cpp moc_videoserviceresult.cpp moc_videodownloader.cpp moc_randomplaylist.cpp moc_teledsconfig.cpp moc_globalconfig.cpp moc_statisticdatabase.cpp moc_videoplayer.cpp moc_yandexweatherwidget.cpp moc_yandexweatherdaywidget.cpp moc_instagramrecentpostviewer.cpp moc_rpivideoplayer.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_teledscore.cpp moc_widgetfabric.cpp moc_videoservice.cpp moc_videoserviceresult.cpp moc_videodownloader.cpp moc_randomplaylist.cpp moc_teledsconfig.cpp moc_globalconfig.cpp moc_videoplayer.cpp moc_yandexweatherwidget.cpp moc_yandexweatherdaywidget.cpp moc_instagramrecentpostviewer.cpp moc_rpivideoplayer.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_teledscore.cpp moc_widgetfabric.cpp moc_videoservice.cpp moc_videoserviceresult.cpp moc_videodownloader.cpp moc_randomplaylist.cpp moc_teledsconfig.cpp moc_globalconfig.cpp moc_statisticdatabase.cpp moc_videoplayer.cpp moc_yandexweatherwidget.cpp moc_yandexweatherdaywidget.cpp moc_instagramrecentpostviewer.cpp moc_rpivideoplayer.cpp
 moc_mainwindow.cpp: ../../raspi/qt5pi/include/QtWidgets/QMainWindow \
 		../../raspi/qt5pi/include/QtWidgets/qmainwindow.h \
 		../../raspi/qt5pi/include/QtWidgets/qwidget.h \
@@ -800,7 +808,7 @@ moc_mainwindow.cpp: ../../raspi/qt5pi/include/QtWidgets/QMainWindow \
 		../../raspi/qt5pi/include/QtCore/QDebug \
 		../src/utils/randomplaylist.h \
 		../src/core/mainwindow.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/core/mainwindow.h -o moc_mainwindow.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/core/mainwindow.h -o moc_mainwindow.cpp
 
 moc_teledscore.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1003,7 +1011,7 @@ moc_teledscore.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/QDebug \
 		../src/utils/randomplaylist.h \
 		../src/core/teledscore.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/core/teledscore.h -o moc_teledscore.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/core/teledscore.h -o moc_teledscore.cpp
 
 moc_widgetfabric.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1111,7 +1119,7 @@ moc_widgetfabric.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qjsonobject.h \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../src/utils/widgetfabric.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/widgetfabric.h -o moc_widgetfabric.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/widgetfabric.h -o moc_widgetfabric.cpp
 
 moc_videoservice.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1217,7 +1225,7 @@ moc_videoservice.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../../raspi/qt5pi/include/QtCore/QDateTime \
 		../src/utils/videoservice.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videoservice.h -o moc_videoservice.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videoservice.h -o moc_videoservice.cpp
 
 moc_videoserviceresult.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1319,7 +1327,7 @@ moc_videoserviceresult.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../../raspi/qt5pi/include/QtCore/QDateTime \
 		../src/utils/videoserviceresult.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videoserviceresult.h -o moc_videoserviceresult.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videoserviceresult.h -o moc_videoserviceresult.cpp
 
 moc_videodownloader.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1461,7 +1469,7 @@ moc_videodownloader.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../../raspi/qt5pi/include/QtCore/QDateTime \
 		../src/utils/videodownloader.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videodownloader.h -o moc_videodownloader.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/videodownloader.h -o moc_videodownloader.cpp
 
 moc_randomplaylist.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1599,7 +1607,7 @@ moc_randomplaylist.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qjsonobject.h \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../src/utils/randomplaylist.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/randomplaylist.h -o moc_randomplaylist.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/randomplaylist.h -o moc_randomplaylist.cpp
 
 moc_teledsconfig.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1654,7 +1662,7 @@ moc_teledsconfig.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qisenum.h \
 		../../raspi/qt5pi/include/QtCore/qobject_impl.h \
 		../src/utils/teledsconfig.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/teledsconfig.h -o moc_teledsconfig.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/teledsconfig.h -o moc_teledsconfig.cpp
 
 moc_globalconfig.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/qobject.h \
@@ -1721,7 +1729,80 @@ moc_globalconfig.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
 		../../raspi/qt5pi/include/QtCore/QThread \
 		../../raspi/qt5pi/include/QtCore/qthread.h \
 		../src/utils/globalconfig.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/globalconfig.h -o moc_globalconfig.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/globalconfig.h -o moc_globalconfig.cpp
+
+moc_statisticdatabase.cpp: ../../raspi/qt5pi/include/QtCore/QObject \
+		../../raspi/qt5pi/include/QtCore/qobject.h \
+		../../raspi/qt5pi/include/QtCore/qobjectdefs.h \
+		../../raspi/qt5pi/include/QtCore/qnamespace.h \
+		../../raspi/qt5pi/include/QtCore/qglobal.h \
+		../../raspi/qt5pi/include/QtCore/qconfig.h \
+		../../raspi/qt5pi/include/QtCore/qfeatures.h \
+		../../raspi/qt5pi/include/QtCore/qsystemdetection.h \
+		../../raspi/qt5pi/include/QtCore/qprocessordetection.h \
+		../../raspi/qt5pi/include/QtCore/qcompilerdetection.h \
+		../../raspi/qt5pi/include/QtCore/qtypeinfo.h \
+		../../raspi/qt5pi/include/QtCore/qtypetraits.h \
+		../../raspi/qt5pi/include/QtCore/qsysinfo.h \
+		../../raspi/qt5pi/include/QtCore/qlogging.h \
+		../../raspi/qt5pi/include/QtCore/qflags.h \
+		../../raspi/qt5pi/include/QtCore/qatomic.h \
+		../../raspi/qt5pi/include/QtCore/qbasicatomic.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_bootstrap.h \
+		../../raspi/qt5pi/include/QtCore/qgenericatomic.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_cxx11.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_gcc.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_msvc.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv7.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv6.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv5.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_ia64.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_x86.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_unix.h \
+		../../raspi/qt5pi/include/QtCore/qglobalstatic.h \
+		../../raspi/qt5pi/include/QtCore/qmutex.h \
+		../../raspi/qt5pi/include/QtCore/qnumeric.h \
+		../../raspi/qt5pi/include/QtCore/qobjectdefs_impl.h \
+		../../raspi/qt5pi/include/QtCore/qstring.h \
+		../../raspi/qt5pi/include/QtCore/qchar.h \
+		../../raspi/qt5pi/include/QtCore/qbytearray.h \
+		../../raspi/qt5pi/include/QtCore/qrefcount.h \
+		../../raspi/qt5pi/include/QtCore/qarraydata.h \
+		../../raspi/qt5pi/include/QtCore/qstringbuilder.h \
+		../../raspi/qt5pi/include/QtCore/qlist.h \
+		../../raspi/qt5pi/include/QtCore/qalgorithms.h \
+		../../raspi/qt5pi/include/QtCore/qiterator.h \
+		../../raspi/qt5pi/include/QtCore/qbytearraylist.h \
+		../../raspi/qt5pi/include/QtCore/qstringlist.h \
+		../../raspi/qt5pi/include/QtCore/qregexp.h \
+		../../raspi/qt5pi/include/QtCore/qstringmatcher.h \
+		../../raspi/qt5pi/include/QtCore/qcoreevent.h \
+		../../raspi/qt5pi/include/QtCore/qscopedpointer.h \
+		../../raspi/qt5pi/include/QtCore/qmetatype.h \
+		../../raspi/qt5pi/include/QtCore/qvarlengtharray.h \
+		../../raspi/qt5pi/include/QtCore/qcontainerfwd.h \
+		../../raspi/qt5pi/include/QtCore/qisenum.h \
+		../../raspi/qt5pi/include/QtCore/qobject_impl.h \
+		../../raspi/qt5pi/include/QtSql/QSqlDatabase \
+		../../raspi/qt5pi/include/QtSql/qsqldatabase.h \
+		../../raspi/qt5pi/include/QtSql/qsql.h \
+		../../raspi/qt5pi/include/QtSql/QSqlQuery \
+		../../raspi/qt5pi/include/QtSql/qsqlquery.h \
+		../../raspi/qt5pi/include/QtCore/QHash \
+		../../raspi/qt5pi/include/QtCore/qhash.h \
+		../../raspi/qt5pi/include/QtCore/qpair.h \
+		../../raspi/qt5pi/include/QtCore/QThread \
+		../../raspi/qt5pi/include/QtCore/qthread.h \
+		../../raspi/qt5pi/include/QtSql/QSqlError \
+		../../raspi/qt5pi/include/QtSql/qsqlerror.h \
+		../../raspi/qt5pi/include/QtCore/QList \
+		../../raspi/qt5pi/include/QtSql/QSqlRecord \
+		../../raspi/qt5pi/include/QtSql/qsqlrecord.h \
+		../../raspi/qt5pi/include/QtCore/QDateTime \
+		../../raspi/qt5pi/include/QtCore/qdatetime.h \
+		../../raspi/qt5pi/include/QtCore/qshareddata.h \
+		../src/utils/statisticdatabase.h
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/utils/statisticdatabase.h -o moc_statisticdatabase.cpp
 
 moc_videoplayer.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtWidgets/qwidget.h \
@@ -1850,7 +1931,7 @@ moc_videoplayer.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtNetwork/qnetworkconfiguration.h \
 		../src/widgets/soundwidgetinfo.h \
 		../src/widgets/videoplayer.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/videoplayer.h -o moc_videoplayer.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/videoplayer.h -o moc_videoplayer.cpp
 
 moc_yandexweatherwidget.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtWidgets/qwidget.h \
@@ -1998,7 +2079,7 @@ moc_yandexweatherwidget.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtCore/QVector \
 		../../raspi/qt5pi/include/QtCore/QByteArray \
 		../src/widgets/yandexweatherwidget.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/yandexweatherwidget.h -o moc_yandexweatherwidget.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/yandexweatherwidget.h -o moc_yandexweatherwidget.cpp
 
 moc_yandexweatherdaywidget.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtWidgets/qwidget.h \
@@ -2109,7 +2190,7 @@ moc_yandexweatherdaywidget.cpp: ../../raspi/qt5pi/include/QtWidgets/QWidget \
 		../../raspi/qt5pi/include/QtCore/QVector \
 		../../raspi/qt5pi/include/QtCore/QByteArray \
 		../src/widgets/yandexweatherdaywidget.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/yandexweatherdaywidget.h -o moc_yandexweatherdaywidget.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/yandexweatherdaywidget.h -o moc_yandexweatherdaywidget.cpp
 
 moc_instagramrecentpostviewer.cpp: ../../raspi/qt5pi/include/QtGui/QPainter \
 		../../raspi/qt5pi/include/QtGui/qpainter.h \
@@ -2262,7 +2343,7 @@ moc_instagramrecentpostviewer.cpp: ../../raspi/qt5pi/include/QtGui/QPainter \
 		../../raspi/qt5pi/include/QtCore/qbasictimer.h \
 		../src/widgets/soundwidgetinfo.h \
 		../src/widgets/instagramrecentpostviewer.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/instagramrecentpostviewer.h -o moc_instagramrecentpostviewer.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/instagramrecentpostviewer.h -o moc_instagramrecentpostviewer.cpp
 
 moc_rpivideoplayer.cpp: ../../raspi/qt5pi/include/QtGui/QGuiApplication \
 		../../raspi/qt5pi/include/QtGui/qguiapplication.h \
@@ -2451,7 +2532,7 @@ moc_rpivideoplayer.cpp: ../../raspi/qt5pi/include/QtGui/QGuiApplication \
 		../../raspi/qt5pi/include/QtCore/qjsonobject.h \
 		../../raspi/qt5pi/include/QtCore/qjsonvalue.h \
 		../src/widgets/rpivideoplayer.h
-	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/rpivideoplayer.h -o moc_rpivideoplayer.cpp
+	/home/nother/raspi/qt5/bin/moc $(DEFINES) -I/home/nother/raspi/qt5/mkspecs/devices/linux-rasp-pi2-g++ -I/home/nother/spaceMediaTest/app -I/home/nother/spaceMediaTest/src/core -I/home/nother/spaceMediaTest/src/utils -I/home/nother/spaceMediaTest/src/widgets -I/home/nother/raspi/qt5pi/include -I/home/nother/raspi/qt5pi/include/QtMultimediaWidgets -I/home/nother/raspi/qt5pi/include/QtMultimedia -I/home/nother/raspi/qt5pi/include/QtWidgets -I/home/nother/raspi/qt5pi/include/QtQuick -I/home/nother/raspi/qt5pi/include/QtGui -I/home/nother/raspi/qt5pi/include/QtQml -I/home/nother/raspi/qt5pi/include/QtNetwork -I/home/nother/raspi/qt5pi/include/QtXml -I/home/nother/raspi/qt5pi/include/QtSql -I/home/nother/raspi/qt5pi/include/QtCore -I. -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3 -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/arm-linux-gnueabihf -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include/c++/4.8.3/backward -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.8.3/include-fixed -I/home/nother/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/arm-linux-gnueabihf/include -I/home/nother/raspi/sysroot/usr/include -I/home/nother/raspi/sysroot/usr/include/arm-linux-gnueabihf ../src/widgets/rpivideoplayer.h -o moc_rpivideoplayer.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -2932,7 +3013,19 @@ teledscore.o: ../src/core/teledscore.cpp ../../raspi/qt5pi/include/QtCore/QJsonD
 		../../raspi/qt5pi/include/QtQml/qjsengine.h \
 		../../raspi/qt5pi/include/QtQml/QQmlContext \
 		../../raspi/qt5pi/include/QtQml/qqmlcontext.h \
-		../src/utils/randomplaylist.h
+		../src/utils/randomplaylist.h \
+		../src/utils/globalconfig.h \
+		../src/core/singleton.h \
+		../../raspi/qt5pi/include/QtCore/QScopedPointer \
+		../src/core/call_once.h \
+		../../raspi/qt5pi/include/QtCore/QAtomicInt \
+		../../raspi/qt5pi/include/QtCore/QMutex \
+		../../raspi/qt5pi/include/QtCore/QWaitCondition \
+		../../raspi/qt5pi/include/QtCore/qwaitcondition.h \
+		../../raspi/qt5pi/include/QtCore/QThreadStorage \
+		../../raspi/qt5pi/include/QtCore/qthreadstorage.h \
+		../../raspi/qt5pi/include/QtCore/QThread \
+		../../raspi/qt5pi/include/QtCore/qthread.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o teledscore.o ../src/core/teledscore.cpp
 
 widgetfabric.o: ../src/utils/widgetfabric.cpp ../../raspi/qt5pi/include/QtCore/QJsonArray \
@@ -3477,7 +3570,19 @@ videoserviceresult.o: ../src/utils/videoserviceresult.cpp ../../raspi/qt5pi/incl
 		../../raspi/qt5pi/include/QtNetwork/QSslPreSharedKeyAuthenticator \
 		../../raspi/qt5pi/include/QtNetwork/qsslpresharedkeyauthenticator.h \
 		../../raspi/qt5pi/include/QtCore/QtGlobal \
-		../../raspi/qt5pi/include/QtCore/QMetaType
+		../../raspi/qt5pi/include/QtCore/QMetaType \
+		../src/utils/globalconfig.h \
+		../src/core/singleton.h \
+		../../raspi/qt5pi/include/QtCore/QScopedPointer \
+		../src/core/call_once.h \
+		../../raspi/qt5pi/include/QtCore/QAtomicInt \
+		../../raspi/qt5pi/include/QtCore/QMutex \
+		../../raspi/qt5pi/include/QtCore/QWaitCondition \
+		../../raspi/qt5pi/include/QtCore/qwaitcondition.h \
+		../../raspi/qt5pi/include/QtCore/QThreadStorage \
+		../../raspi/qt5pi/include/QtCore/qthreadstorage.h \
+		../../raspi/qt5pi/include/QtCore/QThread \
+		../../raspi/qt5pi/include/QtCore/qthread.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o videoserviceresult.o ../src/utils/videoserviceresult.cpp
 
 videodownloader.o: ../src/utils/videodownloader.cpp ../../raspi/qt5pi/include/QtCore/QVector \
@@ -3882,10 +3987,20 @@ globalconfig.o: ../src/utils/globalconfig.cpp ../../raspi/qt5pi/include/QtCore/Q
 		../../raspi/qt5pi/include/QtCore/qcontainerfwd.h \
 		../../raspi/qt5pi/include/QtCore/qisenum.h \
 		../../raspi/qt5pi/include/QtCore/qobject_impl.h \
+		../../raspi/qt5pi/include/QtCore/QDebug \
+		../../raspi/qt5pi/include/QtCore/qdebug.h \
+		../../raspi/qt5pi/include/QtCore/qhash.h \
+		../../raspi/qt5pi/include/QtCore/qmap.h \
+		../../raspi/qt5pi/include/QtCore/qtextstream.h \
+		../../raspi/qt5pi/include/QtCore/qlocale.h \
+		../../raspi/qt5pi/include/QtCore/qvariant.h \
+		../../raspi/qt5pi/include/QtCore/qshareddata.h \
+		../../raspi/qt5pi/include/QtCore/qvector.h \
+		../../raspi/qt5pi/include/QtCore/qpoint.h \
+		../../raspi/qt5pi/include/QtCore/qset.h \
+		../../raspi/qt5pi/include/QtCore/qcontiguouscache.h \
 		../../raspi/qt5pi/include/QtCore/QFileInfo \
 		../../raspi/qt5pi/include/QtCore/qfileinfo.h \
-		../../raspi/qt5pi/include/QtCore/qshareddata.h \
-		../../raspi/qt5pi/include/QtCore/qhash.h \
 		../src/utils/globalconfig.h \
 		../../raspi/qt5pi/include/QtCore/QObject \
 		../src/core/singleton.h \
@@ -3901,6 +4016,79 @@ globalconfig.o: ../src/utils/globalconfig.cpp ../../raspi/qt5pi/include/QtCore/Q
 		../../raspi/qt5pi/include/QtCore/QThread \
 		../../raspi/qt5pi/include/QtCore/qthread.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o globalconfig.o ../src/utils/globalconfig.cpp
+
+statisticdatabase.o: ../src/utils/statisticdatabase.cpp ../src/utils/statisticdatabase.h \
+		../../raspi/qt5pi/include/QtCore/QObject \
+		../../raspi/qt5pi/include/QtCore/qobject.h \
+		../../raspi/qt5pi/include/QtCore/qobjectdefs.h \
+		../../raspi/qt5pi/include/QtCore/qnamespace.h \
+		../../raspi/qt5pi/include/QtCore/qglobal.h \
+		../../raspi/qt5pi/include/QtCore/qconfig.h \
+		../../raspi/qt5pi/include/QtCore/qfeatures.h \
+		../../raspi/qt5pi/include/QtCore/qsystemdetection.h \
+		../../raspi/qt5pi/include/QtCore/qprocessordetection.h \
+		../../raspi/qt5pi/include/QtCore/qcompilerdetection.h \
+		../../raspi/qt5pi/include/QtCore/qtypeinfo.h \
+		../../raspi/qt5pi/include/QtCore/qtypetraits.h \
+		../../raspi/qt5pi/include/QtCore/qsysinfo.h \
+		../../raspi/qt5pi/include/QtCore/qlogging.h \
+		../../raspi/qt5pi/include/QtCore/qflags.h \
+		../../raspi/qt5pi/include/QtCore/qatomic.h \
+		../../raspi/qt5pi/include/QtCore/qbasicatomic.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_bootstrap.h \
+		../../raspi/qt5pi/include/QtCore/qgenericatomic.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_cxx11.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_gcc.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_msvc.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv7.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv6.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_armv5.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_ia64.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_x86.h \
+		../../raspi/qt5pi/include/QtCore/qatomic_unix.h \
+		../../raspi/qt5pi/include/QtCore/qglobalstatic.h \
+		../../raspi/qt5pi/include/QtCore/qmutex.h \
+		../../raspi/qt5pi/include/QtCore/qnumeric.h \
+		../../raspi/qt5pi/include/QtCore/qobjectdefs_impl.h \
+		../../raspi/qt5pi/include/QtCore/qstring.h \
+		../../raspi/qt5pi/include/QtCore/qchar.h \
+		../../raspi/qt5pi/include/QtCore/qbytearray.h \
+		../../raspi/qt5pi/include/QtCore/qrefcount.h \
+		../../raspi/qt5pi/include/QtCore/qarraydata.h \
+		../../raspi/qt5pi/include/QtCore/qstringbuilder.h \
+		../../raspi/qt5pi/include/QtCore/qlist.h \
+		../../raspi/qt5pi/include/QtCore/qalgorithms.h \
+		../../raspi/qt5pi/include/QtCore/qiterator.h \
+		../../raspi/qt5pi/include/QtCore/qbytearraylist.h \
+		../../raspi/qt5pi/include/QtCore/qstringlist.h \
+		../../raspi/qt5pi/include/QtCore/qregexp.h \
+		../../raspi/qt5pi/include/QtCore/qstringmatcher.h \
+		../../raspi/qt5pi/include/QtCore/qcoreevent.h \
+		../../raspi/qt5pi/include/QtCore/qscopedpointer.h \
+		../../raspi/qt5pi/include/QtCore/qmetatype.h \
+		../../raspi/qt5pi/include/QtCore/qvarlengtharray.h \
+		../../raspi/qt5pi/include/QtCore/qcontainerfwd.h \
+		../../raspi/qt5pi/include/QtCore/qisenum.h \
+		../../raspi/qt5pi/include/QtCore/qobject_impl.h \
+		../../raspi/qt5pi/include/QtSql/QSqlDatabase \
+		../../raspi/qt5pi/include/QtSql/qsqldatabase.h \
+		../../raspi/qt5pi/include/QtSql/qsql.h \
+		../../raspi/qt5pi/include/QtSql/QSqlQuery \
+		../../raspi/qt5pi/include/QtSql/qsqlquery.h \
+		../../raspi/qt5pi/include/QtCore/QHash \
+		../../raspi/qt5pi/include/QtCore/qhash.h \
+		../../raspi/qt5pi/include/QtCore/qpair.h \
+		../../raspi/qt5pi/include/QtCore/QThread \
+		../../raspi/qt5pi/include/QtCore/qthread.h \
+		../../raspi/qt5pi/include/QtSql/QSqlError \
+		../../raspi/qt5pi/include/QtSql/qsqlerror.h \
+		../../raspi/qt5pi/include/QtCore/QList \
+		../../raspi/qt5pi/include/QtSql/QSqlRecord \
+		../../raspi/qt5pi/include/QtSql/qsqlrecord.h \
+		../../raspi/qt5pi/include/QtCore/QDateTime \
+		../../raspi/qt5pi/include/QtCore/qdatetime.h \
+		../../raspi/qt5pi/include/QtCore/qshareddata.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o statisticdatabase.o ../src/utils/statisticdatabase.cpp
 
 videoplayer.o: ../src/widgets/videoplayer.cpp ../../raspi/qt5pi/include/QtMultimedia/QMediaContent \
 		../../raspi/qt5pi/include/QtMultimedia/qmediacontent.h \
@@ -5027,6 +5215,9 @@ moc_teledsconfig.o: moc_teledsconfig.cpp
 
 moc_globalconfig.o: moc_globalconfig.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_globalconfig.o moc_globalconfig.cpp
+
+moc_statisticdatabase.o: moc_statisticdatabase.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_statisticdatabase.o moc_statisticdatabase.cpp
 
 moc_videoplayer.o: moc_videoplayer.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_videoplayer.o moc_videoplayer.cpp
