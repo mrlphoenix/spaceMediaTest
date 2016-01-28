@@ -85,30 +85,34 @@ public:
 
     //resource operations
 
-    void registryResource(QString iid, QString name, QDateTime time, QDateTime lastupdated, int size);
+    void registryResource(QString iid, QString name, QDateTime lastupdated, int size);
     void updateResourceDownloadStatus(QString iid, int filesize);
-    void resourcePlayed(QString iid);
     void findResource(QString iid);
     void resourceCount();
 
     void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
     void findPlaysToSend();
 
-    void createReport(QDateTime time, int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist);
+    void createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist);
     void findReportsToSend();
 
-    void createSystemInfo(QDateTime time, int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance);
+    void createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance);
     void findSystemInfoToSend();
 
-    void createGPS(QDateTime time, double latitude, double longitude);
+    void createGPS(double latitude, double longitude);
     void findGPStoSend();
 
 
 signals:
 
 public slots:
+
 private:
+    QString serializeDate(QDateTime date);
     const QString databaseName = "stat.db";
+    QueryThread * queryThread;
+private slots:
+    void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString &resultId);
 };
 
 #endif // STATISTICDATABASE_H

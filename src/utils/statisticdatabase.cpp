@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QLocale>
 #include "statisticdatabase.h"
 
 DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
@@ -210,9 +211,6 @@ void QueryThread::run()
     connect( this, SIGNAL(fwdBindValue(QString,QString,QVariant)),
              m_worker, SLOT(slotBindValue(QString,QString,QVariant)) );
 
-    // Critical: register new type so that this signal can be
-    // dispatched across thread boundaries by Qt using the event
-    // system
     qRegisterMetaType< QList<QSqlRecord> >( "QList<QSqlRecord>" );
 
     // forward final signals
@@ -231,7 +229,7 @@ void QueryThread::run()
     connect( m_worker, SIGNAL(prepareFailed(QString,QSqlError)),
              this, SIGNAL(prepareFailed(QString,QSqlError)) );
 
-    emit progress( "Press 'Go' to run a query." );
+    emit progress("query runned");
     emit ready(true);
 
     exec();  // our event loop
@@ -241,6 +239,103 @@ void QueryThread::run()
 
 StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
 {
+    queryThread = new QueryThread(databaseName,parent);
+}
 
+void StatisticDatabase::registryResource(QString iid, QString name, QDateTime lastupdated, int size)
+{
+    QString sql = QString("insert into resource (iid,name,lastupdated,size,filesize,lastTimePlayed), VALUES('%1', '%2', '%3', %4, 0, NULL)").arg(
+                iid, name, QString::number(size), serializeDate(lastupdated));
+    queryThread->execute("registryResource",sql);
+}
+
+void StatisticDatabase::updateResourceDownloadStatus(QString iid, int filesize)
+{
+    QString sql = QString("update resource set filesize = %1 where iid = '%2'").arg(QString::number(filesize),iid);
+    queryThread->execute("updateResourceDownloadStatus",sql);
+}
+
+void StatisticDatabase::findResource(QString iid)
+{
+    QString sql = QString("select * from resource where iid = '%1'").arg(iid);
+    queryThread->execute("findResource", sql);
+}
+
+void StatisticDatabase::resourceCount()
+{
+    QString sql = "select count(*) cnt from resource";
+    queryThread->execute("resourceCount()",sql);
+}
+
+void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude)
+{
+    QString sql = QString("insert into play(area_id, playlist_id, iid, time, latitude, longitude, version) VALUES (%1, %2, '%3', '%4', %5, %6, 0)").arg(
+                QString::number(areaId),QString::number(playlistId), itemId, serializeDate(QDateTime::currentDateTime()),
+                QString::number(latitude), QString::number(longitude));
+    queryThread->execute("playResource",sql);
+}
+
+void StatisticDatabase::findPlaysToSend()
+{
+    QString sql = "select * from play where sent IS NOT NULL";
+    queryThread->execute("findPlaysToSend",sql);
+}
+
+void StatisticDatabase::createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist)
+{
+    QString sql = QString("insert into Report(time, downloads, content_play, content_total, error_connect, error_playlist) VALUES ('%1', %2, %3, %4, %5, %6)").arg(
+                serializeDate(QDateTime::currentDateTime()),QString::number(downloads),QString::number(contentPlay), QString::number(contentTotal),
+                QString::number(error_connect), QString::number(error_playlist));
+    queryThread->execute("createReport", sql);
+}
+
+void StatisticDatabase::findReportsToSend()
+{
+    QString sql = "select * from report where sent IS NOT NULL";
+    queryThread->execute("findReportsToSend", sql);
+}
+
+void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance)
+{
+    QString sql = QString("insert into SystemInfo (time, cpu, memory, traffic, out, monitor, connection, balance) VALUES ('%1', %2, %3, %4, %5, %6, %7, %8)").arg(
+                serializeDate(QDateTime::currentDateTime()),QString::number(cpu),QString::number(memory),
+                QString::number(trafficIn),QString::number(trafficOut),
+                QString::number(monitor), QString::number(connection), QString::number(balance));
+    queryThread->execute("createSystemInfo", sql);
+}
+
+void StatisticDatabase::findSystemInfoToSend()
+{
+    QString sql = "select * from systeminfo where sent IS NULL";
+    queryThread->execute("findSystemInfoToSend",sql);
+}
+
+void StatisticDatabase::createGPS(double latitude, double longitude)
+{
+    QString sql = QString("insert into gps (time, latitude, longitude) VALUES ('%1', %2, %3)").arg(
+                serializeDate(QDateTime::currentDateTime()),QString::number(latitude), QString::number(longitude));
+    queryThread->execute("createGPS", sql);
+}
+
+void StatisticDatabase::findGPStoSend()
+{
+    QString sql = "select * from gps where sent IS NULL";
+    queryThread->execute("findGPStoSend",sql);
+}
+
+QString StatisticDatabase::serializeDate(QDateTime date)
+{
+    QLocale locale(QLocale::English);
+    return locale.toString(date,"ddd, dd MMM yyyy HH:mm:ss +0000");
+}
+void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString &resultId)
+{
+   /* if (queryId == "")
+    textBrowser->append( QString("RESULTS: queryId: %1, resultId: %2, count: %3").arg(queryId).arg(resultId).arg(records.size()) );
+
+    if (records.size() == 1)
+        qDebug() << records.at(0);;
+
+    m_model->setRecordList(records);*/
 }
 
