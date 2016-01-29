@@ -14,6 +14,10 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         qWarning() << "Unable to connect to database, giving up:" << m_database.lastError().text();
         return;
     }
+    qDebug() << "DB OPENED";
+
+    //init db if not exists -
+
 
    /* // initialize db
     if ( !m_database.tables().contains( "item" ) )
@@ -60,18 +64,21 @@ void DatabaseWorker::slotExecutePrepared(const QString &queryId, const QString &
 
 void DatabaseWorker::executeOneTime(const QString& queryId, const QString& sql)
 {
+    qDebug()<<"execute one tgime method Entering";
     // use previously defined db connection
     QSqlQuery query(m_database);
     // execute query, get result
     bool ok = query.exec(sql);
+    qDebug() << ok;
     // check for errors
     if (!ok) {
-        qDebug() << QString("execute failed for one time query id [%1]").arg(queryId);
+        qDebug() << QString("execute failed for one time query id [%1]").arg(queryId) << "error: " << query.lastError();
         // emit error signal
         emit executeFailed(queryId, query.lastError(), QString());
         return;
     }
     // send executed signal
+    qDebug() << "seems like query is executed well";
     emit executed(queryId, QString());
     // accumulate data and emit result
     QList<QSqlRecord> recs;
@@ -103,7 +110,7 @@ void DatabaseWorker::executePrepared(const QString& queryId, const QString &resu
     bool ok = query->exec();
 
     if (!ok) {
-        qDebug() << QString("execute failed for prepared query id [%1]").arg(queryId);
+        qDebug() << QString("execute failed for prepared query id [%1]").arg(queryId) << "error " << query->lastError();
         emit executeFailed(queryId, query->lastError(), newResultId);
         return;
     }
@@ -240,12 +247,14 @@ void QueryThread::run()
 StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
 {
     queryThread = new QueryThread(databaseName,parent);
+    queryThread->start();
 }
 
 void StatisticDatabase::registryResource(QString iid, QString name, QDateTime lastupdated, int size)
 {
-    QString sql = QString("insert into resource (iid,name,lastupdated,size,filesize,lastTimePlayed), VALUES('%1', '%2', '%3', %4, 0, NULL)").arg(
-                iid, name, QString::number(size), serializeDate(lastupdated));
+    QString sql = QString("insert  or replace into resource (iid,name,lastupdated,size,filesize,lastTimePlayed) VALUES('%1', '%2', '%3', %4, 0, NULL);").arg(
+                iid, name, serializeDate(lastupdated), QString::number(size));
+    qDebug() << "executing sql " << sql;
     queryThread->execute("registryResource",sql);
 }
 
@@ -264,7 +273,7 @@ void StatisticDatabase::findResource(QString iid)
 void StatisticDatabase::resourceCount()
 {
     QString sql = "select count(*) cnt from resource";
-    queryThread->execute("resourceCount()",sql);
+    queryThread->execute("resourceCount",sql);
 }
 
 void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude)
@@ -328,14 +337,26 @@ QString StatisticDatabase::serializeDate(QDateTime date)
     QLocale locale(QLocale::English);
     return locale.toString(date,"ddd, dd MMM yyyy HH:mm:ss +0000");
 }
-void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString &resultId)
+void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
-   /* if (queryId == "")
-    textBrowser->append( QString("RESULTS: queryId: %1, resultId: %2, count: %3").arg(queryId).arg(resultId).arg(records.size()) );
-
-    if (records.size() == 1)
-        qDebug() << records.at(0);;
-
-    m_model->setRecordList(records);*/
+    if (queryId == "findResource")
+        emit resourceFound(records);
+    else if (queryId == "resourceCount")
+    {
+        if (records.count() > 0)
+            emit resourceCount(records.at(0).value(0).toInt());
+        else
+            emit resourceCount(0);
+    }
+    else if (queryId == "findPlaysToSend")
+        emit playsFound(records);
+    else if (queryId == "findReportsToSend")
+        emit reportsFound(records);
+    else if (queryId == "findSystemInfoToSend")
+        emit systemInfoFound(records);
+    else if (queryId == "findGPStoSend")
+        emit gpsFound(records);
+    else
+        emit unknownResult(queryId, records);
 }
 

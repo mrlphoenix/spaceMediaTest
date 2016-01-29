@@ -10,15 +10,25 @@
 #include <widgetfabric.h>
 #include "teledscore.h"
 #include "globalconfig.h"
+#include "statisticdatabase.h"
+#include "globalstats.h"
+
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
+    DatabaseInstance;
+    CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
 
+
     getPlaylistTimer = new QTimer();
+    cpuInfoTimer = new QTimer();
+    connect (cpuInfoTimer,SIGNAL(timeout()),this,SLOT(checkCPUStatus()));
     connect (getPlaylistTimer,SIGNAL(timeout()),this,SLOT(getPlaylistTimerSlot()));
+    connect (&CPUStatInstance,SIGNAL(infoReady(CPUStatWorker::DeviceInfo)),this,SLOT(updateCPUStatus(CPUStatWorker::DeviceInfo)));
+    cpuInfoTimer->start(10000);
 
     if (GlobalConfigInstance.isConfigured())
     {
@@ -159,6 +169,17 @@ void TeleDSCore::downloaded()
     {
         rpiPlayer->update(currentConfig);
     }
+}
+
+void TeleDSCore::checkCPUStatus()
+{
+    CPUStatInstance.getInfo();
+}
+
+void TeleDSCore::updateCPUStatus(CPUStatWorker::DeviceInfo info)
+{
+    GlobalStatsInstance.setCpu(info.cpu);
+    GlobalStatsInstance.setMemory(info.memory);
 }
 
 void TeleDSCore::setupDownloader(PlayerConfig &config)

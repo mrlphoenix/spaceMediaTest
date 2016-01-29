@@ -9,6 +9,7 @@
 #include "videoservice.h"
 #include "videodownloader.h"
 #include "rpivideoplayer.h"
+#include "cpustat.h"
 
 class TeleDSCore : public QObject
 {
@@ -30,6 +31,9 @@ public slots:
     void fakeInit();
     void downloaded();
 
+    void checkCPUStatus();
+    void updateCPUStatus(CPUStatWorker::DeviceInfo info);
+
 protected:
     void setupDownloader(PlayerConfig& config);
     QVector<QObject*> widgets;
@@ -37,6 +41,7 @@ protected:
 
     VideoService * videoService;
     QTimer * getPlaylistTimer;
+    QTimer * cpuInfoTimer;
     VideoDownloader * downloader;
 
     InitRequestResult playerInitParams;

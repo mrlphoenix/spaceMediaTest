@@ -9,9 +9,10 @@ SOURCES += \
     $$PWD/videoserviceresult.cpp \
     $$PWD/videodownloader.cpp \
     $$PWD/randomplaylist.cpp \
-    $$PWD/teledsconfig.cpp \
     $$PWD/globalconfig.cpp \
-    $$PWD/statisticdatabase.cpp
+    $$PWD/statisticdatabase.cpp \
+    $$PWD/globalstats.cpp \
+    $$PWD/cpustat.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
@@ -20,8 +21,9 @@ HEADERS += \
     $$PWD/videoserviceresult.h \
     $$PWD/videodownloader.h \
     $$PWD/randomplaylist.h \
-    $$PWD/teledsconfig.h \
     $$PWD/globalconfig.h \
-    $$PWD/statisticdatabase.h
+    $$PWD/statisticdatabase.h \
+    $$PWD/globalstats.h \
+    $$PWD/cpustat.h
 FORMS   +=
 

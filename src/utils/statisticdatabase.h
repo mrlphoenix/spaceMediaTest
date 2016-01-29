@@ -10,6 +10,10 @@
 #include <QList>
 #include <QSqlRecord>
 #include <QDateTime>
+#include "singleton.h"
+
+
+#define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
 
 class DatabaseWorker : public QObject
@@ -104,15 +108,22 @@ public:
 
 
 signals:
+    void resourceFound(QList<QSqlRecord> records);
+    void playsFound(QList<QSqlRecord> records);
+    void reportsFound(QList<QSqlRecord> records);
+    void systemInfoFound(QList<QSqlRecord> records);
+    void gpsFound(QList<QSqlRecord> records);
+    void resourceCount(int count);
+    void unknownResult(QString queryId, QList<QSqlRecord> records);
 
 public slots:
 
 private:
     QString serializeDate(QDateTime date);
-    const QString databaseName = "stat.db";
+    const QString databaseName = "/home/pi/stat.db";
     QueryThread * queryThread;
 private slots:
-    void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString &resultId);
+    void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString);
 };
 
 #endif // STATISTICDATABASE_H

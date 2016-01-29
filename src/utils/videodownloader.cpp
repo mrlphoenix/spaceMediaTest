@@ -1,6 +1,8 @@
 #include <QVector>
+#include <QDebug>
 #include <QFileInfo>
 #include "videodownloader.h"
+#include <statisticdatabase.h>
 
 VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject(parent)
 {
@@ -86,6 +88,11 @@ QString VideoDownloader::getFileHash(QString fileName)
 
 void VideoDownloader::httpFinished()
 {
+    qDebug()<<"File downloading Finished. Registering in database.";
+    DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
+                                      itemsToDownload[currentItemIndex].name,
+                                      itemsToDownload[currentItemIndex].lastupdate,
+                                      itemsToDownload[currentItemIndex].size);
     currentItemIndex++;
     file->flush();
     file->close();

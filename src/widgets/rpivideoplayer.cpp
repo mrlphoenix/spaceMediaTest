@@ -1,5 +1,6 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
+#include "statisticdatabase.h"
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
@@ -60,11 +61,15 @@ void RpiVideoPlayer::invokeNextVideoMethod(QString name)
 void RpiVideoPlayer::next()
 {
     qDebug() << "next method is called";
+    QString nextItem;
     if (isPlaylistRandom)
     {
         qDebug() << "playlist is trandom";
-        invokeNextVideoMethod(randomPlaylist.next());
+        nextItem = randomPlaylist.next();
+        invokeNextVideoMethod(nextItem);
     }
+    qDebug() << "inserting into database PLAY";
+    DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
 }
 
 void RpiVideoPlayer::bindObjects()
