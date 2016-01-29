@@ -57,7 +57,7 @@ private:
 
     //system info vars
     int cpu, memory;
-    double trafficIn, trafficOut;
+    double trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
     bool monitorActive, connectionActive;
     double balance;
 

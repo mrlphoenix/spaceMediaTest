@@ -10,8 +10,8 @@ GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
     playlistErrorCount = 0;
     cpu = 0;
     memory = 0;
-    trafficIn = 0.0;
-    trafficOut = 0.0;
+    trafficIn = trafficTotalIn = 0.0;
+    trafficOut = trafficTotalOut = 0.0;
 
     monitorActive = true; //until checking implemented
     connectionActive = true;
@@ -61,14 +61,25 @@ void GlobalStats::setTraffic(double in, double out)
 {
     if (connectionDropped)
     {
-        trafficIn = in;
-        trafficOut = out;
+        qDebug() <<"dropped";
+
+        trafficIn = 0;
+        trafficOut = 0;
+        trafficTotalIn = in;
+        trafficTotalOut = out;
         connectionDropped = false;
     }
     else
     {
-        trafficIn = in - trafficIn;
-        trafficOut = out - trafficOut;
+        qDebug() <<"not dropped";
+
+        if (trafficTotalIn != 0.0 && trafficTotalOut != 0.0)
+        {
+            trafficIn = in - trafficTotalIn;
+            trafficOut = out - trafficTotalOut;
+        }
+        trafficTotalIn = in;
+        trafficTotalOut = out;
     }
 }
 

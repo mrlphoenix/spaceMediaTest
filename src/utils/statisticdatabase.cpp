@@ -295,6 +295,7 @@ void StatisticDatabase::createReport(int downloads, int contentPlay, int content
     QString sql = QString("insert into Report(time, downloads, content_play, content_total, error_connect, error_playlist) VALUES ('%1', %2, %3, %4, %5, %6)").arg(
                 serializeDate(QDateTime::currentDateTime()),QString::number(downloads),QString::number(contentPlay), QString::number(contentTotal),
                 QString::number(error_connect), QString::number(error_playlist));
+    qDebug() << "executing sql " << sql;
     queryThread->execute("createReport", sql);
 }
 
@@ -306,10 +307,11 @@ void StatisticDatabase::findReportsToSend()
 
 void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance)
 {
-    QString sql = QString("insert into SystemInfo (time, cpu, memory, traffic, out, monitor, connection, balance) VALUES ('%1', %2, %3, %4, %5, %6, %7, %8)").arg(
+    QString sql = QString("insert into SystemInfo (time, cpu, memory, traffic, out, monitor, connect, balance) VALUES ('%1', %2, %3, %4, %5, %6, %7, %8)").arg(
                 serializeDate(QDateTime::currentDateTime()),QString::number(cpu),QString::number(memory),
                 QString::number(trafficIn),QString::number(trafficOut),
                 QString::number(monitor), QString::number(connection), QString::number(balance));
+    qDebug() << "executing sql " << sql;
     queryThread->execute("createSystemInfo", sql);
 }
 

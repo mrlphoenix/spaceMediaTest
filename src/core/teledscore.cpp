@@ -25,10 +25,17 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     getPlaylistTimer = new QTimer();
     cpuInfoTimer = new QTimer();
+    reportTimer = new QTimer();
+    generateSysInfoTimer = new QTimer();
+
     connect (cpuInfoTimer,SIGNAL(timeout()),this,SLOT(checkCPUStatus()));
     connect (getPlaylistTimer,SIGNAL(timeout()),this,SLOT(getPlaylistTimerSlot()));
     connect (&CPUStatInstance,SIGNAL(infoReady(CPUStatWorker::DeviceInfo)),this,SLOT(updateCPUStatus(CPUStatWorker::DeviceInfo)));
+    connect (reportTimer,SIGNAL(timeout()),this,SLOT(generateReport()));
+    connect (generateSysInfoTimer,SIGNAL(timeout()),this,SLOT(generateSysInfo()));
     cpuInfoTimer->start(10000);
+    reportTimer->start(60000);
+    generateSysInfoTimer->start(10000);
 
     if (GlobalConfigInstance.isConfigured())
     {
@@ -176,10 +183,23 @@ void TeleDSCore::checkCPUStatus()
     CPUStatInstance.getInfo();
 }
 
+void TeleDSCore::generateReport()
+{
+    GlobalStats::Report report = GlobalStatsInstance.generateReport();
+    DatabaseInstance.createReport(report.downloadCount,report.contentPlayCount,report.contentTotalCount,report.connectionErrorCount,report.playlistErrorCount);
+}
+
+void TeleDSCore::generateSysInfo()
+{
+    GlobalStats::SystemInfo sysInfo = GlobalStatsInstance.generateSystemInfo();
+    DatabaseInstance.createSystemInfo(sysInfo.cpu,sysInfo.memory,sysInfo.trafficIn,sysInfo.trafficOut,sysInfo.monitorActive,sysInfo.connectionActive,sysInfo.balance);
+}
+
 void TeleDSCore::updateCPUStatus(CPUStatWorker::DeviceInfo info)
 {
     GlobalStatsInstance.setCpu(info.cpu);
     GlobalStatsInstance.setMemory(info.memory);
+    GlobalStatsInstance.setTraffic(info.trafficIn, info.trafficOut);
 }
 
 void TeleDSCore::setupDownloader(PlayerConfig &config)

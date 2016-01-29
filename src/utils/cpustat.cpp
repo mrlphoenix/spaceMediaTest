@@ -39,6 +39,8 @@ void CPUStatWorker::readyRead()
         DeviceInfo stat;
         stat.cpu = items[0].toInt();
         stat.memory = items[1].toInt();
+        stat.trafficIn = items[2].toInt();
+        stat.trafficOut = items[3].toInt();
         emit InfoReady(stat);
         process->deleteLater();
         result.clear();

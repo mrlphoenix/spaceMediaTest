@@ -17,6 +17,8 @@ public:
     {
         int cpu;
         int memory;
+        int trafficIn;
+        int trafficOut;
     };
     void getInfo();
 signals:
