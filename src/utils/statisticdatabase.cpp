@@ -37,6 +37,22 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         m_database.commit();
     }*/
 
+
+    /*
+     * some scripts for initiation database;
+     *
+     *
+       create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, area_id INTEGER, playlist_id INTEGER, iid TEXT, time TEXT, latitude REAL, longitude REAL, version TEXT, sent INTEGER);
+       create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, downloads INTEGER, content_play INTEGER, content_total INTEGER, error_connect INTEGER, error_playlist INTEGER, sent INTEGER);
+       create table systemInfo (systemInfo_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu INTEGER, memory INTEGER, traffic REAL, out REAL, monitor NUMERIC, connect NUMERIC, balance REAL, sent INTEGER);
+       create table gps (gps_id INTEGER PRIMARY KEY
+0|gps_id|INTEGER IDENTITY(1,1)|0||0
+1|time|TEXT|0||0
+2|latitude|TEXT|0||0
+3|longitude|TEXT|0||0
+
+
+     * **/
 }
 
 DatabaseWorker::~DatabaseWorker()
@@ -180,6 +196,7 @@ QueryThread::~QueryThread()
 
 void QueryThread::execute(const QString &queryId, const QString &sql)
 {
+    qDebug() << "EXECUTE " + queryId + " [" + sql + "]";
     emit fwdExecute(queryId, sql); // forwards to the worker
 }
 
@@ -248,13 +265,13 @@ StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
 {
     queryThread = new QueryThread(databaseName,parent);
     queryThread->start();
+    connect (queryThread, SIGNAL(results(QString,QList<QSqlRecord>,QString)),this,SLOT(slotResults(QString,QList<QSqlRecord>,QString)));
 }
 
 void StatisticDatabase::registryResource(QString iid, QString name, QDateTime lastupdated, int size)
 {
     QString sql = QString("insert  or replace into resource (iid,name,lastupdated,size,filesize,lastTimePlayed) VALUES('%1', '%2', '%3', %4, 0, NULL);").arg(
                 iid, name, serializeDate(lastupdated), QString::number(size));
-    qDebug() << "executing sql " << sql;
     queryThread->execute("registryResource",sql);
 }
 
@@ -295,7 +312,6 @@ void StatisticDatabase::createReport(int downloads, int contentPlay, int content
     QString sql = QString("insert into Report(time, downloads, content_play, content_total, error_connect, error_playlist) VALUES ('%1', %2, %3, %4, %5, %6)").arg(
                 serializeDate(QDateTime::currentDateTime()),QString::number(downloads),QString::number(contentPlay), QString::number(contentTotal),
                 QString::number(error_connect), QString::number(error_playlist));
-    qDebug() << "executing sql " << sql;
     queryThread->execute("createReport", sql);
 }
 
@@ -311,7 +327,6 @@ void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, 
                 serializeDate(QDateTime::currentDateTime()),QString::number(cpu),QString::number(memory),
                 QString::number(trafficIn),QString::number(trafficOut),
                 QString::number(monitor), QString::number(connection), QString::number(balance));
-    qDebug() << "executing sql " << sql;
     queryThread->execute("createSystemInfo", sql);
 }
 
@@ -341,6 +356,7 @@ QString StatisticDatabase::serializeDate(QDateTime date)
 }
 void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
+    qDebug() << "slot result is called " << queryId;
     if (queryId == "findResource")
         emit resourceFound(records);
     else if (queryId == "resourceCount")

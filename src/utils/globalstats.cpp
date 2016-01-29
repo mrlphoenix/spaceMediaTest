@@ -102,6 +102,7 @@ void GlobalStats::setBalance(double balance)
 
 GlobalStats::Report GlobalStats::generateReport()
 {
+    qDebug() << "report generator called";
     Report result;
     result.connectionErrorCount = connectionErrorCount;
     result.contentPlayCount = contentPlayCount;

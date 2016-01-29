@@ -120,7 +120,7 @@ public slots:
 
 private:
     QString serializeDate(QDateTime date);
-    const QString databaseName = "/home/pi/stat.db";
+    const QString databaseName = "stat.db";
     QueryThread * queryThread;
 private slots:
     void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString);

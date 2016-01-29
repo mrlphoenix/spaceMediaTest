@@ -34,7 +34,10 @@ public slots:
     void checkCPUStatus();
     void generateReport();
     void generateSysInfo();
+    void getResourceCount();
+
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
+    void resourceCountUpdate(int count);
 
 protected:
     void setupDownloader(PlayerConfig& config);
@@ -45,7 +48,8 @@ protected:
     QTimer * getPlaylistTimer;
     QTimer * cpuInfoTimer;
     QTimer * reportTimer;
-    QTimer * generateSysInfoTimer;
+    QTimer * sysInfoTimer;
+    QTimer * resourceCounterTimer;
     VideoDownloader * downloader;
 
     InitRequestResult playerInitParams;

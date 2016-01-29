@@ -3,6 +3,8 @@
 #include <QNetworkRequest>
 #include <QDebug>
 #include "videoservice.h"
+#include "singleton.h"
+#include "globalstats.h"
 
 VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
 {
@@ -53,9 +55,10 @@ void VideoService::executeRequest(VideoServiceRequest *request)
 
 void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error()){
+    if (reply->error())
+    {
         qDebug() << "init:error" + reply->errorString();
-
+        GlobalStatsInstance.registryConnectionError();
     }
     emit initVideoRequestFinished(reply);
     nextRequest();
@@ -63,18 +66,36 @@ void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 
 void VideoService::enablePlayerRequestFinishedSlot(QNetworkReply *reply)
 {
+    if (reply->error())
+    {
+        qDebug() << "enable player:error" + reply->errorString();
+        GlobalStatsInstance.registryConnectionError();
+    }
+
     emit enablePlayerRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply *reply)
 {
+    if (reply->error())
+    {
+        qDebug() << "Assign Player:error" + reply->errorString();
+        GlobalStatsInstance.registryConnectionError();
+    }
+
     emit assignPlaylistToPlayerRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::getPlaylistRequestFinishedSlot(QNetworkReply *reply)
 {
+    if (reply->error())
+    {
+        qDebug() << "getPlaylist:error" + reply->errorString();
+        GlobalStatsInstance.registryConnectionError();
+        GlobalStatsInstance.registryPlaylistError();
+    }
   //  qDebug() << reply->readAll();
   //  return;
     emit getPlaylistRequestFinished(reply);

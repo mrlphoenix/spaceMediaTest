@@ -2,7 +2,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include "videodownloader.h"
-#include <statisticdatabase.h>
+#include "statisticdatabase.h"
+#include "globalstats.h"
 
 VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject(parent)
 {
@@ -30,7 +31,7 @@ void VideoDownloader::checkDownload()
 {
     if (textOut)
         textOut->setText("Preparing for download");
-
+    int itemCount = 0;
     foreach (const PlayerConfig::Area& area, config.areas)
         foreach(const PlayerConfig::Area::Playlist::Item& item, area.playlist.items)
         {
@@ -39,7 +40,9 @@ void VideoDownloader::checkDownload()
                 itemsToDownload.append(item);
             else if (getFileHash(filename) != item.sha1)
                 itemsToDownload.append(item);
+            itemCount++;
         }
+    GlobalStatsInstance.setContentPlay(itemCount);
     if (total)
         total->setMaximum(itemsToDownload.count());
 }
@@ -63,6 +66,7 @@ void VideoDownloader::download()
         connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
         connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
         connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
+        GlobalStatsInstance.registryDownload();
     }
     else
     {
