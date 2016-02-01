@@ -14,6 +14,7 @@ public:
     void setPublicKey(QString publicKey);
     void setPlayerConfig(QString playerConfig);
     void setSessionKey(QString key);
+    void setEncryptedSessionKey(QString key);
 
     void setGetPlaylistTimerTime(int msecs);
     void setCpuInfoTimerTime(int msecs);
@@ -30,6 +31,7 @@ public:
     QString getDevice(){return device;}
     QString getPlayerConfig(){return playerConfig;}
     QString getSessionKey(){return sessionKey;}
+    QString getEncryptedSessionKey(){return encryptedSessionKey;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
     int getCpuInfoTimerTime() {return cpuInfoTimerTime;}
@@ -48,7 +50,7 @@ private:
     QString playerId;
     QString publicKey;
     QString playerConfig;
-    QString sessionKey;
+    QString sessionKey, encryptedSessionKey;
     bool configured;
 
     int getPlaylistTimerTime, cpuInfoTimerTime, reportTimerTime, sysInfoTimerTime, resourceCounterTimerTime, gpsTimerTime;

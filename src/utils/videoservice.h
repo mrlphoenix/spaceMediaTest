@@ -57,6 +57,13 @@ public:
     virtual ~GetPlaylistRequest();
 };
 
+class SendStatisticRequest : public VideoServiceRequest
+{
+public:
+    SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data);
+    virtual ~SendStatisticRequest();
+};
+
 
 //---------------------------------------------------------------------
 class VideoService : public QObject
@@ -69,6 +76,7 @@ public:
     void enablePlayer(QString playerId);
     void assignPlaylist(QString playerId, int playlistId);
     void getPlaylist(QString playerId, QString cryptedSessionKey);
+    void sendStatistic(QString playerId, QString encodedSessionKey, QString data);
 
     void executeRequest(VideoServiceRequest* request);
 
@@ -77,17 +85,20 @@ signals:
     void enablePlayerResult(QString result);
     void assignPlaylistResult(QString result);
     void getPlaylistResult(PlayerConfig result);
+    void sendStatisticResult(NonQueryResult result);
 
     void initVideoRequestFinished(QNetworkReply * reply);
     void enablePlayerRequestFinished(QNetworkReply * reply);
     void assignPlaylistToPlayerRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
+    void sendStatisticRequestFinished(QNetworkReply * reply);
 
 public slots:
     void initVideoRequestFinishedSlot(QNetworkReply * reply);
     void enablePlayerRequestFinishedSlot(QNetworkReply * reply);
     void assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply * reply);
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
+    void sendStatisticRequestFinishedSlot(QNetworkReply * reply);
 
 private:
 

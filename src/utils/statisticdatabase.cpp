@@ -351,20 +351,26 @@ void StatisticDatabase::findGPStoSend()
 
 void StatisticDatabase::peekItems()
 {
-    QString sql = "update Play set sent = 0 where SENT IS NULL; update Report set sent = 0 where SENT IS NULL; update systemInfo set sent = 0 WHERE sent IS NULL; update gps set sent = 0 where sent is NULL";
-    queryThread->execute("peekItems",sql);
+    queryThread->execute("peekItems:play", "update Play set sent = 0 where SENT IS NULL");
+    queryThread->execute("peekItems:report", "update Report set sent = 0 where SENT IS NULL");
+    queryThread->execute("peekItems:systemInfo", "update systemInfo set sent = 0 WHERE sent IS NULL");
+    queryThread->execute("peekItems:gps", "update gps set sent = 0 where sent is NULL");
 }
 
 void StatisticDatabase::uploadingFailed()
 {
-    QString sql = "update Play set sent = NULL where sent = 0; update Report set sent = NULL where sent = 0; update systemInfo set sent = NULL WHERE sent = 0; update gps set sent = NULL where sent = 0";
-    queryThread->execute("uploadingFailed", sql);
+    queryThread->execute("uploadingFailed:play","update Play set sent = NULL where sent = 0");
+    queryThread->execute("uploadingFailed:report","update Report set sent = NULL where sent = 0");
+    queryThread->execute("uploadingFailed:systemInfo","update systemInfo set sent = NULL WHERE sent = 0");
+    queryThread->execute("uploadingFailed:GPS","update gps set sent = NULL where sent = 0");
 }
 
 void StatisticDatabase::uploadingSuccessfull()
 {
-    QString sql = "update Play set sent = 1 where sent = 0; update Report set sent = 1 where sent = 0; update systemInfo set sent = 1 WHERE sent = 0; update gps set sent = 1 where sent = 0";
-    queryThread->execute("uploadingSuccessfull", sql);
+    queryThread->execute("uploadingSuccess:","update Play set sent = 1 where sent = 0");
+    queryThread->execute("uploadingSuccess:","update Report set sent = 1 where sent = 0");
+    queryThread->execute("uploadingSuccess:","update systemInfo set sent = 1 WHERE sent = 0");
+    queryThread->execute("uploadingSuccess:","update gps set sent = 1 where sent = 0");
 }
 
 

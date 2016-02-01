@@ -3,14 +3,16 @@
 
 #include <QObject>
 #include <QList>
+#include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include "statisticdatabase.h"
+#include "videoservice.h"
 
 class StatisticUploader : public QObject
 {
     Q_OBJECT
 public:
-    explicit StatisticUploader(QObject *parent = 0);
+    explicit StatisticUploader(VideoService* videoService, QObject *parent = 0);
     enum UploadState{IDLE, GRABBING_PLAYS, GRABBING_REPORTS, GRABBING_SYSTEM_INFO, GRABBING_GPS, PEEKING, UPLOADING};
 signals:
     void finished(bool success);
@@ -22,8 +24,12 @@ public slots:
     void reportsReady(QList<StatisticDatabase::Report> reports);
     void systemInfoReady(QList<StatisticDatabase::SystemInfo> monitoring);
     void gpsReady(QList<StatisticDatabase::GPS> gpses);
-private:
+
     void nextState();
+    void replyFinished(QNetworkReply * reply);
+    void uploadResult(NonQueryResult result);
+
+private:
     void toIdleState();
     void runStateStep();
     QJsonObject generateStatisticModel();
@@ -34,6 +40,7 @@ private:
 
     UploadState state;
     QNetworkAccessManager manager;
+    VideoService * videoService;
 };
 
 #endif // STATISTICUPLOADER_H

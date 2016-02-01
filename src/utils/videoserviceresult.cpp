@@ -134,6 +134,26 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
     }
 }
 
+void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
+{
+    NonQueryResult result;
+    if (reply->error())
+    {
+        result.error_id = -1;
+        result.error_text = "NETWORK ERROR";
+        result.status = "NETWORK ERROR";
+    }
+    else
+    {
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        QJsonObject root = doc.object();
+        result.error_id = root["error_id"].toInt();
+        result.error_text = root["error_text"].toString();
+        result.status = root["status"].toString();
+    }
+    emit sendStatisticResult(result);
+}
+
 QString VideoServiceResultProcessor::getRandomString(int length)
 {
     const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
@@ -315,14 +335,15 @@ bool PlayerConfig::Area::Playlist::Item::checkDateRange() const
     return pstart && pend;
 }
 
+NonQueryResult NonQueryResult::fromJson(QJsonObject data)
+{
+    NonQueryResult result;
+    if (data.contains("error_id"))
+    {
+        result.error_id = data["error_id"].toString().toInt();
+        result.error_text = data["error_text"].toString();
+    }
+    result.status = data["status"].toString();
 
-
-
-
-
-
-
-
-
-
-
+    return result;
+}

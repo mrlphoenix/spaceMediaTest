@@ -53,6 +53,11 @@ void GlobalConfig::setSessionKey(QString key)
     sessionKey = key;
 }
 
+void GlobalConfig::setEncryptedSessionKey(QString key)
+{
+    this->encryptedSessionKey = key;
+}
+
 void GlobalConfig::setGetPlaylistTimerTime(int msecs)
 {
     getPlaylistTimerTime = msecs;

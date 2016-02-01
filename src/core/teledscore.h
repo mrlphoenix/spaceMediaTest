@@ -11,6 +11,7 @@
 #include "rpivideoplayer.h"
 #include "cpustat.h"
 #include "teledssheduler.h"
+#include "statisticuploader.h"
 
 class TeleDSCore : public QObject
 {
@@ -47,6 +48,7 @@ protected:
     RpiVideoPlayer * rpiPlayer;
 
     VideoService * videoService;
+    StatisticUploader * uploader;
     VideoDownloader * downloader;
 
     InitRequestResult playerInitParams;

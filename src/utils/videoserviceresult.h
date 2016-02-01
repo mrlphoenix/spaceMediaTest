@@ -19,6 +19,14 @@ struct InitRequestResult
     QString public_key;
     QString session_key;
 };
+struct NonQueryResult
+{
+    static NonQueryResult fromJson(QJsonObject data);
+
+    QString status;
+    int error_id;
+    QString error_text;
+};
 
 struct PlayerConfig
 {
@@ -89,12 +97,14 @@ signals:
     void enablePlayerResult(QString result);
     void assignPlaylistResult(QString result);
     void getPlaylistResult(PlayerConfig result);
+    void sendStatisticResult(NonQueryResult result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void enablePlayerResultReply(QNetworkReply * reply);
     void assignPlaylistResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
+    void sendStatisticResultReply(QNetworkReply * reply);
 private:
     QString getRandomString(int length);
 

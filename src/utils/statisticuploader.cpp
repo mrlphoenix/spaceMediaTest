@@ -7,58 +7,74 @@
 #include <QUrl>
 #include <QNetworkReply>
 #include <QProcess>
+#include <QTimer>
+#include <QUrlQuery>
 
 #include "statisticuploader.h"
 #include "globalstats.h"
 #include "globalconfig.h"
 #include "singleton.h"
 
-StatisticUploader::StatisticUploader(QObject *parent) : QObject(parent)
+StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent) : QObject(parent)
 {
     state = IDLE;
-    connect(&DatabaseInstance,SIGNAL(playsFound(QList<Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
-    connect(&DatabaseInstance, SIGNAL(reportsFound(QList<Report>)),this,SLOT(reportsReady(QList<StatisticDatabase::Report>)));
-    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<SystemInfo>)),this, SLOT(systemInfoReady(QList<StatisticDatabase::SystemInfo>)));
-    connect(&DatabaseInstance, SIGNAL(gpsFound(QList<GPS>)),this, SLOT(gpsReady(QList<StatisticDatabase::GPS>)));
+
+    this->videoService = videoService;
+
+    connect(&DatabaseInstance,SIGNAL(playsFound(QList<StatisticDatabase::Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
+    connect(&DatabaseInstance, SIGNAL(reportsFound(QList<StatisticDatabase::Report>)),this,SLOT(reportsReady(QList<StatisticDatabase::Report>)));
+    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<StatisticDatabase::SystemInfo>)),this, SLOT(systemInfoReady(QList<StatisticDatabase::SystemInfo>)));
+    connect(&DatabaseInstance, SIGNAL(gpsFound(QList<StatisticDatabase::GPS>)),this, SLOT(gpsReady(QList<StatisticDatabase::GPS>)));
+    connect(videoService,SIGNAL(sendStatisticResult(NonQueryResult)),this,SLOT(uploadResult(NonQueryResult)));
 }
 
 bool StatisticUploader::start()
 {
-
+    if (state == IDLE)
+    {
+        nextState();
+        return true;
+    }
+    return false;
 }
 
 void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
 {
     this->plays = plays;
-    nextState();
+    QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
 void StatisticUploader::reportsReady(QList<StatisticDatabase::Report> reports)
 {
+    qDebug() << "UPLOADER: REPORTS READY!";
     this->reports = reports;
-    nextState();
+    QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
 void StatisticUploader::systemInfoReady(QList<StatisticDatabase::SystemInfo> monitoring)
 {
     this->monitoring = monitoring;
-    nextState();
+    QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
 void StatisticUploader::gpsReady(QList<StatisticDatabase::GPS> gpses)
 {
     this->gpses = gpses;
-    nextState();
+    QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
 void StatisticUploader::nextState()
 {
     if (state == IDLE)
+    {
         state = GRABBING_PLAYS;
+    }
     else if (state == GRABBING_PLAYS)
         state = GRABBING_REPORTS;
-    else if (state == GRABBING_SYSTEM_INFO)
+    else if (state == GRABBING_REPORTS)
         state = GRABBING_SYSTEM_INFO;
+    else if (state == GRABBING_SYSTEM_INFO)
+        state = GRABBING_GPS;
     else if (state == GRABBING_GPS)
         state = PEEKING;
     else if (state == PEEKING)
@@ -68,31 +84,105 @@ void StatisticUploader::nextState()
     runStateStep();
 }
 
+void StatisticUploader::replyFinished(QNetworkReply *reply)
+{
+    qDebug() << reply->readAll();
+}
+
+void StatisticUploader::uploadResult(NonQueryResult result)
+{
+    if (result.status == "success")
+    {
+        qDebug() << "UPLOAD SUCCESS!!!";
+        DatabaseInstance.uploadingSuccessfull();
+    }
+    else
+    {
+        qDebug() << "UPLOAD FAILED" << result.error_text;
+        DatabaseInstance.uploadingFailed();
+    }
+    toIdleState();
+}
+
+void StatisticUploader::toIdleState()
+{
+    plays.clear();
+    reports.clear();
+    monitoring.clear();
+    gpses.clear();
+}
+
 void StatisticUploader::runStateStep()
 {
     if (state == GRABBING_PLAYS)
+    {
         DatabaseInstance.findPlaysToSend();
+        qDebug() << "UPLOADER: grabbing plays";
+    }
     else if (state == GRABBING_REPORTS)
+    {
         DatabaseInstance.findReportsToSend();
+        qDebug() << "UPLOADER: grabbing reports";
+    }
     else if (state == GRABBING_SYSTEM_INFO)
+    {
         DatabaseInstance.findSystemInfoToSend();
+        qDebug() << "UPLOADER: grabbing system info";
+    }
     else if (state == GRABBING_GPS)
+    {
+        qDebug() << "UPLOADER: Grabbing gps";
         DatabaseInstance.findGPStoSend();
+    }
     else if (state == PEEKING)
     {
+        qDebug() << "UPLOADER: peeking items";
         DatabaseInstance.peekItems();
         nextState();
     }
     else if (state == UPLOADING)
     {
         QJsonDocument doc(generateStatisticModel());
-        QString docString = doc.toJson();
-        docString = docString.replace("\r","").replace("\n","");
+        QByteArray data = doc.toJson();
+        QFile statJson("s.txt");
+        statJson.open(QFile::WriteOnly);
+        statJson.write(data);
+        statJson.flush();
+        statJson.close();
 
-        //QByteArray data = docString.toLocal8Bit();
-        //Encrypt and encode
-        //
+        QProcess gzipProcess;
+        QProcess encryptProcess;
 
+        gzipProcess.setStandardOutputProcess(&encryptProcess);
+        QString hexSessionKey = GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex();
+        gzipProcess.start("gzip -9 -k -c s.txt");
+        encryptProcess.start("openssl enc -aes-256-cbc -base64 -K " + hexSessionKey + " -iv 30303030303030303030303030303030");
+
+        bool retval = false;
+        while ((retval = encryptProcess.waitForFinished()));
+
+        QByteArray result = encryptProcess.readAll();
+        QString base64Data = result;
+
+        base64Data = QUrl::toPercentEncoding(base64Data.replace("\n","").replace("\r",""));
+
+        qDebug() << QString(base64Data);
+
+        //build request
+        QUrl url("http://api.teleds.com/statistics");
+        QNetworkRequest request(url);
+
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+        QUrlQuery params;
+        params.addQueryItem("player_id", GlobalConfigInstance.getPlayerId());
+        params.addQueryItem("ctypted_session_key", GlobalConfigInstance.getEncryptedSessionKey());
+        params.addQueryItem("statistics", base64Data);
+
+        qDebug() << "UPLOAD QUERY:::" + params.query();
+        QObject::connect(&manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(replyFinished(QNetworkReply *)));
+
+        manager.post(request, params.toString(QUrl::FullyEncoded).toUtf8());
     }
 }
 

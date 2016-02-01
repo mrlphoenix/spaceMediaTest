@@ -163,10 +163,10 @@ public:
 
 signals:
     void resourceFound(QList<QSqlRecord> records);
-    void playsFound(QList<Play> records);
-    void reportsFound(QList<Report> records);
-    void systemInfoFound(QList<SystemInfo> records);
-    void gpsFound(QList<GPS> records);
+    void playsFound(QList<StatisticDatabase::Play> records);
+    void reportsFound(QList<StatisticDatabase::Report> records);
+    void systemInfoFound(QList<StatisticDatabase::SystemInfo> records);
+    void gpsFound(QList<StatisticDatabase::GPS> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);
 

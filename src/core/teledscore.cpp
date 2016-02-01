@@ -19,6 +19,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     DatabaseInstance;
     CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
+    uploader = new StatisticUploader(videoService,this);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
@@ -31,6 +32,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
     connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
+    QTimer::singleShot(70000,uploader,SLOT(start()));
 
     if (GlobalConfigInstance.isConfigured())
     {
@@ -45,7 +47,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         encryptedSessionKey = encryptSessionKey();
         qDebug() << "encryptedSessionKey = " << encryptedSessionKey;
         GlobalConfigInstance.setSessionKey(result.session_key);
-
+        GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     } else
@@ -117,6 +119,8 @@ void TeleDSCore::initResult(InitRequestResult result)
     qDebug() << "got player id: " + result.player_id;
     playerInitParams = result;
     encryptedSessionKey = encryptSessionKey();
+    GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
+    GlobalConfigInstance.setSessionKey(result.session_key);
     qDebug() << "ENC KEY: " << encryptedSessionKey;
 
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
