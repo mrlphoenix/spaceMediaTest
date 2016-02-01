@@ -87,6 +87,9 @@ class StatisticDatabase : public QObject
 public:
     explicit StatisticDatabase(QObject *parent = 0);
 
+    static QString serializeDate(QDateTime date);
+    static QDateTime deserializeDate(QString date);
+
     //resource operations
 
     void registryResource(QString iid, QString name, QDateTime lastupdated, int size);
@@ -170,8 +173,6 @@ signals:
 public slots:
 
 private:
-    static QString serializeDate(QDateTime date);
-    static QDateTime deserializeDate(QString date);
     const QString databaseName = "stat.db";
     QueryThread * queryThread;
 private slots:

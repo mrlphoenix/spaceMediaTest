@@ -378,7 +378,7 @@ QString StatisticDatabase::serializeDate(QDateTime date)
 QDateTime StatisticDatabase::deserializeDate(QString date)
 {
     QLocale locale(QLocale::English);
-    return locale.toDateTime(date.replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss +0000");
+    return locale.toDateTime(date.replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss");
 }
 void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
