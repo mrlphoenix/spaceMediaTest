@@ -10,6 +10,7 @@
 #include "videodownloader.h"
 #include "rpivideoplayer.h"
 #include "cpustat.h"
+#include "teledssheduler.h"
 
 class TeleDSCore : public QObject
 {
@@ -35,6 +36,7 @@ public slots:
     void generateReport();
     void generateSysInfo();
     void getResourceCount();
+    void getGps();
 
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
     void resourceCountUpdate(int count);
@@ -45,16 +47,12 @@ protected:
     RpiVideoPlayer * rpiPlayer;
 
     VideoService * videoService;
-    QTimer * getPlaylistTimer;
-    QTimer * cpuInfoTimer;
-    QTimer * reportTimer;
-    QTimer * sysInfoTimer;
-    QTimer * resourceCounterTimer;
     VideoDownloader * downloader;
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;
     PlayerConfig currentConfig;
+    TeleDSSheduler sheduler;
 };
 
 

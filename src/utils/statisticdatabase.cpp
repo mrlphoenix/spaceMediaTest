@@ -303,7 +303,7 @@ void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId,
 
 void StatisticDatabase::findPlaysToSend()
 {
-    QString sql = "select * from play where sent IS NOT NULL";
+    QString sql = "select * from play where sent IS NULL";
     queryThread->execute("findPlaysToSend",sql);
 }
 
@@ -317,7 +317,7 @@ void StatisticDatabase::createReport(int downloads, int contentPlay, int content
 
 void StatisticDatabase::findReportsToSend()
 {
-    QString sql = "select * from report where sent IS NOT NULL";
+    QString sql = "select * from report where sent IS NULL";
     queryThread->execute("findReportsToSend", sql);
 }
 
@@ -349,10 +349,36 @@ void StatisticDatabase::findGPStoSend()
     queryThread->execute("findGPStoSend",sql);
 }
 
+void StatisticDatabase::peekItems()
+{
+    QString sql = "update Play set sent = 0 where SENT IS NULL; update Report set sent = 0 where SENT IS NULL; update systemInfo set sent = 0 WHERE sent IS NULL; update gps set sent = 0 where sent is NULL";
+    queryThread->execute("peekItems",sql);
+}
+
+void StatisticDatabase::uploadingFailed()
+{
+    QString sql = "update Play set sent = NULL where sent = 0; update Report set sent = NULL where sent = 0; update systemInfo set sent = NULL WHERE sent = 0; update gps set sent = NULL where sent = 0";
+    queryThread->execute("uploadingFailed", sql);
+}
+
+void StatisticDatabase::uploadingSuccessfull()
+{
+    QString sql = "update Play set sent = 1 where sent = 0; update Report set sent = 1 where sent = 0; update systemInfo set sent = 1 WHERE sent = 0; update gps set sent = 1 where sent = 0";
+    queryThread->execute("uploadingSuccessfull", sql);
+}
+
+
+
 QString StatisticDatabase::serializeDate(QDateTime date)
 {
     QLocale locale(QLocale::English);
     return locale.toString(date,"ddd, dd MMM yyyy HH:mm:ss +0000");
+}
+
+QDateTime StatisticDatabase::deserializeDate(QString date)
+{
+    QLocale locale(QLocale::English);
+    return locale.toDateTime(date.replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss +0000");
 }
 void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
@@ -367,14 +393,89 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
             emit resourceCount(0);
     }
     else if (queryId == "findPlaysToSend")
-        emit playsFound(records);
+    {
+        QList<Play> plays;
+        foreach (const QSqlRecord& record, records)
+            plays.append(Play::fromRecord(record));
+        emit playsFound(plays);
+    }
     else if (queryId == "findReportsToSend")
-        emit reportsFound(records);
+    {
+        QList<Report> reports;
+        foreach (const QSqlRecord& record, records)
+            reports.append(Report::fromRecord(record));
+        emit reportsFound(reports);
+    }
     else if (queryId == "findSystemInfoToSend")
-        emit systemInfoFound(records);
+    {
+        QList<SystemInfo> systemInfos;
+        foreach (const QSqlRecord& record, records)
+            systemInfos.append(SystemInfo::fromRecord(record));
+        emit systemInfoFound(systemInfos);
+    }
     else if (queryId == "findGPStoSend")
-        emit gpsFound(records);
+    {
+        QList<GPS> gpses;
+        foreach (const QSqlRecord& record, records)
+            gpses.append(GPS::fromRecord(record));
+        emit gpsFound(gpses);
+    }
     else
         emit unknownResult(queryId, records);
 }
 
+
+StatisticDatabase::Play StatisticDatabase::Play::fromRecord(const QSqlRecord &record)
+{
+    Play result;
+    result.playId = record.value("play_id").toInt();
+    result.areaId = record.value("area_id").toInt();
+    result.playlistId = record.value("playlist_id").toInt();
+    result.iid = record.value("iid").toString();
+    result.time = deserializeDate(record.value("time").toString());
+    result.latitude = record.value("latitude").toDouble();
+    result.longitude = record.value("longitude").toDouble();
+    result.version = record.value("version").toString();
+    result.sent = record.value("sent").toInt();
+    return result;
+}
+
+StatisticDatabase::Report StatisticDatabase::Report::fromRecord(const QSqlRecord &record)
+{
+    Report result;
+    result.reportId = record.value("report_id").toInt();
+    result.time = deserializeDate(record.value("time").toString());
+    result.downloads = record.value("downloads").toInt();
+    result.contentPlay = record.value("content_play").toInt();
+    result.contentTotal = record.value("content_total").toInt();
+    result.errorConnect = record.value("error_connect").toInt();
+    result.errorPlaylist = record.value("error_playlist").toInt();
+    result.sent = record.value("sent").toInt();
+    return result;
+}
+
+StatisticDatabase::SystemInfo StatisticDatabase::SystemInfo::fromRecord(const QSqlRecord &record)
+{
+    SystemInfo result;
+    result.systemInfoId = record.value("systemInfo_id").toInt();
+    result.time = deserializeDate(record.value("time").toString());
+    result.cpu = record.value("cpu").toInt();
+    result.memory = record.value("memory").toInt();
+    result.trafficIn = record.value("traffic").toDouble();
+    result.trafficOut = record.value("out").toDouble();
+    result.monitor = record.value("monitor").toInt();
+    result.connect = record.value("connect").toInt();
+    result.balance = record.value("balance").toDouble();
+    result.sent = record.value("sent").toInt();
+    return result;
+}
+
+StatisticDatabase::GPS StatisticDatabase::GPS::fromRecord(const QSqlRecord &record)
+{
+    GPS result;
+    result.gpsId = record.value("gps_id").toInt();
+    result.time = deserializeDate(record.value("time").toString());
+    result.latitude = record.value("latitude").toDouble();
+    result.longitude = record.value("longitude").toDouble();
+    return result;
+}

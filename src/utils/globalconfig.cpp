@@ -12,8 +12,16 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
     qDebug() << "global config init";
     if (!QFile::exists("data/config.dat"))
     {
-        qDebug() << "config file does not exists";
-        save("rpi","","");
+        qDebug() << "config file does not exists; creating new one";
+
+        playerId = "rpi";
+        getPlaylistTimerTime = getPlaylistTimerDefaultTime;
+        cpuInfoTimerTime = cpuInfoTimerDefaultTime;
+        reportTimerTime = reportTimerDefaultTime;
+        sysInfoTimerTime = sysInfoTimerDefaultTime;
+        resourceCounterTimerTime = resourceCounterTimerDefaultTime;
+
+        save();
         configured = false;
     }
     else
@@ -23,14 +31,14 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
 void GlobalConfig::setPlayerId(QString playerId)
 {
     this->playerId = playerId;
-    save(device,playerId,publicKey);
+    save();
     checkConfiguration();
 }
 
 void GlobalConfig::setPublicKey(QString publicKey)
 {
     this->publicKey = publicKey;
-    save(device, playerId, publicKey);
+    save();
     checkConfiguration();
 }
 
@@ -45,6 +53,42 @@ void GlobalConfig::setSessionKey(QString key)
     sessionKey = key;
 }
 
+void GlobalConfig::setGetPlaylistTimerTime(int msecs)
+{
+    getPlaylistTimerTime = msecs;
+    save();
+}
+
+void GlobalConfig::setCpuInfoTimerTime(int msecs)
+{
+    cpuInfoTimerTime = msecs;
+    save();
+}
+
+void GlobalConfig::setReportTimerTime(int msecs)
+{
+    reportTimerTime = msecs;
+    save();
+}
+
+void GlobalConfig::setSysInfoTimerTime(int msecs)
+{
+    sysInfoTimerTime = msecs;
+    save();
+}
+
+void GlobalConfig::setResourceCounterTimerTime(int msecs)
+{
+    resourceCounterTimerTime = msecs;
+    save();
+}
+
+void GlobalConfig::setGpsTimerTime(int msecs)
+{
+    gpsTimerTime = msecs;
+    save();
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
@@ -57,6 +101,15 @@ void GlobalConfig::loadFromJson()
     this->playerId = root["playerId"].toString();
     this->publicKey = root["publicKey"].toString();
     this->playerConfig = root["playerConfig"].toString();
+
+    getPlaylistTimerTime = root["getPlaylistTimerTime"].toInt() ? root["getPlaylistTimerTime"].toInt() : getPlaylistTimerDefaultTime;
+    cpuInfoTimerTime = root["cpuInfoTimerTime"].toInt() ? root["cpuInfoTimerTime"].toInt() : cpuInfoTimerDefaultTime;
+    reportTimerTime = root["reportTimerTime"].toInt() ? root["reportTimerTime"].toInt() : reportTimerDefaultTime;
+    sysInfoTimerTime = root["sysInfoTimerTime"].toInt() ? root["sysInfoTimerTime"].toInt() : sysInfoTimerDefaultTime;
+    resourceCounterTimerTime = root["resourceCounterTimerTime"].toInt() ? root["resourceCounterTimerTime"].toInt() : resourceCounterTimerDefaultTime;
+    gpsTimerTime = root["gpsTimerTime"].toInt() ? root["gpsTimerTime"].toInt()  : gpsTimerDefaulTime;
+
+
     qDebug() << "currentConfig: " << device << " " << playerId << " " << publicKey;
     configFile.close();
     checkConfiguration();
@@ -69,6 +122,14 @@ void GlobalConfig::save()
     root["playerId"] = playerId;
     root["publicKey"] = publicKey;
     root["playerConfig"] = playerConfig;
+
+    root["getPlaylistTimerTime"] = getPlaylistTimerTime;
+    root["cpuInfoTimerTime"] = cpuInfoTimerTime;
+    root["reportTimerTime"] = reportTimerTime;
+    root["sysInfoTimerTime"] = sysInfoTimerTime;
+    root["resourceCounterTimerTime"] = resourceCounterTimerTime;
+    root["gpsTimerTime"] = gpsTimerTime;
+
     QJsonDocument doc(root);
     QFile file ("data/config.dat");
     file.open(QFile::WriteOnly);
@@ -77,20 +138,6 @@ void GlobalConfig::save()
     file.close();
 }
 
-void GlobalConfig::save(QString device, QString playerId, QString publicKey)
-{
-    QJsonObject root;
-    root["device"] = device;
-    root["playerId"] = playerId;
-    root["publicKey"] = publicKey;
-    root["playerConfig"] = playerConfig;
-    QJsonDocument doc(root);
-    QFile file ("data/config.dat");
-    file.open(QFile::WriteOnly);
-    file.write(doc.toJson());
-    file.flush();
-    file.close();
-}
 
 void GlobalConfig::checkConfiguration()
 {

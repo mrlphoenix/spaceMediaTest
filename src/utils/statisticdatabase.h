@@ -106,20 +106,72 @@ public:
     void createGPS(double latitude, double longitude);
     void findGPStoSend();
 
+    //statistic operation
+    void peekItems(); //call this after you peeked all items to upload to the server
+    void uploadingFailed(); //call this if uploading failed
+    void uploadingSuccessfull(); //call this upon uploading success
+
+    struct Play
+    {
+        static Play fromRecord(const QSqlRecord& record);
+        int playId;
+        int areaId;
+        int playlistId;
+        QString iid;
+        QDateTime time;
+        double latitude, longitude;
+        QString version;
+        int sent;
+    };
+    struct Report
+    {
+        static Report fromRecord(const QSqlRecord& record);
+        int reportId;
+        QDateTime time;
+        int downloads;
+        int contentPlay;
+        int contentTotal;
+        int errorConnect;
+        int errorPlaylist;
+        int sent;
+    };
+    struct SystemInfo
+    {
+        static SystemInfo fromRecord(const QSqlRecord& record);
+        int systemInfoId;
+        QDateTime time;
+        int cpu;
+        int memory;
+        double trafficIn;
+        double trafficOut;
+        int monitor;
+        int connect;
+        double balance;
+        int sent;
+    };
+    struct GPS
+    {
+        static GPS fromRecord(const QSqlRecord& record);
+        int gpsId;
+        QDateTime time;
+        double latitude;
+        double longitude;
+    };
 
 signals:
     void resourceFound(QList<QSqlRecord> records);
-    void playsFound(QList<QSqlRecord> records);
-    void reportsFound(QList<QSqlRecord> records);
-    void systemInfoFound(QList<QSqlRecord> records);
-    void gpsFound(QList<QSqlRecord> records);
+    void playsFound(QList<Play> records);
+    void reportsFound(QList<Report> records);
+    void systemInfoFound(QList<SystemInfo> records);
+    void gpsFound(QList<GPS> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);
 
 public slots:
 
 private:
-    QString serializeDate(QDateTime date);
+    static QString serializeDate(QDateTime date);
+    static QDateTime deserializeDate(QString date);
     const QString databaseName = "stat.db";
     QueryThread * queryThread;
 private slots:
