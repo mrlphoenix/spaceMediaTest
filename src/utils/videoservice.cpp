@@ -132,6 +132,8 @@ void VideoService::performRequest(VideoServiceRequest *request)
         data = query.toString(QUrl::FullyEncoded).toUtf8();
 
     QNetworkRequest networkRequest(url);
+    if (request->method == "POST")
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     manager->disconnect();
 
     if (request->name == "init")
@@ -261,6 +263,10 @@ SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSe
 
     dataParam.key = "statistics";
     dataParam.value = data;
+
+    params.append(playerIdParam);
+    params.append(encrypedSessionKeyParam);
+    params.append(dataParam);
 
     methodAPI = "statistics";
     name = "statistics";

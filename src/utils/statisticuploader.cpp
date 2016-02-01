@@ -169,7 +169,7 @@ void StatisticUploader::runStateStep()
         qDebug() << QString(base64Data);
 
         //build request
-        QUrl url("http://api.teleds.com/statistics");
+    /*   QUrl url("http://api.teleds.com/statistics");
         QNetworkRequest request(url);
 
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -182,7 +182,8 @@ void StatisticUploader::runStateStep()
         qDebug() << "UPLOAD QUERY:::" + params.query();
         QObject::connect(&manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(replyFinished(QNetworkReply *)));
 
-        manager.post(request, params.toString(QUrl::FullyEncoded).toUtf8());
+        manager.post(request, params.toString(QUrl::FullyEncoded).toUtf8());*/
+        videoService->sendStatistic(GlobalConfigInstance.getPlayerId(), GlobalConfigInstance.getEncryptedSessionKey(), base64Data);
     }
 }
 
