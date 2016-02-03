@@ -8,29 +8,20 @@
 VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject(parent)
 {
     this->config = config;
-    total = 0;
-    current = 0;
-    textOut = 0;
     file = 0;
     currentItemIndex = 0;
 }
 
-void VideoDownloader::setOutput(QProgressBar *total, QProgressBar *current, QLabel *textOut)
+VideoDownloader::~VideoDownloader()
 {
-    if (total == NULL || current == NULL || textOut == NULL)
-        return;
-
-    this->total = total;
-    this->current = current;
-    this->textOut = textOut;
-    total->setValue(0);
-    current->setValue(0);
+    if (file)
+        file->deleteLater();
+    if (reply)
+        reply->deleteLater();
 }
 
 void VideoDownloader::checkDownload()
 {
-    if (textOut)
-        textOut->setText("Preparing for download");
     int itemCount = 0;
     foreach (const PlayerConfig::Area& area, config.areas)
         foreach(const PlayerConfig::Area::Playlist::Item& item, area.playlist.items)
@@ -43,8 +34,6 @@ void VideoDownloader::checkDownload()
             itemCount++;
         }
     GlobalStatsInstance.setContentPlay(itemCount);
-    if (total)
-        total->setMaximum(itemsToDownload.count());
 }
 
 void VideoDownloader::start()
@@ -57,8 +46,7 @@ void VideoDownloader::download()
 {
     if (itemsToDownload.count() > currentItemIndex)
     {
-        if (textOut)
-            textOut->setText("Downloading " + itemsToDownload[currentItemIndex].name);
+        qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
         file = new QFile("data/video/" + itemsToDownload[currentItemIndex].iid + ".mp4");
         file->open(QFile::WriteOnly);
 
@@ -67,15 +55,17 @@ void VideoDownloader::download()
         connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
         connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
         GlobalStatsInstance.registryDownload();
+
+        DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
+                                          itemsToDownload[currentItemIndex].name,
+                                          itemsToDownload[currentItemIndex].lastupdate,
+                                          itemsToDownload[currentItemIndex].size);
     }
     else
     {
-        if (textOut)
-            textOut->setText("Completed");
+        qDebug() << "downloading completed";
         emit done();
     }
-    if (total)
-        total->setValue(currentItemIndex);
 }
 
 QString VideoDownloader::getFileHash(QString fileName)
@@ -93,10 +83,6 @@ QString VideoDownloader::getFileHash(QString fileName)
 void VideoDownloader::httpFinished()
 {
     qDebug()<<"File downloading Finished. Registering in database.";
-    DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
-                                      itemsToDownload[currentItemIndex].name,
-                                      itemsToDownload[currentItemIndex].lastupdate,
-                                      itemsToDownload[currentItemIndex].size);
     currentItemIndex++;
     file->flush();
     file->close();
@@ -107,20 +93,22 @@ void VideoDownloader::httpFinished()
     file = 0;
 
     download();
+    reply->deleteLater();
 }
 
 void VideoDownloader::httpReadyRead()
 {
     if (file)
-            file->write(reply->readAll());
+    {
+        file->write(reply->readAll());
+        file->flush();
+        qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
+        DatabaseInstance.updateResourceDownloadStatus(itemsToDownload[currentItemIndex].iid,file->size());
+    }
 }
 
 void VideoDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    if (current)
-    {
-        current->setMaximum(totalBytes);
-        current->setValue(bytesRead);
-    }
+    ;
 }
 

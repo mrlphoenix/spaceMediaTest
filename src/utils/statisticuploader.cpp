@@ -110,6 +110,7 @@ void StatisticUploader::toIdleState()
     reports.clear();
     monitoring.clear();
     gpses.clear();
+    state = IDLE;
 }
 
 void StatisticUploader::runStateStep()

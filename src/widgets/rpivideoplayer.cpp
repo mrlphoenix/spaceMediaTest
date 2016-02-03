@@ -4,6 +4,7 @@
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
+    playlist = 0;
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
     curSurface.setGreenBufferSize(8);
@@ -23,7 +24,8 @@ RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QOb
 
 RpiVideoPlayer::~RpiVideoPlayer()
 {
-
+    if (playlist)
+        delete playlist;
 }
 
 QString RpiVideoPlayer::getFullPath(QString fileName)
@@ -43,11 +45,32 @@ void RpiVideoPlayer::update(PlayerConfig config)
 void RpiVideoPlayer::setConfig(PlayerConfig::Area area)
 {
     config = area;
-    if (area.playlist.type == "random")
+    if (playlist)
     {
-        randomPlaylist.updatePlaylist(area.playlist);
+        if (area.playlist.type == "random" && playlist->getType() != "random")
+        {
+            playlist->deleteLater();
+            playlist = new RandomPlaylist(this);
+            isPlaylistRandom = true;
+        }
+        else if (area.playlist.type != "random" && playlist->getType() == "random")
+        {
+            playlist->deleteLater();
+            playlist = new StandartPlaylist(this);
+            isPlaylistRandom = false;
+        }
+    }
+    else if (area.playlist.type == "random")
+    {
+        playlist = new RandomPlaylist(this);
         isPlaylistRandom = true;
     }
+    else
+    {
+        playlist = new StandartPlaylist(this);
+        isPlaylistRandom = false;
+    }
+    playlist->updatePlaylist(area.playlist);
 }
 
 void RpiVideoPlayer::invokeNextVideoMethod(QString name)
@@ -61,13 +84,14 @@ void RpiVideoPlayer::invokeNextVideoMethod(QString name)
 void RpiVideoPlayer::next()
 {
     qDebug() << "next method is called";
-    QString nextItem;
-    if (isPlaylistRandom)
+    if (!playlist)
     {
-        qDebug() << "playlist is trandom";
-        nextItem = randomPlaylist.next();
-        invokeNextVideoMethod(nextItem);
+        qDebug() << "playlist empty";
+        return;
     }
+    QString nextItem = playlist->next();
+    invokeNextVideoMethod(nextItem);
+
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
 }

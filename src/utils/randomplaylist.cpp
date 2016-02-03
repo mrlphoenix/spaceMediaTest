@@ -1,6 +1,6 @@
 #include "randomplaylist.h"
 
-RandomPlaylist::RandomPlaylist(QObject *parent) : QObject(parent)
+RandomPlaylist::RandomPlaylist(QObject *parent) : AbstractPlaylist(parent)
 {
 
 }
@@ -89,3 +89,28 @@ bool RandomPlaylist::itemDelayPassed(const PlayerConfig::Area::Playlist::Item& i
         return true;
 }
 
+
+AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
+{
+
+}
+
+StandartPlaylist::StandartPlaylist(QObject *parent) : AbstractPlaylist(parent)
+{
+    currentItemIndex = 0;
+}
+
+void StandartPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
+{
+    this->playlist = playlist;
+}
+
+QString StandartPlaylist::next()
+{
+    int itemsCount = playlist.items.count();
+    if (currentItemIndex >= itemsCount)
+        currentItemIndex = itemsCount-1;
+    QString item = playlist.items[currentItemIndex].iid;
+    currentItemIndex = (currentItemIndex + 1)%itemsCount;
+    return item;
+}

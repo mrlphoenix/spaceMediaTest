@@ -35,6 +35,7 @@ class CPUStatThread : public QThread
     Q_OBJECT
 public:
     CPUStatThread(QObject * parent = 0);
+    ~CPUStatThread();
     void loadInfo();
 signals:
     void infoReady(CPUStatWorker::DeviceInfo info);
@@ -51,6 +52,7 @@ class CPUStat : public QObject
     Q_OBJECT
 public:
     explicit CPUStat(QObject *parent = 0);
+    ~CPUStat();
     void getInfo();
 signals:
     void infoReady(CPUStatWorker::DeviceInfo info);

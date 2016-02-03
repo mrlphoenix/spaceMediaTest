@@ -15,7 +15,7 @@ class VideoDownloader : public QObject
     Q_OBJECT
 public:
     explicit VideoDownloader(PlayerConfig config, QObject *parent = 0);
-    void setOutput(QProgressBar * total, QProgressBar * current, QLabel * textOut);
+    ~VideoDownloader();
     void checkDownload();
     void start();
 
@@ -30,10 +30,6 @@ public slots:
 
 private:
     void download();
-
-    QProgressBar * total;
-    QProgressBar * current;
-    QLabel * textOut;
 
     QNetworkAccessManager manager;
     QNetworkReply * reply;

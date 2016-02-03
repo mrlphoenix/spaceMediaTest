@@ -8,24 +8,53 @@
 #include <QVector>
 #include "videoserviceresult.h"
 
-class RandomPlaylist : public QObject
+class AbstractPlaylist : public QObject
+{
+    Q_OBJECT
+public:
+    explicit AbstractPlaylist(QObject * parent);
+    virtual ~AbstractPlaylist(){;}
+    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist)=0;
+    virtual QString getType()=0;
+public slots:
+    virtual QString next()=0;
+protected:
+    PlayerConfig::Area::Playlist playlist;
+};
+
+class StandartPlaylist : public AbstractPlaylist
+{
+    Q_OBJECT
+public:
+    explicit StandartPlaylist(QObject * parent);
+    virtual ~StandartPlaylist(){;}
+    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+    virtual QString getType() {return "list";}
+public slots:
+    virtual QString next();
+private:
+    int currentItemIndex;
+};
+
+class RandomPlaylist : public AbstractPlaylist
 {
     Q_OBJECT
 public:
     explicit RandomPlaylist(QObject *parent = 0);
-    void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+    virtual ~RandomPlaylist(){;}
+    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
 
+    virtual QString getType() {return "random";}
 signals:
 
 public slots:
-    QString next();
+    virtual QString next();
 private:
 
     void splitItems();
     void shuffle();
     bool itemDelayPassed(const PlayerConfig::Area::Playlist::Item& item);
 
-    PlayerConfig::Area::Playlist playlist;
     QVector<PlayerConfig::Area::Playlist::Item> fixedFloatingItems;
     QVector<PlayerConfig::Area::Playlist::Item> floatingNoneItems;
     QHash<QString,QDateTime> lastTimeShowed;

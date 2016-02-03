@@ -10,6 +10,12 @@ CPUStat::CPUStat(QObject *parent) : QObject(parent)
     thread->start();
 }
 
+CPUStat::~CPUStat()
+{
+    if (thread)
+        thread->deleteLater();
+}
+
 void CPUStat::getInfo()
 {
     thread->loadInfo();
@@ -42,6 +48,7 @@ void CPUStatWorker::readyRead()
         stat.trafficIn = items[2].toInt();
         stat.trafficOut = items[3].toInt();
         emit InfoReady(stat);
+        process->kill();
         process->deleteLater();
         result.clear();
     }
@@ -50,6 +57,12 @@ void CPUStatWorker::readyRead()
 CPUStatThread::CPUStatThread(QObject *parent) : QThread(parent)
 {
     worker = new CPUStatWorker(parent);
+}
+
+CPUStatThread::~CPUStatThread()
+{
+    if (worker)
+        worker->deleteLater();
 }
 
 void CPUStatThread::loadInfo()

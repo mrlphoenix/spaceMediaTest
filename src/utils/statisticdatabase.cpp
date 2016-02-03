@@ -16,43 +16,36 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
     }
     qDebug() << "DB OPENED";
 
-    //init db if not exists -
-
-
-   /* // initialize db
-    if ( !m_database.tables().contains( "item" ) )
+    if (m_database.tables().count() < 5)
     {
-        // some data
-        m_database.exec( "create table item(id int, name varchar);" );
+        m_database.exec("create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT)");
         m_database.transaction();
-        QSqlQuery query(m_database);
-        query.prepare("INSERT INTO item (id, name) "
-                      "VALUES (?,?)");
-        for ( int i = 0; i < SAMPLE_RECORDS; ++i )
-        {
-            query.addBindValue(i);
-            query.addBindValue(QString::number(i));
-            query.exec();
-        }
-        m_database.commit();
-    }*/
 
+        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, area_id INTEGER, playlist_id INTEGER, iid TEXT, time TEXT, latitude REAL, longitude REAL, version TEXT, sent INTEGER)");
+        m_database.transaction();
+
+        m_database.exec("create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, downloads INTEGER, content_play INTEGER, content_total INTEGER, error_connect INTEGER, error_playlist INTEGER, sent INTEGER)");
+        m_database.transaction();
+
+        m_database.exec("create table systemInfo (systemInfo_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu INTEGER, memory INTEGER, traffic REAL, out REAL, monitor NUMERIC, connect NUMERIC, balance REAL, sent INTEGER)");
+        m_database.transaction();
+
+        m_database.exec("create table gps (gps_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, latitude TEXT, longitude TEXT, sent INTEGER)");
+        m_database.transaction();
+        m_database.commit();
+    }
 
     /*
-     * some scripts for initiation database;
-     *
-     *
-       create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, area_id INTEGER, playlist_id INTEGER, iid TEXT, time TEXT, latitude REAL, longitude REAL, version TEXT, sent INTEGER);
-       create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, downloads INTEGER, content_play INTEGER, content_total INTEGER, error_connect INTEGER, error_playlist INTEGER, sent INTEGER);
-       create table systemInfo (systemInfo_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu INTEGER, memory INTEGER, traffic REAL, out REAL, monitor NUMERIC, connect NUMERIC, balance REAL, sent INTEGER);
-       create table gps (gps_id INTEGER PRIMARY KEY
-0|gps_id|INTEGER IDENTITY(1,1)|0||0
-1|time|TEXT|0||0
-2|latitude|TEXT|0||0
-3|longitude|TEXT|0||0
+      some scripts for initiation database;
 
 
-     * **/
+      iid,name,lastupdated,size,filesize,lastTimePlayed)
+      create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT);
+      create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, area_id INTEGER, playlist_id INTEGER, iid TEXT, time TEXT, latitude REAL, longitude REAL, version TEXT, sent INTEGER);
+      create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, downloads INTEGER, content_play INTEGER, content_total INTEGER, error_connect INTEGER, error_playlist INTEGER, sent INTEGER);
+      create table systemInfo (systemInfo_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu INTEGER, memory INTEGER, traffic REAL, out REAL, monitor NUMERIC, connect NUMERIC, balance REAL, sent INTEGER);
+      create table gps (gps_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, latitude TEXT, longitude TEXT, sent INTEGER);
+    */
 }
 
 DatabaseWorker::~DatabaseWorker()

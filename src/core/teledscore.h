@@ -50,6 +50,7 @@ protected:
     VideoService * videoService;
     StatisticUploader * uploader;
     VideoDownloader * downloader;
+    QTimer * statsTimer;
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;

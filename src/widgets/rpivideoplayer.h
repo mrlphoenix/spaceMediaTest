@@ -27,8 +27,7 @@ public slots:
     void bindObjects();
 protected:
     QQuickView view;
-    RandomPlaylist randomPlaylist;
-    QList<QString> playlist;
+    AbstractPlaylist * playlist;
     bool isPlaylistRandom;
     PlayerConfig::Area config;
     QObject * viewRootObject;

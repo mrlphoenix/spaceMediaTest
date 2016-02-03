@@ -20,6 +20,7 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
         reportTimerTime = reportTimerDefaultTime;
         sysInfoTimerTime = sysInfoTimerDefaultTime;
         resourceCounterTimerTime = resourceCounterTimerDefaultTime;
+        gpsTimerTime = gpsTimerDefaulTime;
 
         save();
         configured = false;

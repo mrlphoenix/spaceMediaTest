@@ -175,7 +175,6 @@ void MainWindow::setupDownloader(PlayerConfig &config)
     ui->totalPB->show();
     ui->currentPB->show();
     ui->download_status->show();
-    downloader->setOutput(ui->totalPB,ui->currentPB,ui->download_status);
     downloader->checkDownload();
     downloader->start();
 }

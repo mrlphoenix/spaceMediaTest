@@ -20,6 +20,9 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
     uploader = new StatisticUploader(videoService,this);
+    statsTimer = new QTimer();
+    connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
+    statsTimer->start(5 * 60000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
