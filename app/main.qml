@@ -2,6 +2,7 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtMultimedia 5.0
 
+
 Item {
     id: item
     property bool invokeNext:true
@@ -20,7 +21,7 @@ Item {
     MediaPlayer {
         id: mediaplayer
         autoLoad: true
-       // autoPlay: true
+        //autoPlay: true
         source: "file:///sdcard/download/teleds/1.mp4"
         onStopped:{
             console.debug("on stopped")

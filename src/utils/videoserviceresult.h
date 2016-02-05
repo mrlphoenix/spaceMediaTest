@@ -30,6 +30,8 @@ struct NonQueryResult
 
 struct PlayerConfig
 {
+    PlayerConfig();
+    ~PlayerConfig(){;}
     static PlayerConfig fromJson(QJsonObject json);
     static PlayerConfig fromErrorJson(QJsonObject json);
 

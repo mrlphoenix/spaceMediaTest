@@ -24,29 +24,35 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(&resultProcessor,SIGNAL(sendStatisticResult(NonQueryResult)),this,SIGNAL(sendStatisticResult(NonQueryResult)));
 }
 
+VideoService::~VideoService()
+{
+    if (manager)
+        delete manager;
+}
+
 void VideoService::init()
 {
-    executeRequest(new InitVideoPlayerRequest());
+    executeRequest(new InitVideoPlayerRequest(this));
 }
 
 void VideoService::enablePlayer(QString playerId)
 {
-    executeRequest(new EnablePlayerRequest(playerId));
+    executeRequest(new EnablePlayerRequest(playerId, this));
 }
 
 void VideoService::assignPlaylist(QString playerId, int playlistId)
 {
-    executeRequest(new AssignPlaylistToPlayerRequest(playerId,playlistId));
+    executeRequest(new AssignPlaylistToPlayerRequest(playerId,playlistId,this));
 }
 
 void VideoService::getPlaylist(QString playerId, QString cryptedSessionKey)
 {
-    executeRequest(new GetPlaylistRequest(playerId, cryptedSessionKey));
+    executeRequest(new GetPlaylistRequest(playerId, cryptedSessionKey, this));
 }
 
 void VideoService::sendStatistic(QString playerId, QString encodedSessionKey, QString data)
 {
-    executeRequest(new SendStatisticRequest(playerId, encodedSessionKey, data));
+    executeRequest(new SendStatisticRequest(playerId, encodedSessionKey, data, this));
 }
 
 void VideoService::executeRequest(VideoServiceRequest *request)
@@ -180,7 +186,7 @@ void VideoService::nextRequest()
         currentRequest = NULL;
 }
 
-InitVideoPlayerRequest::InitVideoPlayerRequest()
+InitVideoPlayerRequest::InitVideoPlayerRequest(QObject *parent) : VideoServiceRequest(parent)
 {
     methodAPI = "initialization";
     name = "init";
@@ -192,7 +198,7 @@ InitVideoPlayerRequest::~InitVideoPlayerRequest()
 
 }
 
-EnablePlayerRequest::EnablePlayerRequest(QString playerId)
+EnablePlayerRequest::EnablePlayerRequest(QString playerId, QObject * parent) : VideoServiceRequest(parent)
 {
     VideoServiceRequestParam playerIdParam;
     playerIdParam.key = "player_id";
@@ -209,7 +215,7 @@ EnablePlayerRequest::~EnablePlayerRequest()
 
 }
 
-AssignPlaylistToPlayerRequest::AssignPlaylistToPlayerRequest(QString playerId, int playlistId)
+AssignPlaylistToPlayerRequest::AssignPlaylistToPlayerRequest(QString playerId, int playlistId, QObject *parent) : VideoServiceRequest(parent)
 {
     //http://api.teleds.com/setplaylist?player_id=3xsg-xuc5-ykdp&playlist=10
     VideoServiceRequestParam playerIdParam, playlistIdParam;
@@ -230,7 +236,7 @@ AssignPlaylistToPlayerRequest::~AssignPlaylistToPlayerRequest()
 
 }
 
-GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionKey)
+GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionKey, QObject *parent) : VideoServiceRequest(parent)
 {
     //http://api.teleds.com/getplaylist?player_id=r2s6-6fb9-5hdb&ctypted_session_key=XZH%2F57V...
     VideoServiceRequestParam playerIdParam, cryptedSessionKeyParam;
@@ -252,7 +258,7 @@ GetPlaylistRequest::~GetPlaylistRequest()
 
 }
 
-SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data)
+SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data, QObject *parent) : VideoServiceRequest (parent)
 {
     VideoServiceRequestParam playerIdParam, encrypedSessionKeyParam, dataParam;
     playerIdParam.key = "player_id";
@@ -274,6 +280,11 @@ SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSe
 }
 
 SendStatisticRequest::~SendStatisticRequest()
+{
+
+}
+
+VideoServiceRequest::VideoServiceRequest(QObject *parent) : QObject(parent)
 {
 
 }

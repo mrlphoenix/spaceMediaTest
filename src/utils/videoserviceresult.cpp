@@ -57,6 +57,7 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
         sessionKey = result.session_key;
         emit initResult(result);
     }
+    reply->deleteLater();
 }
 
 void VideoServiceResultProcessor::enablePlayerResultReply(QNetworkReply *reply)
@@ -65,6 +66,7 @@ void VideoServiceResultProcessor::enablePlayerResultReply(QNetworkReply *reply)
         emit enablePlayerResult("NETWORK ERROR: " + reply->errorString());
     else
         emit enablePlayerResult(reply->readAll());
+    reply->deleteLater();
 }
 
 void VideoServiceResultProcessor::assignPlaylistResultReply(QNetworkReply *reply)
@@ -73,6 +75,7 @@ void VideoServiceResultProcessor::assignPlaylistResultReply(QNetworkReply *reply
         emit assignPlaylistResult("NETWORK ERROR: " + reply->errorString());
     else
         emit assignPlaylistResult(reply->readAll());
+    reply->deleteLater();
 }
 
 void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
@@ -132,6 +135,7 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
             }
         }
     }
+    reply->deleteLater();
 }
 
 void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
@@ -152,6 +156,7 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
         result.status = root["status"].toString();
     }
     emit sendStatisticResult(result);
+    reply->deleteLater();
 }
 
 QString VideoServiceResultProcessor::getRandomString(int length)
@@ -185,6 +190,11 @@ InitRequestResult InitRequestResult::fromJson(QJsonObject data)
         result.public_key = data["public_key"].toString();
     }
     return result;
+}
+
+PlayerConfig::PlayerConfig()
+{
+    error = 0;
 }
 
 PlayerConfig PlayerConfig::fromJson(QJsonObject json)

@@ -200,11 +200,11 @@ YandexWeatherModel YandexWeatherModel::fromXml(QByteArray data)
         }
         else if (xml.hasError())
         {
-            qDebug() << "XML error: " << xml.errorString() << endl;
+            qDebug() << "XML error: " << xml.errorString() << "\n";
         }
         else if (xml.atEnd())
         {
-            qDebug() << "Reached end, done" << endl;
+            qDebug() << "Reached end, done" << "\n";
         }
     }
     return result;

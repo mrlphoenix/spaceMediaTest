@@ -12,8 +12,9 @@ CPUStat::CPUStat(QObject *parent) : QObject(parent)
 
 CPUStat::~CPUStat()
 {
-    if (thread)
-        thread->deleteLater();
+    delete thread;
+   // if (thread)
+   //     thread->deleteLater();
 }
 
 void CPUStat::getInfo()

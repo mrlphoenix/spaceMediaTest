@@ -2,23 +2,16 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += \
-    $$PWD/videoplayer.cpp \
-    $$PWD/yandexweatherwidget.cpp \
-    $$PWD/yandexweatherdaywidget.cpp \
-    $$PWD/instagramrecentpostviewer.cpp \
     $$PWD/soundwigetinfo.cpp \
-    $$PWD/rpivideoplayer.cpp
+    $$PWD/rpivideoplayer.cpp \
+    $$PWD/androidplayertest.cpp
 HEADERS += \
-    $$PWD/videoplayer.h \
-    $$PWD/yandexweatherwidget.h \
-    $$PWD/yandexweatherdaywidget.h \
-    $$PWD/instagramrecentpostviewer.h \
     $$PWD/soundwidgetinfo.h \
-    $$PWD/rpivideoplayer.h
+    $$PWD/rpivideoplayer.h \
+    $$PWD/androidplayertest.h
 
 FORMS += \
     $$PWD/yandexweatherwidget.ui \
     $$PWD/yandexweatherdaywidget.ui \
-    $$PWD/instagramrecentpostviewer.ui \
-    $$PWD/iptvwidget.ui
+    $$PWD/instagramrecentpostviewer.ui
 

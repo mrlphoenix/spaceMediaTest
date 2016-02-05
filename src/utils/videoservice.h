@@ -10,11 +10,12 @@
 
 //http://api.teleds.com/initialization
 
-class VideoServiceRequest
+class VideoServiceRequest : public QObject
 {
+    Q_OBJECT
     friend class VideoService;
 public:
-    VideoServiceRequest(){;}
+    VideoServiceRequest(QObject * parent = 0);
     virtual ~VideoServiceRequest(){;}
 
     struct VideoServiceRequestParam
@@ -32,35 +33,35 @@ protected:
 class InitVideoPlayerRequest : public VideoServiceRequest
 {
 public:
-    InitVideoPlayerRequest();
+    InitVideoPlayerRequest(QObject * parent = 0);
     virtual ~InitVideoPlayerRequest();
 };
 
 class EnablePlayerRequest : public VideoServiceRequest
 {
 public:
-    EnablePlayerRequest(QString playerId);
+    EnablePlayerRequest(QString playerId, QObject * parent = 0);
     virtual ~EnablePlayerRequest();
 };
 
 class AssignPlaylistToPlayerRequest : public VideoServiceRequest
 {
 public:
-    AssignPlaylistToPlayerRequest(QString playerId, int playlistId);
+    AssignPlaylistToPlayerRequest(QString playerId, int playlistId, QObject* parent = 0);
     virtual ~AssignPlaylistToPlayerRequest();
 };
 
 class GetPlaylistRequest : public VideoServiceRequest
 {
 public:
-    GetPlaylistRequest(QString playerId, QString cryptedSessionKey);
+    GetPlaylistRequest(QString playerId, QString cryptedSessionKey, QObject* parent = 0);
     virtual ~GetPlaylistRequest();
 };
 
 class SendStatisticRequest : public VideoServiceRequest
 {
 public:
-    SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data);
+    SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data, QObject* parent = 0);
     virtual ~SendStatisticRequest();
 };
 
@@ -71,6 +72,7 @@ class VideoService : public QObject
     Q_OBJECT
 public:
     explicit VideoService(QString serverURL, QObject *parent = 0);
+    ~VideoService();
 
     void init();
     void enablePlayer(QString playerId);

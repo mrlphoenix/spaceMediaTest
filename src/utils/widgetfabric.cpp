@@ -1,8 +1,5 @@
 #include <QJsonArray>
 #include <soundwidgetinfo.h>
-#include <videoplayer.h>
-#include <yandexweatherwidget.h>
-#include <instagramrecentpostviewer.h>
 #include "widgetfabric.h"
 
 WidgetFabric::WidgetFabric(QObject *parent) : QObject(parent)
@@ -32,7 +29,7 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         return NULL;
     }
 
-    if (widgetType.toLower() == "videoplayer")
+ /*   if (widgetType.toLower() == "videoplayer")
     {
         VideoPlayer * videoplayer;
         QJsonArray playlist = object["playlist"].toArray();
@@ -67,7 +64,7 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         instagramWidget->move(widgetLeftValue,widgetTopValue);
         instagramWidget->resize(widgetWidthValue, widgetHeightValue);
         return instagramWidget;
-    }
+    }*/
     return NULL;
 }
 

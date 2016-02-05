@@ -38,6 +38,7 @@ public slots:
     void generateSysInfo();
     void getResourceCount();
     void getGps();
+    void ex();
 
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
     void resourceCountUpdate(int count);
@@ -55,7 +56,7 @@ protected:
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;
     PlayerConfig currentConfig;
-    TeleDSSheduler sheduler;
+    TeleDSSheduler * sheduler;
 };
 
 
