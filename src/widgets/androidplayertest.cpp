@@ -41,14 +41,16 @@ QString AndroidPlayerTest::getFullPath(QString fileName)
 void AndroidPlayerTest::invokeNextVideoMethod(QString name)
 {
     qDebug() << "invoking next";
-    QVariant source = QUrl("file:///sdcard/download/teleds/1.mp4");
+    QVariant source = QUrl(name);
     qDebug() << source;
     QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
 }
 
 void AndroidPlayerTest::next()
 {
-    invokeNextVideoMethod("file:///sdcard/download/teleds/1.mp4");
+    static int index = 0;
+    invokeNextVideoMethod("file:///sdcard/download/teleds/" + QString::number(index) + ".mp4");
+    index = (index + 1) % 5;
 
     qDebug() << "inserting into database PLAY";
 }
