@@ -175,7 +175,7 @@ void TeleDSCore::fakeInit()
 
 void TeleDSCore::downloaded()
 {
-    qDebug() << "downloaded";
+    qDebug() << "!!!!!!!!downloaded!";
     GlobalConfigInstance.setGetPlaylistTimerTime(30000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     if (rpiPlayer == NULL)
