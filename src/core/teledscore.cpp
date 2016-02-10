@@ -7,11 +7,13 @@
 #include <QProcess>
 #include <QUrl>
 
+
 #include <widgetfabric.h>
 #include "teledscore.h"
 #include "globalconfig.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
+#include "sslencoder.h"
 
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
@@ -22,7 +24,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     uploader = new StatisticUploader(videoService,this);
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    statsTimer->start(5 * 60000);
+    statsTimer->start(90000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
@@ -47,12 +49,46 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         qDebug()<< "loading: plid = " << result.player_id << " public key = " << result.public_key;
         qDebug() << "session key = " << result.session_key;
         playerInitParams = result;
-        encryptedSessionKey = encryptSessionKey();
+       // encryptedSessionKey = encryptSessionKey();
+        encryptedSessionKey = SSLEncoder::encryptRSA(result.session_key.toLocal8Bit(), result.public_key.toLocal8Bit());
         qDebug() << "encryptedSessionKey = " << encryptedSessionKey;
+
+
+
         GlobalConfigInstance.setSessionKey(result.session_key);
         GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+        //sheduler.stop(TeleDSSheduler::ALL);
+
+
+/*
+        QByteArray zipData;
+        QFile file("gzip_f.gz");
+        file.open(QFile::ReadOnly);
+        zipData = file.readAll();
+        QByteArray encodedData = SSLEncoder::encodeAES256(zipData,false,false);
+        file.close();
+      //  QByteArray encodedData = SSLEncoder::encodeAES(QString("abc").toLocal8Bit(),"0").toBase64();
+       // qDebug() << "\n\n\n\n\n" << encodedData << "\n\n\n\n";
+        QFile aesEnc("aes.dat");
+        aesEnc.open(QFile::WriteOnly);
+        aesEnc.write(encodedData);
+        aesEnc.flush();
+        aesEnc.close();
+
+        QProcess encodeProcess;
+        qDebug() << "\n\n\n\HEX KEY: " << GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex();
+        encodeProcess.start("openssl enc -aes-256-cbc -K " + GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex()
+                + " -iv 30303030303030303030303030303030 -in gzip_f.gz -out aes_ssl_.dat");
+        encodeProcess.waitForFinished(-1);
+
+    /*    QFile aesSSLEnc("aes_ssl.dat");
+        aesSSLEnc.open(QFile::ReadOnly);
+        QByteArray sslData = aesSSLEnc.readAll();
+        qDebug() << "\n\n\n\n\n\n" << QUrl::toPercentEncoding(sslData);*/
+
+
     } else
     {
         qDebug() << "player is not configurated";
@@ -66,7 +102,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
 QString TeleDSCore::encryptSessionKey()
 {
-    qDebug() << "encrypting session key";
+    qDebug() << "encrypt!ing session key";
     QFile pubKey("pubkey.key");
     pubKey.open(QFile::WriteOnly);
     pubKey.write(playerInitParams.public_key.toLocal8Bit());
@@ -175,7 +211,7 @@ void TeleDSCore::fakeInit()
 
 void TeleDSCore::downloaded()
 {
-    qDebug() << "downloaded";
+    qDebug() << "!!!!!!!!downloaded!";
     GlobalConfigInstance.setGetPlaylistTimerTime(30000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     if (rpiPlayer == NULL)

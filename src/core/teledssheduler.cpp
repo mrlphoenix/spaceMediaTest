@@ -58,6 +58,12 @@ void TeleDSSheduler::start(TeleDSSheduler::Task t)
         gpsTimer->start(GlobalConfigInstance.getGpsTimerTime());
         break;
     default:
+        getPlaylistTimer->start(GlobalConfigInstance.getGetPlaylistTimerTime());
+        cpuInfoTimer->start(GlobalConfigInstance.getCpuInfoTimerTime());
+        reportTimer->start(GlobalConfigInstance.getReportTimerTime());
+        sysInfoTimer->start(GlobalConfigInstance.getSysInfoTimerTime());
+        resourceCounterTimer->start(GlobalConfigInstance.getResourceCounterTimerTime());
+        gpsTimer->start(GlobalConfigInstance.getGpsTimerTime());
         break;
     }
 }
@@ -83,7 +89,14 @@ void TeleDSSheduler::stop(TeleDSSheduler::Task t)
         break;
     case GPS:
         gpsTimer->stop();
+        break;
     default:
+        getPlaylistTimer->stop();
+        cpuInfoTimer->stop();
+        reportTimer->stop();
+        sysInfoTimer->stop();
+        resourceCounterTimer->stop();
+        gpsTimer->stop();
         break;
     }
 }

@@ -14,6 +14,7 @@
 #include "globalstats.h"
 #include "globalconfig.h"
 #include "singleton.h"
+#include "sslencoder.h"
 
 StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent) : QObject(parent)
 {
@@ -98,7 +99,7 @@ void StatisticUploader::uploadResult(NonQueryResult result)
     }
     else
     {
-        qDebug() << "UPLOAD FAILED" << result.error_text;
+        qDebug() << "UPLOAD FAILED" << result.source;
         DatabaseInstance.uploadingFailed();
     }
     toIdleState();
@@ -145,46 +146,13 @@ void StatisticUploader::runStateStep()
     {
         QJsonDocument doc(generateStatisticModel());
         QByteArray data = doc.toJson();
-        QFile statJson("s.txt");
-        statJson.open(QFile::WriteOnly);
-        statJson.write(data);
-        statJson.flush();
-        statJson.close();
 
-        QProcess gzipProcess;
-        QProcess encryptProcess;
+        QByteArray zipData = SSLEncoder::compressData(data);
+        QString requestData = SSLEncoder::encodeAES256(zipData, true, true);
 
-        gzipProcess.setStandardOutputProcess(&encryptProcess);
-        QString hexSessionKey = GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex();
-        gzipProcess.start("gzip -9 -k -c s.txt");
-        encryptProcess.start("openssl enc -aes-256-cbc -base64 -K " + hexSessionKey + " -iv 30303030303030303030303030303030");
+        qDebug() << QString(requestData);
 
-        bool retval = false;
-        while ((retval = encryptProcess.waitForFinished()));
-
-        QByteArray result = encryptProcess.readAll();
-        QString base64Data = result;
-
-        base64Data = QUrl::toPercentEncoding(base64Data.replace("\n","").replace("\r",""));
-
-        qDebug() << QString(base64Data);
-
-        //build request
-    /*   QUrl url("http://api.teleds.com/statistics");
-        QNetworkRequest request(url);
-
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-
-        QUrlQuery params;
-        params.addQueryItem("player_id", GlobalConfigInstance.getPlayerId());
-        params.addQueryItem("ctypted_session_key", GlobalConfigInstance.getEncryptedSessionKey());
-        params.addQueryItem("statistics", base64Data);
-
-        qDebug() << "UPLOAD QUERY:::" + params.query();
-        QObject::connect(&manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(replyFinished(QNetworkReply *)));
-
-        manager.post(request, params.toString(QUrl::FullyEncoded).toUtf8());*/
-        videoService->sendStatistic(GlobalConfigInstance.getPlayerId(), GlobalConfigInstance.getEncryptedSessionKey(), base64Data);
+        videoService->sendStatistic(GlobalConfigInstance.getPlayerId(), GlobalConfigInstance.getEncryptedSessionKey(), requestData);
     }
 }
 

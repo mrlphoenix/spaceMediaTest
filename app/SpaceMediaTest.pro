@@ -7,6 +7,8 @@
 QT       += core gui multimediawidgets xml network quick sql
 CONFIG   += c++11
 
+PKGCONFIG += openssl
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SpaceMediaTest
@@ -26,3 +28,5 @@ RESOURCES += \
     qml.qrc
 
 DISTFILES += ../qml/simple_player.qml
+
+LIBS += -lssl -lcrypto

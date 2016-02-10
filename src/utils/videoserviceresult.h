@@ -26,6 +26,7 @@ struct NonQueryResult
     QString status;
     int error_id;
     QString error_text;
+    QString source;
 };
 
 struct PlayerConfig

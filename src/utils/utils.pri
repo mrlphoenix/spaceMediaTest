@@ -13,7 +13,8 @@ SOURCES += \
     $$PWD/statisticdatabase.cpp \
     $$PWD/globalstats.cpp \
     $$PWD/cpustat.cpp \
-    $$PWD/statisticuploader.cpp
+    $$PWD/statisticuploader.cpp \
+    $$PWD/sslencoder.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
@@ -26,6 +27,7 @@ HEADERS += \
     $$PWD/statisticdatabase.h \
     $$PWD/globalstats.h \
     $$PWD/cpustat.h \
-    $$PWD/statisticuploader.h
+    $$PWD/statisticuploader.h \
+    $$PWD/sslencoder.h
 FORMS   +=
 

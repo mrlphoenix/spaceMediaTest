@@ -11,7 +11,7 @@ public:
     explicit TeleDSSheduler(QObject *parent = 0);
     ~TeleDSSheduler();
 
-    enum Task{GET_PLAYLIST, CPU_INFO, REPORT, SYS_INFO, RESOURCE_COUNT, GPS};
+    enum Task{GET_PLAYLIST, CPU_INFO, REPORT, SYS_INFO, RESOURCE_COUNT, GPS, ALL};
 
     void start(Task t);
     void stop(Task t);

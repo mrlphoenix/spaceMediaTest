@@ -145,7 +145,9 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
     }
     else
     {
-        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        QByteArray replyData = reply->readAll();
+        qDebug() << "STATS REPLY" << replyData;
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
         result.error_id = root["error_id"].toInt();
         result.error_text = root["error_text"].toString();
@@ -344,6 +346,8 @@ NonQueryResult NonQueryResult::fromJson(QJsonObject data)
         result.error_text = data["error_text"].toString();
     }
     result.status = data["status"].toString();
+
+    result.source = QJsonDocument(data).toJson();
 
     return result;
 }
