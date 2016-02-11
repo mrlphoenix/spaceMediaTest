@@ -14,6 +14,7 @@
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "sslencoder.h"
+#include "platformdefines.h"
 
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
@@ -38,6 +39,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
     QTimer::singleShot(70000,uploader,SLOT(start()));
+
+    qDebug() << CONFIG_FOLDER;
 
     if (GlobalConfigInstance.isConfigured())
     {

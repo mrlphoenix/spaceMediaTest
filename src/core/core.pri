@@ -8,7 +8,8 @@ HEADERS += \
     $$PWD/teledscore.h \
     $$PWD/singleton.h \
     $$PWD/call_once.h \
-    $$PWD/teledssheduler.h
+    $$PWD/teledssheduler.h \
+    $$PWD/platformdefines.h
 
 FORMS += \
     $$PWD/mainwindow.ui

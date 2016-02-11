@@ -4,6 +4,7 @@
 #include "videodownloader.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
+#include "platformdefines.h"
 
 VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject(parent)
 {
@@ -26,7 +27,7 @@ void VideoDownloader::checkDownload()
     foreach (const PlayerConfig::Area& area, config.areas)
         foreach(const PlayerConfig::Area::Playlist::Item& item, area.playlist.items)
         {
-            QString filename = "data/video/" + item.iid + ".mp4";
+            QString filename = VIDEO_FOLDER + item.iid + ".mp4";
             if (!QFile::exists(filename))
                 itemsToDownload.append(item);
             else if (getFileHash(filename) != item.sha1)
@@ -47,7 +48,7 @@ void VideoDownloader::download()
     if (itemsToDownload.count() > currentItemIndex)
     {
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
-        file = new QFile("data/video/" + itemsToDownload[currentItemIndex].iid + ".mp4");
+        file = new QFile(VIDEO_FOLDER + itemsToDownload[currentItemIndex].iid + ".mp4");
         file->open(QFile::WriteOnly);
 
         reply = manager.get(QNetworkRequest(QUrl(itemsToDownload[currentItemIndex].path)));
@@ -87,13 +88,12 @@ void VideoDownloader::httpFinished()
     file->flush();
     file->close();
 
-    reply->deleteLater();
+    delete reply;
     reply = 0;
     delete file;
     file = 0;
 
     download();
-    reply->deleteLater();
 }
 
 void VideoDownloader::httpReadyRead()

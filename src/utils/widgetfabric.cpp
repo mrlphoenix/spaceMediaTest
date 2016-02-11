@@ -1,6 +1,5 @@
 #include <QJsonArray>
 #include <soundwidgetinfo.h>
-#include <videoplayer.h>
 #include <yandexweatherwidget.h>
 #include <instagramrecentpostviewer.h>
 #include "widgetfabric.h"
@@ -30,22 +29,6 @@ QWidget *WidgetFabric::create(QJsonObject object, QWidget *parent)
         widgetWidthValue  == std::numeric_limits<int>::min() || widgetHeightValue  == std::numeric_limits<int>::min())
     {
         return NULL;
-    }
-
-    if (widgetType.toLower() == "videoplayer")
-    {
-        VideoPlayer * videoplayer;
-        QJsonArray playlist = object["playlist"].toArray();
-        QStringList fileNames;
-        for (int i=0; i<playlist.size(); ++i)
-            fileNames.append(playlist[i].toString());
-        videoplayer = new VideoPlayer(fileNames,parent);
-        videoplayer->move(widgetLeftValue,widgetTopValue);
-        videoplayer->resize(widgetWidthValue, widgetHeightValue);
-        videoplayer->setId(widgetId);
-        videoplayer->play();
-        videoplayer->setSound(0);
-        return videoplayer;
     }
     else if (widgetType.toLower() == "yandexweather")
     {

@@ -4,17 +4,22 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimediawidgets xml network quick sql
+QT       += qml quick widgets multimedia core gui xml network sql
 CONFIG   += c++11
 
 PKGCONFIG += openssl
 
+KIT = Raspberry
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SpaceMediaTest
-target.path = /home/pi/
-INSTALLS += target
+
 TEMPLATE = app
+
+contains (KIT, Raspberry){
+    TARGET = SpaceMediaTest
+    target.path = /home/pi/
+    INSTALLS += target
+}
 
 include(../src/core/core.pri)
 include(../src/utils/utils.pri)
@@ -28,5 +33,20 @@ RESOURCES += \
     qml.qrc
 
 DISTFILES += ../qml/simple_player.qml
+QML_IMPORT_PATH =
 
 LIBS += -lssl -lcrypto
+
+contains (KIT, Android){
+    include(deployment.pri)
+}
+
+android: {
+    INCLUDEPATH += /usr/local/ssl/android-9/include
+    LIBS += -L/usr/local/ssl/android-9/lib
+}
+
+
+    ANDROID_EXTRA_LIBS = \
+        $$PWD/../../../../usr/local/ssl/android-9/lib/libcrypto_1_0_0.so \
+        $$PWD/../../../../usr/local/ssl/android-9/lib/libssl_1_0_0.so

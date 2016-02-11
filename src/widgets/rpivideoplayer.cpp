@@ -1,6 +1,7 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
 #include "statisticdatabase.h"
+#include "platformdefines.h"
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
@@ -14,7 +15,7 @@ RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QOb
     this->config = config;
     setConfig(config);
 
-    view.setSource(QUrl(QStringLiteral("qrc:///simple_player.qml")));
+    view.setSource(QUrl(QStringLiteral("qrc:/main_player.qml")));
     viewRootObject = dynamic_cast<QObject*>(view.rootObject());
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
@@ -30,7 +31,7 @@ RpiVideoPlayer::~RpiVideoPlayer()
 
 QString RpiVideoPlayer::getFullPath(QString fileName)
 {
-    QString nextFile = "data/video/" + fileName + ".mp4";
+    QString nextFile = VIDEO_FOLDER + fileName + ".mp4";
     QFileInfo fileInfo(nextFile);
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }

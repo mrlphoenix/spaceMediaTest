@@ -6,6 +6,7 @@
 #include <teledscore.h>
 #include "sslencoder.h"
 
+
 int main(int argc, char *argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);

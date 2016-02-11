@@ -6,11 +6,12 @@
 #include <QDebug>
 #include <QFileInfo>
 #include "globalconfig.h"
+#include "platformdefines.h"
 
 GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
 {
     qDebug() << "global config init";
-    if (!QFile::exists("data/config.dat"))
+    if (!QFile::exists(CONFIG_FOLDER + "config.dat"))
     {
         qDebug() << "config file does not exists; creating new one";
 
@@ -98,7 +99,7 @@ void GlobalConfig::setGpsTimerTime(int msecs)
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
-    QFile configFile("data/config.dat");
+    QFile configFile(CONFIG_FOLDER + "config.dat");
     configFile.open(QFile::ReadOnly);
     QJsonDocument doc;
     doc = QJsonDocument::fromJson(configFile.readAll());
@@ -137,7 +138,7 @@ void GlobalConfig::save()
     root["gpsTimerTime"] = gpsTimerTime;
 
     QJsonDocument doc(root);
-    QFile file ("data/config.dat");
+    QFile file (CONFIG_FOLDER + "config.dat");
     file.open(QFile::WriteOnly);
     file.write(doc.toJson());
     file.flush();
