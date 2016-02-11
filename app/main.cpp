@@ -3,7 +3,6 @@
 #include <QByteArray>
 #include <QProcess>
 #include <QFile>
-#include <mainwindow.h>
 #include <teledscore.h>
 #include "sslencoder.h"
 

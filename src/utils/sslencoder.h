@@ -15,16 +15,14 @@ class SSLEncoder : public QObject
     Q_OBJECT
 public:
     explicit SSLEncoder(QObject *parent = 0);
-    static QString encodeBase64Data(QByteArray data);
-    static QByteArray encodeAES(const QByteArray &dat, QString password);
-    static QByteArray decodeFromBase64Data(QByteArray base64Data);
-    static QByteArray encryptRSA(QByteArray data, QByteArray keyArray);
 
+    static QByteArray encryptRSA(QByteArray data, QByteArray keyArray);
     static QByteArray compressData(const QByteArray &data);
     static quint32 CRC32(const QByteArray& data);
 
 
     static QByteArray encodeAES256(QByteArray data, bool toBase64, bool isText);
+    static QByteArray decodeAES256(QByteArray data, bool fromBase64);
     static void handleErrors();
 
 

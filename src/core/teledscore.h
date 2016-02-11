@@ -18,13 +18,11 @@ class TeleDSCore : public QObject
     Q_OBJECT
 public:
     explicit TeleDSCore(QObject *parent = 0);
-    QString encryptSessionKey();
 
 signals:
     void playerIdUpdate(QString playerId);
 public slots:
     void initPlayer();
-    void processError(QProcess::ProcessError error);
 
     void initResult(InitRequestResult result);
     void playlistResult(PlayerConfig result);

@@ -1,6 +1,7 @@
 #include <QUrl>
 #include <QDebug>
 #include <QDataStream>
+#include <QFile>
 #include <openssl/err.h>
 #include <openssl/conf.h>
 #include <stdio.h>
@@ -169,14 +170,8 @@ QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
 {
     if (isText)
         data.append(0x0A);
- //   qDebug() << data.size();
-    /* Set up the key and iv. Do I need to say to not hard code these in a
-      * real application? :-)
-      */
 
      /* A 256 bit key */
-   // qDebug() << "SESSION KEY: " << GlobalConfigInstance.getSessionKey();
-   // qDebug() << "HEX SESSION KEY: " << GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex();
     unsigned char * key = new unsigned char[32];
     memcpy(key,GlobalConfigInstance.getSessionKey().toLocal8Bit().data(),32);
      /* A 128 bit IV */
@@ -190,7 +185,7 @@ QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
      unsigned char *ciphertext = new unsigned char [data.size()*2];
      unsigned char *decryptedtext = new unsigned char [data.size()*2];
 
-     int decryptedtext_len, ciphertext_len;
+     int ciphertext_len;
 
      ERR_load_crypto_strings();
      OpenSSL_add_all_algorithms();
@@ -206,21 +201,7 @@ QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
      else
         result = QByteArray((char*)ciphertext,ciphertext_len);
 
-  //   qDebug() << result;
-
-   //  BIO_dump_fp (stdout, (const char *)ciphertext, ciphertext_len);
-
-     /* Decrypt the ciphertext */
-     decryptedtext_len = decryptAES256(ciphertext, ciphertext_len, key, iv,
-       decryptedtext);
-
-     /* Add a NULL terminator. We are expecting printable text */
-     decryptedtext[decryptedtext_len] = '\0';
-
      /* Show the decrypted text */
- //    qDebug() << "Decrypted text is:\n";
-  //   qDebug() << QByteArray((char*)decryptedtext, decryptedtext_len);
-
      /* Clean up */
      EVP_cleanup();
      ERR_free_strings();
@@ -232,11 +213,50 @@ QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
          return result;
 }
 
+QByteArray SSLEncoder::decodeAES256(QByteArray data, bool fromBase64)
+{
+    unsigned char * key = new unsigned char[32];
+    unsigned char * iv = (unsigned char *)"0000000000000000";
+    memcpy(key, GlobalConfigInstance.getSessionKey().toLocal8Bit().data(), 32);
+
+    unsigned char * ciphertext;
+    unsigned char * decryptedData;
+    int encryptedDataSize, decryptedDataSize;
+
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    OPENSSL_config(NULL);
+    if (fromBase64)
+    {
+        QByteArray cryptedData = QByteArray::fromBase64(data);
+        ciphertext = new unsigned char[cryptedData.size()];
+        memcpy(ciphertext, cryptedData.data(), cryptedData.size());
+        encryptedDataSize = cryptedData.size();
+    }
+    else
+    {
+        ciphertext = new unsigned char[data.size()*2];
+        memcpy(ciphertext,data.data(),data.size());
+        encryptedDataSize = data.size();
+    }
+    decryptedData = new unsigned char [encryptedDataSize*2];
+    memset(decryptedData,0, encryptedDataSize*2);
+
+    decryptedDataSize = decryptAES256(ciphertext,encryptedDataSize,key,iv,decryptedData);
+    QByteArray result = QByteArray((char*)decryptedData,decryptedDataSize);
+
+    EVP_cleanup();
+    ERR_free_strings();
+    delete [] ciphertext;
+    delete [] decryptedData;
+    return result;
+}
+
 
 void SSLEncoder::handleErrors()
 {
-  ERR_print_errors_fp(stderr);
-  abort();
+    ERR_print_errors_fp(stderr);
+    abort();
 }
 int SSLEncoder::encryptAES256(unsigned char *plaintext, int plaintext_len, unsigned char *key,
   unsigned char *iv, unsigned char *ciphertext)
@@ -282,27 +302,20 @@ int SSLEncoder::decryptAES256(unsigned char *ciphertext, int ciphertext_len, uns
     int plaintext_len;
 
     /* Create and initialise the context */
-    if(!(ctx = EVP_CIPHER_CTX_new()))
-        handleErrors();
+    if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
+    if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+      handleErrors();
 
-    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
-        handleErrors();
-
-    /* Provide the message to be decrypted, and obtain the plaintext output.
-    * EVP_DecryptUpdate can be called multiple times if necessary
-    */
     if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
-        handleErrors();
+      handleErrors();
     plaintext_len = len;
 
-    /* Finalise the decryption. Further plaintext bytes may be written at
-    * this stage.
-    */
     if(1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) handleErrors();
-        plaintext_len += len;
+    plaintext_len += len;
 
     /* Clean up */
     EVP_CIPHER_CTX_free(ctx);
 
     return plaintext_len;
+
 }

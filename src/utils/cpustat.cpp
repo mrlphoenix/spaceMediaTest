@@ -29,9 +29,9 @@ CPUStatWorker::CPUStatWorker(QObject *parent) : QObject(parent)
 
 void CPUStatWorker::getInfo()
 {
-    process = new QProcess();
-    connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(readyRead()));
-    process->start("bash data/cpu_usage.sh");
+   // process = new QProcess();
+   // connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(readyRead()));
+   // process->start("bash data/cpu_usage.sh");
 }
 
 void CPUStatWorker::readyRead()

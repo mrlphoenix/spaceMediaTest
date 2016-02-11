@@ -12,6 +12,7 @@
 
 #include "videoserviceresult.h"
 #include "globalconfig.h"
+#include "sslencoder.h"
 
 
 QString InitRequestResult::getRandomString(int length)
@@ -94,37 +95,16 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
             emit getPlaylistResult(PlayerConfig::fromErrorJson(doc.object()));
         else
         {
-            QString hexSessionKey = sessionKey;
-            if (hexSessionKey == "")
-                hexSessionKey = GlobalConfigInstance.getSessionKey();
-            hexSessionKey = hexSessionKey.toLocal8Bit().toHex();
-            QFile cryptedDataFile("playlist.bin");
-            cryptedDataFile.open(QFile::WriteOnly);
-            QByteArray binaryData = QByteArray::fromBase64(replyData);
-            cryptedDataFile.write(binaryData);
-            cryptedDataFile.close();
-
-            QProcess decodeProcess;
-            /*
-             * openssl enc -aes-256-cbc -d -K 3530383833326435363964346637303661666161633435313163626565333038 -iv 30303030303030303030303030303030 -in ./DecodedBase64.bin
-             * */
-            decodeProcess.start("openssl enc -aes-256-cbc -d -K " + hexSessionKey + " -iv 30303030303030303030303030303030 -in playlist.bin");
-            QByteArray decodedPlaylist;
-            decodeProcess.waitForFinished();
-            decodedPlaylist.append(decodeProcess.readAll());
-            QFile playlistJson("playlist.json");
-            playlistJson.open(QFile::WriteOnly);
-            playlistJson.write(decodedPlaylist);
-            playlistJson.close();
-
+            QByteArray decodedPlaylist = SSLEncoder::decodeAES256(replyData,true);
             QJsonDocument playlistDoc;
+
             QJsonParseError playlistError;
             playlistDoc = QJsonDocument::fromJson(decodedPlaylist,&playlistError);
             if (playlistError.error == QJsonParseError::NoError)
                 emit getPlaylistResult(PlayerConfig::fromJson(playlistDoc.object()));
             else
             {
-                qDebug() << "ERROR while parsing playlist";
+                qDebug() << "ERROR while parsing playlist: not json!";
                 PlayerConfig config;
                 config.error = -1;
                 config.error_text = "UNPARSABLE Playlist";

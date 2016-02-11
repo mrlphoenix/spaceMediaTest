@@ -240,4 +240,3 @@ QJsonObject StatisticUploader::generateStatisticModel()
     root["gps"] = gpsArray;
     return root;
 }
-

@@ -53,42 +53,22 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         encryptedSessionKey = SSLEncoder::encryptRSA(result.session_key.toLocal8Bit(), result.public_key.toLocal8Bit());
         qDebug() << "encryptedSessionKey = " << encryptedSessionKey;
 
-
-
         GlobalConfigInstance.setSessionKey(result.session_key);
         GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
-        //sheduler.stop(TeleDSSheduler::ALL);
+   //     sheduler.stop(TeleDSSheduler::ALL);
 
-
-/*
-        QByteArray zipData;
-        QFile file("gzip_f.gz");
-        file.open(QFile::ReadOnly);
-        zipData = file.readAll();
-        QByteArray encodedData = SSLEncoder::encodeAES256(zipData,false,false);
-        file.close();
-      //  QByteArray encodedData = SSLEncoder::encodeAES(QString("abc").toLocal8Bit(),"0").toBase64();
-       // qDebug() << "\n\n\n\n\n" << encodedData << "\n\n\n\n";
-        QFile aesEnc("aes.dat");
-        aesEnc.open(QFile::WriteOnly);
-        aesEnc.write(encodedData);
-        aesEnc.flush();
-        aesEnc.close();
-
-        QProcess encodeProcess;
-        qDebug() << "\n\n\n\HEX KEY: " << GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex();
-        encodeProcess.start("openssl enc -aes-256-cbc -K " + GlobalConfigInstance.getSessionKey().toLocal8Bit().toHex()
-                + " -iv 30303030303030303030303030303030 -in gzip_f.gz -out aes_ssl_.dat");
-        encodeProcess.waitForFinished(-1);
-
-    /*    QFile aesSSLEnc("aes_ssl.dat");
-        aesSSLEnc.open(QFile::ReadOnly);
-        QByteArray sslData = aesSSLEnc.readAll();
-        qDebug() << "\n\n\n\n\n\n" << QUrl::toPercentEncoding(sslData);*/
-
-
+      /*  QFile decPlaylist("playlist.dec");
+        decPlaylist.open(QFile::ReadOnly);
+        QByteArray data = decPlaylist.readAll();
+        QByteArray encr = SSLEncoder::encodeAES256(data,false,false);
+        QByteArray decoded = SSLEncoder::decodeAES256(encr,false);
+        QFile outPlaylist("playlist.dec.enc");
+        outPlaylist.open(QFile::WriteOnly);
+        outPlaylist.write(encr);
+        outPlaylist.flush();
+        outPlaylist.close();*/
     } else
     {
         qDebug() << "player is not configurated";
@@ -100,46 +80,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     qDebug() << "TELEDS initialization done";
 }
 
-QString TeleDSCore::encryptSessionKey()
-{
-    qDebug() << "encrypt!ing session key";
-    QFile pubKey("pubkey.key");
-    pubKey.open(QFile::WriteOnly);
-    pubKey.write(playerInitParams.public_key.toLocal8Bit());
-    pubKey.close();
-    qDebug() << "writing pubkey.key";
-
-    qDebug() << "encrypting...";
-    QProcess echoProcess, rsaEncodeProcess, base64Process;
-    echoProcess.setStandardOutputProcess(&rsaEncodeProcess);
-    //rsaEncodeProcess.setProcessChannelMode(QProcess::ForwardedChannels);
-    rsaEncodeProcess.setStandardOutputProcess(&base64Process);
-    base64Process.setStandardOutputFile("base64result.txt");
-    //base64Process.setProcessChannelMode(QProcess::ForwardedChannels);
-    connect (&echoProcess,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
-    //replace with echo command instead of cmd
-    echoProcess.start("echo " + playerInitParams.session_key);
-    //echoProcess.start("cmd.exe",QStringList("/c echo " + playerInitParams.session_key));
-    rsaEncodeProcess.start("openssl rsautl -encrypt -inkey pubkey.key -pubin");
-    base64Process.start("openssl base64");
-
-    if(!echoProcess.waitForStarted())
-        return "";
-    bool retval = false;
-    qDebug() << "encrypting successful ";
-
-    while ((retval = base64Process.waitForFinished()));
-    QFile base64Encoded("base64result.txt");
-    qDebug() << "reading result ";
-    base64Encoded.open(QFile::ReadOnly);
-    QString result = base64Encoded.readAll();
-    result = result.mid(0,result.length()-1).replace("\n","").replace("\r","");
-
-    base64Encoded.close();
-    result = QUrl::toPercentEncoding(result);
-    qDebug() << result;
-    return result;
-}
 
 void TeleDSCore::initPlayer()
 {
@@ -147,17 +87,13 @@ void TeleDSCore::initPlayer()
     videoService->init();
 }
 
-void TeleDSCore::processError(QProcess::ProcessError error)
-{
-    qDebug() << error;
-}
 
 void TeleDSCore::initResult(InitRequestResult result)
 {
     emit playerIdUpdate(result.player_id);
     qDebug() << "got player id: " + result.player_id;
     playerInitParams = result;
-    encryptedSessionKey = encryptSessionKey();
+    encryptedSessionKey = SSLEncoder::encryptRSA(result.session_key.toLocal8Bit(), result.public_key.toLocal8Bit());
     GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
     GlobalConfigInstance.setSessionKey(result.session_key);
     qDebug() << "ENC KEY: " << encryptedSessionKey;
