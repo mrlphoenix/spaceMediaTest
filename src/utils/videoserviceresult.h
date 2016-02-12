@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QPolygonF>
 
 struct InitRequestResult
 {
@@ -50,9 +51,11 @@ struct PlayerConfig
             int id;
             QString type;
             QString content;
-
             struct Item
             {
+                void init();
+                void buildGeo();
+
                 QString iid;
                 QString itype;
                 int position;
@@ -79,6 +82,10 @@ struct PlayerConfig
 
                 bool checkTimeTargeting() const;
                 bool checkDateRange() const;
+                bool checkGeoTargeting(QPointF gps) const;
+            private:
+                QPolygonF geoPolygon;
+                bool isPolygonSet;
             };
             QVector<Item> items;
         };

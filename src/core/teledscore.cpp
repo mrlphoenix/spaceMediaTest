@@ -23,6 +23,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
     uploader = new StatisticUploader(videoService,this);
+    rpiPlayer = new RpiVideoPlayer(this);
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
     statsTimer->start(90000);
@@ -38,6 +39,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
     connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
+
+
     QTimer::singleShot(70000,uploader,SLOT(start()));
 
     qDebug() << CONFIG_FOLDER;
@@ -79,7 +82,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     }
 
     downloader = 0;
-    rpiPlayer = 0;
+    //rpiPlayer = 0;
     qDebug() << "TELEDS initialization done";
 }
 
@@ -160,7 +163,9 @@ void TeleDSCore::downloaded()
     }
     else
     {
-        rpiPlayer->update(currentConfig);
+        rpiPlayer->setConfig(currentConfig.areas.first());
+       // rpiPlayer->update(currentConfig);
+        rpiPlayer->play();
     }
 }
 
@@ -206,6 +211,22 @@ void TeleDSCore::resourceCountUpdate(int count)
 
 void TeleDSCore::setupDownloader(PlayerConfig &config)
 {
+    if (downloader)
+        downloader->updateConfig(config);
+    else
+    {
+        downloader = new VideoDownloader(config, this);
+        connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
+        connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
+        connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
+        connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
+    }
+
+    currentConfig = config;
+    downloader->checkDownload();
+    downloader->start();
+
+    /*
     qDebug() << "starting downloader...";
     if (downloader)
     {
@@ -215,8 +236,11 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     downloader = new VideoDownloader(config,this);
     currentConfig = config;
     connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
+    connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
+    connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
+    connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
 
     downloader->checkDownload();
-    downloader->start();
+    downloader->start();*/
 }
 

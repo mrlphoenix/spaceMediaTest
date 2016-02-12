@@ -20,9 +20,12 @@ public:
     void start();
 
     static QString getFileHash(QString fileName);
+    void updateConfig(PlayerConfig config);
 
 signals:
     void done();
+    void downloadProgress(double p);
+    void totalDownloadProgress(double p, QString name);
 public slots:
     void httpFinished();
     void httpReadyRead();

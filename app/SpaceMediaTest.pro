@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += qml quick widgets multimedia core gui xml network sql
+QT       += qml quick widgets multimedia core gui xml network sql positioning
 CONFIG   += c++11
 
 PKGCONFIG += openssl

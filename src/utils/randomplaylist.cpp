@@ -13,12 +13,13 @@ void RandomPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
 
 QString RandomPlaylist::next()
 {
+    qDebug() << "RandomPlaylist:: next";
     shuffle();
     bool found = false;
     QString result;
 
     foreach(const PlayerConfig::Area::Playlist::Item& item,fixedFloatingItems)
-        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
+        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange() && item.checkGeoTargeting(QPointF(0.f,0.f)))
         {
             found = true;
             QDateTime delayPassTime = QDateTime::currentDateTime();
@@ -81,9 +82,15 @@ bool RandomPlaylist::itemDelayPassed(const PlayerConfig::Area::Playlist::Item& i
     if (lastTimeShowed.contains(item.iid))
     {
         if (QDateTime::currentDateTime() > lastTimeShowed[item.iid])
+        {
+            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.iid << " [" << item.name << "]";
             return true;
+        }
         else
+        {
+            qDebug() << "RANDOM PL: Item Delay is Not Passed. Skipping item.>>" << item.iid << " [" << item.name << "]";
             return false;
+        }
     }
     else
         return true;

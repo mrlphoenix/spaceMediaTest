@@ -24,17 +24,27 @@ VideoDownloader::~VideoDownloader()
 void VideoDownloader::checkDownload()
 {
     int itemCount = 0;
+    itemsToDownload.clear();
+
     foreach (const PlayerConfig::Area& area, config.areas)
         foreach(const PlayerConfig::Area::Playlist::Item& item, area.playlist.items)
         {
             QString filename = VIDEO_FOLDER + item.iid + ".mp4";
+            QString filehash;
             if (!QFile::exists(filename))
+            {
+                qDebug() << "FILE DOES NOT EXISTS. " << item.iid <<" need to be downloaded";
                 itemsToDownload.append(item);
-            else if (getFileHash(filename) != item.sha1)
+            }
+            else if ((filehash = getFileHash(filename)) != item.sha1)
+            {
+                qDebug() << "different hashes: " << filehash << " vs " << item.sha1;
                 itemsToDownload.append(item);
+            }
             itemCount++;
         }
     GlobalStatsInstance.setContentPlay(itemCount);
+    qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
 }
 
 void VideoDownloader::start()
@@ -48,6 +58,7 @@ void VideoDownloader::download()
     if (itemsToDownload.count() > currentItemIndex)
     {
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
+        emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
         file = new QFile(VIDEO_FOLDER + itemsToDownload[currentItemIndex].iid + ".mp4");
         file->open(QFile::WriteOnly);
 
@@ -81,6 +92,17 @@ QString VideoDownloader::getFileHash(QString fileName)
     return QByteArray();
 }
 
+void VideoDownloader::updateConfig(PlayerConfig config)
+{
+    this->config = config;
+    currentItemIndex = 0;
+    if (file)
+    {
+        delete file;
+        file = 0;
+    }
+}
+
 void VideoDownloader::httpFinished()
 {
     qDebug()<<"File downloading Finished. Registering in database.";
@@ -109,6 +131,6 @@ void VideoDownloader::httpReadyRead()
 
 void VideoDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    ;
+    emit downloadProgress(double(bytesRead)/double(totalBytes));
 }
 

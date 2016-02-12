@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QRegExp>
 #include <QLocale>
+#include <QPointF>
 
 #include "videoserviceresult.h"
 #include "globalconfig.h"
@@ -195,6 +196,7 @@ PlayerConfig PlayerConfig::fromJson(QJsonObject json)
         {
             QJsonObject itemObject = playlistItem.toObject();
             PlayerConfig::Area::Playlist::Item item;
+            item.init();
             item.delay = itemObject["delay"].toInt();
             item.dtype = itemObject["dtype"].toString();
             item.duration = itemObject["duration"].toInt();
@@ -253,6 +255,11 @@ PlayerConfig PlayerConfig::fromJson(QJsonObject json)
                     data.append(gtItem.toDouble());
                 item.gtargeting.append(data);
             }
+            if (item.gtargeting.size() > 2)
+            {
+                abort();
+                item.buildGeo();
+            }
             currentArea.playlist.items.append(item);
         }
         result.areas.append(currentArea);
@@ -283,15 +290,28 @@ bool PlayerConfig::Area::Playlist::Item::checkTimeTargeting() const
 {
     //check for 7 days in week
     if (ttargeting.count() != 7)
+    {
+        qDebug() << "RANDOM PL: TTargeting is inactive. Allowing item>> " << iid << " [" << name << "]";
         return true;
+    }
     QDateTime currentTime = QDateTime::currentDateTime();
     int hour = currentTime.time().hour();
     int dayOfWeek = currentTime.date().dayOfWeek();
     //check for 24 hour items
     if (ttargeting[dayOfWeek].count() == 24)
-        return ttargeting[dayOfWeek][hour] == "1";
+    {
+        bool timeTargetResult = ttargeting[dayOfWeek][hour] == "1";
+        if (timeTargetResult)
+            qDebug() << "RANDOM PL: Time targeting Passed, Allowing item to play>> " << iid << " [" << name << "]";
+        else
+            qDebug() << "RANDOM PL: Time targeting was not passed. Disallowing item to play>> " << iid << " [" << name << "]";
+        return timeTargetResult;
+    }
     else
+    {
+        qDebug() << "RANDOM PL: some strange values in time targeting hours. Allowing item to play>> " << iid << " [" << name << "]";
         return true;
+    }
 }
 
 bool PlayerConfig::Area::Playlist::Item::checkDateRange() const
@@ -313,8 +333,32 @@ bool PlayerConfig::Area::Playlist::Item::checkDateRange() const
     }
     else
         pend = true;
+    if (pstart && pend)
+        qDebug() << "RANDOM PL: Time range Passed. Item is Allowed";
+    else
+        qDebug() << "RANDOM PL: Time range wasnt Passed. Skipping item";
 
     return pstart && pend;
+}
+
+bool PlayerConfig::Area::Playlist::Item::checkGeoTargeting(QPointF gps) const
+{
+    if (!isPolygonSet || gtargeting.count() < 3)
+    {
+        qDebug() << "RANDOM PL: GeoTargeting is inactive. Item is Allowed>> " << iid << " [" << name << "]";
+        return true;
+    }
+    bool result = geoPolygon.containsPoint(gps,Qt::OddEvenFill);
+    if (result)
+    {
+        qDebug() << "RANDOM PL: Geo Targeting is ok. Item is Allowed>> " << iid << " [" << name << "]";
+        return true;
+    }
+    else
+    {
+        qDebug() << "RANDOM PL: Geo Targeting is not passed. Skipping item>> " << iid << " [" << name << "]";
+        return false;
+    }
 }
 
 NonQueryResult NonQueryResult::fromJson(QJsonObject data)
@@ -330,4 +374,30 @@ NonQueryResult NonQueryResult::fromJson(QJsonObject data)
     result.source = QJsonDocument(data).toJson();
 
     return result;
+}
+
+void PlayerConfig::Area::Playlist::Item::init()
+{
+    position = 0;
+    version = 0;
+    delay = 0;
+    size = 0;
+    width = 0;
+    height = 0;
+    duration = 15;
+    isPolygonSet = false;
+}
+
+void PlayerConfig::Area::Playlist::Item::buildGeo()
+{
+    if (gtargeting.size() < 3)
+        return;
+
+    qDebug() << "PLAYLIST: Building Geo!";
+
+    QList<QPointF> geoPoints;
+    foreach (const QVector<double> &p, gtargeting)
+        geoPoints.append(QPointF(p[0],p[1]));
+    geoPolygon =  QPolygonF::fromList(geoPoints);
+    isPolygonSet = true;
 }

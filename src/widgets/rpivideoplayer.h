@@ -12,17 +12,35 @@
 #include <QDebug>
 #include "randomplaylist.h"
 
+
+
 class RpiVideoPlayer : public QObject
 {
     Q_OBJECT
 public:
     explicit RpiVideoPlayer(PlayerConfig::Area config, QObject * parent);
+    explicit RpiVideoPlayer(QObject * parent);
     ~RpiVideoPlayer();
     QString getFullPath(QString fileName);
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::Area area);
+    void play();
+    void stop();
+
+    struct CurrentItemStatus
+    {
+        QString item;
+        bool isPlaying;
+    };
+
+    bool isPlaying() {return status.isPlaying;}
+    QString getCurrentItem() {return status.item;}
+
 public slots:
     void invokeNextVideoMethod(QString name);
+    void invokeFileProgress(double p, QString name);
+    void invokeProgress(double p);
+    void invokeDownloadDone();
     void next();
     void bindObjects();
 protected:
@@ -32,6 +50,8 @@ protected:
     PlayerConfig::Area config;
     QObject * viewRootObject;
 
+    CurrentItemStatus status;
+    int delay;
 };
 
 #endif // RPIVIDEOPLAYER_H
