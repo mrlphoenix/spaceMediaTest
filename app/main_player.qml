@@ -7,6 +7,7 @@ import QtQuick.Controls.Styles 1.4
 Item {
     id: item
     property bool invokeNext:true
+    property double videoOutBrightness: 1.0
     signal nextItem()
 
     function playFile(filename){
@@ -36,6 +37,38 @@ Item {
     }
     function setProgress(p){
         downloadProgressBar.value = p
+    }
+    function showVideo(isVisible){
+        videoOut.visible = isVisible
+        if (!isVisible)
+        {
+            overlayBgRect.color = "black"
+        }
+        else if (videoOutBrightness > 1.0)
+        {
+            overlayBgRect.color = "#FFFFFF"
+        }
+        else{
+            overlayBgRect.color = "black"
+        }
+    }
+
+    Rectangle {
+        id: overlayBgRect
+        color: "black"
+        width: parent.width
+        height: parent.height
+    }
+    function setBrightness(value){
+        videoOutBrightness = value
+        if (value > 1.0) {
+            overlayBgRect.color = "#FFFFFF"
+            videoOut.opacity = 2.0 - value
+        }
+        else {
+            overlayBgRect.color = "black"
+            videoOut.opacity = value
+        }
     }
 
     Column

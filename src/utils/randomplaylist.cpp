@@ -96,7 +96,6 @@ bool RandomPlaylist::itemDelayPassed(const PlayerConfig::Area::Playlist::Item& i
         return true;
 }
 
-
 AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 {
 

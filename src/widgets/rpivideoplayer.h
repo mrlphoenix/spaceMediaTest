@@ -42,8 +42,16 @@ public slots:
     void invokeProgress(double p);
     void invokeDownloadDone();
     void next();
+    void playNext();
     void bindObjects();
+
+    void showVideo();
+    void hideVideo();
+    void setBrightness(double value);//[0; 1] - lower brightness [1; 2] - higher brightness
 protected:
+
+    void invokeShowVideo(bool isVisible);
+
     QQuickView view;
     AbstractPlaylist * playlist;
     bool isPlaylistRandom;

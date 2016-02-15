@@ -21,6 +21,9 @@ RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QOb
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
     QTimer::singleShot(1000,this,SLOT(next()));
     view.showFullScreen();
+    delay = 0;
+    status.isPlaying = false;
+    status.item = "";
 }
 
 RpiVideoPlayer::RpiVideoPlayer(QObject *parent) : QObject(parent)
@@ -38,6 +41,12 @@ RpiVideoPlayer::RpiVideoPlayer(QObject *parent) : QObject(parent)
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
     view.showFullScreen();
+
+
+    delay = 5000;
+    status.isPlaying = false;
+    status.item = "";
+    setBrightness(0.6);
 }
 
 RpiVideoPlayer::~RpiVideoPlayer()
@@ -132,8 +141,15 @@ void RpiVideoPlayer::invokeDownloadDone()
 
 void RpiVideoPlayer::next()
 {
-
     qDebug() << "next method is called";
+    QTimer::singleShot(delay,this,SLOT(playNext()));
+    hideVideo();
+    status.isPlaying = false;
+    status.item = "";
+}
+
+void RpiVideoPlayer::playNext()
+{
     if (!playlist)
     {
         qDebug() << "playlist empty";
@@ -144,6 +160,9 @@ void RpiVideoPlayer::next()
 
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
+    status.isPlaying = true;
+    status.item = nextItem;
+    showVideo();
 }
 
 void RpiVideoPlayer::bindObjects()
@@ -151,4 +170,28 @@ void RpiVideoPlayer::bindObjects()
     qDebug() << "binding QML and C++";
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
+}
+
+void RpiVideoPlayer::showVideo()
+{
+    invokeShowVideo(true);
+}
+
+void RpiVideoPlayer::hideVideo()
+{
+    invokeShowVideo(false);
+}
+
+void RpiVideoPlayer::setBrightness(double value)
+{
+    qDebug() << "invoking Brightness setup";
+    QVariant brightness(value);
+    QMetaObject::invokeMethod(viewRootObject,"setBrightness",Q_ARG(QVariant, brightness));
+}
+
+void RpiVideoPlayer::invokeShowVideo(bool isVisible)
+{
+    qDebug() << "invoking video visibility change";
+    QVariant isVisibleArg(isVisible);
+    QMetaObject::invokeMethod(viewRootObject,"showVideo",Q_ARG(QVariant, isVisibleArg));
 }

@@ -164,8 +164,8 @@ void TeleDSCore::downloaded()
     else
     {
         rpiPlayer->setConfig(currentConfig.areas.first());
-       // rpiPlayer->update(currentConfig);
-        rpiPlayer->play();
+        if (!rpiPlayer->isPlaying())
+            rpiPlayer->play();
     }
 }
 
@@ -225,22 +225,5 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     currentConfig = config;
     downloader->checkDownload();
     downloader->start();
-
-    /*
-    qDebug() << "starting downloader...";
-    if (downloader)
-    {
-        downloader->disconnect();
-        delete downloader;
-    }
-    downloader = new VideoDownloader(config,this);
-    currentConfig = config;
-    connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
-    connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
-    connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
-    connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
-
-    downloader->checkDownload();
-    downloader->start();*/
 }
 
