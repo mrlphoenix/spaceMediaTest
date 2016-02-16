@@ -79,7 +79,6 @@ struct PlayerConfig
                 int height;
                 int duration;
 
-
                 bool checkTimeTargeting() const;
                 bool checkDateRange() const;
                 bool checkGeoTargeting(QPointF gps) const;

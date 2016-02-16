@@ -1,13 +1,13 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
 #include "statisticdatabase.h"
-#include "androidspecs.h"
+#include "platformspecs.h"
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    AndroidSpecs specs;
-    qDebug() << "IMEEEEI!!!!!!: " << specs.getImei();
+    PlatformSpecs specs;
+    qDebug() << "IMEEEEI!!!!!!: " << specs.getUniqueId();
 #endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();

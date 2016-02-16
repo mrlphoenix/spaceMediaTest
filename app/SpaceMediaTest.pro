@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 PKGCONFIG += openssl
 
-KIT = Android
+KIT = Raspberry
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 

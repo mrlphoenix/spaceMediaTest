@@ -15,13 +15,12 @@
 #include "globalstats.h"
 #include "sslencoder.h"
 #include "platformdefines.h"
-#include "androidspecs.h"
+#include "platformspecs.h"
 
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
-    AndroidSpecs specs;
-    qDebug() << "IMEEEEI!!!!!!: " << specs.getImei();
+    qDebug() << "IMEEEEI!!!!!!: " << PlatformSpecs::getUniqueId();
 
     DatabaseInstance;
     CPUStatInstance;
