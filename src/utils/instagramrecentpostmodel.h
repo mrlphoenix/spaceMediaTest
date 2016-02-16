@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include <QByteArray>
+
 class InstagramRecentPostModel
 {
 public:
@@ -27,5 +28,4 @@ public:
     };
     QVector<Data> data;
 };
-
 #endif // INSTAGRAMRECENTPOSTMODEL_H

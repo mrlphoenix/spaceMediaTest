@@ -39,7 +39,7 @@ Item {
         downloadProgressBar.value = p
     }
     function showVideo(isVisible){
-        videoOut.visible = isVisible
+        videoOut.visible = true
         if (!isVisible)
         {
             overlayBgRect.color = "black"

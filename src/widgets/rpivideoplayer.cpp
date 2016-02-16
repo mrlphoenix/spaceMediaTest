@@ -1,10 +1,14 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
 #include "statisticdatabase.h"
-#include "platformdefines.h"
+#include "androidspecs.h"
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
+#ifdef PLATFORM_DEFINE_ANDROID
+    AndroidSpecs specs;
+    qDebug() << "IMEEEEI!!!!!!: " << specs.getImei();
+#endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);

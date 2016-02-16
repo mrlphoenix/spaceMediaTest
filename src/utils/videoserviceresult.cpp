@@ -91,6 +91,11 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
         QJsonDocument doc;
         QJsonParseError error;
         QByteArray replyData = reply->readAll();
+        QFile out("pl.txt");
+        out.open(QFile::WriteOnly);
+        out.write(replyData);
+        out.flush();
+        out.close();
         doc = QJsonDocument::fromJson(replyData,&error);
         if (error.error == QJsonParseError::NoError)
             emit getPlaylistResult(PlayerConfig::fromErrorJson(doc.object()));

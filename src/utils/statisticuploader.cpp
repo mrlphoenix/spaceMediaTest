@@ -156,6 +156,7 @@ void StatisticUploader::runStateStep()
     }
 }
 
+
 QJsonObject StatisticUploader::generateStatisticModel()
 {
     QJsonObject root;

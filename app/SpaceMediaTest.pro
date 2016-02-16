@@ -32,21 +32,27 @@ SOURCES += main.cpp \
 RESOURCES += \
     qml.qrc
 
-DISTFILES += ../qml/simple_player.qml
+DISTFILES += android/AndroidManifest.xml
 QML_IMPORT_PATH =
 
 LIBS += -lssl -lcrypto
 
 contains (KIT, Android){
     include(deployment.pri)
+    QT += androidextras
 }
 
 android: {
     INCLUDEPATH += /usr/local/ssl/android-9/include
     LIBS += -L/usr/local/ssl/android-9/lib
 }
+ANDROID_PERMISSIONS = android.permission.READ_PHONE_STATE
 
 
     ANDROID_EXTRA_LIBS = \
         $$PWD/../../../../usr/local/ssl/android-9/lib/libcrypto_1_0_0.so \
         $$PWD/../../../../usr/local/ssl/android-9/lib/libssl_1_0_0.so
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+

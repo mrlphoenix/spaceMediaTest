@@ -88,6 +88,7 @@ QByteArray SSLEncoder::encryptRSA(QByteArray data, QByteArray keyArray)
     //FILE *rsa_pkey_file = fopen("pubkey.key","rb");
     //rsa=PEM_read_RSA_PUBKEY(rsa_pkey_file,&rsa,NULL,NULL);
     rsa=PEM_read_bio_RSA_PUBKEY(bioKey,&rsa,NULL,NULL);
+   // rsa=PEM_read_bio_RSAPublicKey(bioKey,&rsa,NULL,NULL);
 
     if(rsa==NULL)
     {
@@ -120,7 +121,7 @@ QByteArray SSLEncoder::encryptRSA(QByteArray data, QByteArray keyArray)
     for(int n=0;n<dataList.count();n++)
     {
         unsigned char *finalData=(unsigned char *)malloc(rsaSize);
-        int outSize = RSA_public_encrypt(dataList.at(n).size(), (unsigned char*)dataList.at(n).constData(), finalData, rsa, RSA_PKCS1_PADDING);
+        int outSize = RSA_public_encrypt(dataList.at(n).size(), (unsigned char*)dataList.at(n).constData(), finalData, rsa, RSA_PKCS1_OAEP_PADDING);
         result.append(QByteArray((char *)finalData,outSize));
         free(finalData);
     }

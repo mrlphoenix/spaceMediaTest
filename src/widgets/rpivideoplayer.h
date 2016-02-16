@@ -49,7 +49,6 @@ public slots:
     void hideVideo();
     void setBrightness(double value);//[0; 1] - lower brightness [1; 2] - higher brightness
 protected:
-
     void invokeShowVideo(bool isVisible);
 
     QQuickView view;

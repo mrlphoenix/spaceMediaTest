@@ -15,13 +15,19 @@
 #include "globalstats.h"
 #include "sslencoder.h"
 #include "platformdefines.h"
+#include "androidspecs.h"
 
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
+    AndroidSpecs specs;
+    qDebug() << "IMEEEEI!!!!!!: " << specs.getImei();
+
     DatabaseInstance;
     CPUStatInstance;
-    videoService = new VideoService("http://api.teleds.com");
+    videoService = new VideoService("http://192.168.50.192:3000");
+
+
     uploader = new StatisticUploader(videoService,this);
     rpiPlayer = new RpiVideoPlayer(this);
     statsTimer = new QTimer();
