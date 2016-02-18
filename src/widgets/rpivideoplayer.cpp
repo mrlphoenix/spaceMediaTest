@@ -50,7 +50,6 @@ RpiVideoPlayer::RpiVideoPlayer(QObject *parent) : QObject(parent)
     delay = 5000;
     status.isPlaying = false;
     status.item = "";
-    setBrightness(0.6);
 }
 
 RpiVideoPlayer::~RpiVideoPlayer()
@@ -137,10 +136,37 @@ void RpiVideoPlayer::invokeProgress(double p)
     QMetaObject::invokeMethod(viewRootObject,"setProgress",Q_ARG(QVariant, percent));
 }
 
+void RpiVideoPlayer::invokeSimpleProgress(double p, QString)
+{
+    QVariant percent(p);
+    QMetaObject::invokeMethod(viewRootObject,"setDownloadProgressSimple",Q_ARG(QVariant, percent));
+}
+
 void RpiVideoPlayer::invokeDownloadDone()
 {
     qDebug() << "invoking download completed";
     QMetaObject::invokeMethod(viewRootObject,"downloadComplete");
+}
+
+void RpiVideoPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)
+{
+    qDebug() << "invokePlayerActivationRequiredView";
+    QVariant urlParam(url);
+    QVariant playerIdParam("  " + playerId.toUpper() + "  ");
+    QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",Q_ARG(QVariant, urlParam), Q_ARG(QVariant, playerIdParam));
+}
+
+void RpiVideoPlayer::invokeNoItemsView(QString url)
+{
+    qDebug() << "invokeNoItemsView";
+    QVariant urlParam(url);
+    QMetaObject::invokeMethod(viewRootObject,"setNoItemsLogo", Q_ARG(QVariant, urlParam));
+}
+
+void RpiVideoPlayer::invokeDownloadingView()
+{
+    qDebug() << "invokeDownloading View";
+    QMetaObject::invokeMethod(viewRootObject,"setDownloadLogo");
 }
 
 void RpiVideoPlayer::next()

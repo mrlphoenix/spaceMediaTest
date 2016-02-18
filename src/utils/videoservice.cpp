@@ -182,7 +182,7 @@ void VideoService::nextRequest()
 
 InitVideoPlayerRequest::InitVideoPlayerRequest()
 {
-    methodAPI = "player/initialization";
+    methodAPI = "initialization";
     name = "init";
     method = "GET";
 }
@@ -237,12 +237,12 @@ GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionK
     playerIdParam.key = "player_id";
     playerIdParam.value = playerId;
 
-    cryptedSessionKeyParam.key = "crypted_session_key";
+    cryptedSessionKeyParam.key = "ctypted_session_key";
     cryptedSessionKeyParam.value = cryptedSessionKey;
     params.append(playerIdParam);
     params.append(cryptedSessionKeyParam);
 
-    methodAPI = "player/getplaylist";
+    methodAPI = "getplaylist";
     name = "getPlaylist";
     method = "GET";
 }
@@ -258,7 +258,7 @@ SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSe
     playerIdParam.key = "player_id";
     playerIdParam.value = playerId;
 
-    encrypedSessionKeyParam.key = "crypted_session_key";
+    encrypedSessionKeyParam.key = "ctypted_session_key";
     encrypedSessionKeyParam.value = encryptedSessionKey;
 
     dataParam.key = "statistics";

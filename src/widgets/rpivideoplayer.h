@@ -40,7 +40,13 @@ public slots:
     void invokeNextVideoMethod(QString name);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
+    void invokeSimpleProgress(double p, QString);
     void invokeDownloadDone();
+
+    void invokePlayerActivationRequiredView(QString url, QString playerId);
+    void invokeNoItemsView(QString url);
+    void invokeDownloadingView();
+
     void next();
     void playNext();
     void bindObjects();

@@ -2,7 +2,7 @@
 #define PLATFORMDEFINES
 
 
-#define PLATFORM_DEFINE_RPI
+#define PLATFORM_DEFINE_ANDROID
 
 
 #define CONFIG_FOLDER_LINUX QString("data/")
@@ -14,8 +14,8 @@
 #define CONFIG_FOLDER_WINDOWS QString("data/")
 #define VIDEO_FOLDER_WINDOWS QString("data/video/")
 
-#define CONFIG_FOLDER_ANDROID QString("/sdcard/download/teleds/")
-#define VIDEO_FOLDER_ANDROID QString("/sdcard/download/teleds/")
+#define CONFIG_FOLDER_ANDROID QString("")
+#define VIDEO_FOLDER_ANDROID QString("")
 
 
 #ifdef PLATFORM_DEFINE_ANDROID

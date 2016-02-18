@@ -27,6 +27,7 @@ PlatformSpecs::PlatformSpecs(QObject *parent) : QObject(parent)
 QString PlatformSpecs::getUniqueId()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
+    QAndroidJniEnvironment env;
     jclass contextClass = env->FindClass("android/content/Context");
     jfieldID fieldId = env->GetStaticFieldID(contextClass, "TELEPHONY_SERVICE", "Ljava/lang/String;");
     jstring telephonyManagerType = (jstring) env->GetStaticObjectField(contextClass, fieldId);

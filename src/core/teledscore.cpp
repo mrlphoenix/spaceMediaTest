@@ -20,11 +20,11 @@
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
-    qDebug() << "IMEEEEI!!!!!!: " << PlatformSpecs::getUniqueId();
+    qDebug() << "Unique Id: " << PlatformSpecs::getUniqueId();
 
     DatabaseInstance;
     CPUStatInstance;
-    videoService = new VideoService("http://192.168.50.192:3000");
+    videoService = new VideoService("http://api.teleds.com");
 
 
     uploader = new StatisticUploader(videoService,this);
@@ -115,11 +115,23 @@ void TeleDSCore::initResult(InitRequestResult result)
     GlobalConfigInstance.setPlayerId(result.player_id);
     GlobalConfigInstance.setPublicKey(result.public_key);
 
-    fakeInit();
+   // fakeInit();
 }
 
 void TeleDSCore::playlistResult(PlayerConfig result)
 {
+
+    if (result.error == 300 || result.error == 106 || result.error == 301)
+    {
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getPlayerId());
+        return;
+    }
+    if (result.error == 201)
+    {
+        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+        return;
+    }
+
     if (result.error == 300)
     {
         qDebug() << "player is not activated" << endl << "running fake init";
@@ -137,9 +149,14 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
         setupDownloader(result);
         currentConfig = result;
+        if (!rpiPlayer->isPlaying() && downloader->itemsToDownloadCount() > 0)
+            rpiPlayer->invokeDownloadingView();
     }
     else
+    {
+        rpiPlayer->invokeNoItemsView("http://teleds.tv");
         GlobalStatsInstance.registryPlaylistError();
+    }
     GlobalConfigInstance.setPlayerConfig(result.data);
 }
 
@@ -225,6 +242,7 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
         connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
         connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
         connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
+        connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),rpiPlayer,SLOT(invokeSimpleProgress(double,QString)));
     }
 
     currentConfig = config;

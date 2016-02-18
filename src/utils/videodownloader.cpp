@@ -132,5 +132,10 @@ void VideoDownloader::httpReadyRead()
 void VideoDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
     emit downloadProgress(double(bytesRead)/double(totalBytes));
+
+    double fileProgress = 1.0 / double(itemsToDownload.count());
+    double totalProgress = double(currentItemIndex) * fileProgress;
+
+    emit downloadProgressSingle(totalProgress + double(bytesRead)/double(totalBytes)*fileProgress, itemsToDownload[currentItemIndex].name);
 }
 

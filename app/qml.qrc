@@ -1,6 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="simple_player.qml">../qml/simple_player.qml</file>
         <file>main_player.qml</file>
+        <file>ubuntu-m.ttf</file>
+        <file>logo.svg</file>
+        <file>logo_teleds.png</file>
+        <file>logo_bg.svg</file>
+        <file>logo_bg_vertical.svg</file>
     </qresource>
 </RCC>

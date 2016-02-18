@@ -4,12 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += qml quick widgets multimedia core gui xml network sql positioning
+QT       += qml quick widgets multimedia core gui xml network sql positioning svg
 CONFIG   += c++11
 
 PKGCONFIG += openssl
 
-KIT = Raspberry
+KIT = Android
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 

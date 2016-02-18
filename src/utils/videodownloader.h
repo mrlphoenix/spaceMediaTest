@@ -21,11 +21,13 @@ public:
 
     static QString getFileHash(QString fileName);
     void updateConfig(PlayerConfig config);
+    int itemsToDownloadCount(){return itemsToDownload.count();}
 
 signals:
     void done();
     void downloadProgress(double p);
     void totalDownloadProgress(double p, QString name);
+    void downloadProgressSingle(double p, QString name);
 public slots:
     void httpFinished();
     void httpReadyRead();
