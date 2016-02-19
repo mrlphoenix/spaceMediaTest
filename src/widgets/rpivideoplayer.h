@@ -35,7 +35,8 @@ public:
 
     bool isPlaying() {return status.isPlaying;}
     QString getCurrentItem() {return status.item;}
-
+signals:
+    void refreshNeeded();
 public slots:
     void invokeNextVideoMethod(QString name);
     void invokeFileProgress(double p, QString name);

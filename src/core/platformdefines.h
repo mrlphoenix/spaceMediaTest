@@ -14,8 +14,8 @@
 #define CONFIG_FOLDER_WINDOWS QString("data/")
 #define VIDEO_FOLDER_WINDOWS QString("data/video/")
 
-#define CONFIG_FOLDER_ANDROID QString("")
-#define VIDEO_FOLDER_ANDROID QString("")
+#define CONFIG_FOLDER_ANDROID QString("/sdcard/download/teleds")
+#define VIDEO_FOLDER_ANDROID QString("/sdcard/download/teleds")
 
 
 #ifdef PLATFORM_DEFINE_ANDROID

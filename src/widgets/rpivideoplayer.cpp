@@ -200,6 +200,7 @@ void RpiVideoPlayer::bindObjects()
     qDebug() << "binding QML and C++";
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
+    QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
 }
 
 void RpiVideoPlayer::showVideo()

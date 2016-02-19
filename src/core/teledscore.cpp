@@ -44,6 +44,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
     connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
+    connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
 
 
     QTimer::singleShot(70000,uploader,SLOT(start()));
@@ -94,7 +95,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
 void TeleDSCore::initPlayer()
 {
-    qDebug() << "Video service initialization";
+    qDebug() << "!!! Video service initialization";
     videoService->init();
 }
 

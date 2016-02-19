@@ -6,5 +6,9 @@
         <file>logo_teleds.png</file>
         <file>logo_bg.svg</file>
         <file>logo_bg_vertical.svg</file>
+        <file>refresh.svg</file>
+        <file>refresh_1.svg</file>
+        <file>refresh_2.svg</file>
+        <file>refresh_2.png</file>
     </qresource>
 </RCC>
