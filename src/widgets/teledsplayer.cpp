@@ -1,10 +1,10 @@
 #include <QFileInfo>
-#include "rpivideoplayer.h"
+#include "teledsplayer.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "platformspecs.h"
 
-RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
+TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     PlatformSpecs specs;
@@ -31,7 +31,7 @@ RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QOb
     status.item = "";
 }
 
-RpiVideoPlayer::RpiVideoPlayer(QObject *parent) : QObject(parent)
+TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
@@ -53,27 +53,27 @@ RpiVideoPlayer::RpiVideoPlayer(QObject *parent) : QObject(parent)
     status.item = "";
 }
 
-RpiVideoPlayer::~RpiVideoPlayer()
+TeleDSPlayer::~TeleDSPlayer()
 {
     if (playlist)
         delete playlist;
 }
 
-QString RpiVideoPlayer::getFullPath(QString fileName)
+QString TeleDSPlayer::getFullPath(QString fileName)
 {
     QString nextFile = VIDEO_FOLDER + fileName + ".mp4";
     QFileInfo fileInfo(nextFile);
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }
 
-void RpiVideoPlayer::update(PlayerConfig config)
+void TeleDSPlayer::update(PlayerConfig config)
 {
     foreach (const PlayerConfig::Area& area, config.areas)
         if (area.id == this->config.id)
             setConfig(area);
 }
 
-void RpiVideoPlayer::setConfig(PlayerConfig::Area area)
+void TeleDSPlayer::setConfig(PlayerConfig::Area area)
 {
     qDebug() << "RPI PLAYER: given playlist = " << area.playlist.type;
     config = area;
@@ -109,17 +109,17 @@ void RpiVideoPlayer::setConfig(PlayerConfig::Area area)
     playlist->updatePlaylist(area.playlist);
 }
 
-void RpiVideoPlayer::play()
+void TeleDSPlayer::play()
 {
     QTimer::singleShot(1000,this,SLOT(next()));
 }
 
-bool RpiVideoPlayer::isFileCurrentlyPlaying(QString name)
+bool TeleDSPlayer::isFileCurrentlyPlaying(QString name)
 {
     return status.item == name;
 }
 
-void RpiVideoPlayer::invokeNextVideoMethod(QString name)
+void TeleDSPlayer::invokeNextVideoMethod(QString name)
 {
     qDebug() << "invoking next";
     QVariant source = QUrl(getFullPath(name));
@@ -127,7 +127,7 @@ void RpiVideoPlayer::invokeNextVideoMethod(QString name)
     QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
 }
 
-void RpiVideoPlayer::invokeFileProgress(double p, QString name)
+void TeleDSPlayer::invokeFileProgress(double p, QString name)
 {
     qDebug() << "invoking file progress";
     QVariant percent(p);
@@ -135,26 +135,26 @@ void RpiVideoPlayer::invokeFileProgress(double p, QString name)
     QMetaObject::invokeMethod(viewRootObject,"setTotalProgress",Q_ARG(QVariant, percent), Q_ARG(QVariant, fileName));
 }
 
-void RpiVideoPlayer::invokeProgress(double p)
+void TeleDSPlayer::invokeProgress(double p)
 {
     qDebug() << "invoking download progress";
     QVariant percent(p);
     QMetaObject::invokeMethod(viewRootObject,"setProgress",Q_ARG(QVariant, percent));
 }
 
-void RpiVideoPlayer::invokeSimpleProgress(double p, QString)
+void TeleDSPlayer::invokeSimpleProgress(double p, QString)
 {
     QVariant percent(p);
     QMetaObject::invokeMethod(viewRootObject,"setDownloadProgressSimple",Q_ARG(QVariant, percent));
 }
 
-void RpiVideoPlayer::invokeDownloadDone()
+void TeleDSPlayer::invokeDownloadDone()
 {
     qDebug() << "invoking download completed";
     QMetaObject::invokeMethod(viewRootObject,"downloadComplete");
 }
 
-void RpiVideoPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)
+void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)
 {
     qDebug() << "invokePlayerActivationRequiredView";
     QVariant urlParam(url);
@@ -162,20 +162,20 @@ void RpiVideoPlayer::invokePlayerActivationRequiredView(QString url, QString pla
     QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",Q_ARG(QVariant, urlParam), Q_ARG(QVariant, playerIdParam));
 }
 
-void RpiVideoPlayer::invokeNoItemsView(QString url)
+void TeleDSPlayer::invokeNoItemsView(QString url)
 {
     qDebug() << "invokeNoItemsView";
     QVariant urlParam(url);
     QMetaObject::invokeMethod(viewRootObject,"setNoItemsLogo", Q_ARG(QVariant, urlParam));
 }
 
-void RpiVideoPlayer::invokeDownloadingView()
+void TeleDSPlayer::invokeDownloadingView()
 {
     qDebug() << "invokeDownloading View";
     QMetaObject::invokeMethod(viewRootObject,"setDownloadLogo");
 }
 
-void RpiVideoPlayer::next()
+void TeleDSPlayer::next()
 {
     qDebug() << "next method is called";
     QTimer::singleShot(delay,this,SLOT(playNext()));
@@ -184,7 +184,7 @@ void RpiVideoPlayer::next()
     status.item = "";
 }
 
-void RpiVideoPlayer::playNext()
+void TeleDSPlayer::playNext()
 {
     if (!playlist)
     {
@@ -203,32 +203,38 @@ void RpiVideoPlayer::playNext()
     showVideo();
 }
 
-void RpiVideoPlayer::bindObjects()
+void TeleDSPlayer::bindObjects()
 {
     qDebug() << "binding QML and C++";
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
+    QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));
 }
 
-void RpiVideoPlayer::showVideo()
+void TeleDSPlayer::showVideo()
 {
     invokeShowVideo(true);
 }
 
-void RpiVideoPlayer::hideVideo()
+void TeleDSPlayer::hideVideo()
 {
     invokeShowVideo(false);
 }
 
-void RpiVideoPlayer::setBrightness(double value)
+void TeleDSPlayer::setBrightness(double value)
 {
     qDebug() << "invoking Brightness setup";
     QVariant brightness(value);
     QMetaObject::invokeMethod(viewRootObject,"setBrightness",Q_ARG(QVariant, brightness));
 }
 
-void RpiVideoPlayer::invokeShowVideo(bool isVisible)
+void TeleDSPlayer::gpsUpdate(double lat, double lgt)
+{
+    GlobalStatsInstance.setGps(lat, lgt);
+}
+
+void TeleDSPlayer::invokeShowVideo(bool isVisible)
 {
     qDebug() << "invoking video visibility change";
     QVariant isVisibleArg(isVisible);

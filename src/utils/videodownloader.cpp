@@ -52,11 +52,6 @@ void VideoDownloader::checkDownload()
                     itemsToDownload.append(item);
                 }
                 itemCount++;
-/*
-                if (filehash != item.sha1)
-                {
-                    itemsToDownload.append(item);
-                }*/
             }
 
         }
@@ -257,3 +252,4 @@ void FileSwapper::runSwapCycle()
         emit done();
     }
 }
+

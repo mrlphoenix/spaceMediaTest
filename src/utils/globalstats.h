@@ -25,6 +25,10 @@ public:
     void setCurrentItem(QString item){currentItem = item;}
     QString getCurrentItem() {return currentItem;}
 
+    void setGps(double lat, double lgt) {latitude = lat; longitude = lgt;}
+    double getLatitude(){return latitude;}
+    double getLongitude(){return longitude;}
+
     struct Report
     {
         int downloadCount;
@@ -66,6 +70,7 @@ private:
 
     //additional
     bool connectionDropped;
+    double latitude, longitude;
 };
 
 #endif // GLOBALSTATS_H

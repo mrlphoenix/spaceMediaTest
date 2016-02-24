@@ -18,6 +18,7 @@ Item {
 
     signal nextItem()
     signal refreshId()
+    signal gpsChanged(double lat, double lgt)
     focus: true
 
     function playFile(filename){
@@ -74,6 +75,7 @@ Item {
         onPositionChanged: {
             var coord = src.position.coordinate;
             console.log("Coordinate:", coord.longitude, coord.latitude);
+            gpsChanged(coord.latitude, coord.longitude)
         }
     }
     Timer {

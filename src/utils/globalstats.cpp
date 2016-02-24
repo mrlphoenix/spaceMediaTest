@@ -18,6 +18,7 @@ GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
     balance = 0.0f;
 
     connectionDropped = false;
+    latitude = longitude = 0.0;
 }
 
 void GlobalStats::registryDownload()

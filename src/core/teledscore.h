@@ -8,7 +8,7 @@
 #include "soundwidgetinfo.h"
 #include "videoservice.h"
 #include "videodownloader.h"
-#include "rpivideoplayer.h"
+#include "teledsplayer.h"
 #include "cpustat.h"
 #include "teledssheduler.h"
 #include "statisticuploader.h"
@@ -43,7 +43,7 @@ public slots:
 protected:
     void setupDownloader(PlayerConfig& config);
     QVector<QObject*> widgets;
-    RpiVideoPlayer * rpiPlayer;
+    TeleDSPlayer * rpiPlayer;
 
     VideoService * videoService;
     StatisticUploader * uploader;

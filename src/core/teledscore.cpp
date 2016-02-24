@@ -28,7 +28,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
 
     uploader = new StatisticUploader(videoService,this);
-    rpiPlayer = new RpiVideoPlayer(this);
+    rpiPlayer = new TeleDSPlayer(this);
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
     statsTimer->start(90000);
@@ -115,6 +115,7 @@ void TeleDSCore::initResult(InitRequestResult result)
 
     GlobalConfigInstance.setPlayerId(result.player_id);
     GlobalConfigInstance.setPublicKey(result.public_key);
+    QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
 
    // fakeInit();
 }
@@ -182,7 +183,7 @@ void TeleDSCore::downloaded()
     if (rpiPlayer == NULL)
     {
         qDebug() << "creating RPI Video Player";
-        rpiPlayer = new RpiVideoPlayer(currentConfig.areas[0],this);
+        rpiPlayer = new TeleDSPlayer(currentConfig.areas[0],this);
     }
     else
     {
@@ -216,7 +217,7 @@ void TeleDSCore::getResourceCount()
 
 void TeleDSCore::getGps()
 {
-    DatabaseInstance.createGPS(0.,0.);
+    DatabaseInstance.createGPS(GlobalStatsInstance.getLatitude(),GlobalStatsInstance.getLongitude());
 }
 
 void TeleDSCore::updateCPUStatus(CPUStatWorker::DeviceInfo info)

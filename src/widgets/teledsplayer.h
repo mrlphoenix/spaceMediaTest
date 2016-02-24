@@ -14,13 +14,13 @@
 
 
 
-class RpiVideoPlayer : public QObject
+class TeleDSPlayer : public QObject
 {
     Q_OBJECT
 public:
-    explicit RpiVideoPlayer(PlayerConfig::Area config, QObject * parent);
-    explicit RpiVideoPlayer(QObject * parent);
-    ~RpiVideoPlayer();
+    explicit TeleDSPlayer(PlayerConfig::Area config, QObject * parent);
+    explicit TeleDSPlayer(QObject * parent);
+    ~TeleDSPlayer();
     QString getFullPath(QString fileName);
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::Area area);
@@ -57,6 +57,7 @@ public slots:
     void showVideo();
     void hideVideo();
     void setBrightness(double value);//[0; 1] - lower brightness [1; 2] - higher brightness
+    void gpsUpdate(double lat, double lgt);
 protected:
     void invokeShowVideo(bool isVisible);
 
