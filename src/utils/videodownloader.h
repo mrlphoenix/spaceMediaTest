@@ -44,13 +44,11 @@ public:
     explicit VideoDownloader(PlayerConfig config, QObject *parent = 0);
     ~VideoDownloader();
     void prepareDownload();
-    void checkDownload();
     void start();
 
     static QString getFileHash(QString fileName);
     void updateConfig(PlayerConfig config);
     int itemsToDownloadCount(){return itemsToDownload.count();}
-    void getDatabaseInfo();
 
 signals:
     void done();
@@ -62,18 +60,23 @@ public slots:
     void httpReadyRead();
     void updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
     void getResources(QList<StatisticDatabase::Resource> resources);
+    void getDatabaseInfo();
+    void checkDownload();
 private slots:
     void download();
+    void connectError(QNetworkReply::NetworkError err);
+    void runDonwload();
 private:
     bool isFileUpdated(PlayerConfig::Area::Playlist::Item item);
 
-    QNetworkAccessManager manager;
+    QNetworkAccessManager * manager;
     QNetworkReply * reply;
     PlayerConfig config;
     QFile * file;
     QVector<PlayerConfig::Area::Playlist::Item> itemsToDownload;
     QList<StatisticDatabase::Resource> resources;
     FileSwapper swapper;
+    QTimer * restarter;
     int currentItemIndex;
 };
 

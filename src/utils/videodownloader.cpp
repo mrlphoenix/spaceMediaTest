@@ -14,6 +14,8 @@ VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject
     currentItemIndex = 0;
     connect (&DatabaseInstance,SIGNAL(resourceFound(QList<StatisticDatabase::Resource>)),this,SLOT(getResources(QList<StatisticDatabase::Resource>)));
     connect (&swapper,SIGNAL(done()),this,SLOT(download()));
+    restarter = 0;
+    manager = new QNetworkAccessManager(this);
 }
 
 VideoDownloader::~VideoDownloader()
@@ -84,39 +86,54 @@ void VideoDownloader::download()
 
             QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(info.size()) + "-";
             request.setRawHeader("Range",rangeHeaderValue);
-            reply = manager.get(request);
-            connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
-            connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
-            connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
-            GlobalStatsInstance.registryDownload();
-
-            DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
-                                              itemsToDownload[currentItemIndex].name,
-                                              itemsToDownload[currentItemIndex].lastupdate,
-                                              itemsToDownload[currentItemIndex].size);
+            reply = manager->get(request);
         }
         else
         {
             file = new QFile(tempFileName);
             file->open(QFile::WriteOnly);
 
-            reply = manager.get(QNetworkRequest(QUrl(itemsToDownload[currentItemIndex].path)));
-            connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
-            connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
-            connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
-            GlobalStatsInstance.registryDownload();
-
-            DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
-                                              itemsToDownload[currentItemIndex].name,
-                                              itemsToDownload[currentItemIndex].lastupdate,
-                                              itemsToDownload[currentItemIndex].size);
+            reply = manager->get(QNetworkRequest(QUrl(itemsToDownload[currentItemIndex].path)));
         }
+        connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
+        connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
+        connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(connectError(QNetworkReply::NetworkError)));
+        GlobalStatsInstance.registryDownload();
+
+        DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].iid,
+                                          itemsToDownload[currentItemIndex].name,
+                                          itemsToDownload[currentItemIndex].lastupdate,
+                                          itemsToDownload[currentItemIndex].size);
     }
     else
     {
         qDebug() << "downloading completed";
         emit done();
     }
+}
+
+void VideoDownloader::connectError(QNetworkReply::NetworkError err)
+{
+    qDebug() << "Error! Connection lost!" << err;
+  //  currentItemIndex--;
+ //   if (restarter)
+ //       delete restarter;
+ //   reply->disconnect();
+ //   restarter = new QTimer(this);
+ //   restarter->start(10000);
+ //   connect(restarter,SIGNAL(timeout()),this,SLOT(runDonwload()));
+ //   file->flush();
+ //   file->close();
+
+ //   reply->deleteLater();
+ //   file->deleteLater();
+}
+
+void VideoDownloader::runDonwload()
+{
+    checkDownload();
+    start();
 }
 
 bool VideoDownloader::isFileUpdated(PlayerConfig::Area::Playlist::Item item)
@@ -162,6 +179,18 @@ void VideoDownloader::getDatabaseInfo()
 
 void VideoDownloader::httpFinished()
 {
+    if (reply->error())
+    {
+        QTimer::singleShot(10000,this,SLOT(download()));
+    //    delete reply;
+    //    reply = 0;
+    //    delete file;
+    //    file = 0;
+        if (manager)
+            manager->deleteLater();
+        manager = new QNetworkAccessManager(this);
+        return;
+    }
     qDebug()<<"File downloading Finished. Registering in database.";
     QString currentItemId = itemsToDownload[currentItemIndex].iid;
     currentItemIndex++;
@@ -180,6 +209,8 @@ void VideoDownloader::httpFinished()
 
 void VideoDownloader::httpReadyRead()
 {
+    if (restarter)
+        restarter->stop();
     if (file)
     {
         file->write(reply->readAll());

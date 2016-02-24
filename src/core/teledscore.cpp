@@ -69,6 +69,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+        QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
    //     sheduler.stop(TeleDSSheduler::ALL);
 
       /*  QFile decPlaylist("playlist.dec");
