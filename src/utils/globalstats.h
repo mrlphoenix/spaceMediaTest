@@ -22,6 +22,8 @@ public:
     void setMonitorActive(bool isActive);
     void setConnectionState(bool isActive);
     void setBalance(double balance);
+    void setCurrentItem(QString item){currentItem = item;}
+    QString getCurrentItem() {return currentItem;}
 
     struct Report
     {
@@ -60,6 +62,7 @@ private:
     double trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
     bool monitorActive, connectionActive;
     double balance;
+    QString currentItem;
 
     //additional
     bool connectionDropped;

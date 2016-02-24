@@ -95,6 +95,7 @@ public:
     void registryResource(QString iid, QString name, QDateTime lastupdated, int size);
     void updateResourceDownloadStatus(QString iid, int filesize);
     void findResource(QString iid);
+    void getResources();
     void resourceCount();
 
     void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
@@ -161,8 +162,19 @@ public:
         double longitude;
     };
 
+    struct Resource
+    {
+        static Resource fromRecord(const QSqlRecord& record);
+        QString iid;
+        QString name;
+        QDateTime lastupdated;
+        int size;
+        int filesize;
+        QDateTime lastTimePlayed;
+    };
+
 signals:
-    void resourceFound(QList<QSqlRecord> records);
+    void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
     void reportsFound(QList<StatisticDatabase::Report> records);
     void systemInfoFound(QList<StatisticDatabase::SystemInfo> records);

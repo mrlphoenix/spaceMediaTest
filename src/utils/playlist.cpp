@@ -1,4 +1,4 @@
-#include "randomplaylist.h"
+#include "playlist.h"
 
 RandomPlaylist::RandomPlaylist(QObject *parent) : AbstractPlaylist(parent)
 {
@@ -13,13 +13,13 @@ void RandomPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
 
 QString RandomPlaylist::next()
 {
-    qDebug() << "RandomPlaylist:: next";
+    qDebug() << "RandomPlaylist::next";
     shuffle();
     bool found = false;
     QString result;
 
     foreach(const PlayerConfig::Area::Playlist::Item& item,fixedFloatingItems)
-        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange() && item.checkGeoTargeting(QPointF(0.f,0.f)))
+        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             found = true;
             QDateTime delayPassTime = QDateTime::currentDateTime();

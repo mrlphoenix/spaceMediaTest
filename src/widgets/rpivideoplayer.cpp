@@ -1,13 +1,14 @@
 #include <QFileInfo>
 #include "rpivideoplayer.h"
 #include "statisticdatabase.h"
+#include "globalstats.h"
 #include "platformspecs.h"
 
 RpiVideoPlayer::RpiVideoPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     PlatformSpecs specs;
-    qDebug() << "IMEEEEI!!!!!!: " << specs.getUniqueId();
+    qDebug() << "Unique id: " << specs.getUniqueId();
 #endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
@@ -113,6 +114,11 @@ void RpiVideoPlayer::play()
     QTimer::singleShot(1000,this,SLOT(next()));
 }
 
+bool RpiVideoPlayer::isFileCurrentlyPlaying(QString name)
+{
+    return status.item == name;
+}
+
 void RpiVideoPlayer::invokeNextVideoMethod(QString name)
 {
     qDebug() << "invoking next";
@@ -192,6 +198,8 @@ void RpiVideoPlayer::playNext()
     DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
     status.isPlaying = true;
     status.item = nextItem;
+    GlobalStatsInstance.setCurrentItem(nextItem);
+
     showVideo();
 }
 

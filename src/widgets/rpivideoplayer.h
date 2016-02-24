@@ -10,7 +10,7 @@
 #include <QTimer>
 #include <QList>
 #include <QDebug>
-#include "randomplaylist.h"
+#include "playlist.h"
 
 
 
@@ -35,6 +35,8 @@ public:
 
     bool isPlaying() {return status.isPlaying;}
     QString getCurrentItem() {return status.item;}
+    bool isFileCurrentlyPlaying(QString name);
+
 signals:
     void refreshNeeded();
 public slots:

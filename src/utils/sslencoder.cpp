@@ -318,5 +318,4 @@ int SSLEncoder::decryptAES256(unsigned char *ciphertext, int ciphertext_len, uns
     EVP_CIPHER_CTX_free(ctx);
 
     return plaintext_len;
-
 }

@@ -76,109 +76,123 @@ Item {
             console.log("Coordinate:", coord.longitude, coord.latitude);
         }
     }
-
+    Timer {
+        id: dialogCloseTimer
+        repeat: false
+        interval: 10000
+        onTriggered: {
+            dialogAndroid.close()
+            item.focus = true
+        }
+    }
     Dialog {
-                id: dialogAndroid
-              //  width: 600  // for desktop ::TODO
-               // height: 500 // for desktop ::TODO
+        id: dialogAndroid
+      //  width: 600  // for desktop ::TODO
+       // height: 500 // for desktop ::TODO
 
-                // Создаём содержимое диалогового окна
-                contentItem: Rectangle {
-                    width: 600
-                    height: 500
-                    color: "#333e47"
+        // Создаём содержимое диалогового окна
+        contentItem: Rectangle {
+            width: 600
+            height: 500
+            color: "#333e47"
 
-                    Rectangle {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.bottom: dividerHorizontal.top
-                        color: "#333e47"
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: dividerHorizontal.top
+                color: "#333e47"
 
-                        Label {
-                            id: textLabel
-                            text: qsTr("Are you sure?")
-                            color: "#00cdc1"
-                            anchors.centerIn: parent
-                        }
-                    }
-
-                    // Создаём горизонтальный разделитель с помощью Rectangle
-                    Rectangle {
-                        id: dividerHorizontal
-                        color: "#d7d7d7"
-                        height: 2
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: row.top
-                    }
-
-                    Row {
-                        id: row
-                        height: 100
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-
-                        Button {
-                            id: dialogButtonCancel
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: parent.width / 2 - 1
-
-                            style: ButtonStyle {
-                                background: Rectangle {
-                                    color: control.pressed ? "#d7d7d7" : "#333e47"
-                                    border.width: 0
-                                }
-
-                                label: Text {
-                                    text: qsTr("Cancel")
-                                    color: "#00cdc1"
-                                    // Устанавливаем текст в центр кнопки
-                                    verticalAlignment: Text.AlignVCenter
-                                    horizontalAlignment: Text.AlignHCenter
-                                }
-                            }
-                            onClicked: {
-                                dialogAndroid.close()
-                                item.focus = true
-                            }
-                        }
-
-                        Rectangle {
-                            id: dividerVertical
-                            width: 2
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            color: "#d7d7d7"
-                        }
-
-                        Button {
-                            id: dialogButtonOk
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: parent.width / 2 - 1
-
-                            style: ButtonStyle {
-                                background: Rectangle {
-                                    color: control.pressed ? "#d7d7d7" : "#333e47"
-                                    border.width: 0
-                                }
-
-                                label: Text {
-                                    text: qsTr("Ok")
-                                    color: "#00cdc1"
-                                    // Устанавливаем текст в центр кнопки
-                                    verticalAlignment: Text.AlignVCenter
-                                    horizontalAlignment: Text.AlignHCenter
-                                }
-                            }
-                            onClicked: Qt.quit()
-                        }
-                    }
+                Label {
+                    id: textLabel
+                    text: qsTr("Are you sure?")
+                    color: "#00cdc1"
+                    anchors.centerIn: parent
                 }
             }
+
+            // Создаём горизонтальный разделитель с помощью Rectangle
+            Rectangle {
+                id: dividerHorizontal
+                color: "#d7d7d7"
+                height: 2
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: row.top
+            }
+
+            Row {
+                id: row
+                height: 100
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Button {
+                    id: dialogButtonCancel
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 2 - 1
+
+                    style: ButtonStyle {
+                        background: Rectangle {
+                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            border.width: 0
+                        }
+
+                        label: Text {
+                            text: qsTr("Cancel")
+                            color: "#00cdc1"
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+                    onClicked: {
+                        dialogAndroid.close()
+                        item.focus = true
+                    }
+                }
+
+                Rectangle {
+                    id: dividerVertical
+                    width: 2
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    color: "#d7d7d7"
+                }
+
+                Button {
+                    id: dialogButtonOk
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 2 - 1
+
+                    style: ButtonStyle {
+                        background: Rectangle {
+                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            border.width: 0
+                        }
+
+                        label: Text {
+                            text: qsTr("Ok")
+                            color: "#00cdc1"
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+                    Keys.onReleased: {
+                        console.log("DIALOG ON RELEASED!!!")
+                        if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                            dialogAndroid.close()
+                            item.focus = true
+                            event.accepted = true
+                        }
+                    }
+                    onClicked: Qt.quit()
+                }
+            }
+        }
+    }
 
     FontLoader {
         id: ubuntuFont
@@ -394,8 +408,9 @@ Item {
                     RotationAnimator {
                         id: refreshplayerIDAnimation
                         target: refreshPlayerID
-                        from: 0; to: 360
-                        duration: 1000
+                        direction: RotationAnimator.Counterclockwise
+                        from: 360; to: 0
+                        duration: 400
                         loops: 3600
                     }
                 }
@@ -487,11 +502,12 @@ Item {
     }
 
     Keys.onReleased: {
-        if (event.key === Qt.Key_Back) {
-           dialogAndroid.open()
-            // quitDialog.open()
+        if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+            dialogCloseTimer.start()
+            dialogAndroid.open()
+            dialogButtonOk.focus = true
             event.accepted = true
-            console.log("back key pressed")
+            console.log("back key pressed: main")
         }
     }
 }

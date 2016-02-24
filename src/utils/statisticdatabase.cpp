@@ -280,6 +280,12 @@ void StatisticDatabase::findResource(QString iid)
     queryThread->execute("findResource", sql);
 }
 
+void StatisticDatabase::getResources()
+{
+    QString sql = "select * from resource";
+    queryThread->execute("findResource", sql);
+}
+
 void StatisticDatabase::resourceCount()
 {
     QString sql = "select count(*) cnt from resource";
@@ -383,7 +389,12 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
 {
     qDebug() << "slot result is called " << queryId;
     if (queryId == "findResource")
-        emit resourceFound(records);
+    {
+        QList<StatisticDatabase::Resource> result;
+        foreach (const QSqlRecord& record, records)
+            result.append(Resource::fromRecord(record));
+        emit resourceFound(result);
+    }
     else if (queryId == "resourceCount")
     {
         if (records.count() > 0)
@@ -476,5 +487,16 @@ StatisticDatabase::GPS StatisticDatabase::GPS::fromRecord(const QSqlRecord &reco
     result.time = deserializeDate(record.value("time").toString());
     result.latitude = record.value("latitude").toDouble();
     result.longitude = record.value("longitude").toDouble();
+    return result;
+}
+
+StatisticDatabase::Resource StatisticDatabase::Resource::fromRecord(const QSqlRecord &record)
+{
+    Resource result;
+    result.iid = record.value("iid").toString();
+    result.name = record.value("name").toString();
+    result.lastupdated = deserializeDate(record.value("lastupdated").toString());
+    result.filesize = record.value("filesize").toInt();
+    result.size = record.value("size").toInt();
     return result;
 }

@@ -88,7 +88,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     }
 
     downloader = 0;
-    //rpiPlayer = 0;
+   // rpiPlayer->setBrightness(0.5);
     qDebug() << "TELEDS initialization done";
 }
 

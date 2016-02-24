@@ -8,13 +8,13 @@ SOURCES += \
     $$PWD/videoservice.cpp \
     $$PWD/videoserviceresult.cpp \
     $$PWD/videodownloader.cpp \
-    $$PWD/randomplaylist.cpp \
     $$PWD/globalconfig.cpp \
     $$PWD/statisticdatabase.cpp \
     $$PWD/globalstats.cpp \
     $$PWD/cpustat.cpp \
     $$PWD/statisticuploader.cpp \
-    $$PWD/sslencoder.cpp
+    $$PWD/sslencoder.cpp \
+    $$PWD/playlist.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
@@ -22,12 +22,12 @@ HEADERS += \
     $$PWD/videoservice.h \
     $$PWD/videoserviceresult.h \
     $$PWD/videodownloader.h \
-    $$PWD/randomplaylist.h \
     $$PWD/globalconfig.h \
     $$PWD/statisticdatabase.h \
     $$PWD/globalstats.h \
     $$PWD/cpustat.h \
     $$PWD/statisticuploader.h \
-    $$PWD/sslencoder.h
+    $$PWD/sslencoder.h \
+    $$PWD/playlist.h
 FORMS   +=
 
