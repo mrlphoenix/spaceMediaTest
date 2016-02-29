@@ -10,6 +10,10 @@ class PlatformSpecs : public QObject
 public:
     explicit PlatformSpecs(QObject *parent = 0);
     static QString getUniqueId();
+    static int64_t getTrafficIn();
+    static int64_t getTrafficOut();
+    static int getMemoryUsage();
+    static double getAvgUsage();
 
 signals:
 

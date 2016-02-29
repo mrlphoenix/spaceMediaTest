@@ -48,8 +48,6 @@ public:
     Report generateReport();
     SystemInfo generateSystemInfo();
 
-
-
 signals:
 
 public slots:

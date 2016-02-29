@@ -2,6 +2,7 @@
 #include "teledsplayer.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
+#include "globalconfig.h"
 #include "platformspecs.h"
 
 TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
@@ -9,6 +10,9 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
 #ifdef PLATFORM_DEFINE_ANDROID
     PlatformSpecs specs;
     qDebug() << "Unique id: " << specs.getUniqueId();
+    QTimer * trafficDisplay = new QTimer(this);
+    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
+    trafficDisplay->start(10000);
 #endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
@@ -33,6 +37,13 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
 
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
+#ifdef PLATFORM_DEFINE_ANDROID
+    PlatformSpecs specs;
+    qDebug() << "Unique id: " << specs.getUniqueId();
+    QTimer * trafficDisplay = new QTimer(this);
+    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
+    trafficDisplay->start(10000);
+#endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
@@ -159,7 +170,8 @@ void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playe
     qDebug() << "invokePlayerActivationRequiredView";
     QVariant urlParam(url);
     QVariant playerIdParam("  " + playerId.toUpper() + "  ");
-    QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",Q_ARG(QVariant, urlParam), Q_ARG(QVariant, playerIdParam));
+    QVariant updateDelayParam(GlobalConfigInstance.getGetPlaylistTimerTime()/1000);
+    QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",Q_ARG(QVariant, urlParam), Q_ARG(QVariant, playerIdParam), Q_ARG(QVariant, updateDelayParam));
 }
 
 void TeleDSPlayer::invokeNoItemsView(QString url)
@@ -173,6 +185,25 @@ void TeleDSPlayer::invokeDownloadingView()
 {
     qDebug() << "invokeDownloading View";
     QMetaObject::invokeMethod(viewRootObject,"setDownloadLogo");
+}
+
+void TeleDSPlayer::invokeDisplayTrafficUpdate()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    qlonglong in = PlatformSpecs::getTrafficIn();
+    qlonglong out = PlatformSpecs::getTrafficOut();
+    int memory = PlatformSpecs::getMemoryUsage();
+    double cpuLoad = PlatformSpecs::getAvgUsage();
+    QVariant inParam(in);
+    QVariant outParam(out);
+    QVariant memoryParam(memory);
+    QVariant cpuLoadParam(cpuLoad);
+    QMetaObject::invokeMethod(viewRootObject, "displayTrafficInfo",
+                              Q_ARG(QVariant, inParam),
+                              Q_ARG(QVariant, outParam),
+                              Q_ARG(QVariant, memoryParam),
+                              Q_ARG(QVariant, cpuLoadParam));
+#endif
 }
 
 void TeleDSPlayer::next()

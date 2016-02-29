@@ -298,6 +298,15 @@ void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId,
                 QString::number(areaId),QString::number(playlistId), itemId, serializeDate(QDateTime::currentDateTime()),
                 QString::number(latitude), QString::number(longitude));
     queryThread->execute("playResource",sql);
+
+    sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), itemId);
+    queryThread->execute("playResource",sql);
+}
+
+void StatisticDatabase::removeResource(QString itemId)
+{
+    QString sql = QString("delete from Resource where iid = '%1'").arg(itemId);
+    queryThread->execute("removeResource",sql);
 }
 
 void StatisticDatabase::findPlaysToSend()
@@ -366,10 +375,15 @@ void StatisticDatabase::uploadingFailed()
 
 void StatisticDatabase::uploadingSuccessfull()
 {
-    queryThread->execute("uploadingSuccess:","update Play set sent = 1 where sent = 0");
+    queryThread->execute("uploadingSuccess:","delete from Play where sent = 0");
+    queryThread->execute("uploadingSuccess:","delete from Report where sent = 0");
+    queryThread->execute("uploadingSuccess:","delete from systemInfo where sent = 0");
+    queryThread->execute("uploadingSuccess:","delete from gps where sent = 0");
+
+   /* queryThread->execute("uploadingSuccess:","update Play set sent = 1 where sent = 0");
     queryThread->execute("uploadingSuccess:","update Report set sent = 1 where sent = 0");
     queryThread->execute("uploadingSuccess:","update systemInfo set sent = 1 WHERE sent = 0");
-    queryThread->execute("uploadingSuccess:","update gps set sent = 1 where sent = 0");
+    queryThread->execute("uploadingSuccess:","update gps set sent = 1 where sent = 0");*/
 }
 
 

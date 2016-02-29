@@ -49,6 +49,7 @@ public slots:
     void invokePlayerActivationRequiredView(QString url, QString playerId);
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
+    void invokeDisplayTrafficUpdate();
 
     void next();
     void playNext();

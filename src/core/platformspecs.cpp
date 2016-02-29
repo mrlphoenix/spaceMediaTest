@@ -1,10 +1,14 @@
 #include <QDebug>
+
+#include <QStringList>
 #include "platformspecs.h"
 
 #ifdef PLATFORM_DEFINE_ANDROID
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
+#include <QProcess>
 #include "sys/system_properties.h"
+#include "sys/sysinfo.h"
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
@@ -131,5 +135,77 @@ QString PlatformSpecs::getUniqueId()
 
 
     return "";
+}
+
+int64_t PlatformSpecs::getTrafficIn()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    qDebug() << "get Traffic In";
+    QProcess uidListProcess;
+    uidListProcess.start("ls /proc/uid_stat");
+    uidListProcess.waitForFinished();
+    QByteArray result = uidListProcess.readAll();
+    qDebug() << result;
+    QStringList uids = QString(result).split("\n");
+    int64_t traffic = 0;
+    foreach (const QString &uid, uids)
+    {
+        QProcess tcpValueProcess;
+        tcpValueProcess.start("cat /proc/uid_stat/" + uid + "/tcp_rcv");
+        tcpValueProcess.waitForFinished();
+        traffic += QString(tcpValueProcess.readAll()).toLongLong();
+    }
+    return traffic;
+#endif
+}
+
+int64_t PlatformSpecs::getTrafficOut()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QProcess uidListProcess;
+    uidListProcess.start("ls /proc/uid_stat");
+    uidListProcess.waitForFinished();
+    QByteArray result = uidListProcess.readAll();
+    QStringList uids = QString(result).split("\n");
+    int64_t traffic = 0;
+    foreach (const QString &uid, uids)
+    {
+        QProcess tcpValueProcess;
+        tcpValueProcess.start("cat /proc/uid_stat/" + uid + "/tcp_snd");
+        tcpValueProcess.waitForFinished();
+        traffic += QString(tcpValueProcess.readAll()).toLongLong();
+    }
+    return traffic;
+#endif
+}
+
+int PlatformSpecs::getMemoryUsage()
+{
+#ifdef PLATFORM_DEFINE_LINUX
+    struct sysinfo info;
+    sysinfo(&info);
+    return double(info.freeram) / double(info.totalram) * 100.;
+#endif
+#ifdef PLATFORM_DEFINE_ANDROID
+    struct sysinfo info;
+    sysinfo(&info);
+    return double(info.freeram) / double(info.totalram) * 100.;
+#endif
+}
+
+double PlatformSpecs::getAvgUsage()
+{
+#ifdef PLATFORM_DEFINE_WINDOWS
+    return 0.;
+#else
+    qDebug() << "AVG CALLED";
+    QProcess loadAvgProcess;
+    loadAvgProcess.start("cat /proc/loadavg");
+    loadAvgProcess.waitForFinished();
+    QStringList items = QString(loadAvgProcess.readAll()).split(" ");
+    if (items.count())
+        return items[0].toDouble();
+    return 0.;
+#endif
 }
 

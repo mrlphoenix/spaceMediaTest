@@ -44,8 +44,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
     connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
-    connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
-
+ //   connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
+    connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
 
     QTimer::singleShot(70000,uploader,SLOT(start()));
 
@@ -167,6 +167,7 @@ void TeleDSCore::getPlaylistTimerSlot()
 {
     qDebug() << "grabbing playlist";
     videoService->getPlaylist(playerInitParams.player_id,encryptedSessionKey);
+    sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 }
 
 void TeleDSCore::fakeInit()

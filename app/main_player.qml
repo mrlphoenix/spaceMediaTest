@@ -20,6 +20,18 @@ Item {
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
     focus: true
+    onHeightChanged: {
+        heightP = height
+        widthP = width
+        //console.log("native height " + height + "heightp " + heightP)
+        //console.log("native width" + width + "widthp" + width) // 2048
+    }
+
+    function displayTrafficInfo(trafficIn, trafficOut, memory, cpuLoad)
+    {
+        console.log("cpuload=", cpuLoad)
+        trafficDebugDisplay.text = "In: " + trafficIn + " Out: " + trafficOut + " memory: " + memory + "% cpuload: " + cpuLoad
+    }
 
     function playFile(filename){
         console.debug("playfile is called" + filename)
@@ -66,6 +78,122 @@ Item {
             overlayBgRect.color = "#333e47"
         }
     }
+    function setBrightness(value){
+        videoOutBrightness = value
+        if (value > 1.0) {
+            overlayBgRect.color = "#FFFFFF"
+            videoOut.opacity = 2.0 - value
+        }
+        else {
+            overlayBgRect.color = "#333e47"
+            videoOut.opacity = value
+        }
+    }
+
+    function setNoItemsLogo(link){
+        logoColumn.visible = true
+        videoOut.opacity = 0
+        titleText.text = "No playlist available"
+        progressText.text = "Go to <a href=\"" + link + "\">" + link +  "</a></html>"
+        logoDownloadProgressBar.visible = false
+        playerIDItem.visible = false
+        waitingBlock.visible = false
+        waitingText.visible = false
+        waitingRefreshInText.visible = false
+    }
+    function setDownloadLogo(){
+        logoColumn.visible = true
+        videoOut.opacity = 0
+        titleText.text = "Downloading playlist"
+        progressText.text = "Please wait..."
+        logoDownloadProgressBar.visible = true
+        playerIDItem.visible = false
+        waitingBlock.visible = false
+        waitingText.visible = false
+        waitingRefreshInText.visible = false
+    }
+    function setNeedActivationLogo(link, playerID, updateDelay){
+        logoColumn.visible = true
+        videoOut.opacity = 0
+        titleText.text = "To setup this player use the following code at"
+        progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
+        logoDownloadProgressBar.visible = false
+        playerIDText.text = playerID
+
+        playerIDItem.visible = true
+      //  refreshPlayerID.sourceSize.width = playerIDRect.height
+       // refreshPlayerID.sourceSize.height = playerIDRect.height
+       // refreshPlayerID.visible = true
+        waitingBlock.visible = true
+        refreshButtonDeactivator.start()
+        playerIDText.color = "#333e47"
+        refreshTimeTimer.updateDelay = updateDelay - 1
+        refreshTimeTimer.start()
+    }
+    function getPointSize(text){
+        if (text.length > 40)
+            decreasingTextValue = text.length-40
+        else
+            decreasingTextValue = 0
+        if (item.widthP > item.heightP)
+            return 32 - decreasingTextValue
+        else
+        {
+            if (decreasingTextValue)
+                decreasingTextValue += 2
+            testText.text = text
+            if (testText.width < item.widthP)
+                decreasingTextValue -= 4
+            return 32 - decreasingTextValue
+        }
+    }
+    function getPointSizeSecond(text){
+        if (item.widthP > item.heightP)
+            return 20
+        else
+            return 18
+    }
+
+    function getRefreshButtonPositionX(w, h){
+        if (w > h)
+        {
+            return playerIDRect.x + playerIDRect.width + playerIDRect.height/2
+        }
+        else
+        {
+            return w/2 - refreshPlayerID.width/2
+        }
+    }
+    function getRefreshButtonPositionY(w, h)
+    {
+        if (w > h)
+        {
+            return playerIDRect.y
+        }
+        else
+        {
+            return playerIDRect.y + playerIDRect.height + 8
+        }
+    }
+
+    function setDownloadProgressSimple(value)
+    {
+        logoDownloadProgressBar.value = value
+    }
+    function getTopValue(h)
+    {
+        console.log("y: " + waitingRefreshInText.y)
+     //   if (waitingRefreshInText.y + waitingRefreshInText.height > h)
+        console.log("DIFFS: " + (waitingRefreshInText.y + waitingRefreshInText.height - h))
+        console.log("BASIC: " + (h * 0.248148148 * aspect))
+        console.log("RETURN: " + (h * 0.248148148 * aspect - (waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h)))
+        var result = h * 0.248148148 - Math.max(waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h,0)*1.5
+        if (result < 0)
+            return h * 0.248148148 * aspect
+        else
+            return result
+    //    return parent.height * 0.248148148 * aspect
+    }
 
     PositionSource {
         id: src
@@ -76,8 +204,35 @@ Item {
             var coord = src.position.coordinate;
             console.log("Coordinate:", coord.longitude, coord.latitude);
             gpsChanged(coord.latitude, coord.longitude)
+            coordsDisplay.text = "Coords: lat = " + coord.latitude + ", lng = " + coord.longitude
         }
     }
+
+    Timer {
+        property int updateDelay: 10
+        id: refreshTimeTimer
+        interval: 1000
+        repeat: true
+        onTriggered:{
+            updateDelay = updateDelay - 1
+            if (refreshplayerIDAnimation.running)
+                waitingRefreshInText.text = "Refreshing"
+            else
+                waitingRefreshInText.text = "Refresh in " + updateDelay + "s"
+         //   if (updateDelay <= 1 && refreshplayerIDAnimation.running == false)
+         //       refreshplayerIDAnimation.start()
+            if (updateDelay <= 0)
+            {
+                if (refreshplayerIDAnimation.running == false)
+                {
+                    refreshplayerIDAnimation.start()
+                    waitingRefreshInText.text = "Refreshing"
+                }
+                refreshTimeTimer.stop()
+            }
+        }
+    }
+
     Timer {
         id: dialogCloseTimer
         repeat: false
@@ -87,6 +242,15 @@ Item {
             item.focus = true
         }
     }
+    Timer {
+        id: refreshButtonDeactivator
+        repeat: false
+        interval: 3000
+        onTriggered: {
+            refreshplayerIDAnimation.stop()
+        }
+    }
+
     Dialog {
         id: dialogAndroid
       //  width: 600  // for desktop ::TODO
@@ -113,7 +277,7 @@ Item {
                 }
             }
 
-            // Создаём горизонтальный разделитель с помощью Rectangle
+            // Создаём горизонтальный разделитель с помощью Rectangle</center> <p/> <center
             Rectangle {
                 id: dividerHorizontal
                 color: "#d7d7d7"
@@ -207,98 +371,18 @@ Item {
         width: parent.width
         height: parent.height
     }
-    function setBrightness(value){
-        videoOutBrightness = value
-        if (value > 1.0) {
-            overlayBgRect.color = "#FFFFFF"
-            videoOut.opacity = 2.0 - value
-        }
-        else {
-            overlayBgRect.color = "#333e47"
-            videoOut.opacity = value
-        }
-    }
 
-    function setNoItemsLogo(link){
-        logoColumn.visible = true
-        videoOut.opacity = 0
-        titleText.text = "No campaign available"
-        progressText.text = "Go to <a href=\"" + link + "\">" + link +  "</a></html>"
-        logoDownloadProgressBar.visible = false
-        playerIDItem.visible = false
-    }
-    function setDownloadLogo(){
-        logoColumn.visible = true
-        videoOut.opacity = 0
-        titleText.text = "Downloading campains"
-        progressText.text = "Please wait..."
-        logoDownloadProgressBar.visible = true
-       playerIDItem.visible = false
-    }
-    function setNeedActivationLogo(link, playerID){
-        logoColumn.visible = true
-        videoOut.opacity = 0
-        titleText.text = "To setup this player use the following code at"
-        progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
-        logoDownloadProgressBar.visible = false
-        playerIDText.text = playerID
-
-        playerIDItem.visible = true
-        refreshPlayerID.sourceSize.width = playerIDRect.height
-        refreshPlayerID.sourceSize.height = playerIDRect.height
-        refreshPlayerID.visible = true
-        refreshplayerIDAnimation.stop()
-        playerIDText.color = "#333e47"
-    }
-    function getPointSize(text){
-        if (text.length > 40)
-            decreasingTextValue = text.length-40
-        else
-            decreasingTextValue = 0
-        if (item.widthP > item.heightP)
-            return 32 - decreasingTextValue
-        else
-        {
-            if (decreasingTextValue)
-                decreasingTextValue += 2
-            return 24 - decreasingTextValue
-        }
-    }
-
-    function getRefreshButtonPositionX(w, h){
-        if (w > h)
-        {
-            return playerIDRect.x + playerIDRect.width + playerIDRect.height/2
-        }
-        else
-        {
-            return w/2 - refreshPlayerID.width/2
-        }
-    }
-    function getRefreshButtonPositionY(w, h)
-    {
-        if (w > h)
-        {
-            return playerIDRect.y
-        }
-        else
-        {
-            return playerIDRect.y + playerIDRect.height + 8
-        }
-    }
-
-    function setDownloadProgressSimple(value)
-    {
-        logoDownloadProgressBar.value = value
-    }
     Image {
         id: bgLogoImage
         source: "logo_bg.svg"
-        sourceSize.width: Math.max(parent.width, parent.height)
-        sourceSize.height: Math.max(parent.height,parent.width)
-        fillMode: Image.Tile
-        horizontalAlignment: Image.AlignLeft
-        verticalAlignment: Image.AlignTop
+        sourceSize.width: parent.width
+        sourceSize.height: parent.height
+        width: parent.width
+        height: parent.height
+      //  fillMode: Image.Stretch
+       // fillMode: Image.Tile
+       // horizontalAlignment: Image.AlignLeft
+      //  verticalAlignment: Image.AlignTop
     }
     Image {
         id: bgLogoImageV
@@ -306,15 +390,26 @@ Item {
         source: "logo_bg_vertical.svg"
         sourceSize.width: parent.width
         sourceSize.height: parent.height
-        fillMode: Image.Tile
-        horizontalAlignment: Image.AlignLeft
-        verticalAlignment: Image.AlignTop
+        width: parent.width
+        height: parent.height
+       // fillMode: Image.Stretch
+      //  horizontalAlignment: Image.AlignLeft
+      //  verticalAlignment: Image.AlignTop
     }
     Item
     {
         id: logoColumn
         width: parent.width
-        y: parent.height * 0.248148148 * aspect
+        //y: parent.height * 0.248148148 * aspect
+        y: getTopValue(parent.height)
+     //   y: 0
+        Text{
+            id: testText
+            font.family: ubuntuFont.name
+            font.pointSize: 26
+            visible: false
+            text: "kek"
+        }
 
         Image {
             id: teledsLogoImg
@@ -345,9 +440,12 @@ Item {
             font.family: ubuntuFont.name
             font.pointSize: getPointSize(text)
             text: "Initialization"
-            x: parent.width/2 - width/2
+         //   x: parent.width/2 - width/2
             y: brRect.y + brRect.height + (75.0 * aspect)
             color: "white"
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+            width: parent.width
         }
         Text {
             id: progressText
@@ -379,6 +477,8 @@ Item {
                     }
                 }
         }
+
+
         Item{
             id: playerIDItem
             width: parent.width
@@ -399,6 +499,7 @@ Item {
                 y: progressText.y + progressText.height + 55 * aspect
                 x: parent.width/2 - width/2
             }
+            /*
             MouseArea {
                 x: getRefreshButtonPositionX(item.width, item.height)
                 y: getRefreshButtonPositionY(item.width, item.height)
@@ -413,7 +514,8 @@ Item {
                         direction: RotationAnimator.Counterclockwise
                         from: 360; to: 0
                         duration: 400
-                        loops: 3600
+                        loops: 8
+                        alwaysRunToEnd: true
                     }
                 }
                 width: refreshPlayerID.width
@@ -421,7 +523,7 @@ Item {
                 onClicked:{
                     if (refreshplayerIDAnimation.running == false)
                     {
-                        playerIDText.color = "transparent"
+                      //  playerIDText.color = "transparent"
                        // refreshPlayerID.visible = false
                       //  playerIDText.text = " Please wait... "
                         item.refreshId()
@@ -429,9 +531,81 @@ Item {
                     }
                 }
             }
+            */
+        }
+
+        Item{
+            id: waitingBlock
+            width: parent.width
+            visible: false
+           // y: playerIDRect.y + playerIDRect.height + 10
+          //  anchors.top: playerIDRect.bottom
+          //  anchors.horizontalCenter: parent.horizontalCenter
+
+            MouseArea {
+                x: waitingText.x - refreshPlayerID.width*150/100
+                y: playerIDRect.y + playerIDRect.height + 55 * aspect
+                //x: getRefreshButtonPositionX(item.width, item.height)
+                //y: getRefreshButtonPositionY(item.width, item.height)
+                Image {
+                    id: refreshPlayerID
+                    source: "refresh_1.svg"
+                    smooth: true
+                    sourceSize.height: waitingText.height + waitingRefreshInText.height + 10 * aspect
+                    sourceSize.width: waitingText.height + waitingRefreshInText.height + 10 * aspect
+                    height: waitingText.height + waitingRefreshInText.height + 10 * aspect
+                    width: waitingText.height + waitingRefreshInText.height + 10 * aspect
+
+                    RotationAnimator {
+                        id: refreshplayerIDAnimation
+                        target: refreshPlayerID
+                        direction: RotationAnimator.Counterclockwise
+                        from: 360; to: 0
+                        duration: 400
+                        loops: 8
+                        alwaysRunToEnd: true
+                    }
+                }
+                width: refreshPlayerID.width
+                height: refreshPlayerID.height
+                onClicked:{
+                    if (refreshplayerIDAnimation.running == false)
+                    {
+                      //  playerIDText.color = "transparent"
+                       // refreshPlayerID.visible = false
+                      //  playerIDText.text = " Please wait... "
+                        item.refreshId()
+                        refreshplayerIDAnimation.start()
+                    }
+                }
+            }
+            Text {
+                y: playerIDRect.y + playerIDRect.height + 55 * aspect
+                x: item.width/2 - width/2
+            //    anchors.top: parent.top
+            //    anchors.left: refreshPlayerID.right
+                id: waitingText
+
+                font.family: ubuntuFont.name
+                font.pointSize: 20
+                text: "Waiting for activation"
+                color: "#00cdc1"
+            }
+            Text {
+                y: waitingText.y + waitingText.height
+                x: item.width/2 - width/2
+                id: waitingRefreshInText
+                font.family: ubuntuFont.name
+                font.pointSize: 20
+                text: "Refresh in 10s"
+                color: "#00cdc1"
+            }
         }
     }
 
+
+    //
+    //
 
     Column
     {
@@ -501,6 +675,18 @@ Item {
         id: videoOut
         anchors.fill: parent
         source: mediaplayer
+    }
+    Text{
+        id: coordsDisplay
+        text: "Coords: "
+        y: 0
+        x: parent.width - coordsDisplay.width
+    }
+    Text{
+        id: trafficDebugDisplay
+        text: "in: out:"
+        y: coordsDisplay.height
+        x: parent.width - trafficDebugDisplay.width
     }
 
     Keys.onReleased: {

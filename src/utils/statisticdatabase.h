@@ -15,7 +15,6 @@
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
-
 class DatabaseWorker : public QObject
 {
     Q_OBJECT
@@ -99,6 +98,7 @@ public:
     void resourceCount();
 
     void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
+    void removeResource(QString itemId);
     void findPlaysToSend();
 
     void createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist);
