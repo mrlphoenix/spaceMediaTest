@@ -4,9 +4,12 @@
 #include <QObject>
 #include <QThread>
 #include <QProcess>
+
 #include "singleton.h"
 
 #define CPUStatInstance Singleton<CPUStat>::instance()
+
+class QStringList;
 
 class CPUStatWorker : public QObject
 {
@@ -15,11 +18,13 @@ public:
     CPUStatWorker(QObject * parent = 0);
     struct DeviceInfo
     {
-        int cpu;
-        int memory;
-        int trafficIn;
-        int trafficOut;
+        double cpu;
+        double memory;
+        qlonglong trafficIn;
+        qlonglong trafficOut;
     };
+    enum AndroidInfoState{GET_UID, UID_TRAFFIC_IN, UID_TRAFFIC_OUT, CPU};
+
     void getInfo();
 signals:
     void InfoReady(CPUStatWorker::DeviceInfo info);
@@ -28,6 +33,11 @@ private slots:
 private:
     QProcess * process;
     QByteArray result;
+    qlonglong trafficIn, trafficOut;
+    double cpu, memory;
+    QStringList uids;
+    int currentUID;
+    AndroidInfoState state;
 };
 
 class CPUStatThread : public QThread

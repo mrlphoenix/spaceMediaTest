@@ -29,7 +29,14 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
     QTimer::singleShot(1000,this,SLOT(next()));
+
+#ifdef PLAYER_MODE_WINDOWED
+    view.show();
+    view.setMinimumHeight(520);
+    view.setMinimumWidth(920);
+#else
     view.showFullScreen();
+#endif
     delay = 0;
     status.isPlaying = false;
     status.item = "";
@@ -56,7 +63,15 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     viewRootObject = dynamic_cast<QObject*>(view.rootObject());
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
+
+#ifdef PLAYER_MODE_WINDOWED
+    view.show();
+    view.setMinimumHeight(520);
+    view.setMinimumWidth(920);
+#else
     view.showFullScreen();
+#endif
+
 
 
     delay = 5000;
@@ -189,6 +204,20 @@ void TeleDSPlayer::invokeDownloadingView()
 
 void TeleDSPlayer::invokeDisplayTrafficUpdate()
 {
+    qlonglong in = GlobalStatsInstance.getTrafficIn();
+    qlonglong out = GlobalStatsInstance.getTrafficOut();
+    double memory = GlobalStatsInstance.getMemory();
+    double cpuLoad = GlobalStatsInstance.getCpu();
+    QVariant inParam(in);
+    QVariant outParam(out);
+    QVariant memoryParam(memory);
+    QVariant cpuLoadParam(cpuLoad);
+    QMetaObject::invokeMethod(viewRootObject, "displayTrafficInfo",
+                              Q_ARG(QVariant, inParam),
+                              Q_ARG(QVariant, outParam),
+                              Q_ARG(QVariant, memoryParam),
+                              Q_ARG(QVariant, cpuLoadParam));
+    /*
 #ifdef PLATFORM_DEFINE_ANDROID
     qlonglong in = PlatformSpecs::getTrafficIn();
     qlonglong out = PlatformSpecs::getTrafficOut();
@@ -203,7 +232,7 @@ void TeleDSPlayer::invokeDisplayTrafficUpdate()
                               Q_ARG(QVariant, outParam),
                               Q_ARG(QVariant, memoryParam),
                               Q_ARG(QVariant, cpuLoadParam));
-#endif
+#endif*/
 }
 
 void TeleDSPlayer::next()

@@ -71,17 +71,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
         QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
    //     sheduler.stop(TeleDSSheduler::ALL);
-
-      /*  QFile decPlaylist("playlist.dec");
-        decPlaylist.open(QFile::ReadOnly);
-        QByteArray data = decPlaylist.readAll();
-        QByteArray encr = SSLEncoder::encodeAES256(data,false,false);
-        QByteArray decoded = SSLEncoder::decodeAES256(encr,false);
-        QFile outPlaylist("playlist.dec.enc");
-        outPlaylist.open(QFile::WriteOnly);
-        outPlaylist.write(encr);
-        outPlaylist.flush();
-        outPlaylist.close();*/
     } else
     {
         qDebug() << "player is not configurated";

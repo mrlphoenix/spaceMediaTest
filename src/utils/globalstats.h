@@ -16,9 +16,13 @@ public:
     void setContentPlay(int count);
     void setContentTotal(int count);
 
-    void setCpu(int cpu);
-    void setMemory(int memory);
+    void setCpu(double cpu);
+    void setMemory(double memory);
     void setTraffic(double in, double out);
+    double getTrafficIn(){return trafficIn;}
+    double getTrafficOut(){return trafficOut;}
+    double getMemory(){return memory;}
+    double getCpu(){return cpu;}
     void setMonitorActive(bool isActive);
     void setConnectionState(bool isActive);
     void setBalance(double balance);
@@ -39,8 +43,8 @@ public:
     };
     struct SystemInfo
     {
-        int cpu, memory;
-        int trafficIn, trafficOut;
+        double cpu, memory;
+        qlonglong trafficIn, trafficOut;
         bool monitorActive, connectionActive;
         double balance;
     };
@@ -60,7 +64,7 @@ private:
     int playlistErrorCount;
 
     //system info vars
-    int cpu, memory;
+    double cpu, memory;
     double trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
     bool monitorActive, connectionActive;
     double balance;

@@ -1,22 +1,23 @@
 #include <QDebug>
 
 #include <QStringList>
+#include <QProcess>
 #include "platformspecs.h"
 
 #ifdef PLATFORM_DEFINE_ANDROID
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
-#include <QProcess>
 #include "sys/system_properties.h"
 #include "sys/sysinfo.h"
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
 #include <stdio.h>
+#include "sys/sysinfo.h"
 #endif
 
 #ifdef PLATFORM_DEFINE_RPI
-#include <QProcess>
+
 #endif
 
 
@@ -132,8 +133,6 @@ QString PlatformSpecs::getUniqueId()
     QByteArray result = grepProcess.readAll();
     return QString(result).replace("Serial\t\t: ","").replace("\n","");
 #endif
-
-
     return "";
 }
 
@@ -157,6 +156,7 @@ int64_t PlatformSpecs::getTrafficIn()
     }
     return traffic;
 #endif
+    return 0;
 }
 
 int64_t PlatformSpecs::getTrafficOut()
@@ -177,6 +177,7 @@ int64_t PlatformSpecs::getTrafficOut()
     }
     return traffic;
 #endif
+    return 0;
 }
 
 int PlatformSpecs::getMemoryUsage()

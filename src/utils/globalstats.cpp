@@ -46,13 +46,13 @@ void GlobalStats::setContentTotal(int count)
     contentTotalCount = count;
 }
 
-void GlobalStats::setCpu(int cpu)
+void GlobalStats::setCpu(double cpu)
 {
     qDebug() << "CPU INFO: " << cpu;
     this->cpu = cpu;
 }
 
-void GlobalStats::setMemory(int memory)
+void GlobalStats::setMemory(double memory)
 {
     qDebug() << "MEMORY INFO: " << memory;
     this->memory = memory;
