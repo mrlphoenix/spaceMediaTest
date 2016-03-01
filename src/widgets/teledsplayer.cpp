@@ -74,7 +74,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 
 
 
-    delay = 5000;
+    delay = 0000;
     status.isPlaying = false;
     status.item = "";
 }
@@ -235,13 +235,27 @@ void TeleDSPlayer::invokeDisplayTrafficUpdate()
 #endif*/
 }
 
+void TeleDSPlayer::invokeEnablePreloading()
+{
+    QString nextItem = playlist->next();
+    DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
+
+    QVariant nextItemParam = QUrl(getFullPath(nextItem));
+    QMetaObject::invokeMethod(viewRootObject, "enablePreloading", Q_ARG(QVariant, nextItemParam));
+}
+
 void TeleDSPlayer::next()
 {
     qDebug() << "next method is called";
-    QTimer::singleShot(delay,this,SLOT(playNext()));
-    hideVideo();
-    status.isPlaying = false;
-    status.item = "";
+    if (delay == 0)
+        playNext();
+    else
+    {
+        QTimer::singleShot(delay,this,SLOT(playNext()));
+        hideVideo();
+        status.isPlaying = false;
+        status.item = "";
+    }
 }
 
 void TeleDSPlayer::playNext()

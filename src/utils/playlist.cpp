@@ -101,6 +101,15 @@ AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 
 }
 
+PlayerConfig::Area::Playlist::Item AbstractPlaylist::findItemById(QString iid)
+{
+    foreach (const PlayerConfig::Area::Playlist::Item &item, playlist.items)
+        if (item.iid == iid)
+            return item;
+    PlayerConfig::Area::Playlist::Item emptyItem;
+    return emptyItem;
+}
+
 StandartPlaylist::StandartPlaylist(QObject *parent) : AbstractPlaylist(parent)
 {
     currentItemIndex = 0;

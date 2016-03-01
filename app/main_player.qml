@@ -16,6 +16,16 @@ Item {
     property int widthP: width
     property int decreasingTextValue: 0
 
+    //properties for seamless video player
+    property bool preloader: false
+    property bool useSecondPlayer: false
+
+
+    /*
+      1. play item1 -> mp1
+      2. preload item2 -> mp2 | preload = true; useSecondPlayer = false
+      3. play item3 => |preload = true|useSecondPlayer=false| -> {mp1->visible = false; mp2->visible = true; mp2->play; mp1->load item3; useSecondPlayer = true;}
+      */
     signal nextItem()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
@@ -33,14 +43,86 @@ Item {
         trafficDebugDisplay.text = "In: " + trafficIn + " Out: " + trafficOut + " memory: " + memory + "% cpuload: " + cpuLoad
     }
 
+    function enablePreloading(filename)
+    {
+        preloader = true
+        invokeNext = false
+
+        mediaplayer2.stop()
+        mediaplayer2.source = filename
+        mediaplayer2.play()
+        mediaplayer2.pause()
+
+        invokeNext = true
+        useSecondPlayer = false
+    }
+
     function playFile(filename){
         console.debug("playfile is called" + filename)
-        invokeNext = false
-        mediaplayer.stop();
-        mediaplayer.source = filename;
-        mediaplayer.play();
-        invokeNext = true
-        mediaplayer.volume = 1.0
+        if (preloader)
+        {
+            console.debug("seamless mode enabled")
+            if (useSecondPlayer)
+            {
+                console.debug("current player: first")
+
+                invokeNext = false
+                mediaplayer2.stop()
+                mediaplayer2.source = filename
+                mediaplayer2.play()
+                mediaplayer2.pause()
+                mediaplayer.play()
+
+                invokeNext = true
+
+                videoOut.visible = true
+                videoOut2.visible = false
+            }
+            else
+            {
+                console.debug("current player: second" + mediaplayer2.source)
+
+                invokeNext = false
+                mediaplayer.stop()
+                mediaplayer.source = filename
+                mediaplayer.play()
+                mediaplayer.pause()
+                mediaplayer2.play()
+                console.log("next item in " + mediaplayer2.duration - 1000)
+                nextVideoTimer.interval = mediaplayer2.duration - 1000
+                nextVideoTimer.start()
+
+                invokeNext = true
+
+                videoOut2.visible = true
+                videoOut.visible = false
+            }
+
+            mediaplayer.volume = 1.0
+            mediaplayer2.volume = 1.0
+            useSecondPlayer = !useSecondPlayer
+        }
+        else
+        {
+            if (videoOut2.visible == true)
+            {
+                invokeNext = false
+                videoOut2.visible = false
+                useSecondPlayer = false
+                mediaplayer2.stop()
+                invokeNext = true
+            }
+            invokeNext = false
+            mediaplayer.stop();
+            mediaplayer.source = filename;
+            mediaplayer.play();
+
+            console.log("next item in " + mediaplayer2.duration - 1000)
+            nextVideoTimer.interval = mediaplayer.duration - 1000
+            nextVideoTimer.start()
+
+            invokeNext = true
+        }
     }
 
     function downloadComplete(){
@@ -64,7 +146,8 @@ Item {
         downloadProgressBar.value = p
     }
     function showVideo(isVisible){
-        videoOut.visible = true
+        videoOut.visible = isVisible
+        videoOut2.visible = isVisible
         logoColumn.visible = false
         if (!isVisible)
         {
@@ -248,6 +331,15 @@ Item {
         interval: 3000
         onTriggered: {
             refreshplayerIDAnimation.stop()
+        }
+    }
+    Timer {
+        id: nextVideoTimer
+        repeat: false
+        interval: 10000
+        onTriggered: {
+            console.log("next video timeout")
+            nextItem()
         }
     }
 
@@ -499,39 +591,6 @@ Item {
                 y: progressText.y + progressText.height + 55 * aspect
                 x: parent.width/2 - width/2
             }
-            /*
-            MouseArea {
-                x: getRefreshButtonPositionX(item.width, item.height)
-                y: getRefreshButtonPositionY(item.width, item.height)
-                Image {
-                    id: refreshPlayerID
-                    source: "refresh_2.svg"
-                    smooth: true
-
-                    RotationAnimator {
-                        id: refreshplayerIDAnimation
-                        target: refreshPlayerID
-                        direction: RotationAnimator.Counterclockwise
-                        from: 360; to: 0
-                        duration: 400
-                        loops: 8
-                        alwaysRunToEnd: true
-                    }
-                }
-                width: refreshPlayerID.width
-                height: refreshPlayerID.height
-                onClicked:{
-                    if (refreshplayerIDAnimation.running == false)
-                    {
-                      //  playerIDText.color = "transparent"
-                       // refreshPlayerID.visible = false
-                      //  playerIDText.text = " Please wait... "
-                        item.refreshId()
-                        refreshplayerIDAnimation.start()
-                    }
-                }
-            }
-            */
         }
 
         Item{
@@ -602,8 +661,6 @@ Item {
             }
         }
     }
-
-
     //
     //
 
@@ -660,22 +717,51 @@ Item {
     MediaPlayer {
         id: mediaplayer
         autoLoad: true
-        source: "file:///sdcard/download/teleds/1.mp4"
+        source: ""
         onStopped:{
             console.debug("on stopped")
             if (invokeNext){
                 console.debug("calling nextItem")
-                item.nextItem()
+             //   item.nextItem()
             }
         }
+        onPlaying: {
+            console.log(mediaplayer.duration)
+            nextVideoTimer.interval = mediaplayer.duration
+            nextVideoTimer.start()
+        }
     }
-
     VideoOutput {
         visible: false
         id: videoOut
         anchors.fill: parent
         source: mediaplayer
     }
+
+    MediaPlayer {
+        id: mediaplayer2
+        autoLoad: true
+        source: ""
+        onStopped:{
+            console.debug("on stopped MP2")
+            if (invokeNext){
+              //  console.debug("calling nextItem: MP2")
+              //  item.nextItem()
+            }
+        }
+        onPlaying: {
+            console.log(mediaplayer.duration)
+            nextVideoTimer.interval = mediaplayer.duration
+            nextVideoTimer.start()
+        }
+    }
+    VideoOutput {
+        visible: false
+        id: videoOut2
+        anchors.fill: parent
+        source: mediaplayer2
+    }
+
     Text{
         id: coordsDisplay
         text: "Coords: "

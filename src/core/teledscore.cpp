@@ -70,7 +70,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
         QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
-   //     sheduler.stop(TeleDSSheduler::ALL);
+     //   sheduler.stop(TeleDSSheduler::ALL);
     } else
     {
         qDebug() << "player is not configurated";
@@ -180,7 +180,11 @@ void TeleDSCore::downloaded()
     {
         rpiPlayer->setConfig(currentConfig.areas.first());
         if (!rpiPlayer->isPlaying())
+        {
             rpiPlayer->play();
+            QTimer::singleShot(12000,rpiPlayer, SLOT(invokeEnablePreloading()));
+            //rpiPlayer->invokeEnablePreloading();
+        }
     }
 }
 

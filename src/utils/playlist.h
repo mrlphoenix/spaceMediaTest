@@ -16,6 +16,7 @@ public:
     virtual ~AbstractPlaylist(){;}
     virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist)=0;
     virtual QString getType()=0;
+    virtual PlayerConfig::Area::Playlist::Item findItemById(QString iid);
 public slots:
     virtual QString next()=0;
 protected:

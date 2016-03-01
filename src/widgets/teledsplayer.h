@@ -50,6 +50,7 @@ public slots:
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
     void invokeDisplayTrafficUpdate();
+    void invokeEnablePreloading();
 
     void next();
     void playNext();
