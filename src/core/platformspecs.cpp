@@ -192,6 +192,7 @@ int PlatformSpecs::getMemoryUsage()
     sysinfo(&info);
     return double(info.freeram) / double(info.totalram) * 100.;
 #endif
+    return 0;
 }
 
 double PlatformSpecs::getAvgUsage()

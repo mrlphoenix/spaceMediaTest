@@ -40,6 +40,8 @@ public slots:
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
     void resourceCountUpdate(int count);
 
+    void needToDownloadResult(int count);
+
 protected:
     void setupDownloader(PlayerConfig& config);
     QVector<QObject*> widgets;

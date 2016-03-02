@@ -37,25 +37,27 @@ private:
     QList<SwapDefines> needToSwap;
 };
 
-class VideoDownloader : public QObject
+class VideoDownloaderWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit VideoDownloader(PlayerConfig config, QObject *parent = 0);
-    ~VideoDownloader();
-    void prepareDownload();
-    void start();
+    explicit VideoDownloaderWorker(PlayerConfig config, QObject *parent = 0);
+    ~VideoDownloaderWorker();
+
 
     static QString getFileHash(QString fileName);
-    void updateConfig(PlayerConfig config);
-    int itemsToDownloadCount(){return itemsToDownload.count();}
 
 signals:
     void done();
     void downloadProgress(double p);
     void totalDownloadProgress(double p, QString name);
     void downloadProgressSingle(double p, QString name);
+    void checkDownloadItemsTodownloadResult(int c);
 public slots:
+    void updateConfig(PlayerConfig config);
+    int itemsToDownloadCount(){return itemsToDownload.count();}
+    void prepareDownload();
+    void start();
     void httpFinished();
     void httpReadyRead();
     void updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
@@ -66,6 +68,7 @@ private slots:
     void download();
     void connectError(QNetworkReply::NetworkError err);
     void runDonwload();
+    static void writeToFileJob(QFile* f, QNetworkReply * r);
 private:
     bool isFileUpdated(PlayerConfig::Area::Playlist::Item item);
 
@@ -78,6 +81,34 @@ private:
     FileSwapper swapper;
     QTimer * restarter;
     int currentItemIndex;
+};
+
+
+class VideoDownloader : public QThread
+{
+    Q_OBJECT
+public:
+    VideoDownloader(PlayerConfig config, QObject *parent);
+    ~VideoDownloader();
+
+
+public slots:
+    void runDownload();
+    void prepareDownload(){worker->prepareDownload();}
+    void checkDownload(){worker->checkDownload();}
+    void startDownload(){worker->start();}
+    int itemsToDownloadCount() {return worker->itemsToDownloadCount();}
+    void updateConfig(PlayerConfig config){worker->updateConfig(config);}
+signals:
+    void done();
+    void downloadProgressSingle(double p, QString name);
+    void donwloadConfigResult(int c);
+    void runDownloadSignal();
+
+protected:
+    void run();
+private:
+    VideoDownloaderWorker * worker;
 };
 
 #endif // VIDEODOWNLOADER_H

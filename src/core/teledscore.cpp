@@ -141,8 +141,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
         setupDownloader(result);
         currentConfig = result;
-        if (!rpiPlayer->isPlaying() && downloader->itemsToDownloadCount() > 0)
-            rpiPlayer->invokeDownloadingView();
+
     }
     else
     {
@@ -228,6 +227,12 @@ void TeleDSCore::resourceCountUpdate(int count)
     GlobalStatsInstance.setContentTotal(count);
 }
 
+void TeleDSCore::needToDownloadResult(int count)
+{
+    if (!rpiPlayer->isPlaying() && count > 0)
+        rpiPlayer->invokeDownloadingView();
+}
+
 void TeleDSCore::setupDownloader(PlayerConfig &config)
 {
     if (downloader)
@@ -235,15 +240,16 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     else
     {
         downloader = new VideoDownloader(config, this);
+        downloader->start();
         connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
-        connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
-        connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
+        //connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
+        //connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
         connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),rpiPlayer,SLOT(invokeSimpleProgress(double,QString)));
+        connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
     }
-
     currentConfig = config;
-    downloader->checkDownload();
-    downloader->start();
+    downloader->runDownload();
+ //   downloader->checkDownload();
+ //   downloader->startDownload();
 }
-

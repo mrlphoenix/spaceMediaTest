@@ -76,7 +76,9 @@ Item {
                 invokeNext = true
 
                 videoOut.visible = true
-                videoOut2.visible = false
+                //videoOut2.visible = false
+                hideVideoDelayTimer.object = videoOut2
+                hideVideoDelayTimer.start()
             }
             else
             {
@@ -95,7 +97,9 @@ Item {
                 invokeNext = true
 
                 videoOut2.visible = true
-                videoOut.visible = false
+                hideVideoDelayTimer.object = videoOut
+                hideVideoDelayTimer.start()
+              //  videoOut.visible = false
             }
 
             mediaplayer.volume = 1.0
@@ -123,6 +127,11 @@ Item {
 
             invokeNext = true
         }
+    }
+
+    function hideVideoLayer(object)
+    {
+        object.visible = false
     }
 
     function downloadComplete(){
@@ -288,6 +297,15 @@ Item {
             console.log("Coordinate:", coord.longitude, coord.latitude);
             gpsChanged(coord.latitude, coord.longitude)
             coordsDisplay.text = "Coords: lat = " + coord.latitude + ", lng = " + coord.longitude
+        }
+    }
+    Timer{
+        property var object: ({})
+        id: hideVideoDelayTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            object.visible = false
         }
     }
 

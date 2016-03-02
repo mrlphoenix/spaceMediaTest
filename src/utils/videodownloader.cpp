@@ -2,12 +2,13 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QTimer>
+#include <QtConcurrent/QtConcurrent>
 #include "videodownloader.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "platformdefines.h"
 
-VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject(parent)
+VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *parent) : QObject(parent)
 {
     this->config = config;
     file = 0;
@@ -18,7 +19,7 @@ VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QObject
     manager = new QNetworkAccessManager(this);
 }
 
-VideoDownloader::~VideoDownloader()
+VideoDownloaderWorker::~VideoDownloaderWorker()
 {
     if (file)
         file->deleteLater();
@@ -26,12 +27,12 @@ VideoDownloader::~VideoDownloader()
         reply->deleteLater();
 }
 
-void VideoDownloader::prepareDownload()
+void VideoDownloaderWorker::prepareDownload()
 {
     getDatabaseInfo();
 }
 
-void VideoDownloader::checkDownload()
+void VideoDownloaderWorker::checkDownload()
 {
     int itemCount = 0;
     itemsToDownload.clear();
@@ -59,15 +60,16 @@ void VideoDownloader::checkDownload()
         }
     GlobalStatsInstance.setContentPlay(itemCount);
     qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
+    emit checkDownloadItemsTodownloadResult(itemsToDownload.count());
 }
 
-void VideoDownloader::start()
+void VideoDownloaderWorker::start()
 {
     currentItemIndex = 0;
     download();
 }
 
-void VideoDownloader::download()
+void VideoDownloaderWorker::download()
 {
     if (itemsToDownload.count() > currentItemIndex)
     {
@@ -113,7 +115,7 @@ void VideoDownloader::download()
     }
 }
 
-void VideoDownloader::connectError(QNetworkReply::NetworkError err)
+void VideoDownloaderWorker::connectError(QNetworkReply::NetworkError err)
 {
     qDebug() << "Error! Connection lost!" << err;
   //  currentItemIndex--;
@@ -130,13 +132,20 @@ void VideoDownloader::connectError(QNetworkReply::NetworkError err)
  //   file->deleteLater();
 }
 
-void VideoDownloader::runDonwload()
+void VideoDownloaderWorker::runDonwload()
 {
+    qDebug() << "VDW: run Download";
     checkDownload();
     start();
 }
 
-bool VideoDownloader::isFileUpdated(PlayerConfig::Area::Playlist::Item item)
+void VideoDownloaderWorker::writeToFileJob(QFile *f, QNetworkReply *r)
+{
+    f->write(r->readAll());
+    f->flush();
+}
+
+bool VideoDownloaderWorker::isFileUpdated(PlayerConfig::Area::Playlist::Item item)
 {
     foreach (const StatisticDatabase::Resource &resource, resources)
         if (item.iid == resource.iid)
@@ -149,7 +158,7 @@ bool VideoDownloader::isFileUpdated(PlayerConfig::Area::Playlist::Item item)
     return true;
 }
 
-QString VideoDownloader::getFileHash(QString fileName)
+QString VideoDownloaderWorker::getFileHash(QString fileName)
 {
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
@@ -161,7 +170,7 @@ QString VideoDownloader::getFileHash(QString fileName)
     return QByteArray();
 }
 
-void VideoDownloader::updateConfig(PlayerConfig config)
+void VideoDownloaderWorker::updateConfig(PlayerConfig config)
 {
     this->config = config;
     currentItemIndex = 0;
@@ -172,12 +181,12 @@ void VideoDownloader::updateConfig(PlayerConfig config)
     }
 }
 
-void VideoDownloader::getDatabaseInfo()
+void VideoDownloaderWorker::getDatabaseInfo()
 {
     DatabaseInstance.getResources();
 }
 
-void VideoDownloader::httpFinished()
+void VideoDownloaderWorker::httpFinished()
 {
     if (reply->error())
     {
@@ -207,12 +216,13 @@ void VideoDownloader::httpFinished()
   //  download();
 }
 
-void VideoDownloader::httpReadyRead()
+void VideoDownloaderWorker::httpReadyRead()
 {
     if (restarter)
         restarter->stop();
     if (file)
     {
+      //  QtConcurrent::run(writeToFileJob, file, reply);
         file->write(reply->readAll());
         file->flush();
         qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
@@ -220,7 +230,7 @@ void VideoDownloader::httpReadyRead()
     }
 }
 
-void VideoDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
+void VideoDownloaderWorker::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
     emit downloadProgress(double(bytesRead)/double(totalBytes));
 
@@ -230,7 +240,7 @@ void VideoDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes
     emit downloadProgressSingle(totalProgress + double(bytesRead)/double(totalBytes)*fileProgress, itemsToDownload[currentItemIndex].name);
 }
 
-void VideoDownloader::getResources(QList<StatisticDatabase::Resource> resources)
+void VideoDownloaderWorker::getResources(QList<StatisticDatabase::Resource> resources)
 {
     this->resources = resources;
     checkDownload();
@@ -284,3 +294,28 @@ void FileSwapper::runSwapCycle()
     }
 }
 
+
+VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QThread(parent)
+{
+    worker = new VideoDownloaderWorker(config,this);
+    connect(worker,SIGNAL(done()),this, SIGNAL(done()));
+    connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
+    connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
+    connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
+}
+
+VideoDownloader::~VideoDownloader()
+{
+
+}
+
+void VideoDownloader::runDownload()
+{
+    qDebug() << "VIDEO DOWNLOADER::runDownload";
+    emit runDownloadSignal();
+}
+
+void VideoDownloader::run()
+{
+
+}

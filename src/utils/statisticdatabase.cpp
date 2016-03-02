@@ -379,11 +379,6 @@ void StatisticDatabase::uploadingSuccessfull()
     queryThread->execute("uploadingSuccess:","delete from Report where sent = 0");
     queryThread->execute("uploadingSuccess:","delete from systemInfo where sent = 0");
     queryThread->execute("uploadingSuccess:","delete from gps where sent = 0");
-
-   /* queryThread->execute("uploadingSuccess:","update Play set sent = 1 where sent = 0");
-    queryThread->execute("uploadingSuccess:","update Report set sent = 1 where sent = 0");
-    queryThread->execute("uploadingSuccess:","update systemInfo set sent = 1 WHERE sent = 0");
-    queryThread->execute("uploadingSuccess:","update gps set sent = 1 where sent = 0");*/
 }
 
 
