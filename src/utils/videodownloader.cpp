@@ -49,14 +49,13 @@ void VideoDownloaderWorker::checkDownload()
                     qDebug() << "FILE DOES NOT EXISTS. " << item.iid <<" need to be downloaded";
                     itemsToDownload.append(item);
                 }
-                else if ((filehash = getFileHash(filename)) != item.sha1)
+                else if ((filehash = getCacheFileHash(filename)) != item.sha1)
                 {
                     qDebug() << "different hashes: " << filehash << " vs " << item.sha1;
                     itemsToDownload.append(item);
                 }
                 itemCount++;
             }
-
         }
     GlobalStatsInstance.setContentPlay(itemCount);
     qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
@@ -167,7 +166,49 @@ QString VideoDownloaderWorker::getFileHash(QString fileName)
             return QString(hash.result().toHex()).toLower();
         }
     }
-    return QByteArray();
+    return "";
+}
+
+QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
+{
+    QFileInfo fileInfo(fileName);
+
+    if (hashCache.contains(fileName)){
+        if (fileInfo.lastModified() > hashCache[fileName].date)
+        {
+            QFile f(fileName);
+            if (f.open(QFile::ReadOnly)) {
+                QCryptographicHash hash(QCryptographicHash::Sha1);
+                if (hash.addData(&f)) {
+                    QString hashHex = QString(hash.result().toHex()).toLower();
+                    HashMeasure hashMeasure;
+                    hashMeasure.date = QDateTime::currentDateTime();
+                    hashMeasure.hash = hashHex;
+                    hashCache[fileName] = hashMeasure;
+                    return hashHex;
+                }
+            }
+            return "";
+        }
+        else
+            return hashCache[fileName].hash;
+    }
+    else
+    {
+        QFile f(fileName);
+        if (f.open(QFile::ReadOnly)) {
+            QCryptographicHash hash(QCryptographicHash::Sha1);
+            if (hash.addData(&f)) {
+                QString hashHex = QString(hash.result().toHex()).toLower();
+                HashMeasure hashMeasure;
+                hashMeasure.date = QDateTime::currentDateTime();
+                hashMeasure.hash = hashHex;
+                hashCache[fileName] = hashMeasure;
+                return hashHex;
+            }
+        }
+        return "";
+    }
 }
 
 void VideoDownloaderWorker::updateConfig(PlayerConfig config)

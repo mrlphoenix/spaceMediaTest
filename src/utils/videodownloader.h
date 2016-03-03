@@ -10,10 +10,11 @@
 #include <QLabel>
 #include <QList>
 #include <QTimer>
+#include <QHash>
 #include "videoserviceresult.h"
 #include "statisticdatabase.h"
 
-
+class QDateTime;
 
 class FileSwapper : public QObject
 {
@@ -46,6 +47,14 @@ public:
 
 
     static QString getFileHash(QString fileName);
+
+    QString getCacheFileHash(QString fileName);
+
+    struct HashMeasure
+    {
+        QString hash;
+        QDateTime date;
+    };
 
 signals:
     void done();
@@ -81,6 +90,7 @@ private:
     FileSwapper swapper;
     QTimer * restarter;
     int currentItemIndex;
+    QHash<QString, HashMeasure> hashCache;
 };
 
 
