@@ -58,7 +58,7 @@ void GlobalStats::setMemory(double memory)
     this->memory = memory;
 }
 
-void GlobalStats::setTraffic(double in, double out)
+void GlobalStats::setTraffic(qlonglong in, qlonglong out)
 {
     if (connectionDropped)
     {

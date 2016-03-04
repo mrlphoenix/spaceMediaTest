@@ -45,6 +45,7 @@ void CPUStatWorker::getInfo()
     process->start("bash data/cpu_usage.sh");
 #endif
 #ifdef PLATFORM_DEFINE_ANDROID
+    qDebug() << "ANDROID_CPU_INFO CALLED";
     if (state == GET_UID)
     {
         process = new QProcess();
@@ -93,6 +94,7 @@ void CPUStatWorker::getInfo()
     else if (state == CPU)
     {
         struct sysinfo info;
+        qDebug() << "Traffic: " << trafficIn + trafficOut;
         sysinfo(&info);
         memory = 100 - double(info.freeram) / double(info.totalram) * 100.;
 

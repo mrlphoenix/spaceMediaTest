@@ -18,7 +18,7 @@ public:
 
     void setCpu(double cpu);
     void setMemory(double memory);
-    void setTraffic(double in, double out);
+    void setTraffic(qlonglong in, qlonglong out);
     double getTrafficIn(){return trafficIn;}
     double getTrafficOut(){return trafficOut;}
     double getMemory(){return memory;}
@@ -65,7 +65,7 @@ private:
 
     //system info vars
     double cpu, memory;
-    double trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
+    qlonglong trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
     bool monitorActive, connectionActive;
     double balance;
     QString currentItem;
