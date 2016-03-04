@@ -37,6 +37,8 @@ Item {
         //console.log("native width" + width + "widthp" + width) // 2048
     }
 
+
+
     function displayTrafficInfo(trafficIn, trafficOut, memory, cpuLoad)
     {
         console.log("cpuload=", cpuLoad)
@@ -50,7 +52,7 @@ Item {
 
         mediaplayer2.stop()
         mediaplayer2.source = filename
-        mediaplayer2.play()
+        mediaplayer2.runPlay(false)
         mediaplayer2.pause()
 
         invokeNext = true
@@ -69,16 +71,19 @@ Item {
                 invokeNext = false
                 mediaplayer2.stop()
                 mediaplayer2.source = filename
-                mediaplayer2.play()
+                mediaplayer2.runPlay(false)
                 mediaplayer2.pause()
-                mediaplayer.play()
+                mediaplayer.runPlay(true)
+             //   console.log("next item in " + mediaplayer.duration - 1000)
+              //  nextVideoTimer.interval = mediaplayer.duration - 1000
+              //  nextVideoTimer.start()
 
                 invokeNext = true
 
                 videoOut.visible = true
                 //videoOut2.visible = false
-                hideVideoDelayTimer.object = videoOut2
-                hideVideoDelayTimer.start()
+             //   hideVideoDelayTimer.object = videoOut2
+             //   hideVideoDelayTimer.start()
             }
             else
             {
@@ -87,18 +92,18 @@ Item {
                 invokeNext = false
                 mediaplayer.stop()
                 mediaplayer.source = filename
-                mediaplayer.play()
+                mediaplayer.runPlay(false)
                 mediaplayer.pause()
-                mediaplayer2.play()
-                console.log("next item in " + mediaplayer2.duration - 1000)
-                nextVideoTimer.interval = mediaplayer2.duration - 1000
-                nextVideoTimer.start()
+                mediaplayer2.runPlay(true)
+           //     console.log("next item in " + mediaplayer2.duration - 1000)
+           //     nextVideoTimer.interval = mediaplayer2.duration - 1000
+           //     nextVideoTimer.start()
 
                 invokeNext = true
 
                 videoOut2.visible = true
-                hideVideoDelayTimer.object = videoOut
-                hideVideoDelayTimer.start()
+              //  hideVideoDelayTimer.object = videoOut
+              //  hideVideoDelayTimer.start()
               //  videoOut.visible = false
             }
 
@@ -119,11 +124,11 @@ Item {
             invokeNext = false
             mediaplayer.stop();
             mediaplayer.source = filename;
-            mediaplayer.play();
+            mediaplayer.runPlay(true);
 
-            console.log("next item in " + mediaplayer2.duration - 1000)
-            nextVideoTimer.interval = mediaplayer.duration - 1000
-            nextVideoTimer.start()
+           // console.log("next item in " + mediaplayer2.duration - 1000)
+          //  nextVideoTimer.interval = mediaplayer.duration - 1000
+          //  nextVideoTimer.start()
 
             invokeNext = true
         }
@@ -302,7 +307,7 @@ Item {
     Timer{
         property var object: ({})
         id: hideVideoDelayTimer
-        interval: 100
+        interval: 10
         repeat: false
         onTriggered: {
             object.visible = false
@@ -358,6 +363,14 @@ Item {
         onTriggered: {
             console.log("next video timeout")
             nextItem()
+        }
+        function getNextVideoTimerInterval(duration){
+            if (duration === 0)
+                return 15000
+            return duration - 500
+        }
+        onIntervalChanged: {
+            console.log("nextVideoTimer:interval=" + interval.toString())
         }
     }
 
@@ -736,17 +749,28 @@ Item {
         id: mediaplayer
         autoLoad: true
         source: ""
+        property bool startNextTimerOnPlay: true
         onStopped:{
-            console.debug("on stopped")
+            console.debug("on stopped MP1")
             if (invokeNext){
                 console.debug("calling nextItem")
              //   item.nextItem()
             }
         }
         onPlaying: {
-            console.log(mediaplayer.duration)
-            nextVideoTimer.interval = mediaplayer.duration
-            nextVideoTimer.start()
+            if (startNextTimerOnPlay)
+            {
+                console.log("MP1::NEXT VIDEO TIMER STARTED WITH: " + nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration) + " source: " + mediaplayer.source)
+              //  console.log(mediaplayer.duration)
+                nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration)
+                nextVideoTimer.start()
+                videoOut2.visible = false;
+            }
+        }
+        function runPlay(withTimer)
+        {
+            startNextTimerOnPlay = withTimer
+            play()
         }
     }
     VideoOutput {
@@ -760,6 +784,7 @@ Item {
         id: mediaplayer2
         autoLoad: true
         source: ""
+        property bool startNextTimerOnPlay: true
         onStopped:{
             console.debug("on stopped MP2")
             if (invokeNext){
@@ -768,9 +793,20 @@ Item {
             }
         }
         onPlaying: {
-            console.log(mediaplayer.duration)
-            nextVideoTimer.interval = mediaplayer.duration
-            nextVideoTimer.start()
+            if (startNextTimerOnPlay)
+            {
+                console.log("MP2::NEXT VIDEO TIMER STARTED WITH: " + nextVideoTimer.getNextVideoTimerInterval(mediaplayer2.duration) + " source: " + mediaplayer2.source)
+              //  console.log(mediaplayer.duration)
+                nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer2.duration)
+                nextVideoTimer.start()
+
+                videoOut.visible = false;
+            }
+        }
+        function runPlay(withTimer)
+        {
+            startNextTimerOnPlay = withTimer
+            play()
         }
     }
     VideoOutput {

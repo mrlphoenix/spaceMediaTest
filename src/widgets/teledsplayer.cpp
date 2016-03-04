@@ -237,11 +237,15 @@ void TeleDSPlayer::invokeDisplayTrafficUpdate()
 
 void TeleDSPlayer::invokeEnablePreloading()
 {
+    static bool invokedOnce = false;
+    if (invokedOnce)
+        return;
     QString nextItem = playlist->next();
     DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
 
     QVariant nextItemParam = QUrl(getFullPath(nextItem));
     QMetaObject::invokeMethod(viewRootObject, "enablePreloading", Q_ARG(QVariant, nextItemParam));
+    invokedOnce = true;
 }
 
 void TeleDSPlayer::next()

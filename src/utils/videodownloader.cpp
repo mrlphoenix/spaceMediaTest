@@ -174,8 +174,10 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
     QFileInfo fileInfo(fileName);
 
     if (hashCache.contains(fileName)){
+        qDebug() << "sha1 of " + fileName + " found in cache";
         if (fileInfo.lastModified() > hashCache[fileName].date)
         {
+            qDebug() << "but file was updated: calculating hash";
             QFile f(fileName);
             if (f.open(QFile::ReadOnly)) {
                 QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -195,6 +197,7 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
     }
     else
     {
+        qDebug() << "filehash  of " + fileName + " was not found in cache - calculating!";
         QFile f(fileName);
         if (f.open(QFile::ReadOnly)) {
             QCryptographicHash hash(QCryptographicHash::Sha1);
