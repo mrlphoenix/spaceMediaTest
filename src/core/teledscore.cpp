@@ -130,8 +130,26 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         fakeInit();
         return;
     }
+    if (result.error == -1)
+    {
+        GlobalStatsInstance.setConnectionState(false);
+        qDebug() << "No connection to the server";
+        QJsonParseError error;
+        QJsonDocument configJsonDoc = QJsonDocument::fromJson(GlobalConfigInstance.getPlayerConfig().toLocal8Bit(), &error);
+        if (error.error)
+        {
+            qDebug() << "unparsable config playlist";
+            return;
+        }
+        QJsonObject root = configJsonDoc.object();
+        PlayerConfig config = PlayerConfig::fromJson(root);
+        result = config;
+    }
+    else
+        GlobalStatsInstance.setConnectionState(true);
     if (result.error != 0)
         GlobalStatsInstance.registryPlaylistError();
+
     QString info = playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]";
     qDebug() << info;
     emit playerIdUpdate(info);

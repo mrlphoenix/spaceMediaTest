@@ -74,3 +74,4 @@ protected:
 };
 
 #endif // RPIVIDEOPLAYER_H
+

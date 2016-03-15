@@ -129,4 +129,3 @@ GlobalStats::SystemInfo GlobalStats::generateSystemInfo()
     result.connectionActive = connectionActive;
     return result;
 }
-

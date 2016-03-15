@@ -80,7 +80,7 @@ Item {
 
                 invokeNext = true
 
-                videoOut.visible = true
+               // videoOut.visible = true
                 //videoOut2.visible = false
              //   hideVideoDelayTimer.object = videoOut2
              //   hideVideoDelayTimer.start()
@@ -101,7 +101,7 @@ Item {
 
                 invokeNext = true
 
-                videoOut2.visible = true
+              //  videoOut2.visible = true
               //  hideVideoDelayTimer.object = videoOut
               //  hideVideoDelayTimer.start()
               //  videoOut.visible = false
@@ -222,10 +222,10 @@ Item {
        // refreshPlayerID.sourceSize.height = playerIDRect.height
        // refreshPlayerID.visible = true
         waitingBlock.visible = true
-        refreshButtonDeactivator.start()
+       // refreshButtonDeactivator.start()
         playerIDText.color = "#333e47"
-        refreshTimeTimer.updateDelay = updateDelay - 1
-        refreshTimeTimer.start()
+   //     refreshTimeTimer.updateDelay = updateDelay - 1
+   //     refreshTimeTimer.start()
     }
     function getPointSize(text){
         if (text.length > 40)
@@ -251,7 +251,7 @@ Item {
             return 18
     }
 
-    function getRefreshButtonPositionX(w, h){
+  /*  function getRefreshButtonPositionX(w, h){
         if (w > h)
         {
             return playerIDRect.x + playerIDRect.width + playerIDRect.height/2
@@ -260,7 +260,7 @@ Item {
         {
             return w/2 - refreshPlayerID.width/2
         }
-    }
+    }*/
     function getRefreshButtonPositionY(w, h)
     {
         if (w > h)
@@ -307,7 +307,7 @@ Item {
     Timer{
         property var object: ({})
         id: hideVideoDelayTimer
-        interval: 10
+        interval: 250
         repeat: false
         onTriggered: {
             object.visible = false
@@ -319,23 +319,33 @@ Item {
         id: refreshTimeTimer
         interval: 1000
         repeat: true
+        running: true
         onTriggered:{
-            updateDelay = updateDelay - 1
-            if (refreshplayerIDAnimation.running)
+            updateDelay = updateDelay-1;
+            if (updateDelay == -1)
+                updateDelay = 10;
+          //  console.log("refreshTimer triggered" + updateDelay.toString())
+
+           /* if (refreshplayerIDAnimation.running)
                 waitingRefreshInText.text = "Refreshing"
-            else
+            else*/
+            if (updateDelay != 0)
                 waitingRefreshInText.text = "Refresh in " + updateDelay + "s"
+            else
+                waitingRefreshInText.text = "Refreshing..."
          //   if (updateDelay <= 1 && refreshplayerIDAnimation.running == false)
          //       refreshplayerIDAnimation.start()
-            if (updateDelay <= 0)
-            {
-                if (refreshplayerIDAnimation.running == false)
+//            updateDelay = updateDelay - 1
+//            if (updateDelay < 0)
+//            {
+//                 waitingRefreshInText.text = "Refresh in 10s"
+               /* if (refreshplayerIDAnimation.running == false)
                 {
                     refreshplayerIDAnimation.start()
                     waitingRefreshInText.text = "Refreshing"
-                }
-                refreshTimeTimer.stop()
-            }
+                } */
+//                refreshTimeTimer.stop()
+//            }
         }
     }
 
@@ -348,14 +358,14 @@ Item {
             item.focus = true
         }
     }
-    Timer {
+  /*  Timer {
         id: refreshButtonDeactivator
         repeat: false
         interval: 3000
         onTriggered: {
             refreshplayerIDAnimation.stop()
         }
-    }
+    }*/
     Timer {
         id: nextVideoTimer
         repeat: false
@@ -632,6 +642,7 @@ Item {
           //  anchors.top: playerIDRect.bottom
           //  anchors.horizontalCenter: parent.horizontalCenter
 
+            /*
             MouseArea {
                 x: waitingText.x - refreshPlayerID.width*150/100
                 y: playerIDRect.y + playerIDRect.height + 55 * aspect
@@ -668,7 +679,7 @@ Item {
                         refreshplayerIDAnimation.start()
                     }
                 }
-            }
+            }*/
             Text {
                 y: playerIDRect.y + playerIDRect.height + 55 * aspect
                 x: item.width/2 - width/2
@@ -764,7 +775,10 @@ Item {
               //  console.log(mediaplayer.duration)
                 nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration)
                 nextVideoTimer.start()
-                videoOut2.visible = false;
+                hideVideoDelayTimer.object = videoOut2
+                hideVideoDelayTimer.start()
+                videoOut.visible = true
+              //  videoOut2.visible = false;
             }
         }
         function runPlay(withTimer)
@@ -800,7 +814,10 @@ Item {
                 nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer2.duration)
                 nextVideoTimer.start()
 
-                videoOut.visible = false;
+                hideVideoDelayTimer.object = videoOut
+                hideVideoDelayTimer.start()
+              //  videoOut.visible = false;
+                videoOut2.visible = true
             }
         }
         function runPlay(withTimer)

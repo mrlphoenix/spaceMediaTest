@@ -113,4 +113,5 @@ private:
     VideoServiceResultProcessor resultProcessor;
 };
 
+//----------------------------------------------------------------
 #endif // VIDEOSERVICE_H
