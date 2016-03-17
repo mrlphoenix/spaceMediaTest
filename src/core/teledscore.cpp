@@ -25,6 +25,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     DatabaseInstance;
     CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
+ //   videoService = new VideoService("https://private-anon-3c947e17c-teleds.apiary-mock.com");
 
 
     uploader = new StatisticUploader(videoService,this);
@@ -54,19 +55,11 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     if (GlobalConfigInstance.isConfigured())
     {
         InitRequestResult result;
-        result.player_id = GlobalConfigInstance.getPlayerId();
-        result.public_key = GlobalConfigInstance.getPublicKey();
+        result.token = GlobalConfigInstance.getToken();
         result.status = "success";
-        result.session_key = InitRequestResult::generateSessionKey();
-        qDebug()<< "loading: plid = " << result.player_id << " public key = " << result.public_key;
-        qDebug() << "session key = " << result.session_key;
+        qDebug()<< "loading: token = " << result.token;
         playerInitParams = result;
-       // encryptedSessionKey = encryptSessionKey();
-        encryptedSessionKey = SSLEncoder::encryptRSA(result.session_key.toLocal8Bit(), result.public_key.toLocal8Bit());
-        qDebug() << "encryptedSessionKey = " << encryptedSessionKey;
 
-        GlobalConfigInstance.setSessionKey(result.session_key);
-        GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
         QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
@@ -86,25 +79,20 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 void TeleDSCore::initPlayer()
 {
     qDebug() << "!!! Video service initialization";
-    videoService->init();
+   // videoService->init();
+    videoService->advancedInit();
 }
 
 
 void TeleDSCore::initResult(InitRequestResult result)
 {
-    emit playerIdUpdate(result.player_id);
-    qDebug() << "got player id: " + result.player_id;
+    emit playerIdUpdate(result.code);
     playerInitParams = result;
-    encryptedSessionKey = SSLEncoder::encryptRSA(result.session_key.toLocal8Bit(), result.public_key.toLocal8Bit());
-    GlobalConfigInstance.setEncryptedSessionKey(encryptedSessionKey);
-    GlobalConfigInstance.setSessionKey(result.session_key);
-    qDebug() << "ENC KEY: " << encryptedSessionKey;
 
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
-    GlobalConfigInstance.setPlayerId(result.player_id);
-    GlobalConfigInstance.setPublicKey(result.public_key);
+    GlobalConfigInstance.setToken(result.token);
     QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
 
    // fakeInit();
@@ -115,7 +103,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
     if (result.error == 300 || result.error == 106 || result.error == 301)
     {
-        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getPlayerId());
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getToken());
         return;
     }
     if (result.error == 201)
@@ -150,9 +138,6 @@ void TeleDSCore::playlistResult(PlayerConfig result)
     if (result.error != 0)
         GlobalStatsInstance.registryPlaylistError();
 
-    QString info = playerInitParams.player_id + " : " + QString::number(result.error) + " [" + result.error_text + "]";
-    qDebug() << info;
-    emit playerIdUpdate(info);
     if (result.areas.count() > 0)
     {
         qDebug() << "areas found!";
@@ -169,18 +154,24 @@ void TeleDSCore::playlistResult(PlayerConfig result)
     GlobalConfigInstance.setPlayerConfig(result.data);
 }
 
+void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
+{
+    GlobalConfigInstance.setVideoQuality(result.video_quality);
+}
+
 void TeleDSCore::getPlaylistTimerSlot()
 {
     qDebug() << "grabbing playlist";
-    videoService->getPlaylist(playerInitParams.player_id,encryptedSessionKey);
+  //  videoService->getPlaylist(playerInitParams.token,encryptedSessionKey);
+    videoService->getPlayerSettings();
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 }
 
 void TeleDSCore::fakeInit()
 {
     qDebug() << "fake init called";
-    videoService->enablePlayer(playerInitParams.player_id);
-    videoService->assignPlaylist(playerInitParams.player_id,10);
+  //  videoService->enablePlayer(playerInitParams.);
+  //  videoService->assignPlaylist(playerInitParams.player_id,10);
 }
 
 void TeleDSCore::downloaded()

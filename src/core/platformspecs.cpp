@@ -9,30 +9,7 @@
 #include <QAndroidJniObject>
 #include "sys/system_properties.h"
 #include "sys/sysinfo.h"
-#endif
 
-#ifdef PLATFORM_DEFINE_LINUX
-#include <stdio.h>
-#include "sys/sysinfo.h"
-#endif
-
-#ifdef PLATFORM_DEFINE_RPI
-
-#endif
-
-
-
-PlatformSpecs::PlatformSpecs(QObject *parent) : QObject(parent)
-{
-
-}
-
-
-
-QString PlatformSpecs::getUniqueId()
-{
-#ifdef PLATFORM_DEFINE_ANDROID
-/*
 #define ANDROID_OS_BUILD_VERSION_RELEASE     "ro.build.version.release"          // * The user-visible version string. E.g., "1.0" or "3.4b5".
 #define ANDROID_OS_BUILD_VERSION_INCREMENTAL "ro.build.version.incremental"      // The internal value used by the underlying source control to represent this build.
 #define ANDROID_OS_BUILD_VERSION_CODENAME    "ro.build.version.codename"         // The current development codename, or the string "REL" if this is a release build.
@@ -55,8 +32,33 @@ QString PlatformSpecs::getUniqueId()
 #define ANDROID_OS_BUILD_TYPE                "ro.build.type"                     // The type of build, like "user" or "eng".
 #define ANDROID_OS_BUILD_TAGS                "ro.build.tags"                     // Comma-separated tags describing the build, like "unsigned,debug".
 
-#define ANDROID_OS_BUILD_FINGERPRINT         "ro.build.fingerprint"              // A string that uniquely identifies this build. 'BRAND/PRODUCT/DEVICE:RELEASE/ID/VERSION.INCREMENTAL:TYPE/TAGS'.
+#define ANDROID_OS_BUILD_FINGERPRINT         "ro.build.fingerprint"              // A string that uniquely identifies this build. 'BRAND/PRODUCT/DEVICE:RELEASE/ID/VERSION.INCREMENTAL:TYPE/TAGS'
 
+#endif
+
+#ifdef PLATFORM_DEFINE_LINUX
+#include <stdio.h>
+#include "sys/sysinfo.h"
+#include "sys/utsname.h"
+#endif
+
+#ifdef PLATFORM_DEFINE_RPI
+
+#endif
+
+
+
+PlatformSpecs::PlatformSpecs(QObject *parent) : QObject(parent)
+{
+
+}
+
+
+
+QString PlatformSpecs::getUniqueId()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+/*
     QString result = "666";
     char model_id[PROP_VALUE_MAX];
     int len = 0;
@@ -209,5 +211,147 @@ double PlatformSpecs::getAvgUsage()
         return items[0].toDouble();
     return 0.;
 #endif
+}
+
+PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
+{
+    HardwareInfo result;
+#ifdef PLATFORM_DEFINE_WINDOWS
+    result.osName = "Windows";
+    result.vendor = "Microsoft";
+#endif
+#ifdef PLATFORM_DEFINE_RPI
+    result.vendor = "Raspberry Pi";
+    QProcess cpuInfoProcess;
+    cpuInfoProcess.start("cat /proc/cpuinfo");
+    cpuInfoProcess.waitForFinished();
+    QStringList lines = QString(cpuInfoProcess.readAll()).split("\n");
+    QString cpuName;
+    QString deviceName;
+    foreach (const QString &s, lines)
+    {
+        if (s.contains("model name"))
+        {
+            QStringList tokens = s.split(":");
+            if (tokens.count() > 1)
+            {
+                cpuName = tokens.at(1);
+                cpuName = cpuName.simplified();
+            }
+            continue;
+        }
+        if (s.contains("Revision"))
+        {
+            QStringList tokens = s.split(":");
+            if (tokens.count() > 1)
+            {
+                QString deviceId = tokens.at(1);
+                deviceId = deviceId.simplified();
+                deviceName = getRpiDeviceNameById(deviceId);
+            }
+            continue;
+        }
+    }
+    result.cpuName = cpuName;
+    result.deviceModel = deviceName;
+    result.deviceName = "Raspberry Pi";
+
+    QProcess OSVersionProcess;
+    OSVersionProcess.start("cat /proc/version");
+    OSVersionProcess.waitForFinished();
+    lines = QString(OSVersionProcess.readAll()).split(" ");
+    result.osName = lines.at(0);
+    result.osVersion = lines.at(2);
+#endif
+
+#ifdef PLATFORM_DEFINE_LINUX
+    QProcess cpuInfoProcess;
+    cpuInfoProcess.start("cat /proc/cpuinfo");
+    cpuInfoProcess.waitForFinished();
+    QStringList lines = QString(cpuInfoProcess.readAll()).split("\n");
+    foreach (const QString& s, lines)
+    {
+        if (s.contains("model name"))
+        {
+            QStringList tokens = s.split(":");
+            if (tokens.count() > 1)
+            {
+                QString cpuName = tokens.at(1);
+                result.cpuName = cpuName.simplified();
+                break;
+            }
+        }
+    }
+    utsname buf;
+    uname(&buf);
+    result.osName = QString(buf.sysname);
+    result.osVersion = QString(buf.release);
+    result.deviceName = QString(buf.machine);
+    result.deviceModel = QString(buf.machine);
+    result.vendor = "Linux";
+#endif
+
+#ifdef PLATFORM_DEFINE_ANDROID
+
+    char buf[PROP_VALUE_MAX];
+
+    result.osName = "Android";
+    __system_property_get(ANDROID_OS_BUILD_MANUFACTURER, buf);
+    result.vendor = QString(buf);
+
+    __system_property_get(ANDROID_OS_BUILD_VERSION_RELEASE, buf);
+    result.osVersion = QString(buf);
+    __system_property_get(ANDROID_OS_BUILD_DEVICE, buf);
+    result.deviceName = QString(buf);
+    __system_property_get(ANDROID_OS_BUILD_MODEL, buf);
+    result.deviceModel = QString(model);
+
+
+    QProcess cpuInfoProcess;
+    cpuInfoProcess.start("cat /proc/cpuinfo");
+    cpuInfoProcess.waitForFinished();
+    QStringList lines = QString(cpuInfoProcess.readAll()).split("\n");
+    foreach (const QString& s, lines)
+    {
+        if (s.contains("Processor"))
+        {
+            QStringList tokens = s.split(":");
+            if (tokens.count() > 1)
+            {
+                QString cpuName = tokens.at(1);
+                result.cpuName = cpuName.simplified();
+                break;
+            }
+        }
+    }
+#endif
+    return result;
+}
+
+QString PlatformSpecs::getRpiDeviceNameById(QString id)
+{
+    if (id == "0002")
+        return "Model B Revision 1.0";
+    if (id == "0003")
+        return "Model B Revision 1.0 + ECN0001 (no fuses, D14 removed)";
+    if (id == "0004" || id == "0005" || id == "0006")
+        return "Model B Revision 2.0/Mounting holes";
+    if (id == "0007" || id == "0008" || id == "0009")
+        return "Model A/Mounting holes";
+    if (id == "000d" || id == "000e" || id == "000f")
+        return "Model B Revision 2.0/Mounting holes";
+    if (id == "0010")
+        return "Model B+";
+    if (id == "0011")
+        return "Compute Module";
+    if (id == "0012")
+        return "Model A+";
+    if (id == "a01041" || id == "a21041")
+        return "Pi 2 Model B";
+    if (id == "900092")
+        return "PiZero";
+    if (id == "a02082" || id == "a22082")
+        return "Pi 3 Model B";
+    return "";
 }
 

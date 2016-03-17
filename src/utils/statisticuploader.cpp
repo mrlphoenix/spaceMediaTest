@@ -152,7 +152,7 @@ void StatisticUploader::runStateStep()
 
         qDebug() << QString(requestData);
 
-        videoService->sendStatistic(GlobalConfigInstance.getPlayerId(), GlobalConfigInstance.getEncryptedSessionKey(), requestData);
+        videoService->sendStatistic(GlobalConfigInstance.getToken(), "", requestData);
     }
 }
 
@@ -162,7 +162,7 @@ QJsonObject StatisticUploader::generateStatisticModel()
     QJsonObject root;
     QJsonObject player;
     QJsonObject currentGps;
-    player["id"] = GlobalConfigInstance.getPlayerId();
+    player["id"] = GlobalConfigInstance.getToken();
     player["time"] = StatisticDatabase::serializeDate(QDateTime::currentDateTime());
 
     currentGps["latitude"] = 0.0;

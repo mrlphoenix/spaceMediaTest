@@ -2,26 +2,32 @@
 #include <QUrl>
 #include <QNetworkRequest>
 #include <QDebug>
+#include <QTimeZone>
+#include <QGuiApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QScreen>
 #include "videoservice.h"
 #include "singleton.h"
 #include "globalstats.h"
+#include "globalconfig.h"
+#include "platformspecs.h"
 
 VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
 {
     manager = new QNetworkAccessManager(this);
     this->serverURL = serverURL;
     currentRequest = NULL;
+
     connect(this,SIGNAL(initVideoRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(initRequestResultReply(QNetworkReply*)));
-    connect(this,SIGNAL(enablePlayerRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(enablePlayerResultReply(QNetworkReply*)));
-    connect(this,SIGNAL(assignPlaylistToPlayerRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(assignPlaylistResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
     connect(this,SIGNAL(sendStatisticRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(sendStatisticResultReply(QNetworkReply*)));
+    connect(this,SIGNAL(getPlayerSettingsRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlayerSettingsReply(QNetworkReply*)));
 
     connect(&resultProcessor,SIGNAL(initResult(InitRequestResult)),this,SIGNAL(initResult(InitRequestResult)));
-    connect(&resultProcessor,SIGNAL(enablePlayerResult(QString)),this,SIGNAL(enablePlayerResult(QString)));
-    connect(&resultProcessor,SIGNAL(assignPlaylistResult(QString)),this,SIGNAL(assignPlaylistResult(QString)));
     connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfig)),this,SIGNAL(getPlaylistResult(PlayerConfig)));
     connect(&resultProcessor,SIGNAL(sendStatisticResult(NonQueryResult)),this,SIGNAL(sendStatisticResult(NonQueryResult)));
+    connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
 }
 
 void VideoService::init()
@@ -29,24 +35,24 @@ void VideoService::init()
     executeRequest(new InitVideoPlayerRequest());
 }
 
-void VideoService::enablePlayer(QString playerId)
-{
-    executeRequest(new EnablePlayerRequest(playerId));
-}
-
-void VideoService::assignPlaylist(QString playerId, int playlistId)
-{
-    executeRequest(new AssignPlaylistToPlayerRequest(playerId,playlistId));
-}
-
 void VideoService::getPlaylist(QString playerId, QString cryptedSessionKey)
 {
     executeRequest(new GetPlaylistRequest(playerId, cryptedSessionKey));
 }
 
+void VideoService::getPlayerSettings()
+{
+    executeRequest(new GetPlaylistSettingsRequest());
+}
+
 void VideoService::sendStatistic(QString playerId, QString encodedSessionKey, QString data)
 {
     executeRequest(new SendStatisticRequest(playerId, encodedSessionKey, data));
+}
+
+void VideoService::advancedInit()
+{
+    executeRequest(new AdvancedStatisticRequest());
 }
 
 void VideoService::executeRequest(VideoServiceRequest *request)
@@ -60,6 +66,7 @@ void VideoService::executeRequest(VideoServiceRequest *request)
     }
 }
 
+
 void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 {
     if (reply->error())
@@ -71,29 +78,6 @@ void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
     nextRequest();
 }
 
-void VideoService::enablePlayerRequestFinishedSlot(QNetworkReply *reply)
-{
-    if (reply->error())
-    {
-        qDebug() << "enable player:error" + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
-
-    emit enablePlayerRequestFinished(reply);
-    nextRequest();
-}
-
-void VideoService::assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply *reply)
-{
-    if (reply->error())
-    {
-        qDebug() << "Assign Player:error" + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
-
-    emit assignPlaylistToPlayerRequestFinished(reply);
-    nextRequest();
-}
 
 void VideoService::getPlaylistRequestFinishedSlot(QNetworkReply *reply)
 {
@@ -118,6 +102,17 @@ void VideoService::sendStatisticRequestFinishedSlot(QNetworkReply *reply)
     nextRequest();
 }
 
+void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
+{
+    if (reply->error())
+    {
+        qDebug() << "get player settings error " + reply->errorString() + reply->readAll();
+        GlobalStatsInstance.registryConnectionError();
+    }
+    emit getPlayerSettingsRequestFinished(reply);
+    nextRequest();
+}
+
 void VideoService::performRequest(VideoServiceRequest *request)
 {
     QUrl url(serverURL);
@@ -129,42 +124,42 @@ void VideoService::performRequest(VideoServiceRequest *request)
     if (request->method == "GET")
         url.setQuery(query);
     else
-        data = query.toString(QUrl::FullyEncoded).toUtf8();
+    {
+        if (request->body.count())
+            data = request->body;
+        else
+            data = query.toString(QUrl::FullyEncoded).toUtf8();
+    }
 
     QNetworkRequest networkRequest(url);
     if (request->method == "POST")
         networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    foreach (const QNetworkRequest::KnownHeaders &key, request->knownHeaders.keys())
+        networkRequest.setHeader(key,request->knownHeaders[key]);
+    foreach (const QString &key, request->headers.keys())
+        networkRequest.setRawHeader(key.toLocal8Bit(), request->headers[key].toLocal8Bit());
+
+
     manager->disconnect();
 
     if (request->name == "init")
-    {
         connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(initVideoRequestFinishedSlot(QNetworkReply*)));
-        manager->get(networkRequest);
-    }
-    else if (request->name == "enablePlaylist")
-    {
-        connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(enablePlayerRequestFinishedSlot(QNetworkReply*)));
-        manager->get(networkRequest);
-    }
-    else if (request->name == "assignPlaylistToPlayer")
-    {
-        connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply*)));
-        manager->get(networkRequest);
-    }
     else if (request->name == "getPlaylist")
-    {
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlaylistRequestFinishedSlot(QNetworkReply*)));
-        manager->get(networkRequest);
-    }
     else if (request->name == "statistics")
-    {
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticRequestFinishedSlot(QNetworkReply*)));
-        manager->post(networkRequest,data);
-    }
+    else if (request->name == "settings")
+        connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerSettingsRequestFinishedSlot(QNetworkReply*)));
     else
     {
         qDebug() << "ERROR: undefined method: " << request->name;
     }
+
+    if (request->method == "GET")
+        manager->get(networkRequest);
+    else
+        manager->post(networkRequest, data);
 }
 
 void VideoService::nextRequest()
@@ -274,6 +269,54 @@ SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSe
 }
 
 SendStatisticRequest::~SendStatisticRequest()
+{
+
+}
+
+AdvancedStatisticRequest::AdvancedStatisticRequest()
+{
+    QJsonObject jsonBody;
+    jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
+    jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
+    jsonBody["uniqid"] = PlatformSpecs::getUniqueId();
+    jsonBody["screen_width"] = qApp->screens().first()->geometry().width();
+    jsonBody["screen_height"] = qApp->screens().first()->geometry().height();
+    PlatformSpecs::HardwareInfo hardwareInfo = PlatformSpecs::getHardwareInfo();
+    jsonBody["device_vendor"] = hardwareInfo.vendor;
+    jsonBody["device_model"] = hardwareInfo.deviceModel;
+    jsonBody["cpumodel"] = hardwareInfo.cpuName;
+    jsonBody["os"] = hardwareInfo.osName;
+    jsonBody["os_version"] = hardwareInfo.osVersion;
+
+    jsonBody["gps_lat"] = GlobalStatsInstance.getLatitude();
+    jsonBody["gps_long"] = GlobalStatsInstance.getLongitude();
+
+    QJsonDocument doc(jsonBody);
+    QByteArray jsonData = doc.toJson();
+    qDebug() << QString(jsonData);
+
+    body = jsonData;
+    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+
+    methodAPI = "player";
+    name = "init";
+    method = "POST";
+}
+
+AdvancedStatisticRequest::~AdvancedStatisticRequest()
+{
+
+}
+
+GetPlaylistSettingsRequest::GetPlaylistSettingsRequest()
+{
+    headers["Authorization"] = GlobalConfigInstance.getToken();
+    methodAPI = "player/settings";
+    name = "settings";
+    method = "GET";
+}
+
+GetPlaylistSettingsRequest::~GetPlaylistSettingsRequest()
 {
 
 }

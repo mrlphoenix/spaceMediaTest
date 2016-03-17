@@ -174,7 +174,7 @@ QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
 
      /* A 256 bit key */
     unsigned char * key = new unsigned char[32];
-    memcpy(key,GlobalConfigInstance.getSessionKey().toLocal8Bit().data(),32);
+//    memcpy(key,GlobalConfigInstance.getSessionKey().toLocal8Bit().data(),32);
      /* A 128 bit IV */
      unsigned char *iv = (unsigned char *)"00000000000000000";
     // data.data();
@@ -218,7 +218,7 @@ QByteArray SSLEncoder::decodeAES256(QByteArray data, bool fromBase64)
 {
     unsigned char * key = new unsigned char[32];
     unsigned char * iv = (unsigned char *)"0000000000000000";
-    memcpy(key, GlobalConfigInstance.getSessionKey().toLocal8Bit().data(), 32);
+//    memcpy(key, GlobalConfigInstance.getSessionKey().toLocal8Bit().data(), 32);
 
     unsigned char * ciphertext;
     unsigned char * decryptedData;

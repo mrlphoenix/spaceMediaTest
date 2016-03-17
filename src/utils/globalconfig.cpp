@@ -14,8 +14,6 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
     if (!QFile::exists(CONFIG_FOLDER + "config.dat"))
     {
         qDebug() << "config file does not exists; creating new one";
-
-        playerId = "rpi";
         getPlaylistTimerTime = getPlaylistTimerDefaultTime;
         cpuInfoTimerTime = cpuInfoTimerDefaultTime;
         reportTimerTime = reportTimerDefaultTime;
@@ -30,34 +28,21 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
         loadFromJson();
 }
 
-void GlobalConfig::setPlayerId(QString playerId)
-{
-    this->playerId = playerId;
-    save();
-    checkConfiguration();
-}
-
-void GlobalConfig::setPublicKey(QString publicKey)
-{
-    this->publicKey = publicKey;
-    save();
-    checkConfiguration();
-}
-
 void GlobalConfig::setPlayerConfig(QString playerConfig)
 {
     this->playerConfig = playerConfig;
     save();
 }
 
-void GlobalConfig::setSessionKey(QString key)
+void GlobalConfig::setToken(QString token)
 {
-    sessionKey = key;
+    this->token = token;
+    save();
 }
 
-void GlobalConfig::setEncryptedSessionKey(QString key)
+void GlobalConfig::setVideoQuality(QString quality)
 {
-    this->encryptedSessionKey = key;
+    this->quality = quality;
 }
 
 void GlobalConfig::setGetPlaylistTimerTime(int msecs)
@@ -105,9 +90,7 @@ void GlobalConfig::loadFromJson()
     doc = QJsonDocument::fromJson(configFile.readAll());
     QJsonObject root = doc.object();
     this->device = root["device"].toString();
-    this->playerId = root["playerId"].toString();
-    this->publicKey = root["publicKey"].toString();
-    this->playerConfig = root["playerConfig"].toString();
+    this->token = root["token"].toString();
 
     getPlaylistTimerTime = root["getPlaylistTimerTime"].toInt() ? root["getPlaylistTimerTime"].toInt() : getPlaylistTimerDefaultTime;
     cpuInfoTimerTime = root["cpuInfoTimerTime"].toInt() ? root["cpuInfoTimerTime"].toInt() : cpuInfoTimerDefaultTime;
@@ -117,7 +100,7 @@ void GlobalConfig::loadFromJson()
     gpsTimerTime = root["gpsTimerTime"].toInt() ? root["gpsTimerTime"].toInt()  : gpsTimerDefaulTime;
 
 
-    qDebug() << "currentConfig: " << device << " " << playerId << " " << publicKey;
+    qDebug() << "currentConfig: " << token;
     configFile.close();
     checkConfiguration();
 }
@@ -126,9 +109,7 @@ void GlobalConfig::save()
 {
     QJsonObject root;
     root["device"] = device;
-    root["playerId"] = playerId;
-    root["publicKey"] = publicKey;
-    root["playerConfig"] = playerConfig;
+    root["token"] = token;
 
     root["getPlaylistTimerTime"] = getPlaylistTimerTime;
     root["cpuInfoTimerTime"] = cpuInfoTimerTime;
@@ -148,9 +129,6 @@ void GlobalConfig::save()
 
 void GlobalConfig::checkConfiguration()
 {
-    if (playerId == "" || publicKey == "")
-        configured = false;
-    else
-        configured = true;
+    configured = (token != "");
 }
 

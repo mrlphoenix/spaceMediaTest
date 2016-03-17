@@ -26,6 +26,9 @@ public slots:
 
     void initResult(InitRequestResult result);
     void playlistResult(PlayerConfig result);
+    void playerSettingsResult(SettingsRequestResult result);
+
+
     void getPlaylistTimerSlot();
 
     void fakeInit();

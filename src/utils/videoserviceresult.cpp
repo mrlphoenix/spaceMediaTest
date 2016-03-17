@@ -16,25 +16,8 @@
 #include "sslencoder.h"
 
 
-QString InitRequestResult::getRandomString(int length)
-{
-    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
-    QString randomString;
-    qsrand(QDateTime::currentDateTime().toTime_t());
-    for(int i=0; i < length; ++i)
-    {
-        int index = qrand() % possibleCharacters.length();
-        QChar nextChar = possibleCharacters.at(index);
-        randomString.append(nextChar);
-    }
-    return randomString;
-}
 
-QString InitRequestResult::generateSessionKey()
-{
-    return QCryptographicHash::hash(getRandomString(16).toLocal8Bit(),QCryptographicHash::Md5).toHex();
-}
 VideoServiceResultProcessor::VideoServiceResultProcessor(QObject *parent) : QObject(parent)
 {
 
@@ -51,30 +34,12 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
     }
     else
     {
-        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        QByteArray data = reply->readAll();
+        qDebug() << data;
+        QJsonDocument doc = QJsonDocument::fromJson(data);
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
-        qDebug() << "videoSErviceResult::" + result.public_key;
-        publicKey = result.public_key;
-        result.session_key = InitRequestResult::generateSessionKey();
-        sessionKey = result.session_key;
         emit initResult(result);
     }
-}
-
-void VideoServiceResultProcessor::enablePlayerResultReply(QNetworkReply *reply)
-{
-    if (reply->error())
-        emit enablePlayerResult("NETWORK ERROR: " + reply->errorString());
-    else
-        emit enablePlayerResult(reply->readAll());
-}
-
-void VideoServiceResultProcessor::assignPlaylistResultReply(QNetworkReply *reply)
-{
-    if (reply->error())
-        emit assignPlaylistResult("NETWORK ERROR: " + reply->errorString());
-    else
-        emit assignPlaylistResult(reply->readAll());
 }
 
 void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
@@ -142,36 +107,34 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
     emit sendStatisticResult(result);
 }
 
-QString VideoServiceResultProcessor::getRandomString(int length)
+void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
 {
-    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-    QString randomString;
-    qsrand(QDateTime::currentDateTime().toTime_t());
-    for(int i=0; i < length; ++i)
+    SettingsRequestResult result;
+    if (reply->error())
     {
-        int index = qrand() % possibleCharacters.length();
-        QChar nextChar = possibleCharacters.at(index);
-        randomString.append(nextChar);
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
     }
-    return randomString;
+    else
+    {
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result = SettingsRequestResult::fromJson(root);
+    }
+    emit getPlayerSettingsResult(result);
 }
+
 
 InitRequestResult InitRequestResult::fromJson(QJsonObject data)
 {
     InitRequestResult result;
     result.status = data["status"].toString();
-
-    if (data.contains("error_id"))
-    {
-        result.error_id = data["error_id"].toString().toInt();
-        result.error_text = data["error_text"].toString();
-    }
-    else
-    {
-        result.player_id = data["player_id"].toString();
-        result.public_key = data["public_key"].toString();
-    }
+    result.token = "Bearer " + data["token"].toString();
+    result.code = data["code"].toString();
     return result;
 }
 
@@ -405,4 +368,13 @@ void PlayerConfig::Area::Playlist::Item::buildGeo()
         geoPoints.append(QPointF(p[0],p[1]));
     geoPolygon =  QPolygonF::fromList(geoPoints);
     isPolygonSet = true;
+}
+
+SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
+{
+    SettingsRequestResult result;
+    result.created_at = QDateTime::fromString(data["created_at"].toString(), "yyyy-MM-dd HH:mm:ss");
+    result.updated_at = QDateTime::fromString(data["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
+    result.error_id = 0;
+    return result;
 }

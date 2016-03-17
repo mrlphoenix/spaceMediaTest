@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include "videoserviceresult.h"
 
 //http://api.teleds.com/initialization
@@ -27,6 +28,10 @@ protected:
     QString methodAPI;
     QString name;
     QString method;
+    QByteArray body;
+    QHash<QString, QString> headers;
+    QHash<QNetworkRequest::KnownHeaders, QString> knownHeaders;
+
 };
 
 class InitVideoPlayerRequest : public VideoServiceRequest
@@ -64,6 +69,20 @@ public:
     virtual ~SendStatisticRequest();
 };
 
+class AdvancedStatisticRequest : public VideoServiceRequest
+{
+public:
+    AdvancedStatisticRequest();
+    virtual ~AdvancedStatisticRequest();
+};
+
+class GetPlaylistSettingsRequest : public VideoServiceRequest
+{
+public:
+    GetPlaylistSettingsRequest();
+    virtual ~GetPlaylistSettingsRequest();
+};
+
 
 //---------------------------------------------------------------------
 class VideoService : public QObject
@@ -73,32 +92,31 @@ public:
     explicit VideoService(QString serverURL, QObject *parent = 0);
 
     void init();
-    void enablePlayer(QString playerId);
-    void assignPlaylist(QString playerId, int playlistId);
     void getPlaylist(QString playerId, QString cryptedSessionKey);
+    void getPlayerSettings();
     void sendStatistic(QString playerId, QString encodedSessionKey, QString data);
+    void advancedInit();
 
     void executeRequest(VideoServiceRequest* request);
 
+
+
 signals:
     void initResult(InitRequestResult result);
-    void enablePlayerResult(QString result);
-    void assignPlaylistResult(QString result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void getPlayerSettings(SettingsRequestResult result);
 
     void initVideoRequestFinished(QNetworkReply * reply);
-    void enablePlayerRequestFinished(QNetworkReply * reply);
-    void assignPlaylistToPlayerRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
     void sendStatisticRequestFinished(QNetworkReply * reply);
+    void getPlayerSettingsRequestFinished(QNetworkReply * reply);
 
 public slots:
     void initVideoRequestFinishedSlot(QNetworkReply * reply);
-    void enablePlayerRequestFinishedSlot(QNetworkReply * reply);
-    void assignPlaylistToPlayerRequestFinishedSlot(QNetworkReply * reply);
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticRequestFinishedSlot(QNetworkReply * reply);
+    void getPlayerSettingsRequestFinishedSlot(QNetworkReply * reply);
 
 private:
 

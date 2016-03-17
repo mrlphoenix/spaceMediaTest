@@ -10,11 +10,9 @@ class GlobalConfig : public QObject
     Q_OBJECT
 public:
     explicit GlobalConfig(QObject *parent = 0);
-    void setPlayerId(QString playerId);
-    void setPublicKey(QString publicKey);
     void setPlayerConfig(QString playerConfig);
-    void setSessionKey(QString key);
-    void setEncryptedSessionKey(QString key);
+    void setToken(QString token);
+    void setVideoQuality(QString quality);
 
     void setGetPlaylistTimerTime(int msecs);
     void setCpuInfoTimerTime(int msecs);
@@ -26,12 +24,10 @@ public:
     bool isConfigured(){return configured;}
     bool isPlaylistActivated(){return playerConfig != "";}
 
-    QString getPlayerId(){return playerId;}
-    QString getPublicKey(){return publicKey;}
     QString getDevice(){return device;}
     QString getPlayerConfig(){return playerConfig;}
-    QString getSessionKey(){return sessionKey;}
-    QString getEncryptedSessionKey(){return encryptedSessionKey;}
+    QString getToken(){return token;}
+    QString getVideoQuality(){return quality;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
     int getCpuInfoTimerTime() {return cpuInfoTimerTime;}
@@ -47,11 +43,10 @@ private:
     void save();
     void checkConfiguration();
     QString device;
-    QString playerId;
-    QString publicKey;
     QString playerConfig;
-    QString sessionKey, encryptedSessionKey;
     bool configured;
+    QString token;
+    QString quality;
 
     int getPlaylistTimerTime, cpuInfoTimerTime, reportTimerTime, sysInfoTimerTime, resourceCounterTimerTime, gpsTimerTime;
     const int getPlaylistTimerDefaultTime = 30000, cpuInfoTimerDefaultTime = 10000,

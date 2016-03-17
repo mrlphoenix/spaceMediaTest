@@ -10,15 +10,15 @@
 struct InitRequestResult
 {
     static InitRequestResult fromJson(QJsonObject data);
-    static QString getRandomString(int length);
-    static QString generateSessionKey();
     QString status;
     int error_id;
     QString error_text;
 
-    QString player_id;
-    QString public_key;
-    QString session_key;
+    //QString player_id;
+    //QString public_key;
+    //QString session_key;
+    QString code;
+    QString token;
 };
 struct NonQueryResult
 {
@@ -28,6 +28,18 @@ struct NonQueryResult
     int error_id;
     QString error_text;
     QString source;
+};
+
+struct SettingsRequestResult
+{
+    static SettingsRequestResult fromJson(QJsonObject data);
+
+    int error_id;
+    QString video_quality;
+    QDateTime created_at;
+    QDateTime updated_at;
+
+
 };
 
 struct PlayerConfig
@@ -101,22 +113,16 @@ public:
 
 signals:
     void initResult(InitRequestResult result);
-    void enablePlayerResult(QString result);
-    void assignPlaylistResult(QString result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void getPlayerSettingsResult(SettingsRequestResult result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
-    void enablePlayerResultReply(QNetworkReply * reply);
-    void assignPlaylistResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
     void sendStatisticResultReply(QNetworkReply * reply);
+    void getPlayerSettingsReply(QNetworkReply * reply);
 private:
-    QString getRandomString(int length);
-
-    QString publicKey;
-    QString sessionKey;
 };
 
 #endif // VIDEOSERVICERESULT_H
