@@ -36,6 +36,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
+    connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
+
 
     connect (&sheduler,SIGNAL(cpuInfo()), this, SLOT(checkCPUStatus()));
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
@@ -93,6 +95,7 @@ void TeleDSCore::initResult(InitRequestResult result)
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
     GlobalConfigInstance.setToken(result.token);
+    GlobalConfigInstance.setActivationCode(result.code);
     QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
 
    // fakeInit();
@@ -103,7 +106,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
     if (result.error == 300 || result.error == 106 || result.error == 301)
     {
-        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getToken());
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
         return;
     }
     if (result.error == 201)
@@ -157,6 +160,12 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
     GlobalConfigInstance.setVideoQuality(result.video_quality);
+    if (result.error_id == 401)
+    {
+        if (result.error != "")
+            GlobalConfigInstance.setActivationCode(result.error);
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
+    }
 }
 
 void TeleDSCore::getPlaylistTimerSlot()

@@ -117,6 +117,10 @@ void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
             result.error_id = httpStatus.toInt();
         else
             result.error_id = -1;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.error = root["error"].toString();
     }
     else
     {
@@ -376,5 +380,6 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.created_at = QDateTime::fromString(data["created_at"].toString(), "yyyy-MM-dd HH:mm:ss");
     result.updated_at = QDateTime::fromString(data["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
     result.error_id = 0;
+    result.error = data["error"].toString();
     return result;
 }

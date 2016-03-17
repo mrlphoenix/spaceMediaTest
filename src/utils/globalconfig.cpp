@@ -40,6 +40,11 @@ void GlobalConfig::setToken(QString token)
     save();
 }
 
+void GlobalConfig::setActivationCode(QString code)
+{
+    this->activationCode = code;
+}
+
 void GlobalConfig::setVideoQuality(QString quality)
 {
     this->quality = quality;

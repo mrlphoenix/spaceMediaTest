@@ -12,6 +12,7 @@ public:
     explicit GlobalConfig(QObject *parent = 0);
     void setPlayerConfig(QString playerConfig);
     void setToken(QString token);
+    void setActivationCode(QString code);
     void setVideoQuality(QString quality);
 
     void setGetPlaylistTimerTime(int msecs);
@@ -28,6 +29,7 @@ public:
     QString getPlayerConfig(){return playerConfig;}
     QString getToken(){return token;}
     QString getVideoQuality(){return quality;}
+    QString getActivationCode(){return activationCode;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
     int getCpuInfoTimerTime() {return cpuInfoTimerTime;}
@@ -47,6 +49,7 @@ private:
     bool configured;
     QString token;
     QString quality;
+    QString activationCode;
 
     int getPlaylistTimerTime, cpuInfoTimerTime, reportTimerTime, sysInfoTimerTime, resourceCounterTimerTime, gpsTimerTime;
     const int getPlaylistTimerDefaultTime = 30000, cpuInfoTimerDefaultTime = 10000,

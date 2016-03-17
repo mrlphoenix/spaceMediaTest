@@ -106,7 +106,7 @@ void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
 {
     if (reply->error())
     {
-        qDebug() << "get player settings error " + reply->errorString() + reply->readAll();
+        qDebug() << "get player settings error " + reply->errorString();
         GlobalStatsInstance.registryConnectionError();
     }
     emit getPlayerSettingsRequestFinished(reply);

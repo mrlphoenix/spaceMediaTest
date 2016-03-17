@@ -38,8 +38,7 @@ struct SettingsRequestResult
     QString video_quality;
     QDateTime created_at;
     QDateTime updated_at;
-
-
+    QString error;
 };
 
 struct PlayerConfig

@@ -12,6 +12,28 @@
 #include <QDateTime>
 #include "singleton.h"
 
+/*
+@notherAlbum
+
+    1. Aswerok Planet               3:10
+    2. Last bottle                  3:40
+    3. Never was                    7:20
+    4. Intro                        2:25
+    5. Fifty Song                   3:50
+    6. Utto Song                    4:10
+    7. Fluffy Song                  2:50
+    8. Respect Song                 2:30
+    9. Wanna Girl                   3:20
+    10. Protoukr                    4:20
+    11. Kaban Song                  5:20
+    12. Nother Song (crutch Text)   2:40
+    13. Disrespect Song             3:10
+    14. Wind song                   4:00
+    15. Bitard                      3:25
+
+    52:45
+/notherAlbum
+*/
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
