@@ -304,7 +304,7 @@ PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
     __system_property_get(ANDROID_OS_BUILD_DEVICE, buf);
     result.deviceName = QString(buf);
     __system_property_get(ANDROID_OS_BUILD_MODEL, buf);
-    result.deviceModel = QString(model);
+    result.deviceModel = QString(buf);
 
 
     QProcess cpuInfoProcess;

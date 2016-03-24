@@ -10,5 +10,6 @@
         <file>refresh_1.svg</file>
         <file>refresh_2.svg</file>
         <file>refresh_2.png</file>
+        <file>browser.qml</file>
     </qresource>
 </RCC>

@@ -8,6 +8,8 @@
 #include <QVector>
 #include "videoserviceresult.h"
 
+#define MAGIC_PLAYLIST_VALUE 4.
+
 class AbstractPlaylist : public QObject
 {
     Q_OBJECT
@@ -50,7 +52,7 @@ signals:
 
 public slots:
     virtual QString next();
-private:
+protected:
 
     void splitItems();
     void shuffle();
@@ -59,6 +61,21 @@ private:
     QVector<PlayerConfig::Area::Playlist::Item> fixedFloatingItems;
     QVector<PlayerConfig::Area::Playlist::Item> floatingNoneItems;
     QHash<QString,QDateTime> lastTimeShowed;
+};
+
+class MagicRandomPlaylist : public RandomPlaylist
+{
+    Q_OBJECT
+public:
+    explicit MagicRandomPlaylist(QObject * parent = 0);
+    virtual ~MagicRandomPlaylist(){;}
+    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+
+    virtual QString next();
+protected:
+    int allLength;
+    int magic;
+    QDateTime minPlayTime;
 };
 
 #endif // RANDOMPLAYLIST_H
