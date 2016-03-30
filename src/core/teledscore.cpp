@@ -25,7 +25,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     DatabaseInstance;
     CPUStatInstance;
     videoService = new VideoService("http://api.teleds.com");
- //   videoService = new VideoService("https://private-anon-3c947e17c-teleds.apiary-mock.com");
 
 
     uploader = new StatisticUploader(videoService,this);
@@ -49,6 +48,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
  //   connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
+
+
 
     QTimer::singleShot(70000,uploader,SLOT(start()));
 
@@ -166,6 +167,12 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setActivationCode(result.error);
         rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
     }
+}
+
+void TeleDSCore::virtualScreensResult(PlayerConfigNew result)
+{
+    currentConfigNew = result;
+    videoService->getPlaylist();
 }
 
 void TeleDSCore::getPlaylistTimerSlot()

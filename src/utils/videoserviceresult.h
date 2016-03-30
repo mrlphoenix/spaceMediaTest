@@ -56,6 +56,8 @@ struct PlaylistAPIResult
         int duration;
         QString type;
         int play_priority;
+        int play_timeout;
+        QString play_type;
         QDateTime play_starts;
         QDateTime play_ends;
 
@@ -68,41 +70,28 @@ struct PlaylistAPIResult
         QVector<QVector<gps> > geo_targeting;
     };
     QVector<PlaylistItem> items;
-
-    /*
-{
-  "0cb7366e-69b7-4276-9fe6-4e4de31fd7b8": [
-    {
-      "id": "b5d6475d-f987-4b7b-be53-f978615d53e5",
-      "name": "TeleDS Sample Content",
-      "fileUrl": "http://google.com/",
-      "fileHash": "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",
-      "videoWidth": "1920",
-      "videoHeight": "1080",
-      "duration": "15",
-      "type": "fullscreen",
-      "play_priority": "0",
-      "play_timeout": "180",
-      "play_type": "normal",
-      "play_starts": "2016-01-01 00:00:00",
-      "play_ends": "2016-05-01 00:00:00",
-      "time_targeting": {
-        "1": [
-          10
-        ]
-      },
-      "geo_targeting": [
-        [
-          {
-            "latitude": 53.5555,
-            "longitude": 40.1111
-          }
-        ]
-      ]
-    }
-  ]
-}*/
 };
+
+
+struct PlayerConfigNew
+{
+    static PlayerConfigNew fromJson(QJsonObject data);
+    int error_id;
+    QString error;
+    struct VirtualScreen
+    {
+        QString type;
+        QRect position;
+        QString display_type;
+        QDateTime play_until;
+        int resfreshTime;
+        int audio_priority;
+        int screen_priority;
+        PlaylistAPIResult playlist;
+    };
+    QHash<QString, VirtualScreen> screens;
+};
+
 
 struct PlayerConfig
 {
@@ -178,12 +167,16 @@ signals:
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
+    void getPlayerAreasResult(PlayerConfigNew result);
+    void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
     void sendStatisticResultReply(QNetworkReply * reply);
     void getPlayerSettingsReply(QNetworkReply * reply);
+    void getPlayerAreasReply(QNetworkReply * reply);
+    void getVirtualScreenPlaylist(QNetworkReply * reply);
 private:
 };
 

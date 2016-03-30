@@ -27,7 +27,7 @@ public slots:
     void initResult(InitRequestResult result);
     void playlistResult(PlayerConfig result);
     void playerSettingsResult(SettingsRequestResult result);
-
+    void virtualScreensResult(PlayerConfigNew result);
 
     void getPlaylistTimerSlot();
 
@@ -59,6 +59,8 @@ protected:
     QString encryptedSessionKey;
     PlayerConfig currentConfig;
     TeleDSSheduler sheduler;
+
+    PlayerConfigNew currentConfigNew;
 };
 
 

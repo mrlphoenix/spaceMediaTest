@@ -20,6 +20,9 @@ public:
 
     struct VideoServiceRequestParam
     {
+        VideoServiceRequestParam(){;}
+        VideoServiceRequestParam(QString key, QString value);
+        ~VideoServiceRequestParam(){;}
         QString key;
         QString value;
     };
@@ -83,6 +86,20 @@ public:
     virtual ~GetPlaylistSettingsRequest();
 };
 
+class GetPlayerAreasRequest : public VideoServiceRequest
+{
+public:
+    GetPlayerAreasRequest();
+    virtual ~GetPlayerAreasRequest();
+};
+class GetVirtualScreenPlaylistRequest : public VideoServiceRequest
+{
+public:
+    GetVirtualScreenPlaylistRequest();
+    GetVirtualScreenPlaylistRequest(QStringList areas);
+    virtual ~GetVirtualScreenPlaylistRequest(){;}
+};
+
 
 //---------------------------------------------------------------------
 class VideoService : public QObject
@@ -94,6 +111,11 @@ public:
     void init();
     void getPlaylist(QString playerId, QString cryptedSessionKey);
     void getPlayerSettings();
+    void getPlayerAreas();
+    void getPlaylist(QString areaId);
+    void getPlaylist();
+
+
     void sendStatistic(QString playerId, QString encodedSessionKey, QString data);
     void advancedInit();
 
@@ -106,17 +128,22 @@ signals:
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
+    void getPlayerAreasResult(PlayerConfigNew result);
 
     void initVideoRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
     void sendStatisticRequestFinished(QNetworkReply * reply);
     void getPlayerSettingsRequestFinished(QNetworkReply * reply);
+    void getPlayerAreasRequestFinished(QNetworkReply * reply);
+    void getVirtualScreenPlaylistRequestFinished(QNetworkReply* reply);
 
 public slots:
     void initVideoRequestFinishedSlot(QNetworkReply * reply);
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerSettingsRequestFinishedSlot(QNetworkReply * reply);
+    void getPlayerAreasRequestFinishedSlot(QNetworkReply * reply);
+    void getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply * reply);
 
 private:
 

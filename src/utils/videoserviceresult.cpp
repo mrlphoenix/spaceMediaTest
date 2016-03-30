@@ -132,6 +132,50 @@ void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
     emit getPlayerSettingsResult(result);
 }
 
+void VideoServiceResultProcessor::getPlayerAreasReply(QNetworkReply *reply)
+{
+    PlayerConfigNew result;
+    if (reply->error())
+    {
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.error = root["error"].toString();
+    }
+    else
+    {
+        QByteArray  replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result = PlayerConfigNew::fromJson(root);
+    }
+    emit getPlayerAreasResult(result);
+}
+
+void VideoServiceResultProcessor::getVirtualScreenPlaylist(QNetworkReply *reply)
+{
+    QHash<QString, PlaylistAPIResult> result;
+    if (reply->error()){;}
+    else
+    {
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        foreach (const QString& id, root.keys())
+        {
+            QJsonObject playlistEntry = root[id].toObject();
+            PlaylistAPIResult playlistAPI = PlaylistAPIResult::fromJson(playlistEntry);
+            result[id] = playlistAPI;
+        }
+    }
+    emit getVirtualScreenPlaylistResult(result);
+}
+
 
 InitRequestResult InitRequestResult::fromJson(QJsonObject data)
 {
@@ -381,5 +425,105 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.updated_at = QDateTime::fromString(data["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
     result.error_id = 0;
     result.error = data["error"].toString();
+    return result;
+}
+
+PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
+{
+    PlaylistAPIResult result;
+    if (json.keys().count() > 0)
+    {
+        result.id = json.keys().at(0);
+        QJsonValue rootValue = json[json.keys().at(0)];
+        QJsonArray items = rootValue.toArray();
+        foreach(const QJsonValue item, items)
+        {
+            QJsonObject itemObject = item.toObject();
+            PlaylistAPIResult::PlaylistItem newItem;
+            newItem.id = itemObject["id"].toString();
+            newItem.name = itemObject["name"].toString();
+            newItem.fileUrl = itemObject["fileUrl"].toString();
+            newItem.fileHash = itemObject["fileHash"].toString();
+            newItem.videoWidth = itemObject["videoWidth"].toInt();
+            newItem.videoHeight = itemObject["videoHeight"].toInt();
+            newItem.duration = itemObject["duration"].toInt();
+            newItem.type = itemObject["type"].toString();
+            newItem.play_priority = itemObject["play_priority"].toInt();
+            newItem.play_type = itemObject["play_type"].toString();
+            newItem.play_timeout = itemObject["play_timeout"].toInt();
+            QDateTime nullDateTime;
+            if (itemObject["play_starts"].isNull())
+                newItem.play_starts = nullDateTime;
+            else
+                newItem.play_starts = QDateTime::fromString(itemObject["play_starts"].toString(), "YYYY-MM-dd HH:mm:ss");
+            if (itemObject["play_ends"].isNull())
+                newItem.play_ends = nullDateTime;
+            else
+                newItem.play_ends = QDateTime::fromString(itemObject["play_ends"].toString(), "YYYY-MM-dd HH:mm:ss");
+            QJsonObject timeTargeting = itemObject["time_targeting"].toObject();
+            foreach (const QString &key, timeTargeting.keys())
+            {
+                QJsonArray timeTargetingItems = timeTargeting[key].toArray();
+                QVector <int> timeTargetingVectorItems;
+                foreach (const QJsonValue &v, timeTargetingItems)
+                    timeTargetingVectorItems.append(v.toInt());
+                newItem.time_targeting[key] = timeTargetingVectorItems;
+            }
+            QJsonArray geoTargeting = itemObject["geo_targeting"].toArray();
+            QVector <QVector<PlaylistAPIResult::PlaylistItem::gps> > geoTargetingVector;
+            foreach (const QJsonValue &v, geoTargeting)
+            {
+                QVector<PlaylistAPIResult::PlaylistItem::gps> geoTargetingAreaVector;
+                QJsonArray geoTargetingArea = v.toArray();
+                foreach (const QJsonValue &areaValue, geoTargetingArea)
+                {
+                    QJsonObject gpsObject = areaValue.toObject();
+                    PlaylistAPIResult::PlaylistItem::gps gps;
+                    gps.latitude = gpsObject["latitude"].toDouble();
+                    gps.longitude = gpsObject["longitude"].toDouble();
+                    geoTargetingAreaVector.append(gps);
+                }
+                geoTargetingVector.append(geoTargetingAreaVector);
+            }
+            newItem.geo_targeting = geoTargetingVector;
+            result.items.append(newItem);
+        }
+    }
+    return result;
+}
+/*
+I’m trying to send HDMI-CEC command from a TV set to my Android phone (both of them can support CEC protocol).
+*/
+class GeoInformation
+{
+public:
+    GeoInformation();
+    ~GeoInformation();
+    void init(int value);
+    int getValue();
+
+};
+
+PlayerConfigNew PlayerConfigNew::fromJson(QJsonObject data)
+{
+
+    PlayerConfigNew result;
+    result.error_id = 0;
+    foreach (const QString &id, data.keys())
+    {
+        QJsonValue v = data[id];
+        QJsonObject virtualScreenObject = v.toObject();
+        PlayerConfigNew::VirtualScreen screen;
+        screen.display_type = virtualScreenObject["display_type"].toString();
+        screen.type = virtualScreenObject["type"].toString();
+        screen.audio_priority = virtualScreenObject["audio_priority"].toInt();
+        screen.screen_priority = virtualScreenObject["screen_priority"].toInt();
+        screen.position.setTopLeft(QPoint(virtualScreenObject["start_x"].toInt(),
+                                          virtualScreenObject["start_y"].toInt()));
+        screen.position.setBottomRight(QPoint(virtualScreenObject["end_x"].toInt(),
+                                              virtualScreenObject["end_y"].toInt()));
+        screen.resfreshTime = virtualScreenObject["refresh_at"].toInt();
+        result.screens[id] = screen;
+    }
     return result;
 }

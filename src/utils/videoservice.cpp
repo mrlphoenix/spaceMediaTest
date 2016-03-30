@@ -23,11 +23,13 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
     connect(this,SIGNAL(sendStatisticRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(sendStatisticResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerSettingsRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlayerSettingsReply(QNetworkReply*)));
+    connect(this,SIGNAL(getPlayerAreasRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getPlayerAreasReply(QNetworkReply*)));
 
     connect(&resultProcessor,SIGNAL(initResult(InitRequestResult)),this,SIGNAL(initResult(InitRequestResult)));
     connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfig)),this,SIGNAL(getPlaylistResult(PlayerConfig)));
     connect(&resultProcessor,SIGNAL(sendStatisticResult(NonQueryResult)),this,SIGNAL(sendStatisticResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
+    connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SIGNAL(getPlayerAreasResult(PlayerConfigNew)));
 }
 
 void VideoService::init()
@@ -43,6 +45,21 @@ void VideoService::getPlaylist(QString playerId, QString cryptedSessionKey)
 void VideoService::getPlayerSettings()
 {
     executeRequest(new GetPlaylistSettingsRequest());
+}
+
+void VideoService::getPlayerAreas()
+{
+    executeRequest(new GetPlayerAreasRequest());
+}
+
+void VideoService::getPlaylist(QString areaId)
+{
+    executeRequest(new GetVirtualScreenPlaylistRequest(QStringList(areaId)));
+}
+
+void VideoService::getPlaylist()
+{
+    executeRequest(new GetVirtualScreenPlaylistRequest());
 }
 
 void VideoService::sendStatistic(QString playerId, QString encodedSessionKey, QString data)
@@ -111,6 +128,27 @@ void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
     }
     emit getPlayerSettingsRequestFinished(reply);
     nextRequest();
+}
+
+void VideoService::getPlayerAreasRequestFinishedSlot(QNetworkReply *reply)
+{
+    if (reply->error())
+    {
+        qDebug() << "get player areas error" + reply->errorString();
+        GlobalStatsInstance.registryConnectionError();
+    }
+    emit getPlayerAreasRequestFinished(reply);
+    nextRequest();
+}
+
+void VideoService::getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply *reply)
+{
+    if (reply->error())
+    {
+        qDebug() << "get player areas error" + reply->errorString();
+        GlobalStatsInstance.registryPlaylistError();
+    }
+    emit getVirtualScreenPlaylistRequestFinished(reply);
 }
 
 void VideoService::performRequest(VideoServiceRequest *request)
@@ -319,4 +357,41 @@ GetPlaylistSettingsRequest::GetPlaylistSettingsRequest()
 GetPlaylistSettingsRequest::~GetPlaylistSettingsRequest()
 {
 
+}
+
+GetPlayerAreasRequest::GetPlayerAreasRequest()
+{
+    headers["Authorization"] = GlobalConfigInstance.getToken();
+    methodAPI = "player/virtual-screens";
+    name = "areas";
+    method = "GET";
+}
+
+GetPlayerAreasRequest::~GetPlayerAreasRequest()
+{
+
+}
+
+GetVirtualScreenPlaylistRequest::GetVirtualScreenPlaylistRequest()
+{
+    headers["Authorization"] = GlobalConfigInstance.getToken();
+    methodAPI = "player/playlist";
+    name = "playlist";
+    method = "GET";
+}
+
+GetVirtualScreenPlaylistRequest::GetVirtualScreenPlaylistRequest(QStringList areas)
+{
+    headers["Authorization"] = GlobalConfigInstance.getToken();
+    methodAPI = "player/playlist";
+    name = "playlist";
+    method = "GET";
+
+    params.append(VideoServiceRequestParam("areas", areas.join(",")));
+}
+
+VideoServiceRequest::VideoServiceRequestParam::VideoServiceRequestParam(QString key, QString value)
+{
+    this->key = key;
+    this->value = value;
 }
