@@ -28,6 +28,7 @@ public slots:
     void playlistResult(PlayerConfig result);
     void playerSettingsResult(SettingsRequestResult result);
     void virtualScreensResult(PlayerConfigNew result);
+    void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
     void getPlaylistTimerSlot();
 
@@ -47,6 +48,7 @@ public slots:
 
 protected:
     void setupDownloader(PlayerConfig& config);
+    void setupDownloader(PlayerConfigNew& newConfig);
     QVector<QObject*> widgets;
     TeleDSPlayer * rpiPlayer;
 

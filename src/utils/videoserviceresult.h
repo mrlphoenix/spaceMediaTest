@@ -68,6 +68,11 @@ struct PlaylistAPIResult
         };
 
         QVector<QVector<gps> > geo_targeting;
+        QVector<QPolygonF> polygons;
+
+        bool checkTimeTargeting() const;
+        bool checkDateRange() const;
+        bool checkGeoTargeting(QPointF gps) const;
     };
     QVector<PlaylistItem> items;
 };
@@ -118,6 +123,7 @@ struct PlayerConfig
             {
                 void init();
                 void buildGeo();
+                static Item fromNewItem(PlaylistAPIResult::PlaylistItem item);
 
                 QString iid;
                 QString itype;

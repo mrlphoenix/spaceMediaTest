@@ -24,12 +24,15 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(this,SIGNAL(sendStatisticRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(sendStatisticResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerSettingsRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlayerSettingsReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerAreasRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getPlayerAreasReply(QNetworkReply*)));
+    connect(this,SIGNAL(getVirtualScreenPlaylistRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getVirtualScreenPlaylist(QNetworkReply*)));
 
     connect(&resultProcessor,SIGNAL(initResult(InitRequestResult)),this,SIGNAL(initResult(InitRequestResult)));
     connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfig)),this,SIGNAL(getPlaylistResult(PlayerConfig)));
     connect(&resultProcessor,SIGNAL(sendStatisticResult(NonQueryResult)),this,SIGNAL(sendStatisticResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
     connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SIGNAL(getPlayerAreasResult(PlayerConfigNew)));
+    connect(&resultProcessor,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)), this, SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
+
 }
 
 void VideoService::init()
@@ -189,6 +192,10 @@ void VideoService::performRequest(VideoServiceRequest *request)
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticRequestFinishedSlot(QNetworkReply*)));
     else if (request->name == "settings")
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerSettingsRequestFinishedSlot(QNetworkReply*)));
+    else if (request->name == "areas")
+        connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerAreasRequestFinishedSlot(QNetworkReply*)));
+    else if (request->name == "playlist")
+        connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply*)));
     else
     {
         qDebug() << "ERROR: undefined method: " << request->name;

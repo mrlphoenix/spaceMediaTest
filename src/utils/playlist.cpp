@@ -5,7 +5,7 @@ RandomPlaylist::RandomPlaylist(QObject *parent) : AbstractPlaylist(parent)
 
 }
 
-void RandomPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
+void RandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 {
     this->playlist = playlist;
     splitItems();
@@ -18,25 +18,24 @@ QString RandomPlaylist::next()
     bool found = false;
     QString result;
 
-    foreach(const PlayerConfig::Area::Playlist::Item& item,fixedFloatingItems)
+    foreach (const PlaylistAPIResult::PlaylistItem &item, fixedFloatingItems)
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             found = true;
             QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addSecs(item.delay);
-            lastTimeShowed[item.iid] = delayPassTime;
-            result = item.iid;
+            delayPassTime = delayPassTime.addSecs(item.play_timeout);
+            lastTimeShowed[item.id] = delayPassTime;
+            result = item.id;
             break;
         }
-
     if (!found)
-        foreach(const PlayerConfig::Area::Playlist::Item& item,floatingNoneItems)
+        foreach (const PlaylistAPIResult::PlaylistItem &item, floatingNoneItems)
             if (item.checkTimeTargeting() && item.checkDateRange())
             {
                 QDateTime delayPassTime = QDateTime::currentDateTime();
-                delayPassTime.addSecs(item.delay);
-                lastTimeShowed[item.iid] = delayPassTime;
-                result = item.iid;
+                delayPassTime.addSecs(item.play_timeout);
+                lastTimeShowed[item.id] = delayPassTime;
+                result = item.id;
                 break;
             }
     return result;
@@ -49,10 +48,10 @@ void RandomPlaylist::splitItems()
 {
     fixedFloatingItems.clear();
     floatingNoneItems.clear();
-    foreach (const PlayerConfig::Area::Playlist::Item& item, playlist.items)
-        if (item.dtype == "fixed")
+    foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
+        if (item.play_type == "fixed")
             fixedFloatingItems.append(item);
-        else if (item.dtype == "none")
+        else if (item.play_type == "none")
             floatingNoneItems.append(item);
         else
         {
@@ -63,7 +62,7 @@ void RandomPlaylist::splitItems()
 
 void RandomPlaylist::shuffle()
 {
-    QVector<PlayerConfig::Area::Playlist::Item> newFixed, newFloating;
+    QList<PlaylistAPIResult::PlaylistItem> newFixed, newFloating;
     while (fixedFloatingItems.count() > 0)
     {
         int currentItemIndex = qrand()%fixedFloatingItems.count();
@@ -80,18 +79,18 @@ void RandomPlaylist::shuffle()
     floatingNoneItems = newFloating;
 }
 
-bool RandomPlaylist::itemDelayPassed(const PlayerConfig::Area::Playlist::Item& item)
+bool RandomPlaylist::itemDelayPassed(const PlaylistAPIResult::PlaylistItem &item)
 {
-    if (lastTimeShowed.contains(item.iid))
+    if (lastTimeShowed.contains(item.id))
     {
-        if (QDateTime::currentDateTime() > lastTimeShowed[item.iid])
+        if (QDateTime::currentDateTime() > lastTimeShowed[item.id])
         {
-            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.iid << " [" << item.name << "]";
+            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.id << " [" << item.name << "]";
             return true;
         }
         else
         {
-            qDebug() << "RANDOM PL: Item Delay is Not Passed. Skipping item.>>" << item.iid << " [" << item.name << "]";
+            qDebug() << "RANDOM PL: Item Delay is Not Passed. Skipping item.>>" << item.id << " [" << item.name << "]";
             return false;
         }
     }
@@ -104,12 +103,12 @@ AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 
 }
 
-PlayerConfig::Area::Playlist::Item AbstractPlaylist::findItemById(QString iid)
+PlaylistAPIResult::PlaylistItem AbstractPlaylist::findItemById(QString iid)
 {
-    foreach (const PlayerConfig::Area::Playlist::Item &item, playlist.items)
-        if (item.iid == iid)
+    foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
+        if (item.id == iid)
             return item;
-    PlayerConfig::Area::Playlist::Item emptyItem;
+    PlaylistAPIResult::PlaylistItem emptyItem;
     return emptyItem;
 }
 
@@ -118,7 +117,7 @@ StandartPlaylist::StandartPlaylist(QObject *parent) : AbstractPlaylist(parent)
     currentItemIndex = 0;
 }
 
-void StandartPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
+void StandartPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 {
     this->playlist = playlist;
 }
@@ -128,7 +127,7 @@ QString StandartPlaylist::next()
     int itemsCount = playlist.items.count();
     if (currentItemIndex >= itemsCount)
         currentItemIndex = itemsCount-1;
-    QString item = playlist.items[currentItemIndex].iid;
+    QString item = playlist.items[currentItemIndex].id;
     currentItemIndex = (currentItemIndex + 1)%itemsCount;
     return item;
 }
@@ -139,23 +138,23 @@ MagicRandomPlaylist::MagicRandomPlaylist(QObject *parent) : RandomPlaylist(paren
     magic = 1;
 }
 
-void MagicRandomPlaylist::updatePlaylist(PlayerConfig::Area::Playlist playlist)
+void MagicRandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 {
     this->playlist = playlist;
     splitItems();
     allLength = 0;
     minPlayTime = QDateTime::currentDateTimeUtc();
-    foreach (const PlayerConfig::Area::Playlist::Item &item, playlist.items)
+    foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
         allLength += item.duration;
     minPlayTime.addSecs(-allLength);
     int tempTime = 0;
-    foreach (const PlayerConfig::Area::Playlist::Item &item, playlist.items)
+    foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
     {
-        if (!lastTimeShowed.contains(item.iid))
+        if (!lastTimeShowed.contains(item.id))
         {
             QDateTime itemFakePlayTime = minPlayTime;
             itemFakePlayTime.addSecs(tempTime);
-            lastTimeShowed[item.iid] = itemFakePlayTime;
+            lastTimeShowed[item.id] = itemFakePlayTime;
             tempTime += item.duration;
         }
     }
@@ -170,36 +169,36 @@ QString MagicRandomPlaylist::next()
     QString result;
 
     std::sort(fixedFloatingItems.begin(),fixedFloatingItems.end(),
-              [&, this](const PlayerConfig::Area::Playlist::Item &a,
-                const PlayerConfig::Area::Playlist::Item &b)
+              [&, this](const PlaylistAPIResult::PlaylistItem &a,
+                const PlaylistAPIResult::PlaylistItem &b)
         {
-            int aLastPlayed = minPlayTime.secsTo(lastTimeShowed[a.iid]) % magic;
-            int bLastPlayed = minPlayTime.secsTo(lastTimeShowed[b.iid]) % magic;
+            int aLastPlayed = minPlayTime.secsTo(lastTimeShowed[a.id]) % magic;
+            int bLastPlayed = minPlayTime.secsTo(lastTimeShowed[b.id]) % magic;
             if (aLastPlayed == bLastPlayed)
-                return a.delay < b.delay;
+                return a.play_timeout < b.play_timeout;
             else
                 return aLastPlayed < bLastPlayed;
         });
     for (int i = 0; i < MAGIC_PLAYLIST_VALUE + 1 && i < fixedFloatingItems.count(); ++i)
     {
-        PlayerConfig::Area::Playlist::Item item = fixedFloatingItems.at(i);
+        PlaylistAPIResult::PlaylistItem item = fixedFloatingItems.at(i);
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime.addSecs(item.delay);
-            lastTimeShowed[item.iid] = delayPassTime;
-            result = item.iid;
+            delayPassTime.addSecs(item.play_timeout);
+            lastTimeShowed[item.id] = delayPassTime;
+            result = item.id;
             found = true;
         }
     }
     if (!found)
-        foreach(const PlayerConfig::Area::Playlist::Item& item,floatingNoneItems)
+        foreach(const PlaylistAPIResult::PlaylistItem &item,floatingNoneItems)
             if (item.checkTimeTargeting() && item.checkDateRange())
             {
                 QDateTime delayPassTime = QDateTime::currentDateTime();
-                delayPassTime.addSecs(item.delay);
-                lastTimeShowed[item.iid] = delayPassTime;
-                result = item.iid;
+                delayPassTime.addSecs(item.play_timeout);
+                lastTimeShowed[item.id] = delayPassTime;
+                result = item.id;
                 break;
             }
     return result;

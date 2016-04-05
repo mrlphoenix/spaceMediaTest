@@ -34,7 +34,6 @@ protected:
     QByteArray body;
     QHash<QString, QString> headers;
     QHash<QNetworkRequest::KnownHeaders, QString> knownHeaders;
-
 };
 
 class InitVideoPlayerRequest : public VideoServiceRequest
@@ -99,6 +98,17 @@ public:
     GetVirtualScreenPlaylistRequest(QStringList areas);
     virtual ~GetVirtualScreenPlaylistRequest(){;}
 };
+//---------------------------------------------------------------------
+
+/*class NetworkManager : public QObject
+{
+    Q_OBJECT
+public:
+    NetworkManager(QObject *parent);
+    ~NetworkManager();
+
+    void performRequest(VideoServiceRequest &request);
+};*/
 
 
 //---------------------------------------------------------------------
@@ -129,6 +139,7 @@ signals:
     void sendStatisticResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
     void getPlayerAreasResult(PlayerConfigNew result);
+    void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
     void initVideoRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
@@ -157,6 +168,8 @@ private:
     QString serverURL;
     VideoServiceResultProcessor resultProcessor;
 };
+
+
 
 //----------------------------------------------------------------
 #endif // VIDEOSERVICE_H

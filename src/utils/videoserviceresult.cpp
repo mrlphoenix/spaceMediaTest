@@ -418,6 +418,21 @@ void PlayerConfig::Area::Playlist::Item::buildGeo()
     isPolygonSet = true;
 }
 
+PlayerConfig::Area::Playlist::Item PlayerConfig::Area::Playlist::Item::fromNewItem(PlaylistAPIResult::PlaylistItem item)
+{
+    PlayerConfig::Area::Playlist::Item result;
+    result.iid = item.id;
+    result.delay = item.play_timeout;
+    result.dtype = item.type;
+    result.duration = item.duration;
+    result.height = item.videoHeight;
+    result.width = item.videoWidth;
+    result.name = item.name;
+    result.path = item.fileUrl;
+    result.sha1 = item.fileHash;
+    return result;
+}
+
 SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
 {
     SettingsRequestResult result;
@@ -475,6 +490,7 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
             {
                 QVector<PlaylistAPIResult::PlaylistItem::gps> geoTargetingAreaVector;
                 QJsonArray geoTargetingArea = v.toArray();
+                QPolygonF currentPolygon;
                 foreach (const QJsonValue &areaValue, geoTargetingArea)
                 {
                     QJsonObject gpsObject = areaValue.toObject();
@@ -482,8 +498,10 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
                     gps.latitude = gpsObject["latitude"].toDouble();
                     gps.longitude = gpsObject["longitude"].toDouble();
                     geoTargetingAreaVector.append(gps);
+                    currentPolygon.append(QPointF(gps.latitude, gps.longitude));
                 }
                 geoTargetingVector.append(geoTargetingAreaVector);
+                newItem.polygons.append(currentPolygon);
             }
             newItem.geo_targeting = geoTargetingVector;
             result.items.append(newItem);
@@ -526,4 +544,35 @@ PlayerConfigNew PlayerConfigNew::fromJson(QJsonObject data)
         result.screens[id] = screen;
     }
     return result;
+}
+
+bool PlaylistAPIResult::PlaylistItem::checkTimeTargeting() const
+{
+    QString dayInt = QString::number(QDateTime::currentDateTimeUtc().date().dayOfWeek() + 1);
+    int hour = QDateTime::currentDateTimeUtc().time().hour();
+    if (time_targeting.contains(dayInt))
+        return time_targeting[dayInt].contains(hour);
+    return time_targeting.count() == 0;
+}
+
+bool PlaylistAPIResult::PlaylistItem::checkDateRange() const
+{
+    bool sinceCheck = true, untilCheck = true;
+    if (play_starts.isValid())
+        sinceCheck = QDateTime::currentDateTimeUtc() > play_starts;
+    if (play_ends.isValid())
+        untilCheck = QDateTime::currentDateTimeUtc() < play_ends;
+    return sinceCheck && untilCheck;
+}
+
+bool PlaylistAPIResult::PlaylistItem::checkGeoTargeting(QPointF gps) const
+{
+    if (polygons.count())
+    {
+        foreach (const QPolygonF &p, polygons)
+            if (p.containsPoint(gps,Qt::OddEvenFill))
+                return true;
+        return false;
+    }
+    else return true;
 }

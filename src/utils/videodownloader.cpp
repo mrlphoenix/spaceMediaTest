@@ -19,12 +19,23 @@ VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *paren
     manager = new QNetworkAccessManager(this);
 }
 
+VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfigNew config, QObject *parent) : QObject(parent)
+{
+    this->configNew = config;
+    file = 0;
+    currentItemIndex = 0;
+    connect (&DatabaseInstance,SIGNAL(resourceFound(QList<StatisticDatabase::Resource>)),this,SLOT(getResources(QList<StatisticDatabase::Resource>)));
+    connect (&swapper,SIGNAL(done()),this,SLOT(download()));
+    restarter = 0;
+    manager = new QNetworkAccessManager(this);
+}
+
 VideoDownloaderWorker::~VideoDownloaderWorker()
 {
     if (file)
         file->deleteLater();
-    if (reply)
-        reply->deleteLater();
+ //   if (reply)
+ //       reply->deleteLater();
 }
 
 void VideoDownloaderWorker::prepareDownload()
@@ -57,6 +68,35 @@ void VideoDownloaderWorker::checkDownload()
                 itemCount++;
             }
         }
+    GlobalStatsInstance.setContentPlay(itemCount);
+    qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
+    emit checkDownloadItemsTodownloadResult(itemsToDownload.count());
+}
+
+void VideoDownloaderWorker::checkDownloadNew()
+{
+    int itemCount = 0;
+    itemsToDownload.clear();
+    foreach (const QString &area, configNew.screens.keys())
+    {
+        PlaylistAPIResult playlist = configNew.screens[area].playlist;
+        foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
+        {
+            QString filename = VIDEO_FOLDER + item.id + ".mp4";
+            QString filehash;
+            if (!QFile::exists(filename))
+            {
+                qDebug() << "checkDownload(new) file does not exists " << item.id <<" and need to be downloaded";
+                itemsToDownload.append(PlayerConfig::Area::Playlist::Item::fromNewItem(item));
+            }
+            else if ((filehash = getCacheFileHash(filename)) != item.fileHash)
+            {
+                qDebug() << "different hashes " << filehash << " vs " << item.fileHash;
+                itemsToDownload.append(PlayerConfig::Area::Playlist::Item::fromNewItem(item));
+            }
+            itemCount++;
+        }
+    }
     GlobalStatsInstance.setContentPlay(itemCount);
     qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
     emit checkDownloadItemsTodownloadResult(itemsToDownload.count());
@@ -135,6 +175,13 @@ void VideoDownloaderWorker::runDonwload()
 {
     qDebug() << "VDW: run Download";
     checkDownload();
+    start();
+}
+
+void VideoDownloaderWorker::runDownloadNew()
+{
+    qDebug() << "VDW: run Donwload new";
+    checkDownloadNew();
     start();
 }
 
@@ -217,6 +264,17 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
 void VideoDownloaderWorker::updateConfig(PlayerConfig config)
 {
     this->config = config;
+    currentItemIndex = 0;
+    if (file)
+    {
+        delete file;
+        file = 0;
+    }
+}
+
+void VideoDownloaderWorker::updateConfigNew(PlayerConfigNew config)
+{
+    this->configNew = config;
     currentItemIndex = 0;
     if (file)
     {
@@ -346,6 +404,17 @@ VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QThread
     connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
     connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
     connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
+    connect(this, SIGNAL(runDonwloadSignalNew()),worker,SLOT(runDownloadNew()));
+}
+
+VideoDownloader::VideoDownloader(PlayerConfigNew config, QObject *parent) : QThread(parent)
+{
+    worker = new VideoDownloaderWorker(config,this);
+    connect(worker,SIGNAL(done()),this, SIGNAL(done()));
+    connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
+    connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
+    connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
+    connect(this, SIGNAL(runDownloadSignalNew()),worker,SLOT(runDownloadNew()));
 }
 
 VideoDownloader::~VideoDownloader()
@@ -357,6 +426,12 @@ void VideoDownloader::runDownload()
 {
     qDebug() << "VIDEO DOWNLOADER::runDownload";
     emit runDownloadSignal();
+}
+
+void VideoDownloader::runDownloadNew()
+{
+    qDebug() << "VIDEO DOWNLOADER::runDownloadNew";
+    emit runDownloadSignalNew();
 }
 
 void VideoDownloader::run()

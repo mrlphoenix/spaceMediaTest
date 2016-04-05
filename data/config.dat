@@ -1,10 +1,10 @@
 {
     "cpuInfoTimerTime": 10000,
     "device": "",
-    "getPlaylistTimerTime": 10000,
+    "getPlaylistTimerTime": 30000,
     "gpsTimerTime": 10000,
     "reportTimerTime": 60000,
     "resourceCounterTimerTime": 10000,
     "sysInfoTimerTime": 10000,
-    "token": "Bearer VCdtt5DwjV5Fb91L77Dz9lGn9ocIvqJmSs4L9rPfULgmHzpYXHJPiFeFS1Dgxs0Uf5seHWCZuvJiekhxFOYz8eWE6k7Bfj23bapJWSqY8IcK4VUo9FSn4dBNjeEu2Nm2v7iVQG7GkZ3qxZX4DCLBrOiF1QVFmdRJy5gbq08koxsjVw0gcxmRmJ51CrzVDmrJzYIuALXrW0USnueGTWtzvPXE3NPJB5Ztkors8gVAIs5sRly0U8Y1g034bFscm8V"
+    "token": "Bearer CXvTMKXjetX9g4MRJ32UJSV75eR4JwD79XcRncAjgxbtCsArsPfYBlRW0SjPah0VCWCG2LhZQw9gygPWEJAJ5Yh1WMRgbAQAXLVpo91elQar3LSKVmfrRjWG9ioB2wtasIpjZ3fQ6U8nWh6jekmYEzFWmLG5jFMpkv2zJ5a4RLqLp3VVcjxQHslPiBbJmUj3uB08sihqgieocFeRWMeP7917zC1eeudJy5uspNW6TVHjrQBNwXDKDQWRimyYFai"
 }

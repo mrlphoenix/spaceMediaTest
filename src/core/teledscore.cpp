@@ -36,6 +36,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
+    connect(videoService,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)),this,SLOT(virtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
+    connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SLOT(virtualScreensResult(PlayerConfigNew)));
 
 
     connect (&sheduler,SIGNAL(cpuInfo()), this, SLOT(checkCPUStatus()));
@@ -48,7 +50,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
  //   connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
-
 
 
     QTimer::singleShot(70000,uploader,SLOT(start()));
@@ -167,12 +168,33 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setActivationCode(result.error);
         rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
     }
+    else
+    {
+        if (result.error_id == 0)
+        {
+            videoService->getPlayerAreas();
+        }
+    }
 }
 
 void TeleDSCore::virtualScreensResult(PlayerConfigNew result)
 {
     currentConfigNew = result;
     videoService->getPlaylist();
+}
+
+void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
+{
+    foreach (const QString &s, result.keys())
+    {
+        if (currentConfigNew.screens.contains(s))
+            currentConfigNew.screens[s].playlist = result[s];
+    }
+
+    setupDownloader(this->currentConfigNew);
+    //setup downloader
+    //
+
 }
 
 void TeleDSCore::getPlaylistTimerSlot()
@@ -202,12 +224,19 @@ void TeleDSCore::downloaded()
     }
     else
     {
-        rpiPlayer->setConfig(currentConfig.areas.first());
-        if (!rpiPlayer->isPlaying())
+        if (currentConfig.areas.count())
         {
-            rpiPlayer->play();
-            QTimer::singleShot(12000,rpiPlayer, SLOT(invokeEnablePreloading()));
-            //rpiPlayer->invokeEnablePreloading();
+            rpiPlayer->setConfig(currentConfig.areas.first());
+            if (!rpiPlayer->isPlaying())
+            {
+                rpiPlayer->play();
+                QTimer::singleShot(12000,rpiPlayer, SLOT(invokeEnablePreloading()));
+                //rpiPlayer->invokeEnablePreloading();
+            }
+        }
+        else if (currentConfigNew.screens.count())
+        {
+            rpiPlayer->setConfig(currentConfigNew.screens[currentConfigNew.screens.keys().at(0)]);
         }
     }
 }
@@ -276,5 +305,24 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     currentConfig = config;
     downloader->runDownload();
  //   downloader->checkDownload();
- //   downloader->startDownload();
+    //   downloader->startDownload();
+}
+
+void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
+{
+    if (downloader)
+        downloader->updateConfig(newConfig);
+    else
+    {
+        downloader = new VideoDownloader(newConfig, this);
+        downloader->start();
+        connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
+        //connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
+        //connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
+        connect(downloader,SIGNAL(done()),rpiPlayer,SLOT(invokeDownloadDone()));
+        connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),rpiPlayer,SLOT(invokeSimpleProgress(double,QString)));
+        connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
+    }
+    currentConfigNew = newConfig;
+    downloader->runDownloadNew();
 }

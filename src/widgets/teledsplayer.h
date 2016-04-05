@@ -24,6 +24,7 @@ public:
     QString getFullPath(QString fileName);
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::Area area);
+    void setConfig(PlayerConfigNew::VirtualScreen area);
     void play();
     void stop();
 
@@ -67,11 +68,13 @@ protected:
     AbstractPlaylist * playlist;
     bool isPlaylistRandom;
     PlayerConfig::Area config;
+    PlaylistAPIResult configNew;
     QObject * viewRootObject;
 
     CurrentItemStatus status;
     int delay;
 };
+
 
 
 #endif // RPIVIDEOPLAYER_H

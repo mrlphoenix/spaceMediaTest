@@ -16,13 +16,13 @@ class AbstractPlaylist : public QObject
 public:
     explicit AbstractPlaylist(QObject * parent);
     virtual ~AbstractPlaylist(){;}
-    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist)=0;
+    virtual void updatePlaylist(PlaylistAPIResult playlist)=0;
     virtual QString getType()=0;
-    virtual PlayerConfig::Area::Playlist::Item findItemById(QString iid);
+    virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid);
 public slots:
     virtual QString next()=0;
 protected:
-    PlayerConfig::Area::Playlist playlist;
+    PlaylistAPIResult playlist;
 };
 
 class StandartPlaylist : public AbstractPlaylist
@@ -31,7 +31,7 @@ class StandartPlaylist : public AbstractPlaylist
 public:
     explicit StandartPlaylist(QObject * parent);
     virtual ~StandartPlaylist(){;}
-    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+    virtual void updatePlaylist(PlaylistAPIResult playlist);
     virtual QString getType() {return "list";}
 public slots:
     virtual QString next();
@@ -45,7 +45,7 @@ class RandomPlaylist : public AbstractPlaylist
 public:
     explicit RandomPlaylist(QObject *parent = 0);
     virtual ~RandomPlaylist(){;}
-    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+    virtual void updatePlaylist(PlaylistAPIResult playlist);
 
     virtual QString getType() {return "random";}
 signals:
@@ -56,10 +56,10 @@ protected:
 
     void splitItems();
     void shuffle();
-    bool itemDelayPassed(const PlayerConfig::Area::Playlist::Item& item);
+    bool itemDelayPassed(const PlaylistAPIResult::PlaylistItem &item);
 
-    QVector<PlayerConfig::Area::Playlist::Item> fixedFloatingItems;
-    QVector<PlayerConfig::Area::Playlist::Item> floatingNoneItems;
+    QList<PlaylistAPIResult::PlaylistItem> fixedFloatingItems;
+    QList<PlaylistAPIResult::PlaylistItem> floatingNoneItems;
     QHash<QString,QDateTime> lastTimeShowed;
 };
 
@@ -69,7 +69,7 @@ class MagicRandomPlaylist : public RandomPlaylist
 public:
     explicit MagicRandomPlaylist(QObject * parent = 0);
     virtual ~MagicRandomPlaylist(){;}
-    virtual void updatePlaylist(PlayerConfig::Area::Playlist playlist);
+    virtual void updatePlaylist(PlaylistAPIResult playlist);
 
     virtual QString next();
 protected:
