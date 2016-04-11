@@ -307,7 +307,7 @@ Item {
     Timer{
         property var object: ({})
         id: hideVideoDelayTimer
-        interval: 250
+        interval: 50
         repeat: false
         onTriggered: {
             object.visible = false
@@ -333,19 +333,6 @@ Item {
                 waitingRefreshInText.text = "Refresh in " + updateDelay + "s"
             else
                 waitingRefreshInText.text = "Refreshing..."
-         //   if (updateDelay <= 1 && refreshplayerIDAnimation.running == false)
-         //       refreshplayerIDAnimation.start()
-//            updateDelay = updateDelay - 1
-//            if (updateDelay < 0)
-//            {
-//                 waitingRefreshInText.text = "Refresh in 10s"
-               /* if (refreshplayerIDAnimation.running == false)
-                {
-                    refreshplayerIDAnimation.start()
-                    waitingRefreshInText.text = "Refreshing"
-                } */
-//                refreshTimeTimer.stop()
-//            }
         }
     }
 
@@ -358,26 +345,22 @@ Item {
             item.focus = true
         }
     }
-  /*  Timer {
-        id: refreshButtonDeactivator
-        repeat: false
-        interval: 3000
-        onTriggered: {
-            refreshplayerIDAnimation.stop()
-        }
-    }*/
     Timer {
         id: nextVideoTimer
         repeat: false
         interval: 10000
         onTriggered: {
-            console.log("next video timeout")
+            console.log("next video timeout!!!!!!!!!!!!")
             nextItem()
+            mediaplayer.stop()
         }
         function getNextVideoTimerInterval(duration){
-            if (duration === 0)
+            if (duration === 0){
+                console.log(15000)
                 return 15000
-            return duration - 500
+            }
+            console.log(duration - 500)
+            return duration + 300
         }
         onIntervalChanged: {
             console.log("nextVideoTimer:interval=" + interval.toString())
@@ -638,48 +621,6 @@ Item {
             id: waitingBlock
             width: parent.width
             visible: false
-           // y: playerIDRect.y + playerIDRect.height + 10
-          //  anchors.top: playerIDRect.bottom
-          //  anchors.horizontalCenter: parent.horizontalCenter
-
-            /*
-            MouseArea {
-                x: waitingText.x - refreshPlayerID.width*150/100
-                y: playerIDRect.y + playerIDRect.height + 55 * aspect
-                //x: getRefreshButtonPositionX(item.width, item.height)
-                //y: getRefreshButtonPositionY(item.width, item.height)
-                Image {
-                    id: refreshPlayerID
-                    source: "refresh_1.svg"
-                    smooth: true
-                    sourceSize.height: waitingText.height + waitingRefreshInText.height + 10 * aspect
-                    sourceSize.width: waitingText.height + waitingRefreshInText.height + 10 * aspect
-                    height: waitingText.height + waitingRefreshInText.height + 10 * aspect
-                    width: waitingText.height + waitingRefreshInText.height + 10 * aspect
-
-                    RotationAnimator {
-                        id: refreshplayerIDAnimation
-                        target: refreshPlayerID
-                        direction: RotationAnimator.Counterclockwise
-                        from: 360; to: 0
-                        duration: 400
-                        loops: 8
-                        alwaysRunToEnd: true
-                    }
-                }
-                width: refreshPlayerID.width
-                height: refreshPlayerID.height
-                onClicked:{
-                    if (refreshplayerIDAnimation.running == false)
-                    {
-                      //  playerIDText.color = "transparent"
-                       // refreshPlayerID.visible = false
-                      //  playerIDText.text = " Please wait... "
-                        item.refreshId()
-                        refreshplayerIDAnimation.start()
-                    }
-                }
-            }*/
             Text {
                 y: playerIDRect.y + playerIDRect.height + 55 * aspect
                 x: item.width/2 - width/2
@@ -764,11 +705,12 @@ Item {
         onStopped:{
             console.debug("on stopped MP1")
             if (invokeNext){
-                console.debug("calling nextItem")
+                console.debug("Video stopped: calling nextItem")
              //   item.nextItem()
             }
         }
         onPlaying: {
+            console.log("MP1 On Playing!")
             if (startNextTimerOnPlay)
             {
                 console.log("MP1::NEXT VIDEO TIMER STARTED WITH: " + nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration) + " source: " + mediaplayer.source)
@@ -783,6 +725,7 @@ Item {
         }
         function runPlay(withTimer)
         {
+            console.log("Run Play - " + withTimer + " >>> " + source)
             startNextTimerOnPlay = withTimer
             play()
         }

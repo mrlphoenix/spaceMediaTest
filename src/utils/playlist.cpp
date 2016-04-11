@@ -127,6 +127,8 @@ QString StandartPlaylist::next()
     int itemsCount = playlist.items.count();
     if (currentItemIndex >= itemsCount)
         currentItemIndex = itemsCount-1;
+    qDebug() << currentItemIndex;
+    qDebug() << playlist.items.count();
     QString item = playlist.items[currentItemIndex].id;
     currentItemIndex = (currentItemIndex + 1)%itemsCount;
     return item;

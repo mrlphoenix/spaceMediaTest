@@ -31,7 +31,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     rpiPlayer = new TeleDSPlayer(this);
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    statsTimer->start(90000);
+    //statsTimer->start(90000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
@@ -67,7 +67,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
         QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
-      //  sheduler.stop(TeleDSSheduler::ALL);
+        sheduler.stop(TeleDSSheduler::ALL);
     } else
     {
         qDebug() << "player is not configurated";
@@ -230,13 +230,29 @@ void TeleDSCore::downloaded()
             if (!rpiPlayer->isPlaying())
             {
                 rpiPlayer->play();
-                QTimer::singleShot(12000,rpiPlayer, SLOT(invokeEnablePreloading()));
+                QTimer::singleShot(3000,rpiPlayer, SLOT(invokeEnablePreloading()));
                 //rpiPlayer->invokeEnablePreloading();
             }
         }
         else if (currentConfigNew.screens.count())
         {
-            rpiPlayer->setConfig(currentConfigNew.screens[currentConfigNew.screens.keys().at(0)]);
+            foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
+                if (v.type != "audio")
+                {
+                    rpiPlayer->setConfig(v);
+                    if (!rpiPlayer->isPlaying())
+                    {
+                        rpiPlayer->play();
+                      //  QTimer::singleShot(12000, rpiPlayer, SLOT(invokeEnablePreloading()));
+                    }
+                    break;
+                }
+           /* rpiPlayer->setConfig(currentConfigNew.screens[currentConfigNew.screens.keys().at(0)]);
+            if (!rpiPlayer->isPlaying())
+            {
+                rpiPlayer->play();
+                QTimer::singleShot(12000, rpiPlayer, SLOT(invokeEnablePreloading()));
+            }*/
         }
     }
 }

@@ -151,7 +151,7 @@ void VideoServiceResultProcessor::getPlayerAreasReply(QNetworkReply *reply)
     {
         QByteArray  replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
-        QJsonObject root = doc.object();
+        QJsonArray root = doc.array();
         result = PlayerConfigNew::fromJson(root);
     }
     emit getPlayerAreasResult(result);
@@ -165,13 +165,17 @@ void VideoServiceResultProcessor::getVirtualScreenPlaylist(QNetworkReply *reply)
     {
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
-        QJsonObject root = doc.object();
+        QJsonArray root = doc.array();
+        result = PlaylistAPIResult::getAllItems(root);
+
+        /*QJsonObject root = doc.object();
         foreach (const QString& id, root.keys())
         {
-            QJsonObject playlistEntry = root[id].toObject();
+            QJsonArray playlistEntry = root[id].toArray();
             PlaylistAPIResult playlistAPI = PlaylistAPIResult::fromJson(playlistEntry);
+            playlistAPI.id = id;
             result[id] = playlistAPI;
-        }
+        }*/
     }
     emit getVirtualScreenPlaylistResult(result);
 }
@@ -443,19 +447,19 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     return result;
 }
 
-PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
+PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
 {
     PlaylistAPIResult result;
-    if (json.keys().count() > 0)
+    if (json.count() > 0)
     {
-        result.id = json.keys().at(0);
-        QJsonValue rootValue = json[json.keys().at(0)];
-        QJsonArray items = rootValue.toArray();
-        foreach(const QJsonValue item, items)
+
+        //QJsonValue rootValue = json[json.keys().at(0)];
+        //QJsonArray items = rootValue.toArray();
+        foreach(const QJsonValue item, json)
         {
             QJsonObject itemObject = item.toObject();
             PlaylistAPIResult::PlaylistItem newItem;
-            newItem.id = itemObject["id"].toString();
+            newItem.id = itemObject["content_id"].toString();
             newItem.name = itemObject["name"].toString();
             newItem.fileUrl = itemObject["fileUrl"].toString();
             newItem.fileHash = itemObject["fileHash"].toString();
@@ -504,34 +508,63 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
                 newItem.polygons.append(currentPolygon);
             }
             newItem.geo_targeting = geoTargetingVector;
+
+            newItem.updated_at = QDateTime::fromString(itemObject["updated_at"].toString(), "YYYY-MM-dd HH:mm:ss");
+
             result.items.append(newItem);
         }
+    }
+    return result;
+}
+
+QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json)
+{
+    QHash <QString, PlaylistAPIResult> result;
+    foreach (const QJsonValue &v, json)
+    {
+        QJsonObject areaDescObject = v.toObject();
+        QJsonObject playlistObject = areaDescObject["playlist"].toObject();
+        PlaylistAPIResult item = PlaylistAPIResult::fromJson(playlistObject["content"].toArray());
+        item.id = areaDescObject["area_id"].toString();
+        item.type = playlistObject["type"].toString();
+        result[item.id] = item;
     }
     return result;
 }
 /*
 I’m trying to send HDMI-CEC command from a TV set to my Android phone (both of them can support CEC protocol).
 */
-class GeoInformation
+
+PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
 {
-public:
-    GeoInformation();
-    ~GeoInformation();
-    void init(int value);
-    int getValue();
-
-};
-
-PlayerConfigNew PlayerConfigNew::fromJson(QJsonObject data)
-{
-
+    /*
+     * [
+      {
+        "id": "89b3e054-d796-4f59-97fa-e4e784836eba",
+        "virtual_screen_id": "7e03bb69-9b4a-4527-bc0b-2d3e63609147",
+        "type": "audio",
+        "audio_priority": "0",
+        "screen_priority": "0",
+        "start_x": "0",
+        "start_y": "0",
+        "end_x": "0",
+        "end_y": "0",
+        "display_type": "fit",
+        "refresh_timeout": 60,
+        "created_at": "2016-04-07 15:56:02",
+        "updated_at": "2016-04-07 15:56:02"
+      }
+    ]
+     * */
     PlayerConfigNew result;
     result.error_id = 0;
-    foreach (const QString &id, data.keys())
+
+    foreach (const QJsonValue &v, data)
     {
-        QJsonValue v = data[id];
         QJsonObject virtualScreenObject = v.toObject();
         PlayerConfigNew::VirtualScreen screen;
+        screen.virtual_screen_id = virtualScreenObject["virtual_screen_id"].toString();
+        screen.id = virtualScreenObject["id"].toString();
         screen.display_type = virtualScreenObject["display_type"].toString();
         screen.type = virtualScreenObject["type"].toString();
         screen.audio_priority = virtualScreenObject["audio_priority"].toInt();
@@ -541,7 +574,7 @@ PlayerConfigNew PlayerConfigNew::fromJson(QJsonObject data)
         screen.position.setBottomRight(QPoint(virtualScreenObject["end_x"].toInt(),
                                               virtualScreenObject["end_y"].toInt()));
         screen.resfreshTime = virtualScreenObject["refresh_at"].toInt();
-        result.screens[id] = screen;
+        result.screens[screen.id] = screen;
     }
     return result;
 }

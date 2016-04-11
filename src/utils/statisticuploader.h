@@ -43,5 +43,4 @@ private:
     VideoService * videoService;
 };
 
-
 #endif // STATISTICUPLOADER_H

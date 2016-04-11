@@ -55,3 +55,4 @@ InstagramRecentPostModel InstagramRecentPostModel::fromJson(QByteArray json)
     return result;
 }
 
+

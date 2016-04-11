@@ -130,4 +130,6 @@ private:
     VideoDownloaderWorker * worker;
 };
 
+
+
 #endif // VIDEODOWNLOADER_H

@@ -43,8 +43,10 @@ struct SettingsRequestResult
 
 struct PlaylistAPIResult
 {
-    static PlaylistAPIResult fromJson(QJsonObject json);
+    static PlaylistAPIResult fromJson(QJsonArray json);
+    static QHash<QString, PlaylistAPIResult> getAllItems(QJsonArray json);
     QString id;
+    QString type;
     struct PlaylistItem
     {
         QString id;
@@ -60,6 +62,7 @@ struct PlaylistAPIResult
         QString play_type;
         QDateTime play_starts;
         QDateTime play_ends;
+        QDateTime updated_at;
 
         QHash<QString, QVector<int> > time_targeting;
         struct gps
@@ -80,11 +83,13 @@ struct PlaylistAPIResult
 
 struct PlayerConfigNew
 {
-    static PlayerConfigNew fromJson(QJsonObject data);
+    static PlayerConfigNew fromJson(QJsonArray data);
     int error_id;
     QString error;
     struct VirtualScreen
     {
+        QString virtual_screen_id;
+        QString id;
         QString type;
         QRect position;
         QString display_type;

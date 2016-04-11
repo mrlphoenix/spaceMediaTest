@@ -273,6 +273,8 @@ void TeleDSPlayer::invokeDisplayTrafficUpdate()
 #endif*/
 }
 
+
+
 void TeleDSPlayer::invokeEnablePreloading()
 {
     static bool invokedOnce = false;
@@ -352,7 +354,7 @@ void TeleDSPlayer::gpsUpdate(double lat, double lgt)
 
 void TeleDSPlayer::invokeShowVideo(bool isVisible)
 {
-    qDebug() << "invoking video visibility change";
+    qDebug() << "invoking video visibility change -> " + (isVisible ? QString("true") : QString("false"));
     QVariant isVisibleArg(isVisible);
     QMetaObject::invokeMethod(viewRootObject,"showVideo",Q_ARG(QVariant, isVisibleArg));
 }

@@ -152,6 +152,7 @@ void VideoDownloaderWorker::download()
         qDebug() << "downloading completed";
         emit done();
     }
+
 }
 
 void VideoDownloaderWorker::connectError(QNetworkReply::NetworkError err)
@@ -259,6 +260,7 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
         }
         return "";
     }
+
 }
 
 void VideoDownloaderWorker::updateConfig(PlayerConfig config)

@@ -14,6 +14,7 @@
 
 
 
+
 class TeleDSPlayer : public QObject
 {
     Q_OBJECT

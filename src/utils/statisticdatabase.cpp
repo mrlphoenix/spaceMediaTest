@@ -18,6 +18,11 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
 
     if (m_database.tables().count() < 5)
     {
+        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT");
+        m_database.transaction();
+    }
+    if (m_database.tables().count() < 5)
+    {
         m_database.exec("create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT)");
         m_database.transaction();
 
@@ -34,6 +39,7 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         m_database.transaction();
         m_database.commit();
     }
+
 
     /*
       some scripts for initiation database;
@@ -328,6 +334,7 @@ void StatisticDatabase::findReportsToSend()
     QString sql = "select * from report where sent IS NULL";
     queryThread->execute("findReportsToSend", sql);
 }
+
 
 void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance)
 {

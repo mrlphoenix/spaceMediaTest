@@ -324,6 +324,8 @@ PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
             }
         }
     }
+    qDebug() << "Vendor: " << result.vendor << "; OsVersion: " << result.osVersion << "; deviceName: " << result.deviceName
+             << "; deviceModel: " << result.deviceModel << "; CpuName: " << result.cpuName;
 #endif
     return result;
 }
