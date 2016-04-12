@@ -209,7 +209,7 @@ QString VideoDownloaderWorker::getFileHash(QString fileName)
 {
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
-        QCryptographicHash hash(QCryptographicHash::Sha1);
+        QCryptographicHash hash(QCryptographicHash::Md5);
         if (hash.addData(&f)) {
             return QString(hash.result().toHex()).toLower();
         }
@@ -248,7 +248,7 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
         qDebug() << "filehash  of " + fileName + " was not found in cache - calculating!";
         QFile f(fileName);
         if (f.open(QFile::ReadOnly)) {
-            QCryptographicHash hash(QCryptographicHash::Sha1);
+            QCryptographicHash hash(QCryptographicHash::Md5);
             if (hash.addData(&f)) {
                 QString hashHex = QString(hash.result().toHex()).toLower();
                 HashMeasure hashMeasure;

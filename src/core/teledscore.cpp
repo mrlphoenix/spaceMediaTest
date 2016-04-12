@@ -215,7 +215,7 @@ void TeleDSCore::fakeInit()
 void TeleDSCore::downloaded()
 {
     qDebug() << "!!!!!!!!downloaded!";
-    GlobalConfigInstance.setGetPlaylistTimerTime(30000);
+    GlobalConfigInstance.setGetPlaylistTimerTime(300000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     if (rpiPlayer == NULL)
     {
@@ -243,7 +243,7 @@ void TeleDSCore::downloaded()
                     if (!rpiPlayer->isPlaying())
                     {
                         rpiPlayer->play();
-                      //  QTimer::singleShot(12000, rpiPlayer, SLOT(invokeEnablePreloading()));
+                        QTimer::singleShot(1000, rpiPlayer, SLOT(invokeEnablePreloading()));
                     }
                     break;
                 }

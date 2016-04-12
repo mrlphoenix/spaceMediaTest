@@ -25,7 +25,8 @@ include(../src/core/core.pri)
 include(../src/utils/utils.pri)
 include(../src/widgets/widgets.pri)
 
-OTHER_FILES += ../qml/simple_player.qml
+OTHER_FILES += ../qml/simple_player.qml \
+           VideoPlayer.qml
 
 SOURCES += main.cpp \
 

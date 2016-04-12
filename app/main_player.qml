@@ -6,6 +6,8 @@ import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
 
 
+
+
 Item {
     id: item
     property bool invokeNext:true
@@ -47,91 +49,13 @@ Item {
 
     function enablePreloading(filename)
     {
-        preloader = true
-        invokeNext = false
-
-        mediaplayer2.stop()
-        mediaplayer2.source = filename
-        mediaplayer2.runPlay(false)
-        mediaplayer2.pause()
-
-        invokeNext = true
-        useSecondPlayer = false
+        console.log("Preloading: MP2->: " +filename)
+        videoPlayer.playItem(filename)
     }
 
     function playFile(filename){
-        console.debug("playfile is called" + filename)
-        if (preloader)
-        {
-            console.debug("seamless mode enabled")
-            if (useSecondPlayer)
-            {
-                console.debug("current player: first")
-
-                invokeNext = false
-                mediaplayer2.stop()
-                mediaplayer2.source = filename
-                mediaplayer2.runPlay(false)
-                mediaplayer2.pause()
-                mediaplayer.runPlay(true)
-             //   console.log("next item in " + mediaplayer.duration - 1000)
-              //  nextVideoTimer.interval = mediaplayer.duration - 1000
-              //  nextVideoTimer.start()
-
-                invokeNext = true
-
-               // videoOut.visible = true
-                //videoOut2.visible = false
-             //   hideVideoDelayTimer.object = videoOut2
-             //   hideVideoDelayTimer.start()
-            }
-            else
-            {
-                console.debug("current player: second" + mediaplayer2.source)
-
-                invokeNext = false
-                mediaplayer.stop()
-                mediaplayer.source = filename
-                mediaplayer.runPlay(false)
-                mediaplayer.pause()
-                mediaplayer2.runPlay(true)
-           //     console.log("next item in " + mediaplayer2.duration - 1000)
-           //     nextVideoTimer.interval = mediaplayer2.duration - 1000
-           //     nextVideoTimer.start()
-
-                invokeNext = true
-
-              //  videoOut2.visible = true
-              //  hideVideoDelayTimer.object = videoOut
-              //  hideVideoDelayTimer.start()
-              //  videoOut.visible = false
-            }
-
-            mediaplayer.volume = 1.0
-            mediaplayer2.volume = 1.0
-            useSecondPlayer = !useSecondPlayer
-        }
-        else
-        {
-            if (videoOut2.visible == true)
-            {
-                invokeNext = false
-                videoOut2.visible = false
-                useSecondPlayer = false
-                mediaplayer2.stop()
-                invokeNext = true
-            }
-            invokeNext = false
-            mediaplayer.stop();
-            mediaplayer.source = filename;
-            mediaplayer.runPlay(true);
-
-           // console.log("next item in " + mediaplayer2.duration - 1000)
-          //  nextVideoTimer.interval = mediaplayer.duration - 1000
-          //  nextVideoTimer.start()
-
-            invokeNext = true
-        }
+        console.debug("playfile is called " + filename)
+        videoPlayer.playItem(filename)
     }
 
     function hideVideoLayer(object)
@@ -143,11 +67,11 @@ Item {
         console.debug("download complete. Hiding Progress Bars, Showing Video Player");
         filesProgressBar.visible = false
         downloadProgressBar.visible = false
-        videoOut.visible = true
+        videoPlayer.visible = true
         playerName.visible = false
         bgLogoImage.visible = false
         logoColumn.visible = false
-        videoOut.opacity = videoOutBrightness
+        videoPlayer.opacity = videoOutBrightness
     }
     function setPlayerName(playerId){
         playerName.text = playerId
@@ -160,8 +84,7 @@ Item {
         downloadProgressBar.value = p
     }
     function showVideo(isVisible){
-        videoOut.visible = isVisible
-        videoOut2.visible = isVisible
+        videoPlayer.visible = isVisible
         logoColumn.visible = false
         if (!isVisible)
         {
@@ -179,17 +102,17 @@ Item {
         videoOutBrightness = value
         if (value > 1.0) {
             overlayBgRect.color = "#FFFFFF"
-            videoOut.opacity = 2.0 - value
+            videoPlayer.opacity = 2.0 - value
         }
         else {
             overlayBgRect.color = "#333e47"
-            videoOut.opacity = value
+            videoPlayer.opacity = value
         }
     }
 
     function setNoItemsLogo(link){
         logoColumn.visible = true
-        videoOut.opacity = 0
+        videoPlayer.opacity = 0
         titleText.text = "No playlist available"
         progressText.text = "Go to <a href=\"" + link + "\">" + link +  "</a></html>"
         logoDownloadProgressBar.visible = false
@@ -200,7 +123,7 @@ Item {
     }
     function setDownloadLogo(){
         logoColumn.visible = true
-        videoOut.opacity = 0
+        videoPlayer.opacity = 0
         titleText.text = "Downloading playlist"
         progressText.text = "Please wait..."
         logoDownloadProgressBar.visible = true
@@ -211,7 +134,7 @@ Item {
     }
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
-        videoOut.opacity = 0
+        videoPlayer.opacity = 0
         titleText.text = "To setup this player use the following code at"
         progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
         logoDownloadProgressBar.visible = false
@@ -251,16 +174,6 @@ Item {
             return 18
     }
 
-  /*  function getRefreshButtonPositionX(w, h){
-        if (w > h)
-        {
-            return playerIDRect.x + playerIDRect.width + playerIDRect.height/2
-        }
-        else
-        {
-            return w/2 - refreshPlayerID.width/2
-        }
-    }*/
     function getRefreshButtonPositionY(w, h)
     {
         if (w > h)
@@ -343,27 +256,6 @@ Item {
         onTriggered: {
             dialogAndroid.close()
             item.focus = true
-        }
-    }
-    Timer {
-        id: nextVideoTimer
-        repeat: false
-        interval: 10000
-        onTriggered: {
-            console.log("next video timeout!!!!!!!!!!!!")
-            nextItem()
-            mediaplayer.stop()
-        }
-        function getNextVideoTimerInterval(duration){
-            if (duration === 0){
-                console.log(15000)
-                return 15000
-            }
-            console.log(duration - 500)
-            return duration + 300
-        }
-        onIntervalChanged: {
-            console.log("nextVideoTimer:interval=" + interval.toString())
         }
     }
 
@@ -695,85 +587,11 @@ Item {
         }
     }
 
-
-
-    MediaPlayer {
-        id: mediaplayer
-        autoLoad: true
-        source: ""
-        property bool startNextTimerOnPlay: true
-        onStopped:{
-            console.debug("on stopped MP1")
-            if (invokeNext){
-                console.debug("Video stopped: calling nextItem")
-             //   item.nextItem()
-            }
+    VideoPlayer {
+        id: videoPlayer
+        onNext: {
+            nextItem()
         }
-        onPlaying: {
-            console.log("MP1 On Playing!")
-            if (startNextTimerOnPlay)
-            {
-                console.log("MP1::NEXT VIDEO TIMER STARTED WITH: " + nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration) + " source: " + mediaplayer.source)
-              //  console.log(mediaplayer.duration)
-                nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer.duration)
-                nextVideoTimer.start()
-                hideVideoDelayTimer.object = videoOut2
-                hideVideoDelayTimer.start()
-                videoOut.visible = true
-              //  videoOut2.visible = false;
-            }
-        }
-        function runPlay(withTimer)
-        {
-            console.log("Run Play - " + withTimer + " >>> " + source)
-            startNextTimerOnPlay = withTimer
-            play()
-        }
-    }
-    VideoOutput {
-        visible: false
-        id: videoOut
-        anchors.fill: parent
-        source: mediaplayer
-    }
-
-    MediaPlayer {
-        id: mediaplayer2
-        autoLoad: true
-        source: ""
-        property bool startNextTimerOnPlay: true
-        onStopped:{
-            console.debug("on stopped MP2")
-            if (invokeNext){
-              //  console.debug("calling nextItem: MP2")
-              //  item.nextItem()
-            }
-        }
-        onPlaying: {
-            if (startNextTimerOnPlay)
-            {
-                console.log("MP2::NEXT VIDEO TIMER STARTED WITH: " + nextVideoTimer.getNextVideoTimerInterval(mediaplayer2.duration) + " source: " + mediaplayer2.source)
-              //  console.log(mediaplayer.duration)
-                nextVideoTimer.interval = nextVideoTimer.getNextVideoTimerInterval(mediaplayer2.duration)
-                nextVideoTimer.start()
-
-                hideVideoDelayTimer.object = videoOut
-                hideVideoDelayTimer.start()
-              //  videoOut.visible = false;
-                videoOut2.visible = true
-            }
-        }
-        function runPlay(withTimer)
-        {
-            startNextTimerOnPlay = withTimer
-            play()
-        }
-    }
-    VideoOutput {
-        visible: false
-        id: videoOut2
-        anchors.fill: parent
-        source: mediaplayer2
     }
 
     Text{
