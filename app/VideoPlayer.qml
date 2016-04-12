@@ -13,7 +13,7 @@ Item {
         }
         else{
             console.log("duration = " + duration)
-            return duration - 800
+            return duration - 1200
         }
     }
 
@@ -40,9 +40,9 @@ Item {
     Timer{
         id: showVideo1
         repeat: false
-        interval: 500
+        interval: 1000
         onTriggered:{
-            videoOut1.visible = true
+           // videoOut1.visible = true
             videoOut2.visible = false
         }
     }
@@ -50,7 +50,7 @@ Item {
     Timer{
         id: showVideo2
         repeat: false
-        interval: 500
+        interval: 1000
         onTriggered:{
             videoOut2.visible = true
             videoOut1.visible = false
@@ -80,6 +80,7 @@ Item {
             console.log("MP1:onPlay")
             if (fakePlay == false)
             {
+                videoOut1.visible = true
                 showVideo1.start()
                 nextVideoTimer.interval = getDuration(mp1.duration)
                 nextVideoTimer.start()
@@ -102,7 +103,9 @@ Item {
             console.log("MP2:onPlay")
             if (fakePlay == false)
             {
-                showVideo2.start()
+                videoOut2.visible = true
+                videoOut1.visible = false
+                //showVideo2.start()
                 nextVideoTimer.interval = getDuration(mp2.duration)
                 nextVideoTimer.start()
             }
