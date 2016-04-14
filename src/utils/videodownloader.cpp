@@ -152,8 +152,9 @@ void VideoDownloaderWorker::download()
         qDebug() << "downloading completed";
         emit done();
     }
-
 }
+
+
 
 void VideoDownloaderWorker::connectError(QNetworkReply::NetworkError err)
 {

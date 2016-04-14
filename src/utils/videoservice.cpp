@@ -152,6 +152,7 @@ void VideoService::getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply *re
         GlobalStatsInstance.registryPlaylistError();
     }
     emit getVirtualScreenPlaylistRequestFinished(reply);
+    nextRequest();
 }
 
 void VideoService::performRequest(VideoServiceRequest *request)

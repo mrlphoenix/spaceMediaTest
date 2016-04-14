@@ -2,7 +2,13 @@
 
 #include <QStringList>
 #include <QProcess>
+#include <QString>
+#include <QNetworkInterface>
+#include <QDateTime>
+#include <QStorageInfo>
 #include "platformspecs.h"
+#include "singleton.h"
+#include "globalstats.h"
 
 #ifdef PLATFORM_DEFINE_ANDROID
 #include <QAndroidJniEnvironment>
@@ -197,6 +203,66 @@ int PlatformSpecs::getMemoryUsage()
     return 0;
 }
 
+int PlatformSpecs::getFreeMemory()
+{
+#ifdef PLATFORM_DEFINE_LINUX
+    struct sysinfo info;
+    sysinfo(&info);
+    return info.freeram;
+#endif
+#ifdef PLATFORM_DEFINE_ANDROID
+    struct sysinfo info;
+    sysinfo(&info);
+    return info.freeram;
+#endif
+#ifdef PLATFORM_DEFINE_RPI
+    QProcess freeProcess;
+    freeProcess.start("free");
+    freeProcess.waitForFinished();
+    QString data = freeProcess.readAll();
+    QStringList lines = data.split("\n");
+    if (lines.count() > 1)
+    {
+        QString dataLine = lines.at(1);
+        QStringList items = dataLine.simplified().split(" ");
+        if (items.count() > 3)
+        {
+            QString freeMemString = items.at(3);
+            return freeMemString.toInt();
+        }
+    }
+    return 0;
+
+#endif
+}
+
+bool PlatformSpecs::getHdmiCEC()
+{
+#ifdef PLATFORM_DEFINE_RPI
+    return true;
+#endif
+    return true;
+}
+
+bool PlatformSpecs::getHdmiGPIO()
+{
+#ifdef PLATFORM_DEFINE_RPI
+    return true;
+#endif
+    return true;
+}
+
+double PlatformSpecs::getBattery()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QProcess process;
+    process.start("cat /sys/class/power_supply/battery/capacity");
+    if (process.waitForFinished())
+        return QString(process.readAll()).toInt();
+#endif
+    return 0.;
+}
+
 double PlatformSpecs::getAvgUsage()
 {
 #ifdef PLATFORM_DEFINE_WINDOWS
@@ -211,6 +277,36 @@ double PlatformSpecs::getAvgUsage()
         return items[0].toDouble();
     return 0.;
 #endif
+}
+
+QString PlatformSpecs::getWifiMac()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    if (interfaces.count() > 0)
+    {
+        foreach (const QNetworkInterface &interface, interfaces)
+        {
+            if (interface.flags().testFlag(QNetworkInterface::IsUp))
+            {
+                QString macAddress = interface.hardwareAddress();
+                qDebug() << "FOUND MAC: " << macAddress;
+                return macAddress;
+            }
+        }
+    }
+#endif
+    return "";
+}
+
+int PlatformSpecs::getFreeSpace()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QStorageInfo info("/sdcard/");
+    return info.bytesAvailable()/1024;
+#endif
+    QStorageInfo infoRoot = QStorageInfo::root();
+    return infoRoot.bytesAvailable()/1024;
 }
 
 PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
@@ -357,3 +453,39 @@ QString PlatformSpecs::getRpiDeviceNameById(QString id)
     return "";
 }
 
+
+PlatformSpecs::SystemInfo PlatformSpecs::SystemInfo::get()
+{
+    SystemInfo result;
+    result.time = QDateTime::currentDateTimeUtc();
+    result.cpu = PlatformSpecs::getAvgUsage();
+    result.latitude = GlobalStatsInstance.getLatitude();
+    result.longitude = GlobalStatsInstance.getLongitude();
+    result.battery = PlatformSpecs::getBattery();
+    result.traffic = GlobalStatsInstance.getTrafficIn() + GlobalStatsInstance.getTrafficOut();
+    result.free_memory = PlatformSpecs::getFreeMemory();
+    result.wifi_mac = PlatformSpecs::getWifiMac();
+    result.hdmi_cec = PlatformSpecs::getHdmiCEC();
+    result.hdmi_gpio = PlatformSpecs::getHdmiGPIO();
+    result.free_space = PlatformSpecs::getFreeSpace();
+    return result;
+}
+
+QJsonObject PlatformSpecs::SystemInfo::serialize()
+{
+    QJsonObject result;
+    result["time"] = qint64(time.toTime_t());
+    result["cpu"] = cpu;
+    QJsonObject gpsObject;
+    gpsObject["latitude"] = latitude;
+    gpsObject["longitude"] = longitude;
+    result["gps"] = gpsObject;
+    result["battery"] = battery;
+    result["traffic"] = traffic;
+    result["free_memory"] = free_memory;
+    result["wifi_mac"] = wifi_mac;
+    result["hdmi_cec"] = hdmi_cec ? true:false;
+    result["hdmi_gpio"] = hdmi_gpio ? true:false;
+    result["free_space"] = free_space;
+    return result;
+}

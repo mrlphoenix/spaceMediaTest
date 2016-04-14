@@ -18,10 +18,14 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
 
     if (m_database.tables().count() < 5)
     {
-        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT");
+        m_database.exec("create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT)");
+        m_database.transaction();
+        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)");
+        m_database.transaction();
+        m_database.exec("create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic_in INTEGER, traffic_out INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
         m_database.transaction();
     }
-    if (m_database.tables().count() < 5)
+ /*   if (m_database.tables().count() < 5)
     {
         m_database.exec("create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT)");
         m_database.transaction();
@@ -38,7 +42,7 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         m_database.exec("create table gps (gps_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, latitude TEXT, longitude TEXT, sent INTEGER)");
         m_database.transaction();
         m_database.commit();
-    }
+    }*/
 
 
     /*

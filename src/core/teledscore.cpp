@@ -40,14 +40,14 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SLOT(virtualScreensResult(PlayerConfigNew)));
 
 
-    connect (&sheduler,SIGNAL(cpuInfo()), this, SLOT(checkCPUStatus()));
+  //  connect (&sheduler,SIGNAL(cpuInfo()), this, SLOT(checkCPUStatus()));
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
-    connect (&CPUStatInstance,SIGNAL(infoReady(CPUStatWorker::DeviceInfo)),this,SLOT(updateCPUStatus(CPUStatWorker::DeviceInfo)));
-    connect (&sheduler, SIGNAL(report()), this, SLOT(generateReport()));
-    connect (&sheduler, SIGNAL(sysInfo()), this, SLOT(generateSysInfo()));
-    connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
-    connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
-    connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
+   // connect (&CPUStatInstance,SIGNAL(infoReady(CPUStatWorker::DeviceInfo)),this,SLOT(updateCPUStatus(CPUStatWorker::DeviceInfo)));
+    //connect (&sheduler, SIGNAL(report()), this, SLOT(generateReport()));
+    //connect (&sheduler, SIGNAL(sysInfo()), this, SLOT(generateSysInfo()));
+    //connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
+    //connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
+    //connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
  //   connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
 
@@ -67,7 +67,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
         QTimer::singleShot(1000, this, SLOT(getPlaylistTimerSlot()));
-        sheduler.stop(TeleDSSheduler::ALL);
+     //   sheduler.stop(TeleDSSheduler::ALL);
     } else
     {
         qDebug() << "player is not configurated";
@@ -161,6 +161,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
+    qDebug() <<"Core: player settings result" << result.error;
     GlobalConfigInstance.setVideoQuality(result.video_quality);
     if (result.error_id == 401)
     {
@@ -179,12 +180,21 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 
 void TeleDSCore::virtualScreensResult(PlayerConfigNew result)
 {
+    qDebug() <<"Core: virtual screens " << result.screens.count();
     currentConfigNew = result;
     videoService->getPlaylist();
 }
 
 void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
 {
+
+    int count = 0;
+    foreach (const QString & k, result.keys())
+    {
+        count+= result[k].items.count();
+    }
+     qDebug() << "Core: Playlist " << count;
+
     foreach (const QString &s, result.keys())
     {
         if (currentConfigNew.screens.contains(s))
@@ -215,7 +225,7 @@ void TeleDSCore::fakeInit()
 void TeleDSCore::downloaded()
 {
     qDebug() << "!!!!!!!!downloaded!";
-    GlobalConfigInstance.setGetPlaylistTimerTime(300000);
+    GlobalConfigInstance.setGetPlaylistTimerTime(30000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     if (rpiPlayer == NULL)
     {
@@ -320,12 +330,14 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     }
     currentConfig = config;
     downloader->runDownload();
+    sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
  //   downloader->checkDownload();
     //   downloader->startDownload();
 }
 
 void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
 {
+    qDebug() <<"Core: setup Downloader";
     if (downloader)
         downloader->updateConfig(newConfig);
     else
