@@ -35,10 +35,19 @@ struct SettingsRequestResult
     static SettingsRequestResult fromJson(QJsonObject data);
 
     int error_id;
+    QString name;
     QString video_quality;
     QDateTime created_at;
     QDateTime updated_at;
     QString error;
+
+
+    double gps_lat;
+    double gps_long;
+    bool autobright;
+    int min_bright;
+    int max_bright;
+    int stats_interval;
 };
 
 struct PlaylistAPIResult

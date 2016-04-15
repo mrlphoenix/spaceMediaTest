@@ -174,6 +174,12 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         if (result.error_id == 0)
         {
             videoService->getPlayerAreas();
+            GlobalConfigInstance.setAutoBrightness(result.autobright);
+            GlobalConfigInstance.setMinBrightness(result.min_bright);
+            GlobalConfigInstance.setMaxBrightness(result.max_bright);
+            GlobalConfigInstance.setStatsInverval(result.stats_interval);
+            if (result.gps_lat != 0.0 && result.gps_long != 0.0)
+                GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
         }
     }
 }

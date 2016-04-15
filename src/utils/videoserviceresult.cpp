@@ -444,6 +444,13 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.updated_at = QDateTime::fromString(data["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
     result.error_id = 0;
     result.error = data["error"].toString();
+    result.video_quality = data["video_quality"].toString();
+    result.gps_lat = data["gps_lat"].toDouble();
+    result.gps_long = data["gps_long"].toDouble();
+    result.autobright = data["autobright"].toBool();
+    result.min_bright = data["min_bright"].toInt();
+    result.max_bright = data["max_bright"].toInt();
+    result.name = data["name"].toString();
     return result;
 }
 

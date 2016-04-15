@@ -3,6 +3,8 @@
 
 #define GlobalConfigInstance Singleton<GlobalConfig>::instance()
 #include <QObject>
+#include <QHash>
+#include <QVector>
 #include <singleton.h>
 
 class GlobalConfig : public QObject
@@ -16,11 +18,17 @@ public:
     void setVideoQuality(QString quality);
 
     void setGetPlaylistTimerTime(int msecs);
-    void setCpuInfoTimerTime(int msecs);
-    void setReportTimerTime(int msecs);
-    void setSysInfoTimerTime(int msecs);
-    void setResourceCounterTimerTime(int msecs);
-    void setGpsTimerTime(int msecs);
+    void setStatsInverval(int secs);
+
+    void setAutoBrightness(bool active);
+    void setMinBrightness(int minBrightness);
+    void setMaxBrightness(int maxBrightness);
+
+
+    int getStatsInterval(){return statsInterval;}
+    bool isAutoBrightnessActive(){return autobright;}
+    int getMinBrightness(){return min_bright;}
+    int getMaxBrightness(){return max_bright;}
 
     bool isConfigured(){return configured;}
     bool isPlaylistActivated(){return playerConfig != "";}
@@ -32,11 +40,24 @@ public:
     QString getActivationCode(){return activationCode;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
-    int getCpuInfoTimerTime() {return cpuInfoTimerTime;}
-    int getReportTimerTime() {return reportTimerTime;}
-    int getSysInfoTimerTime() {return sysInfoTimerTime;}
-    int getResourceCounterTimerTime() {return resourceCounterTimerTime;}
-    int getGpsTimerTime() {return gpsTimerTime;}
+
+    /*
+     * {
+  "name": null,
+  "gps_lat": 0,
+  "gps_long": 0,
+  "video_quality": "720p",
+  "created_at": "2016-04-08 07:34:03",
+  "updated_at": "2016-04-08 07:35:52",
+  "stats_interval": 0,
+  "autobright": 0,
+  "min_bright": 0,
+  "max_bright": 100,
+  "time_targeting_relay_1": null,
+  "time_targeting_relay_2": null
+}
+     * */
+
 signals:
 
 public slots:
@@ -51,9 +72,16 @@ private:
     QString quality;
     QString activationCode;
 
-    int getPlaylistTimerTime, cpuInfoTimerTime, reportTimerTime, sysInfoTimerTime, resourceCounterTimerTime, gpsTimerTime;
-    const int getPlaylistTimerDefaultTime = 30000, cpuInfoTimerDefaultTime = 10000,
-              reportTimerDefaultTime = 60000, sysInfoTimerDefaultTime = 10000, resourceCounterTimerDefaultTime = 10000, gpsTimerDefaulTime = 10000;
+    int statsInterval;
+    bool autobright;
+    int min_bright;
+    int max_bright;
+    QHash<QString, QVector<int> > time_targeting_relay_1;
+    QHash<QString, QVector<int> > time_targeting_relay_2;
+
+
+    int getPlaylistTimerTime;
+
 };
 
 #endif // GLOBALCONFIG_H

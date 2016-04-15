@@ -14,7 +14,8 @@ SOURCES += \
     $$PWD/cpustat.cpp \
     $$PWD/statisticuploader.cpp \
     $$PWD/sslencoder.cpp \
-    $$PWD/playlist.cpp
+    $$PWD/playlist.cpp \
+    $$PWD/sunposition.cpp
 HEADERS += \ 
     $$PWD/widgetfabric.h \
     $$PWD/yandexweathermodel.h \
@@ -28,6 +29,7 @@ HEADERS += \
     $$PWD/cpustat.h \
     $$PWD/statisticuploader.h \
     $$PWD/sslencoder.h \
-    $$PWD/playlist.h
+    $$PWD/playlist.h \
+    $$PWD/sunposition.h
 FORMS   +=
 

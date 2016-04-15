@@ -14,12 +14,6 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
     if (!QFile::exists(CONFIG_FOLDER + "config.dat"))
     {
         qDebug() << "config file does not exists; creating new one";
-        getPlaylistTimerTime = getPlaylistTimerDefaultTime;
-        cpuInfoTimerTime = cpuInfoTimerDefaultTime;
-        reportTimerTime = reportTimerDefaultTime;
-        sysInfoTimerTime = sysInfoTimerDefaultTime;
-        resourceCounterTimerTime = resourceCounterTimerDefaultTime;
-        gpsTimerTime = gpsTimerDefaulTime;
 
         save();
         configured = false;
@@ -56,34 +50,24 @@ void GlobalConfig::setGetPlaylistTimerTime(int msecs)
     save();
 }
 
-void GlobalConfig::setCpuInfoTimerTime(int msecs)
+void GlobalConfig::setStatsInverval(int secs)
 {
-    cpuInfoTimerTime = msecs;
-    save();
+    statsInterval = secs * 1000;
 }
 
-void GlobalConfig::setReportTimerTime(int msecs)
+void GlobalConfig::setAutoBrightness(bool active)
 {
-    reportTimerTime = msecs;
-    save();
+    autobright = active;
 }
 
-void GlobalConfig::setSysInfoTimerTime(int msecs)
+void GlobalConfig::setMinBrightness(int minBrightness)
 {
-    sysInfoTimerTime = msecs;
-    save();
+    min_bright = minBrightness;
 }
 
-void GlobalConfig::setResourceCounterTimerTime(int msecs)
+void GlobalConfig::setMaxBrightness(int maxBrightness)
 {
-    resourceCounterTimerTime = msecs;
-    save();
-}
-
-void GlobalConfig::setGpsTimerTime(int msecs)
-{
-    gpsTimerTime = msecs;
-    save();
+    max_bright = maxBrightness;
 }
 
 void GlobalConfig::loadFromJson()
@@ -97,12 +81,6 @@ void GlobalConfig::loadFromJson()
     this->device = root["device"].toString();
     this->token = root["token"].toString();
 
-    getPlaylistTimerTime = root["getPlaylistTimerTime"].toInt() ? root["getPlaylistTimerTime"].toInt() : getPlaylistTimerDefaultTime;
-    cpuInfoTimerTime = root["cpuInfoTimerTime"].toInt() ? root["cpuInfoTimerTime"].toInt() : cpuInfoTimerDefaultTime;
-    reportTimerTime = root["reportTimerTime"].toInt() ? root["reportTimerTime"].toInt() : reportTimerDefaultTime;
-    sysInfoTimerTime = root["sysInfoTimerTime"].toInt() ? root["sysInfoTimerTime"].toInt() : sysInfoTimerDefaultTime;
-    resourceCounterTimerTime = root["resourceCounterTimerTime"].toInt() ? root["resourceCounterTimerTime"].toInt() : resourceCounterTimerDefaultTime;
-    gpsTimerTime = root["gpsTimerTime"].toInt() ? root["gpsTimerTime"].toInt()  : gpsTimerDefaulTime;
 
 
     qDebug() << "currentConfig: " << token;
@@ -115,13 +93,6 @@ void GlobalConfig::save()
     QJsonObject root;
     root["device"] = device;
     root["token"] = token;
-
-    root["getPlaylistTimerTime"] = getPlaylistTimerTime;
-    root["cpuInfoTimerTime"] = cpuInfoTimerTime;
-    root["reportTimerTime"] = reportTimerTime;
-    root["sysInfoTimerTime"] = sysInfoTimerTime;
-    root["resourceCounterTimerTime"] = resourceCounterTimerTime;
-    root["gpsTimerTime"] = gpsTimerTime;
 
     QJsonDocument doc(root);
     QFile file (CONFIG_FOLDER + "config.dat");

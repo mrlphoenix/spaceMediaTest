@@ -36,18 +36,6 @@ public:
         int hdmi_cec;
         int hdmi_gpio;
         int free_space;
-        //time TEXT
-        //cpu REAL
-        //latitude REAL
-        //longitude REAL
-        //battery REAL
-        //traffic_in INTEGER
-        //traffic_out INTEGER
-        //free_memory INTEGER
-        //wifi_mac TEXT
-        //hdmi_cec INTEGER
-        //hdmi_gpio INTEGER
-        //free_space INTEGER
     };
 
     explicit PlatformSpecs(QObject *parent = 0);
