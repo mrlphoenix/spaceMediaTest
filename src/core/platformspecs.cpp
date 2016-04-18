@@ -54,14 +54,14 @@
 
 
 
-PlatformSpecs::PlatformSpecs(QObject *parent) : QObject(parent)
+PlatformSpecific::PlatformSpecific(QObject *parent) : QObject(parent)
 {
 
 }
 
 
 
-QString PlatformSpecs::getUniqueId()
+QString PlatformSpecific::getUniqueId()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
 /*
@@ -144,7 +144,7 @@ QString PlatformSpecs::getUniqueId()
     return "";
 }
 
-int64_t PlatformSpecs::getTrafficIn()
+int64_t PlatformSpecific::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     qDebug() << "get Traffic In";
@@ -164,10 +164,36 @@ int64_t PlatformSpecs::getTrafficIn()
     }
     return traffic;
 #endif
+
+#ifdef PLATFORM_DEFINE_LINUX
+    QProcess cpuUsageProcess;
+    cpuUsageProcess.start("bash data/cpu_usage.sh");
+    cpuUsageProcess.waitForFinished();
+    QString result = cpuUsageProcess.readAll();
+    qDebug() << result;
+    QStringList tokens = result.split(" ");
+    qlonglong trafficIn = tokens[2].toLongLong();
+    qlonglong trafficOut = tokens[3].toLongLong();
+    GlobalStatsInstance.setTraffic(trafficIn, trafficOut);
+    return GlobalStatsInstance.getTrafficIn();
+#endif
+
+#ifdef PLATFORM_DEFINE_RPI
+    QProcess cpuUsageProcess;
+    cpuUsageProcess.start("bash data/cpu_usage.sh");
+    cpuUsageProcess.waitForFinished();
+    QString result = cpuUsageProcess.readAll();
+    qDebug() << result;
+    QStringList tokens = result.split(" ");
+    qlonglong trafficIn = tokens[2].toLongLong();
+    qlonglong trafficOut = tokens[3].toLongLong();
+    GlobalStatsInstance.setTraffic(trafficIn, trafficOut);
+    return GlobalStatsInstance.getTrafficIn();
+#endif
     return 0;
 }
 
-int64_t PlatformSpecs::getTrafficOut()
+int64_t PlatformSpecific::getTrafficOut()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QProcess uidListProcess;
@@ -185,10 +211,35 @@ int64_t PlatformSpecs::getTrafficOut()
     }
     return traffic;
 #endif
+#ifdef PLATFORM_DEFINE_LINUX
+    QProcess cpuUsageProcess;
+    cpuUsageProcess.start("bash data/cpu_usage.sh");
+    cpuUsageProcess.waitForFinished();
+    QString result = cpuUsageProcess.readAll();
+    qDebug() << result;
+    QStringList tokens = result.split(" ");
+    qlonglong trafficIn = tokens[2].toLongLong();
+    qlonglong trafficOut = tokens[3].toLongLong();
+    GlobalStatsInstance.setTraffic(trafficIn, trafficOut);
+    return GlobalStatsInstance.getTrafficOut();
+#endif
+
+#ifdef PLATFORM_DEFINE_RPI
+    QProcess cpuUsageProcess;
+    cpuUsageProcess.start("bash data/cpu_usage.sh");
+    cpuUsageProcess.waitForFinished();
+    QString result = cpuUsageProcess.readAll();
+    qDebug() << result;
+    QStringList tokens = result.split(" ");
+    qlonglong trafficIn = tokens[2].toLongLong();
+    qlonglong trafficOut = tokens[3].toLongLong();
+    GlobalStatsInstance.setTraffic(trafficIn, trafficOut);
+    return GlobalStatsInstance.getTrafficOut();
+#endif
     return 0;
 }
 
-int PlatformSpecs::getMemoryUsage()
+int PlatformSpecific::getMemoryUsage()
 {
 #ifdef PLATFORM_DEFINE_LINUX
     struct sysinfo info;
@@ -203,7 +254,7 @@ int PlatformSpecs::getMemoryUsage()
     return 0;
 }
 
-int PlatformSpecs::getFreeMemory()
+int PlatformSpecific::getFreeMemory()
 {
 #ifdef PLATFORM_DEFINE_LINUX
     struct sysinfo info;
@@ -236,7 +287,7 @@ int PlatformSpecs::getFreeMemory()
 #endif
 }
 
-bool PlatformSpecs::getHdmiCEC()
+bool PlatformSpecific::getHdmiCEC()
 {
 #ifdef PLATFORM_DEFINE_RPI
     return true;
@@ -244,7 +295,7 @@ bool PlatformSpecs::getHdmiCEC()
     return true;
 }
 
-bool PlatformSpecs::getHdmiGPIO()
+bool PlatformSpecific::getHdmiGPIO()
 {
 #ifdef PLATFORM_DEFINE_RPI
     return true;
@@ -252,7 +303,7 @@ bool PlatformSpecs::getHdmiGPIO()
     return true;
 }
 
-double PlatformSpecs::getBattery()
+double PlatformSpecific::getBattery()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QProcess process;
@@ -263,7 +314,7 @@ double PlatformSpecs::getBattery()
     return 0.;
 }
 
-double PlatformSpecs::getAvgUsage()
+double PlatformSpecific::getAvgUsage()
 {
 #ifdef PLATFORM_DEFINE_WINDOWS
     return 0.;
@@ -279,7 +330,7 @@ double PlatformSpecs::getAvgUsage()
 #endif
 }
 
-QString PlatformSpecs::getWifiMac()
+QString PlatformSpecific::getWifiMac()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
@@ -299,7 +350,7 @@ QString PlatformSpecs::getWifiMac()
     return "";
 }
 
-int PlatformSpecs::getFreeSpace()
+int PlatformSpecific::getFreeSpace()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QStorageInfo info("/sdcard/");
@@ -309,7 +360,7 @@ int PlatformSpecs::getFreeSpace()
     return infoRoot.bytesAvailable()/1024;
 }
 
-PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
+PlatformSpecific::HardwareInfo PlatformSpecific::getHardwareInfo()
 {
     HardwareInfo result;
 #ifdef PLATFORM_DEFINE_WINDOWS
@@ -426,7 +477,7 @@ PlatformSpecs::HardwareInfo PlatformSpecs::getHardwareInfo()
     return result;
 }
 
-QString PlatformSpecs::getRpiDeviceNameById(QString id)
+QString PlatformSpecific::getRpiDeviceNameById(QString id)
 {
     if (id == "0002")
         return "Model B Revision 1.0";
@@ -454,24 +505,41 @@ QString PlatformSpecs::getRpiDeviceNameById(QString id)
 }
 
 
-PlatformSpecs::SystemInfo PlatformSpecs::SystemInfo::get()
+PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
 {
     SystemInfo result;
     result.time = QDateTime::currentDateTimeUtc();
-    result.cpu = PlatformSpecs::getAvgUsage();
+    result.cpu = PlatformSpecific::getAvgUsage();
     result.latitude = GlobalStatsInstance.getLatitude();
     result.longitude = GlobalStatsInstance.getLongitude();
-    result.battery = PlatformSpecs::getBattery();
+    result.battery = PlatformSpecific::getBattery();
     result.traffic = GlobalStatsInstance.getTrafficIn() + GlobalStatsInstance.getTrafficOut();
-    result.free_memory = PlatformSpecs::getFreeMemory();
-    result.wifi_mac = PlatformSpecs::getWifiMac();
-    result.hdmi_cec = PlatformSpecs::getHdmiCEC();
-    result.hdmi_gpio = PlatformSpecs::getHdmiGPIO();
-    result.free_space = PlatformSpecs::getFreeSpace();
+    result.free_memory = PlatformSpecific::getFreeMemory();
+    result.wifi_mac = PlatformSpecific::getWifiMac();
+    result.hdmi_cec = PlatformSpecific::getHdmiCEC();
+    result.hdmi_gpio = PlatformSpecific::getHdmiGPIO();
+    result.free_space = PlatformSpecific::getFreeSpace();
     return result;
 }
 
-QJsonObject PlatformSpecs::SystemInfo::serialize()
+PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSqlRecord &record)
+{
+    SystemInfo result;
+    result.time = QDateTime::fromString(record.value("time").toString(),"YYYY-MM-dd HH:mm:ss");
+    result.battery = record.value("battery").toDouble();
+    result.cpu = record.value("cpu").toDouble();
+    result.free_memory = record.value("free_memory").toInt();
+    result.free_space = record.value("free_space").toInt();
+    result.hdmi_cec = record.value("hdmi_cec").toInt();
+    result.hdmi_gpio = record.value("hdmi_gpio").toInt();
+    result.latitude = record.value("latitude").toDouble();
+    result.longitude = record.value("longitude").toDouble();
+    result.traffic = record.value("traffic_in").toInt();
+    result.wifi_mac = record.value("wifi_mac").toString();
+    return result;
+}
+
+QJsonObject PlatformSpecific::SystemInfo::serialize() const
 {
     QJsonObject result;
     result["time"] = qint64(time.toTime_t());

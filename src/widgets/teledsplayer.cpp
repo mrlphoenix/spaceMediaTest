@@ -8,7 +8,7 @@
 TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    PlatformSpecs specs;
+    PlatformSpecific specs;
     qDebug() << "Unique id: " << specs.getUniqueId();
     QTimer * trafficDisplay = new QTimer(this);
     QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
@@ -45,7 +45,7 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    PlatformSpecs specs;
+    PlatformSpecific specs;
     qDebug() << "Unique id: " << specs.getUniqueId();
     QTimer * trafficDisplay = new QTimer(this);
     QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
@@ -314,6 +314,7 @@ void TeleDSPlayer::playNext()
 
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
+    DatabaseInstance.createSystemInfo(PlatformSpecific::SystemInfo::get());
     status.isPlaying = true;
     status.item = nextItem;
     GlobalStatsInstance.setCurrentItem(nextItem);

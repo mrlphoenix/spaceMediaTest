@@ -65,14 +65,14 @@ void VideoService::getPlaylist()
     executeRequest(new GetVirtualScreenPlaylistRequest());
 }
 
-void VideoService::sendStatistic(QString playerId, QString encodedSessionKey, QString data)
+void VideoService::sendStatistic(QString data)
 {
-    executeRequest(new SendStatisticRequest(playerId, encodedSessionKey, data));
+    executeRequest(new SendStatisticRequest(data));
 }
 
 void VideoService::advancedInit()
 {
-    executeRequest(new AdvancedStatisticRequest());
+    executeRequest(new AdvancedInitRequest());
 }
 
 void VideoService::executeRequest(VideoServiceRequest *request)
@@ -233,44 +233,6 @@ InitVideoPlayerRequest::~InitVideoPlayerRequest()
 
 }
 
-EnablePlayerRequest::EnablePlayerRequest(QString playerId)
-{
-    VideoServiceRequestParam playerIdParam;
-    playerIdParam.key = "player_id";
-    playerIdParam.value = playerId;
-    params.append(playerIdParam);
-
-    methodAPI = "enabled";
-    name = "enablePlaylist";
-    method = "GET";
-}
-
-EnablePlayerRequest::~EnablePlayerRequest()
-{
-
-}
-
-AssignPlaylistToPlayerRequest::AssignPlaylistToPlayerRequest(QString playerId, int playlistId)
-{
-    //http://api.teleds.com/setplaylist?player_id=3xsg-xuc5-ykdp&playlist=10
-    VideoServiceRequestParam playerIdParam, playlistIdParam;
-    playerIdParam.key = "player_id";
-    playerIdParam.value = playerId;
-    playlistIdParam.key = "playlist";
-    playlistIdParam.value = QString::number(playlistId);
-    params.append(playerIdParam);
-    params.append(playlistIdParam);
-
-    methodAPI = "setplaylist";
-    name = "assignPlaylistToPlayer";
-    method = "GET";
-}
-
-AssignPlaylistToPlayerRequest::~AssignPlaylistToPlayerRequest()
-{
-
-}
-
 GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionKey)
 {
     //http://api.teleds.com/getplaylist?player_id=r2s6-6fb9-5hdb&ctypted_session_key=XZH%2F57V...
@@ -293,25 +255,13 @@ GetPlaylistRequest::~GetPlaylistRequest()
 
 }
 
-SendStatisticRequest::SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data)
+SendStatisticRequest::SendStatisticRequest(QString data)
 {
-    VideoServiceRequestParam playerIdParam, encrypedSessionKeyParam, dataParam;
-    playerIdParam.key = "player_id";
-    playerIdParam.value = playerId;
-
-    encrypedSessionKeyParam.key = "ctypted_session_key";
-    encrypedSessionKeyParam.value = encryptedSessionKey;
-
-    dataParam.key = "statistics";
-    dataParam.value = data;
-
-    params.append(playerIdParam);
-    params.append(encrypedSessionKeyParam);
-    params.append(dataParam);
-
-    methodAPI = "statistics";
-    name = "statistics";
+    body = data.toLocal8Bit();
+    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    methodAPI = "event/state";
     method = "POST";
+    name = "statistics";
 }
 
 SendStatisticRequest::~SendStatisticRequest()
@@ -319,15 +269,15 @@ SendStatisticRequest::~SendStatisticRequest()
 
 }
 
-AdvancedStatisticRequest::AdvancedStatisticRequest()
+AdvancedInitRequest::AdvancedInitRequest()
 {
     QJsonObject jsonBody;
     jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
     jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
-    jsonBody["uniqid"] = PlatformSpecs::getUniqueId();
+    jsonBody["uniqid"] = PlatformSpecific::getUniqueId();
     jsonBody["screen_width"] = qApp->screens().first()->geometry().width();
     jsonBody["screen_height"] = qApp->screens().first()->geometry().height();
-    PlatformSpecs::HardwareInfo hardwareInfo = PlatformSpecs::getHardwareInfo();
+    PlatformSpecific::HardwareInfo hardwareInfo = PlatformSpecific::getHardwareInfo();
     jsonBody["device_vendor"] = hardwareInfo.vendor;
     jsonBody["device_model"] = hardwareInfo.deviceModel;
     jsonBody["cpumodel"] = hardwareInfo.cpuName;
@@ -349,7 +299,7 @@ AdvancedStatisticRequest::AdvancedStatisticRequest()
     method = "POST";
 }
 
-AdvancedStatisticRequest::~AdvancedStatisticRequest()
+AdvancedInitRequest::~AdvancedInitRequest()
 {
 
 }

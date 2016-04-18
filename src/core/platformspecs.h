@@ -4,9 +4,10 @@
 #include <QObject>
 #include <QDateTime>
 #include <QJsonObject>
+#include <QSqlRecord>
 #include "platformdefines.h"
 
-class PlatformSpecs : public QObject
+class PlatformSpecific : public QObject
 {
     Q_OBJECT
 public:
@@ -24,7 +25,8 @@ public:
     struct SystemInfo
     {
         static SystemInfo get();
-        QJsonObject serialize();
+        static SystemInfo fromRecord(const QSqlRecord &record);
+        QJsonObject serialize() const;
         QDateTime time;
         double cpu;
         double latitude;
@@ -37,8 +39,7 @@ public:
         int hdmi_gpio;
         int free_space;
     };
-
-    explicit PlatformSpecs(QObject *parent = 0);
+    explicit PlatformSpecific(QObject *parent = 0);
     static QString getUniqueId();
     static int64_t getTrafficIn();
     static int64_t getTrafficOut();

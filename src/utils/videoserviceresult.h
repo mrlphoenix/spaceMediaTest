@@ -87,7 +87,9 @@ struct PlaylistAPIResult
         bool checkGeoTargeting(QPointF gps) const;
     };
     QVector<PlaylistItem> items;
+
 };
+
 
 
 struct PlayerConfigNew

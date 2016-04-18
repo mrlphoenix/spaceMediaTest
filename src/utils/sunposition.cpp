@@ -38,7 +38,6 @@ double CSunRiseSet::calcSunsetGMT(int julDay, double latitude, double longitude)
         return setTimeGMT;
 }
 
-
 double CSunRiseSet::calcSunriseGMT(int julDay, double latitude, double longitude)
 {
     double gamma = CalcGamma(julDay);
@@ -192,7 +191,6 @@ double CSunRiseSet::findRecentSunset(int iJulDay, double dLatitude, double dLong
 
     return jday;
 }
-
 
 double CSunRiseSet::findNextSunrise(int julDay, double latitude, double longitude)
 {

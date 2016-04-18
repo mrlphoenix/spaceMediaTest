@@ -90,19 +90,20 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
     NonQueryResult result;
     if (reply->error())
     {
-        result.error_id = -1;
-        result.error_text = "NETWORK ERROR";
-        result.status = "NETWORK ERROR";
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.status = root["error"].toString();
     }
     else
     {
-        QByteArray replyData = reply->readAll();
-        qDebug() << "STATS REPLY" << replyData;
-        QJsonDocument doc = QJsonDocument::fromJson(replyData);
-        QJsonObject root = doc.object();
-        result.error_id = root["error_id"].toInt();
-        result.error_text = root["error_text"].toString();
-        result.status = root["status"].toString();
+        result.error_id = 0;
+        result.status = "success";
     }
     emit sendStatisticResult(result);
 }

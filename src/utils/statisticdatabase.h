@@ -11,6 +11,7 @@
 #include <QSqlRecord>
 #include <QDateTime>
 #include "singleton.h"
+#include "platformspecs.h"
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
@@ -103,6 +104,7 @@ public:
     void createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist);
     void findReportsToSend();
 
+    void createSystemInfo(PlatformSpecific::SystemInfo info);
     void createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance);
     void findSystemInfoToSend();
 
@@ -176,7 +178,7 @@ signals:
     void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
     void reportsFound(QList<StatisticDatabase::Report> records);
-    void systemInfoFound(QList<StatisticDatabase::SystemInfo> records);
+    void systemInfoFound(QList<PlatformSpecific::SystemInfo> records);
     void gpsFound(QList<StatisticDatabase::GPS> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);

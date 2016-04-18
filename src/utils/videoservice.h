@@ -43,19 +43,6 @@ public:
     virtual ~InitVideoPlayerRequest();
 };
 
-class EnablePlayerRequest : public VideoServiceRequest
-{
-public:
-    EnablePlayerRequest(QString playerId);
-    virtual ~EnablePlayerRequest();
-};
-
-class AssignPlaylistToPlayerRequest : public VideoServiceRequest
-{
-public:
-    AssignPlaylistToPlayerRequest(QString playerId, int playlistId);
-    virtual ~AssignPlaylistToPlayerRequest();
-};
 
 class GetPlaylistRequest : public VideoServiceRequest
 {
@@ -67,15 +54,15 @@ public:
 class SendStatisticRequest : public VideoServiceRequest
 {
 public:
-    SendStatisticRequest(QString playerId, QString encryptedSessionKey, QString data);
+    SendStatisticRequest(QString data);
     virtual ~SendStatisticRequest();
 };
 
-class AdvancedStatisticRequest : public VideoServiceRequest
+class AdvancedInitRequest : public VideoServiceRequest
 {
 public:
-    AdvancedStatisticRequest();
-    virtual ~AdvancedStatisticRequest();
+    AdvancedInitRequest();
+    virtual ~AdvancedInitRequest();
 };
 
 class GetPlaylistSettingsRequest : public VideoServiceRequest
@@ -126,7 +113,7 @@ public:
     void getPlaylist();
 
 
-    void sendStatistic(QString playerId, QString encodedSessionKey, QString data);
+    void sendStatistic(QString data);
     void advancedInit();
 
     void executeRequest(VideoServiceRequest* request);

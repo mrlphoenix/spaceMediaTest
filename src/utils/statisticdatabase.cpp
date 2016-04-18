@@ -309,6 +309,21 @@ void StatisticDatabase::findReportsToSend()
     queryThread->execute("findReportsToSend", sql);
 }
 
+void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
+{
+    QString sql = QString(QString("insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) ") +
+                  QString("VALUES ('%1', %2, %3, %4, %5, %6, %6, %7, '%8', %9, %10, %11, %12)")).arg(
+                    info.time.toString("YYYY-MM-dd HH:mm:ss"),
+                    QString::number(info.cpu),
+                    QString::number(info.latitude), QString::number(info.longitude),
+                    QString::number(info.battery), QString::number(info.traffic),
+                    QString::number(info.free_memory), info.wifi_mac,
+                    QString::number(info.hdmi_cec)).arg(
+                    QString::number(info.hdmi_gpio),
+                    QString::number(info.free_space));
+    queryThread->execute("createSystemInfo", sql);
+}
+
 
 void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance)
 {
@@ -321,7 +336,7 @@ void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, 
 
 void StatisticDatabase::findSystemInfoToSend()
 {
-    QString sql = "select * from systeminfo where sent IS NULL";
+    QString sql = "select * from SystemInfo";
     queryThread->execute("findSystemInfoToSend",sql);
 }
 
@@ -408,9 +423,9 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
     }
     else if (queryId == "findSystemInfoToSend")
     {
-        QList<SystemInfo> systemInfos;
+        QList<PlatformSpecific::SystemInfo> systemInfos;
         foreach (const QSqlRecord& record, records)
-            systemInfos.append(SystemInfo::fromRecord(record));
+            systemInfos.append(PlatformSpecific::SystemInfo::fromRecord(record));
         emit systemInfoFound(systemInfos);
     }
     else if (queryId == "findGPStoSend")

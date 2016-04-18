@@ -20,7 +20,7 @@
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
-    qDebug() << "Unique Id: " << PlatformSpecs::getUniqueId();
+    qDebug() << "Unique Id: " << PlatformSpecific::getUniqueId();
 
     DatabaseInstance;
     CPUStatInstance;
@@ -180,6 +180,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
+            statsTimer->start(result.stats_interval*1000);
         }
     }
 }
