@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QLocale>
 #include "statisticdatabase.h"
+#include "globalconfig.h"
 
 DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
     : QObject( parent )
@@ -22,7 +23,7 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         m_database.transaction();
         m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)");
         m_database.transaction();
-        m_database.exec("create table report (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic_in INTEGER, traffic_out INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
+        m_database.exec("create table systemInfo (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic_in INTEGER, traffic_out INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
         m_database.transaction();
         m_database.commit();
     }
@@ -272,6 +273,20 @@ void StatisticDatabase::resourceCount()
     queryThread->execute("resourceCount",sql);
 }
 
+void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
+{
+    //create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)
+    QString sql = QString("insert into play(time, screen, area, content) VALUES ('%1', '%2', '%3', '%4'").arg(
+                    QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
+                    GlobalConfigInstance.getVirtualScreenId(),
+                    item.areaId,
+                    item.id
+                );
+    queryThread->execute("playResource", sql);
+    sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), item.id);
+    queryThread->execute("playResource",sql);
+}
+
 void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude)
 {
     QString sql = QString("insert into play(area_id, playlist_id, iid, time, latitude, longitude, version) VALUES (%1, %2, '%3', '%4', %5, %6, 0)").arg(
@@ -312,8 +327,8 @@ void StatisticDatabase::findReportsToSend()
 void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
 {
     QString sql = QString(QString("insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) ") +
-                  QString("VALUES ('%1', %2, %3, %4, %5, %6, %6, %7, '%8', %9, %10, %11, %12)")).arg(
-                    info.time.toString("YYYY-MM-dd HH:mm:ss"),
+                  QString("VALUES ('%1', %2, %3, %4, %5, %6, %6, %7, '%8', %9, %10, %11)")).arg(
+                    info.time.toString("yyyy-MM-dd HH:mm:ss"),
                     QString::number(info.cpu),
                     QString::number(info.latitude), QString::number(info.longitude),
                     QString::number(info.battery), QString::number(info.traffic),
@@ -321,6 +336,12 @@ void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
                     QString::number(info.hdmi_cec)).arg(
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space));
+
+    qDebug() << "SQL>>" + sql;
+
+    //insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space)
+    //VALUES ('YYYY-04-20 09:42:00', 11.85, 0, 0, 99, 0, 0, 42188800, '00:00:00:00:00:00', 1, 1, 7950688, %12)"
+
     queryThread->execute("createSystemInfo", sql);
 }
 
@@ -376,8 +397,6 @@ void StatisticDatabase::uploadingSuccessfull()
     queryThread->execute("uploadingSuccess:","delete from systemInfo where sent = 0");
     queryThread->execute("uploadingSuccess:","delete from gps where sent = 0");
 }
-
-
 
 QString StatisticDatabase::serializeDate(QDateTime date)
 {

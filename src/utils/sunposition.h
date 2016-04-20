@@ -47,7 +47,6 @@ private:
     {
     //	Return the length of the day in minutes.
         return (int)((2.0 * abs(dRadToDeg(dHourAngle))) / 15.0);
-
     }
 
 

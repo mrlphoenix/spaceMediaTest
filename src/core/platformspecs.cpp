@@ -334,6 +334,7 @@ QString PlatformSpecific::getWifiMac()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    QString result;
     if (interfaces.count() > 0)
     {
         foreach (const QNetworkInterface &interface, interfaces)
@@ -342,10 +343,13 @@ QString PlatformSpecific::getWifiMac()
             {
                 QString macAddress = interface.hardwareAddress();
                 qDebug() << "FOUND MAC: " << macAddress;
-                return macAddress;
+                if (macAddress.indexOf("00") != 0)
+                    return macAddress;
+                result = macAddress;
             }
         }
     }
+    return result;
 #endif
     return "";
 }
@@ -507,6 +511,7 @@ QString PlatformSpecific::getRpiDeviceNameById(QString id)
 
 PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
 {
+    qDebug() << "PlatformSpecific::SystemInfo::get()";
     SystemInfo result;
     result.time = QDateTime::currentDateTimeUtc();
     result.cpu = PlatformSpecific::getAvgUsage();
@@ -519,7 +524,26 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
     result.hdmi_cec = PlatformSpecific::getHdmiCEC();
     result.hdmi_gpio = PlatformSpecific::getHdmiGPIO();
     result.free_space = PlatformSpecific::getFreeSpace();
+
+    qDebug() << result.time << result.cpu << result.latitude <<
+                result.longitude << result.latitude << result.battery << result.traffic << result.free_memory
+             << result.wifi_mac << result.hdmi_cec << result.hdmi_gpio << result.free_space;
+
+    //2016-04-20 09:24:18
+    //12.54
+    //53.2661
+    //34.3518
+    //53.2661
+    //99
+    //0
+    //16711680
+    //"9E:1F:AE:B7:E6:20"
+    //1
+    //1
+    //7950688
+
     return result;
+
 }
 
 PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSqlRecord &record)

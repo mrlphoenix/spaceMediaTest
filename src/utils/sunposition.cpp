@@ -113,9 +113,9 @@ QDateTime CSunRiseSet::GetSunset()
         timeGMT = findRecentSunset(iJulianDay, dLat, dLon);
     else if ((dLat > 66.4) && ((iJulianDay < 83) || (iJulianDay > 263)))
         timeGMT = findNextSunset(iJulianDay, dLat, dLon);
-    else if((dLat < -66.4) && ((iJulianDay < 83) || (iJulianDay > 263)))
+    else if ((dLat < -66.4) && ((iJulianDay < 83) || (iJulianDay > 263)))
         timeGMT = findRecentSunset(iJulianDay, dLat, dLon);
-    else if((dLat < -66.4) && (iJulianDay > 79) && (iJulianDay < 267))
+    else if ((dLat < -66.4) && (iJulianDay > 79) && (iJulianDay < 267))
         timeGMT = findNextSunset(iJulianDay, dLat, dLon);
 
     double dHour = timeGMT / 60;

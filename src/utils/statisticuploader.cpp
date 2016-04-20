@@ -47,8 +47,10 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
 
     videoService->sendStatistic(strToSend);
   //  this->monitoring = monitoring;
-  //  QTimer::singleShot(500,this,SLOT(nextState()));
+    //  QTimer::singleShot(500,this,SLOT(nextState()));
 }
+
+
 
 void StatisticUploader::replyFinished(QNetworkReply *reply)
 {

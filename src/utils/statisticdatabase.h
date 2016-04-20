@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include "singleton.h"
 #include "platformspecs.h"
+#include "videoserviceresult.h"
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
@@ -97,6 +98,7 @@ public:
     void getResources();
     void resourceCount();
 
+    void playResource(PlaylistAPIResult::PlaylistItem item);
     void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
     void removeResource(QString itemId);
     void findPlaysToSend();
@@ -174,6 +176,7 @@ public:
         QDateTime lastTimePlayed;
     };
 
+
 signals:
     void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
@@ -193,3 +196,4 @@ private slots:
 };
 
 #endif // STATISTICDATABASE_H
+

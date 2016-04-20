@@ -256,13 +256,19 @@ void TeleDSCore::downloaded()
             foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
                 if (v.type != "audio")
                 {
-                    rpiPlayer->setConfig(v);
-                    if (!rpiPlayer->isPlaying())
+                    if (v.playlist.items.count() == 0)
+                        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+                    else
                     {
-                        rpiPlayer->play();
-                        QTimer::singleShot(1000, rpiPlayer, SLOT(invokeEnablePreloading()));
+                        rpiPlayer->invokeDownloadDone();
+                        rpiPlayer->setConfig(v);
+                        if (!rpiPlayer->isPlaying())
+                        {
+                            rpiPlayer->play();
+                            QTimer::singleShot(1000, rpiPlayer, SLOT(invokeEnablePreloading()));
+                        }
+                        break;
                     }
-                    break;
                 }
            /* rpiPlayer->setConfig(currentConfigNew.screens[currentConfigNew.screens.keys().at(0)]);
             if (!rpiPlayer->isPlaying())
@@ -273,6 +279,8 @@ void TeleDSCore::downloaded()
         }
     }
 }
+
+
 
 void TeleDSCore::checkCPUStatus()
 {

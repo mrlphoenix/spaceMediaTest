@@ -535,6 +535,8 @@ QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json
         PlaylistAPIResult item = PlaylistAPIResult::fromJson(playlistObject["content"].toArray());
         item.id = areaDescObject["area_id"].toString();
         item.type = playlistObject["type"].toString();
+        for (int i = 0; i< item.items.count(); i++)
+            item.items[i].areaId = item.id;
         result[item.id] = item;
     }
     return result;
@@ -572,6 +574,7 @@ PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
         QJsonObject virtualScreenObject = v.toObject();
         PlayerConfigNew::VirtualScreen screen;
         screen.virtual_screen_id = virtualScreenObject["virtual_screen_id"].toString();
+        GlobalConfigInstance.setVirtualScreenId(screen.virtual_screen_id);
         screen.id = virtualScreenObject["id"].toString();
         screen.display_type = virtualScreenObject["display_type"].toString();
         screen.type = virtualScreenObject["type"].toString();

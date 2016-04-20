@@ -22,7 +22,6 @@ public slots:
 
     void playsReady(QList<StatisticDatabase::Play> plays);
     void systemInfoReady(QList<PlatformSpecific::SystemInfo> data);
-
     void replyFinished(QNetworkReply * reply);
     void uploadResult(NonQueryResult result);
 

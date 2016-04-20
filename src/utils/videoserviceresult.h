@@ -62,6 +62,7 @@ struct PlaylistAPIResult
         QString name;
         QString fileUrl;
         QString fileHash;
+        QString areaId;
         int videoWidth;
         int videoHeight;
         int duration;

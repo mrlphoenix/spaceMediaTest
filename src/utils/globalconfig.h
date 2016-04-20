@@ -16,6 +16,7 @@ public:
     void setToken(QString token);
     void setActivationCode(QString code);
     void setVideoQuality(QString quality);
+    void setVirtualScreenId(QString id){virtualScreenId = id;}
 
     void setGetPlaylistTimerTime(int msecs);
     void setStatsInverval(int secs);
@@ -38,6 +39,7 @@ public:
     QString getToken(){return token;}
     QString getVideoQuality(){return quality;}
     QString getActivationCode(){return activationCode;}
+    QString getVirtualScreenId(){return virtualScreenId;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
 
@@ -71,6 +73,7 @@ private:
     QString token;
     QString quality;
     QString activationCode;
+    QString virtualScreenId;
 
     int statsInterval;
     bool autobright;

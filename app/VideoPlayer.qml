@@ -25,12 +25,10 @@ Item {
             if (firstPlayer){
                 console.log("MP2 Play called")
                 firstPlayer = false
-            //    videoOut2.visible = true
                 mp2.play()
             } else {
                 console.log("MP1 Play called")
                 firstPlayer = true
-             //   videoOut1.visible = true
                 mp1.play()
             }
             next()
@@ -42,7 +40,6 @@ Item {
         repeat: false
         interval: 1000
         onTriggered:{
-           // videoOut1.visible = true
             videoOut2.visible = false
         }
     }
@@ -88,7 +85,6 @@ Item {
             else{
                 console.log("MP1:Fake play called")
                 fakePlay = false
-              //  pause()
             }
         }
     }
@@ -105,14 +101,12 @@ Item {
             {
                 videoOut2.visible = true
                 videoOut1.visible = false
-                //showVideo2.start()
                 nextVideoTimer.interval = getDuration(mp2.duration)
                 nextVideoTimer.start()
             }
             else{
                 console.log("MP2:Fake play called")
                 fakePlay = false
-               // pause()
             }
         }
     }
@@ -134,18 +128,10 @@ Item {
             if (firstPlayer){
                 console.log("Load to MP2")
                 mp2.source = filename
-              //  mp2.fakePlay = true
-               // mp2.stop()
-             //   mp2.play()
-             //   mp2.pause()
             }
             else{
                 console.log("Load to MP1")
                 mp1.source = filename
-            //    mp1.fakePlay = true
-                //mp1.stop()
-              //  mp1.play()
-              //  mp1.pause()
             }
         }
     }
