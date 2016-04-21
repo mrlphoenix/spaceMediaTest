@@ -4,7 +4,6 @@
 #include "sunposition.h"
 
 
-
 double CSunRiseSet::CalcHourAngle(double dLat, double dSolarDec, bool bTime)
 {
     double dLatRad = dDegToRad(dLat);
@@ -146,6 +145,20 @@ QDateTime CSunRiseSet::GetSolarNoon()
 
     currentDate.setTime(QTime(iHour, iMinute, iSecond));
     return currentDate;
+}
+
+double CSunRiseSet::getSinPercent()
+{
+    QTime sunRise = GetSunrise().time();
+    QTime sunSet = GetSunset().time();
+    QTime currentTime = QTime::currentTime();
+
+    if (currentTime < sunRise || currentTime > sunSet)
+        return 0.;
+
+    int dayLong = sunRise.secsTo(sunSet);
+    int secsToSunset = currentTime.secsTo(sunSet);
+    return sin(double(secsToSunset)/double(dayLong)*M_PI);
 }
 
 double CSunRiseSet::findRecentSunrise(int julDay, double latitude, double dLongitude)

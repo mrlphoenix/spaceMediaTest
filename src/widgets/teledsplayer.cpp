@@ -4,6 +4,7 @@
 #include "globalstats.h"
 #include "globalconfig.h"
 #include "platformspecs.h"
+#include "sunposition.h"
 
 TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
@@ -311,7 +312,13 @@ void TeleDSPlayer::playNext()
     }
     QString nextItem = playlist->next();
     invokeNextVideoMethod(nextItem);
-
+    if (GlobalConfigInstance.isAutoBrightnessActive())
+    {
+        CSunRiseSet sunSystem;
+        double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
+        qDebug() <<"Autobrightness is active with value: " << brightnessValue;
+        setBrightness(brightnessValue/200.);
+    }
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(playlist->findItemById(nextItem));
   //  DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);

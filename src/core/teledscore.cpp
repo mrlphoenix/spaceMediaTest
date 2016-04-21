@@ -174,7 +174,8 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         if (result.error_id == 0)
         {
             videoService->getPlayerAreas();
-            GlobalConfigInstance.setAutoBrightness(result.autobright);
+          //  GlobalConfigInstance.setAutoBrightness(result.autobright);
+            GlobalConfigInstance.setAutoBrightness(true);
             GlobalConfigInstance.setMinBrightness(result.min_bright);
             GlobalConfigInstance.setMaxBrightness(result.max_bright);
             GlobalConfigInstance.setStatsInverval(result.stats_interval);

@@ -6,12 +6,13 @@
 class CSunRiseSet
 {
 public:
-    CSunRiseSet() {}
+    CSunRiseSet(){}
 
     //Returns in GMT
     QDateTime GetSunset();
     QDateTime GetSunrise();
     QDateTime GetSolarNoon();
+    double getSinPercent();
 private:
     double dRadToDeg(double dAngleRad)
     {
@@ -63,6 +64,8 @@ private:
     double findNextSunset(int julDay, double latitude, double longitude);
 
     bool IsInteger(double value);
+
+    double lat, lon;
 };
 
 #endif // SUNPOSITION_H

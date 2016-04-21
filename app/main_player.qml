@@ -94,6 +94,9 @@ Item {
         {
             overlayBgRect.color = "#FFFFFF"
         }
+        else if (videoOutBrightness < 0.99){
+            overlayBgRect.color = "#000000"
+        }
         else{
             overlayBgRect.color = "#333e47"
         }
@@ -105,7 +108,7 @@ Item {
             videoPlayer.opacity = 2.0 - value
         }
         else {
-            overlayBgRect.color = "#333e47"
+            overlayBgRect.color = "#000000"
             videoPlayer.opacity = value
         }
     }

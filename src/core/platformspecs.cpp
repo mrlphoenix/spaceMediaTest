@@ -525,22 +525,13 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
     result.hdmi_gpio = PlatformSpecific::getHdmiGPIO();
     result.free_space = PlatformSpecific::getFreeSpace();
 
-    qDebug() << result.time << result.cpu << result.latitude <<
-                result.longitude << result.latitude << result.battery << result.traffic << result.free_memory
-             << result.wifi_mac << result.hdmi_cec << result.hdmi_gpio << result.free_space;
 
-    //2016-04-20 09:24:18
-    //12.54
-    //53.2661
-    //34.3518
-    //53.2661
-    //99
-    //0
-    //16711680
-    //"9E:1F:AE:B7:E6:20"
-    //1
-    //1
-    //7950688
+
+    qDebug() << result.time << result.cpu <<
+                result.latitude << result.longitude <<
+                result.battery << result.traffic << result.free_memory <<
+                result.wifi_mac << result.hdmi_cec << result.hdmi_gpio <<
+                result.free_space;
 
     return result;
 
@@ -560,6 +551,9 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSql
     result.longitude = record.value("longitude").toDouble();
     result.traffic = record.value("traffic_in").toInt();
     result.wifi_mac = record.value("wifi_mac").toString();
+    qDebug() << result.time << result.battery << result.free_memory << result.free_space <<
+                result.hdmi_cec << result.hdmi_gpio << result.latitude << result.longitude <<
+                result.traffic <<result.wifi_mac;
     return result;
 }
 
