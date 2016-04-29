@@ -73,8 +73,6 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     view.showFullScreen();
 #endif
 
-
-
     delay = 0000;
     status.isPlaying = false;
     status.item = "";
@@ -282,7 +280,7 @@ void TeleDSPlayer::invokeEnablePreloading()
     if (invokedOnce)
         return;
     QString nextItem = playlist->next();
-    DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
+    DatabaseInstance.playResource(playlist->findItemById(nextItem));
 
     QVariant nextItemParam = QUrl(getFullPath(nextItem));
     QMetaObject::invokeMethod(viewRootObject, "enablePreloading", Q_ARG(QVariant, nextItemParam));
@@ -314,10 +312,11 @@ void TeleDSPlayer::playNext()
     invokeNextVideoMethod(nextItem);
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
-        CSunRiseSet sunSystem;
+        SunsetSystem sunSystem;
+        double originalValue = sunSystem.getLinPercent();
         double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
-        qDebug() <<"Autobrightness is active with value: " << brightnessValue;
-        setBrightness(brightnessValue/200.);
+        qDebug() <<"Autobrightness is active with value: LINEAR= " + QString::number(originalValue) + " , SIN= " + QString::number(brightnessValue);
+        setBrightness(brightnessValue/100.);
     }
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(playlist->findItemById(nextItem));
@@ -337,6 +336,7 @@ void TeleDSPlayer::bindObjects()
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
     QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));
+    QObject::connect(viewRootObject,SIGNAL(brightnessChaned(double)),this,SLOT(brightnessChanged(double)));
 }
 
 void TeleDSPlayer::showVideo()
@@ -366,4 +366,5 @@ void TeleDSPlayer::invokeShowVideo(bool isVisible)
     qDebug() << "invoking video visibility change -> " + (isVisible ? QString("true") : QString("false"));
     QVariant isVisibleArg(isVisible);
     QMetaObject::invokeMethod(viewRootObject,"showVideo",Q_ARG(QVariant, isVisibleArg));
+
 }

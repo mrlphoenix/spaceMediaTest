@@ -276,7 +276,7 @@ void StatisticDatabase::resourceCount()
 void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
 {
     //create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)
-    QString sql = QString("insert into play(time, screen, area, content) VALUES ('%1', '%2', '%3', '%4'").arg(
+    QString sql = QString("insert into play(time, screen, area, content) VALUES ('%1', '%2', '%3', '%4')").arg(
                     QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
                     GlobalConfigInstance.getVirtualScreenId(),
                     item.areaId,
@@ -284,17 +284,6 @@ void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
                 );
     queryThread->execute("playResource", sql);
     sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), item.id);
-    queryThread->execute("playResource",sql);
-}
-
-void StatisticDatabase::playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude)
-{
-    QString sql = QString("insert into play(area_id, playlist_id, iid, time, latitude, longitude, version) VALUES (%1, %2, '%3', '%4', %5, %6, 0)").arg(
-                QString::number(areaId),QString::number(playlistId), itemId, serializeDate(QDateTime::currentDateTime()),
-                QString::number(latitude), QString::number(longitude));
-    queryThread->execute("playResource",sql);
-
-    sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), itemId);
     queryThread->execute("playResource",sql);
 }
 

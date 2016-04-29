@@ -3,16 +3,17 @@
 
 #include <QDateTime>
 
-class CSunRiseSet
+class SunsetSystem
 {
 public:
-    CSunRiseSet(){}
+    SunsetSystem(){}
 
     //Returns in GMT
     QDateTime GetSunset();
     QDateTime GetSunrise();
     QDateTime GetSolarNoon();
     double getSinPercent();
+    double getLinPercent();
 private:
     double dRadToDeg(double dAngleRad)
     {

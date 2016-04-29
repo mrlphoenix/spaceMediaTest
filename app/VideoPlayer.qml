@@ -40,7 +40,8 @@ Item {
         repeat: false
         interval: 1000
         onTriggered:{
-            videoOut2.visible = false
+            videoOut2.opacity = 0.0
+            //videoOut2.visible = false
         }
     }
 
@@ -49,8 +50,12 @@ Item {
         repeat: false
         interval: 1000
         onTriggered:{
-            videoOut2.visible = true
-            videoOut1.visible = false
+          //  videoOut2.visible = true
+          //  videoOut1.visible = false
+            videoOut2.opacity = 1.0
+            //videoOut2.visible = true
+            videoOut1.opacity = 0.0
+            //videoOut1.visible = false
         }
     }
 
@@ -61,7 +66,8 @@ Item {
         source: mp1
     }
     VideoOutput {
-        visible: false
+        visible: true
+        opacity: 0
         id: videoOut2
         anchors.fill: parent
         source: mp2
@@ -77,7 +83,8 @@ Item {
             console.log("MP1:onPlay")
             if (fakePlay == false)
             {
-                videoOut1.visible = true
+                //videoOut1.visible = true
+                videoOut1.opacity = 1
                 showVideo1.start()
                 nextVideoTimer.interval = getDuration(mp1.duration)
                 nextVideoTimer.start()
@@ -99,8 +106,10 @@ Item {
             console.log("MP2:onPlay")
             if (fakePlay == false)
             {
-                videoOut2.visible = true
-                videoOut1.visible = false
+                videoOut2.opacity = 1.0
+                //videoOut2.visible = true
+                videoOut1.opacity = 0.0
+                //videoOut1.visible = false
                 nextVideoTimer.interval = getDuration(mp2.duration)
                 nextVideoTimer.start()
             }

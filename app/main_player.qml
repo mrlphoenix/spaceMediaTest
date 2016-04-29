@@ -469,6 +469,7 @@ Item {
             linkColor: "#00cdc1"
             onLinkActivated: Qt.openUrlExternally(link)
         }
+
         ProgressBar{
             id: logoDownloadProgressBar
             visible: false

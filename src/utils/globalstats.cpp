@@ -101,6 +101,18 @@ void GlobalStats::setBalance(double balance)
     this->balance = balance;
 }
 
+void GlobalStats::setSunset(QTime sunset)
+{
+    this->sunset = sunset;
+    measureSunset = QTime::currentTime();
+}
+
+void GlobalStats::setSunrise(QTime sunrise)
+{
+    this->sunrise = sunrise;
+    measureSunrise = QTime::currentTime();
+}
+
 GlobalStats::Report GlobalStats::generateReport()
 {
     qDebug() << "report generator called";
@@ -128,4 +140,40 @@ GlobalStats::SystemInfo GlobalStats::generateSystemInfo()
     result.monitorActive = monitorActive;
     result.connectionActive = connectionActive;
     return result;
+}
+
+bool GlobalStats::shouldUpdateSunset()
+{
+    bool updateValue = !measureSunset.isValid();
+    if (!updateValue)
+    {
+        if (measureSunset < QTime::currentTime())
+        {
+            if (measureSunset.secsTo(QTime::currentTime()) > 3600)
+                return true;
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+    return updateValue;
+}
+
+bool GlobalStats::shouldUpdateSunrise()
+{
+    bool updateValue = !measureSunrise.isValid();
+    if (!updateValue)
+    {
+        if (measureSunrise < QTime::currentTime())
+        {
+            if (measureSunrise.secsTo(QTime::currentTime()) > 3600)
+                return true;
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+    return updateValue;
 }

@@ -2,6 +2,7 @@
 #define GLOBALSTATS_H
 
 #include <QObject>
+#include <QTime>
 
 #define GlobalStatsInstance Singleton<GlobalStats>::instance()
 
@@ -32,6 +33,14 @@ public:
     void setGps(double lat, double lgt) {latitude = lat; longitude = lgt;}
     double getLatitude(){return latitude;}
     double getLongitude(){return longitude;}
+
+
+    void setSunset(QTime sunset);
+    void setSunrise(QTime sunrise);
+    QTime getSunset(){return sunset;}
+    QTime getSunrise(){return sunrise;}
+    bool shouldUpdateSunset();
+    bool shouldUpdateSunrise();
 
     struct Report
     {
@@ -73,6 +82,10 @@ private:
     //additional
     bool connectionDropped;
     double latitude, longitude;
+
+    QTime sunrise, sunset;
+    QTime measureSunrise, measureSunset;
+
 };
 
 #endif // GLOBALSTATS_H

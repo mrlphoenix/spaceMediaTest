@@ -149,7 +149,6 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
         setupDownloader(result);
         currentConfig = result;
-
     }
     else
     {
@@ -161,13 +160,17 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
-    qDebug() <<"Core: player settings result" << result.error;
+    qDebug() <<"Core: player settings result error content: " << result.error;
     GlobalConfigInstance.setVideoQuality(result.video_quality);
     if (result.error_id == 401)
     {
         if (result.error != "")
             GlobalConfigInstance.setActivationCode(result.error);
         rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
+    }
+    if (result.error_id == 403)
+    {
+        initPlayer();
     }
     else
     {
@@ -197,6 +200,11 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
 {
 
     int count = 0;
+    if (result.count() == 0)
+    {
+        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+        return;
+    }
     foreach (const QString & k, result.keys())
     {
         count+= result[k].items.count();
@@ -217,7 +225,7 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
 
 void TeleDSCore::getPlaylistTimerSlot()
 {
-    qDebug() << "grabbing playlist";
+    qDebug() << "grabbing areas";
   //  videoService->getPlaylist(playerInitParams.token,encryptedSessionKey);
     videoService->getPlayerSettings();
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
@@ -347,8 +355,8 @@ void TeleDSCore::setupDownloader(PlayerConfig &config)
     currentConfig = config;
     downloader->runDownload();
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
- //   downloader->checkDownload();
-    //   downloader->startDownload();
+    downloader->checkDownload();
+    downloader->startDownload();
 }
 
 void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
@@ -370,3 +378,6 @@ void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
     currentConfigNew = newConfig;
     downloader->runDownloadNew();
 }
+
+
+

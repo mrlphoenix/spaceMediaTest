@@ -2,9 +2,10 @@
 #include "globalconfig.h"
 #include "globalstats.h"
 #include "sunposition.h"
+#include <QDebug>
 
 
-double CSunRiseSet::CalcHourAngle(double dLat, double dSolarDec, bool bTime)
+double SunsetSystem::CalcHourAngle(double dLat, double dSolarDec, bool bTime)
 {
     double dLatRad = dDegToRad(dLat);
     if(bTime)  //Sunrise
@@ -13,7 +14,7 @@ double CSunRiseSet::CalcHourAngle(double dLat, double dSolarDec, bool bTime)
         return -(acos(cos(dDegToRad(90.833))/(cos(dLatRad)*cos(dSolarDec))-tan(dLatRad) * tan(dSolarDec)));
 }
 
-double CSunRiseSet::calcSunsetGMT(int julDay, double latitude, double longitude)
+double SunsetSystem::calcSunsetGMT(int julDay, double latitude, double longitude)
 {
         double dGamma = CalcGamma(julDay + 1);
         double eqTime = CalcEqofTime(dGamma);
@@ -37,7 +38,7 @@ double CSunRiseSet::calcSunsetGMT(int julDay, double latitude, double longitude)
         return setTimeGMT;
 }
 
-double CSunRiseSet::calcSunriseGMT(int julDay, double latitude, double longitude)
+double SunsetSystem::calcSunriseGMT(int julDay, double latitude, double longitude)
 {
     double gamma = CalcGamma(julDay);
     double eqTime = CalcEqofTime(gamma);
@@ -58,7 +59,7 @@ double CSunRiseSet::calcSunriseGMT(int julDay, double latitude, double longitude
     return timeGMT;
 }
 
-double  CSunRiseSet::calcSolNoonGMT(int julDay, double longitude)
+double  SunsetSystem::calcSolNoonGMT(int julDay, double longitude)
 {
     double gamma_solnoon = CalcGamma2(julDay, 12 + (longitude/15));
     double eqTime = CalcEqofTime(gamma_solnoon);
@@ -67,8 +68,12 @@ double  CSunRiseSet::calcSolNoonGMT(int julDay, double longitude)
     return solNoonGMT;
 }
 
-QDateTime CSunRiseSet::GetSunrise()
+QDateTime SunsetSystem::GetSunrise()
 {
+    if (!GlobalStatsInstance.shouldUpdateSunrise())
+    {
+        return QDateTime(QDate::currentDate(),GlobalStatsInstance.getSunrise());
+    }
     QDateTime currentDate = QDateTime::currentDateTimeUtc();
     int iJulianDay = currentDate.date().dayOfYear();
     double dLat = GlobalStatsInstance.getLatitude();
@@ -96,11 +101,16 @@ QDateTime CSunRiseSet::GetSunrise()
     int iSecond = (int)dSecond;
 
     currentDate.setTime(QTime(iHour, iMinute, iSecond));
+    GlobalStatsInstance.setSunrise(currentDate.time());
     return currentDate;
 }
 
-QDateTime CSunRiseSet::GetSunset()
+QDateTime SunsetSystem::GetSunset()
 {
+    if (!GlobalStatsInstance.shouldUpdateSunset())
+    {
+        return QDateTime(QDate::currentDate(),GlobalStatsInstance.getSunset());
+    }
     QDateTime currentDate = QDateTime::currentDateTimeUtc();
     int iJulianDay = currentDate.date().dayOfYear();
     double dLat = GlobalStatsInstance.getLatitude();
@@ -125,10 +135,11 @@ QDateTime CSunRiseSet::GetSunset()
     int iSecond = (int)dSecond;
 
     currentDate.setTime(QTime(iHour, iMinute, iSecond));
+    GlobalStatsInstance.setSunset(currentDate.time());
     return currentDate;
 }
 
-QDateTime CSunRiseSet::GetSolarNoon()
+QDateTime SunsetSystem::GetSolarNoon()
 {
     QDateTime currentDate = QDateTime::currentDateTimeUtc();
     int iJulianDay = currentDate.date().dayOfYear();
@@ -147,7 +158,7 @@ QDateTime CSunRiseSet::GetSolarNoon()
     return currentDate;
 }
 
-double CSunRiseSet::getSinPercent()
+double SunsetSystem::getSinPercent()
 {
     QTime sunRise = GetSunrise().time();
     QTime sunSet = GetSunset().time();
@@ -161,7 +172,21 @@ double CSunRiseSet::getSinPercent()
     return sin(double(secsToSunset)/double(dayLong)*M_PI);
 }
 
-double CSunRiseSet::findRecentSunrise(int julDay, double latitude, double dLongitude)
+double SunsetSystem::getLinPercent()
+{
+    QTime sunRise = GetSunrise().time();
+    QTime sunSet = GetSunset().time();
+    QTime currentTime = QTime::currentTime();
+
+    if (currentTime < sunRise || currentTime > sunSet)
+        return 0.;
+
+    int dayLong = sunRise.secsTo(sunSet);
+    int secsToSunset = currentTime.secsTo(sunSet);
+    return double(secsToSunset)/double(dayLong);
+}
+
+double SunsetSystem::findRecentSunrise(int julDay, double latitude, double dLongitude)
 {
     int jday = julDay;
 
@@ -178,7 +203,7 @@ double CSunRiseSet::findRecentSunrise(int julDay, double latitude, double dLongi
     return jday;
 }
 
-bool CSunRiseSet::IsInteger(double value)
+bool SunsetSystem::IsInteger(double value)
 {
     int iTemp = (int)value;
     double dTemp = value - iTemp;
@@ -188,7 +213,7 @@ bool CSunRiseSet::IsInteger(double value)
         return false;
 }
 
-double CSunRiseSet::findRecentSunset(int iJulDay, double dLatitude, double dLongitude)
+double SunsetSystem::findRecentSunset(int iJulDay, double dLatitude, double dLongitude)
 {
     int jday = iJulDay;
 
@@ -205,7 +230,7 @@ double CSunRiseSet::findRecentSunset(int iJulDay, double dLatitude, double dLong
     return jday;
 }
 
-double CSunRiseSet::findNextSunrise(int julDay, double latitude, double longitude)
+double SunsetSystem::findNextSunrise(int julDay, double latitude, double longitude)
 {
     int jday = julDay;
 
@@ -222,7 +247,7 @@ double CSunRiseSet::findNextSunrise(int julDay, double latitude, double longitud
     return jday;
 }
 
-double CSunRiseSet::findNextSunset(int julDay, double latitude, double longitude)
+double SunsetSystem::findNextSunset(int julDay, double latitude, double longitude)
 {
     int jday = julDay;
 
@@ -235,6 +260,5 @@ double CSunRiseSet::findNextSunset(int julDay, double latitude, double longitude
             jday = 1;
         dTime = calcSunsetGMT(jday, latitude, longitude);
     }
-
     return jday;
 }

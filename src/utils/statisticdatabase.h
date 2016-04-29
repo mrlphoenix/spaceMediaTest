@@ -99,7 +99,7 @@ public:
     void resourceCount();
 
     void playResource(PlaylistAPIResult::PlaylistItem item);
-    void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
+  //  void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
     void removeResource(QString itemId);
     void findPlaysToSend();
 
