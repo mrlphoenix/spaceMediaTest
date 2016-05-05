@@ -189,6 +189,7 @@ signals:
     void initResult(InitRequestResult result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
     void getPlayerAreasResult(PlayerConfigNew result);
     void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
@@ -197,6 +198,7 @@ public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
     void sendStatisticResultReply(QNetworkReply * reply);
+    void sendStatisticPlaysResultReply(QNetworkReply * reply);
     void getPlayerSettingsReply(QNetworkReply * reply);
     void getPlayerAreasReply(QNetworkReply * reply);
     void getVirtualScreenPlaylist(QNetworkReply * reply);

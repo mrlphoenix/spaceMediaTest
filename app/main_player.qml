@@ -39,14 +39,6 @@ Item {
         //console.log("native width" + width + "widthp" + width) // 2048
     }
 
-
-
-    function displayTrafficInfo(trafficIn, trafficOut, memory, cpuLoad)
-    {
-        console.log("cpuload=", cpuLoad)
-        trafficDebugDisplay.text = "In: " + trafficIn + " Out: " + trafficOut + " memory: " + memory + "% cpuload: " + cpuLoad
-    }
-
     function enablePreloading(filename)
     {
         console.log("Preloading: MP2->: " +filename)
@@ -217,7 +209,6 @@ Item {
             var coord = src.position.coordinate;
             console.log("Coordinate:", coord.longitude, coord.latitude);
             gpsChanged(coord.latitude, coord.longitude)
-            coordsDisplay.text = "Coords: lat = " + coord.latitude + ", lng = " + coord.longitude
         }
     }
     Timer{
@@ -596,19 +587,6 @@ Item {
         onNext: {
             nextItem()
         }
-    }
-
-    Text{
-        id: coordsDisplay
-        text: "Coords: "
-        y: 0
-        x: parent.width - coordsDisplay.width
-    }
-    Text{
-        id: trafficDebugDisplay
-        text: "in: out:"
-        y: coordsDisplay.height
-        x: parent.width - trafficDebugDisplay.width
     }
 
     Keys.onReleased: {

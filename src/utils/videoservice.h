@@ -132,6 +132,7 @@ signals:
     void initResult(InitRequestResult result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
     void getPlayerAreasResult(PlayerConfigNew result);
     void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
@@ -139,6 +140,7 @@ signals:
     void initVideoRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
     void sendStatisticRequestFinished(QNetworkReply * reply);
+    void sendStatisticPlaysRequestFinished(QNetworkReply * reply);
     void getPlayerSettingsRequestFinished(QNetworkReply * reply);
     void getPlayerAreasRequestFinished(QNetworkReply * reply);
     void getVirtualScreenPlaylistRequestFinished(QNetworkReply* reply);
@@ -147,6 +149,7 @@ public slots:
     void initVideoRequestFinishedSlot(QNetworkReply * reply);
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticRequestFinishedSlot(QNetworkReply * reply);
+    void sendStatisticPlaysRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerSettingsRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerAreasRequestFinishedSlot(QNetworkReply * reply);
     void getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply * reply);

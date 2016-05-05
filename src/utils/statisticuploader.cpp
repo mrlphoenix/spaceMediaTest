@@ -23,7 +23,8 @@ StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent
 
     connect(&DatabaseInstance,SIGNAL(playsFound(QList<StatisticDatabase::Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
     connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<PlatformSpecific::SystemInfo>)),this, SLOT(systemInfoReady(QList<PlatformSpecific::SystemInfo>)));
-    connect(videoService,SIGNAL(sendStatisticResult(NonQueryResult)),this,SLOT(uploadResult(NonQueryResult)));
+    connect(videoService,SIGNAL(sendStatisticResult(NonQueryResult)),this,SLOT(systemInfoUploadResult(NonQueryResult)));
+    connect(videoService,SIGNAL(sendStatisticPlaysResult(NonQueryResult)),this,SLOT(playsUploadResult(NonQueryResult)));
 }
 
 bool StatisticUploader::start()
@@ -51,28 +52,44 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
 {
     qDebug() << "StatisticUploader::systemInfoReady";
     if (data.count() == 0)
+    {
+        qDebug() << "StatisticUploader info count = " + QString::number(data.count());
         return;
+    }
     QJsonArray result;
     foreach (const PlatformSpecific::SystemInfo &info, data)
         result.append(info.serialize());
     QJsonDocument doc(result);
     QString strToSend = doc.toJson();
+    PlatformSpecific::writeToFile(strToSend.toLocal8Bit(),"/sdcard/download/teleds/systemInfoData.txt");
 
     videoService->sendStatistic(strToSend);
   //  this->monitoring = monitoring;
     //  QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
-void StatisticUploader::uploadResult(NonQueryResult result)
+void StatisticUploader::systemInfoUploadResult(NonQueryResult result)
 {
     if (result.status == "success")
     {
-        qDebug() << "UPLOAD SUCCESS!!!";
-        //DatabaseInstance.uploadingSuccessfull();
+        qDebug() << "SystemInfoUploadResult::Success";
+        DatabaseInstance.systemInfoUploaded();
     }
     else
     {
-        qDebug() << "UPLOAD FAILED" << result.source;
-       // DatabaseInstance.uploadingFailed();
+        qDebug() << "SystemInfoUploadResult::FAIL" << result.source;
+    }
+}
+
+void StatisticUploader::playsUploadResult(NonQueryResult result)
+{
+    if (result.status == "success")
+    {
+        qDebug() << "PlaysUploadResult::Success";
+        DatabaseInstance.playsUploaded();
+    }
+    else
+    {
+        qDebug() << "PlaysUploadResult::FAIL" << result.source;
     }
 }

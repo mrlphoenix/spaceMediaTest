@@ -108,6 +108,29 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
     emit sendStatisticResult(result);
 }
 
+void VideoServiceResultProcessor::sendStatisticPlaysResultReply(QNetworkReply *reply)
+{
+    NonQueryResult result;
+    if (reply->error())
+    {
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.status = root["error"].toString();
+    }
+    else
+    {
+        result.error_id = 0;
+        result.status = "success";
+    }
+    emit sendStatisticPlaysResult(result);
+}
+
 void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
 {
     SettingsRequestResult result;
@@ -482,11 +505,11 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
             if (itemObject["play_starts"].isNull())
                 newItem.play_starts = nullDateTime;
             else
-                newItem.play_starts = QDateTime::fromString(itemObject["play_starts"].toString(), "YYYY-MM-dd HH:mm:ss");
+                newItem.play_starts = QDateTime::fromString(itemObject["play_starts"].toString(), "yyyy-MM-dd HH:mm:ss");
             if (itemObject["play_ends"].isNull())
                 newItem.play_ends = nullDateTime;
             else
-                newItem.play_ends = QDateTime::fromString(itemObject["play_ends"].toString(), "YYYY-MM-dd HH:mm:ss");
+                newItem.play_ends = QDateTime::fromString(itemObject["play_ends"].toString(), "yyyy-MM-dd HH:mm:ss");
             QJsonObject timeTargeting = itemObject["time_targeting"].toObject();
             foreach (const QString &key, timeTargeting.keys())
             {
@@ -517,7 +540,7 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
             }
             newItem.geo_targeting = geoTargetingVector;
 
-            newItem.updated_at = QDateTime::fromString(itemObject["updated_at"].toString(), "YYYY-MM-dd HH:mm:ss");
+            newItem.updated_at = QDateTime::fromString(itemObject["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
 
             result.items.append(newItem);
         }
@@ -547,25 +570,6 @@ I’m trying to send HDMI-CEC command from a TV set to my Android phone (both of
 
 PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
 {
-    /*
-     * [
-      {
-        "id": "89b3e054-d796-4f59-97fa-e4e784836eba",
-        "virtual_screen_id": "7e03bb69-9b4a-4527-bc0b-2d3e63609147",
-        "type": "audio",
-        "audio_priority": "0",
-        "screen_priority": "0",
-        "start_x": "0",
-        "start_y": "0",
-        "end_x": "0",
-        "end_y": "0",
-        "display_type": "fit",
-        "refresh_timeout": 60,
-        "created_at": "2016-04-07 15:56:02",
-        "updated_at": "2016-04-07 15:56:02"
-      }
-    ]
-     * */
     PlayerConfigNew result;
     result.error_id = 0;
 

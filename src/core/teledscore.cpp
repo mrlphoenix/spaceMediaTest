@@ -89,6 +89,7 @@ void TeleDSCore::initResult(InitRequestResult result)
 
     GlobalConfigInstance.setToken(result.token);
     GlobalConfigInstance.setActivationCode(result.code);
+    rpiPlayer->invokePlayerActivationRequiredView("http://teleds.com",result.code);
     QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
 
    // fakeInit();

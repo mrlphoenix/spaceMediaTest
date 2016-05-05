@@ -20,7 +20,8 @@ public slots:
 
     void playsReady(QList<StatisticDatabase::Play> plays);
     void systemInfoReady(QList<PlatformSpecific::SystemInfo> data);
-    void uploadResult(NonQueryResult result);
+    void systemInfoUploadResult(NonQueryResult result);
+    void playsUploadResult(NonQueryResult result);
 
 private:
     QNetworkAccessManager manager;

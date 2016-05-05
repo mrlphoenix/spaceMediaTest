@@ -549,7 +549,7 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
 PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSqlRecord &record)
 {
     SystemInfo result;
-    result.time = QDateTime::fromString(record.value("time").toString(),"YYYY-MM-dd HH:mm:ss");
+    result.time = QDateTime::fromString(record.value("time").toString(),"yyyy-MM-dd HH:mm:ss");
     result.battery = record.value("battery").toDouble();
     result.cpu = record.value("cpu").toDouble();
     result.free_memory = record.value("free_memory").toInt();
@@ -569,8 +569,8 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSql
 QJsonObject PlatformSpecific::SystemInfo::serialize() const
 {
     QJsonObject result;
-    result["time"] = qint64(time.toTime_t());
-    result["cpu"] = cpu;
+    result["timestamp"] = qint64(this->time.toTime_t());
+    result["cpu_load"] = cpu;
     QJsonObject gpsObject;
     gpsObject["latitude"] = latitude;
     gpsObject["longitude"] = longitude;

@@ -239,41 +239,6 @@ void TeleDSPlayer::invokeDownloadingView()
     QMetaObject::invokeMethod(viewRootObject,"setDownloadLogo");
 }
 
-void TeleDSPlayer::invokeDisplayTrafficUpdate()
-{
-    qlonglong in = GlobalStatsInstance.getTrafficIn();
-    qlonglong out = GlobalStatsInstance.getTrafficOut();
-    double memory = GlobalStatsInstance.getMemory();
-    double cpuLoad = GlobalStatsInstance.getCpu();
-    QVariant inParam(in);
-    QVariant outParam(out);
-    QVariant memoryParam(memory);
-    QVariant cpuLoadParam(cpuLoad);
-    QMetaObject::invokeMethod(viewRootObject, "displayTrafficInfo",
-                              Q_ARG(QVariant, inParam),
-                              Q_ARG(QVariant, outParam),
-                              Q_ARG(QVariant, memoryParam),
-                              Q_ARG(QVariant, cpuLoadParam));
-    /*
-#ifdef PLATFORM_DEFINE_ANDROID
-    qlonglong in = PlatformSpecs::getTrafficIn();
-    qlonglong out = PlatformSpecs::getTrafficOut();
-    int memory = PlatformSpecs::getMemoryUsage();
-    double cpuLoad = PlatformSpecs::getAvgUsage();
-    QVariant inParam(in);
-    QVariant outParam(out);
-    QVariant memoryParam(memory);
-    QVariant cpuLoadParam(cpuLoad);
-    QMetaObject::invokeMethod(viewRootObject, "displayTrafficInfo",
-                              Q_ARG(QVariant, inParam),
-                              Q_ARG(QVariant, outParam),
-                              Q_ARG(QVariant, memoryParam),
-                              Q_ARG(QVariant, cpuLoadParam));
-#endif*/
-}
-
-
-
 void TeleDSPlayer::invokeEnablePreloading()
 {
     static bool invokedOnce = false;
@@ -336,7 +301,6 @@ void TeleDSPlayer::bindObjects()
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
     QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));
-    QObject::connect(viewRootObject,SIGNAL(brightnessChaned(double)),this,SLOT(brightnessChanged(double)));
 }
 
 void TeleDSPlayer::showVideo()
