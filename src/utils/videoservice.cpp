@@ -70,6 +70,11 @@ void VideoService::sendStatistic(QString data)
     executeRequest(new SendStatisticRequest(data));
 }
 
+void VideoService::sendPlays(QString data)
+{
+    executeRequest(new SendPlaysRequest(data));
+}
+
 void VideoService::advancedInit()
 {
     executeRequest(new AdvancedInitRequest());
@@ -259,6 +264,7 @@ SendStatisticRequest::SendStatisticRequest(QString data)
 {
     body = data.toLocal8Bit();
     knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    headers["Authorization"] = GlobalConfigInstance.getToken();
     methodAPI = "event/state";
     method = "POST";
     name = "statistics";
@@ -352,4 +358,21 @@ VideoServiceRequest::VideoServiceRequestParam::VideoServiceRequestParam(QString 
 {
     this->key = key;
     this->value = value;
+}
+
+SendPlaysRequest::SendPlaysRequest(QString data)
+{
+    body = data.toLocal8Bit();
+    qDebug() << "SEND PLAYS DATA: " << data;
+    PlatformSpecific::writeToFile(data.toLocal8Bit(),"/sdcard/download/sendplaysdata.txt");
+    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    headers["Authorization"] = GlobalConfigInstance.getToken();
+    methodAPI = "event/play";
+    method = "POST";
+    name = "statistics";
+}
+
+SendPlaysRequest::~SendPlaysRequest()
+{
+
 }

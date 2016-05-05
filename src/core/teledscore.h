@@ -36,10 +36,7 @@ public slots:
     void downloaded();
 
     void checkCPUStatus();
-    void generateReport();
-    void generateSysInfo();
     void getResourceCount();
-    void getGps();
 
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
     void resourceCountUpdate(int count);

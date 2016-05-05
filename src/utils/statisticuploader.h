@@ -13,23 +13,16 @@ class StatisticUploader : public QObject
     Q_OBJECT
 public:
     explicit StatisticUploader(VideoService* videoService, QObject *parent = 0);
-    enum UploadState{IDLE, GRABBING_PLAYS, GRABBING_REPORTS, GRABBING_SYSTEM_INFO, GRABBING_GPS, PEEKING, UPLOADING};
 signals:
     void finished(bool success);
 public slots:
     bool start();
 
-
     void playsReady(QList<StatisticDatabase::Play> plays);
     void systemInfoReady(QList<PlatformSpecific::SystemInfo> data);
-    void replyFinished(QNetworkReply * reply);
     void uploadResult(NonQueryResult result);
 
 private:
-    QList<StatisticDatabase::Play> plays;
-    QList<StatisticDatabase::SystemInfo> monitoring;
-
-    UploadState state;
     QNetworkAccessManager manager;
     VideoService * videoService;
 };

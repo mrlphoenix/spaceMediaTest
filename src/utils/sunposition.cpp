@@ -16,26 +16,26 @@ double SunsetSystem::CalcHourAngle(double dLat, double dSolarDec, bool bTime)
 
 double SunsetSystem::calcSunsetGMT(int julDay, double latitude, double longitude)
 {
-        double dGamma = CalcGamma(julDay + 1);
-        double eqTime = CalcEqofTime(dGamma);
-        double solarDec = CalcSolarDec(dGamma);
-        double hourAngle = CalcHourAngle(latitude, solarDec, 0);
-        double delta = longitude - dRadToDeg(hourAngle);
-        double timeDiff = 4 * delta;
-        double setTimeGMT = 720 + timeDiff - eqTime;
+    double dGamma = CalcGamma(julDay + 1);
+    double eqTime = CalcEqofTime(dGamma);
+    double solarDec = CalcSolarDec(dGamma);
+    double hourAngle = CalcHourAngle(latitude, solarDec, 0);
+    double delta = longitude - dRadToDeg(hourAngle);
+    double timeDiff = 4 * delta;
+    double setTimeGMT = 720 + timeDiff - eqTime;
 
-        double gamma_sunset = CalcGamma2(julDay, setTimeGMT/60);
-        eqTime = CalcEqofTime(gamma_sunset);
+    double gamma_sunset = CalcGamma2(julDay, setTimeGMT/60);
+    eqTime = CalcEqofTime(gamma_sunset);
 
 
-        solarDec = CalcSolarDec(gamma_sunset);
+    solarDec = CalcSolarDec(gamma_sunset);
 
-        hourAngle = CalcHourAngle(latitude, solarDec, false);
-        delta = longitude - dRadToDeg(hourAngle);
-        timeDiff = 4 * delta;
-        setTimeGMT = 720 + timeDiff - eqTime;
+    hourAngle = CalcHourAngle(latitude, solarDec, false);
+    delta = longitude - dRadToDeg(hourAngle);
+    timeDiff = 4 * delta;
+    setTimeGMT = 720 + timeDiff - eqTime;
 
-        return setTimeGMT;
+    return setTimeGMT;
 }
 
 double SunsetSystem::calcSunriseGMT(int julDay, double latitude, double longitude)

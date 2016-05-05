@@ -53,6 +53,8 @@ public:
     static int getFreeSpace();
     static HardwareInfo getHardwareInfo();
 
+    static void writeToFile(QByteArray data, QString filename);
+
 signals:
 
 public slots:

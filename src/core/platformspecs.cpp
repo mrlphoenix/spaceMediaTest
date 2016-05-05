@@ -481,6 +481,15 @@ PlatformSpecific::HardwareInfo PlatformSpecific::getHardwareInfo()
     return result;
 }
 
+void PlatformSpecific::writeToFile(QByteArray data, QString filename)
+{
+    QFile f(filename);
+    f.open(QFile::WriteOnly);
+    f.write(data);
+    f.flush();
+    f.close();
+}
+
 QString PlatformSpecific::getRpiDeviceNameById(QString id)
 {
     if (id == "0002")

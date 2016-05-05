@@ -58,6 +58,13 @@ public:
     virtual ~SendStatisticRequest();
 };
 
+class SendPlaysRequest : public VideoServiceRequest
+{
+public:
+    SendPlaysRequest(QString data);
+    virtual ~SendPlaysRequest();
+};
+
 class AdvancedInitRequest : public VideoServiceRequest
 {
 public:
@@ -114,6 +121,7 @@ public:
 
 
     void sendStatistic(QString data);
+    void sendPlays(QString data);
     void advancedInit();
 
     void executeRequest(VideoServiceRequest* request);

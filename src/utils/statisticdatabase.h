@@ -90,57 +90,30 @@ public:
     static QString serializeDate(QDateTime date);
     static QDateTime deserializeDate(QString date);
 
-    //resource operations
-
     void registryResource(QString iid, QString name, QDateTime lastupdated, int size);
     void updateResourceDownloadStatus(QString iid, int filesize);
-    void findResource(QString iid);
+
     void getResources();
     void resourceCount();
 
     void playResource(PlaylistAPIResult::PlaylistItem item);
-  //  void playResource(int areaId, int playlistId, QString itemId, double latitude, double longitude);
     void removeResource(QString itemId);
-    void findPlaysToSend();
-
-    void createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist);
-    void findReportsToSend();
 
     void createSystemInfo(PlatformSpecific::SystemInfo info);
-    void createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance);
-    void findSystemInfoToSend();
-
-    void createGPS(double latitude, double longitude);
-    void findGPStoSend();
 
     //statistic operation
-    void peekItems(); //call this after you peeked all items to upload to the server
-    void uploadingFailed(); //call this if uploading failed
-    void uploadingSuccessfull(); //call this upon uploading success
+    void playsUploaded();
+    void systemInfoUploaded();
+
+    void findResource(QString iid);
+    void findPlaysToSend();
+    void findSystemInfoToSend();
 
     struct Play
     {
         static Play fromRecord(const QSqlRecord& record);
-        int playId;
-        int areaId;
-        int playlistId;
-        QString iid;
-        QDateTime time;
-        double latitude, longitude;
-        QString version;
-        int sent;
-    };
-    struct Report
-    {
-        static Report fromRecord(const QSqlRecord& record);
-        int reportId;
-        QDateTime time;
-        int downloads;
-        int contentPlay;
-        int contentTotal;
-        int errorConnect;
-        int errorPlaylist;
-        int sent;
+        QJsonObject serialize() const;
+        QString time, screen, area, content;
     };
     struct SystemInfo
     {
@@ -156,15 +129,6 @@ public:
         double balance;
         int sent;
     };
-    struct GPS
-    {
-        static GPS fromRecord(const QSqlRecord& record);
-        int gpsId;
-        QDateTime time;
-        double latitude;
-        double longitude;
-    };
-
     struct Resource
     {
         static Resource fromRecord(const QSqlRecord& record);
@@ -180,16 +144,14 @@ public:
 signals:
     void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
-    void reportsFound(QList<StatisticDatabase::Report> records);
     void systemInfoFound(QList<PlatformSpecific::SystemInfo> records);
-    void gpsFound(QList<StatisticDatabase::GPS> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);
 
 public slots:
 
 private:
-    const QString databaseName = "stat.db";
+    QString databaseName;
     QueryThread * queryThread;
 private slots:
     void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString);

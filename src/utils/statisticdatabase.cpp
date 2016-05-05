@@ -237,6 +237,7 @@ void QueryThread::run()
 
 StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
 {
+    databaseName = DATABASE_FOLDER + "stat.db";
     queryThread = new QueryThread(databaseName,parent);
     queryThread->start();
     connect (queryThread, SIGNAL(results(QString,QList<QSqlRecord>,QString)),this,SLOT(slotResults(QString,QList<QSqlRecord>,QString)));
@@ -295,22 +296,8 @@ void StatisticDatabase::removeResource(QString itemId)
 
 void StatisticDatabase::findPlaysToSend()
 {
-    QString sql = "select * from play where sent IS NULL";
+    QString sql = "select * from play";
     queryThread->execute("findPlaysToSend",sql);
-}
-
-void StatisticDatabase::createReport(int downloads, int contentPlay, int contentTotal, int error_connect, int error_playlist)
-{
-    QString sql = QString("insert into Report(time, downloads, content_play, content_total, error_connect, error_playlist) VALUES ('%1', %2, %3, %4, %5, %6)").arg(
-                serializeDate(QDateTime::currentDateTime()),QString::number(downloads),QString::number(contentPlay), QString::number(contentTotal),
-                QString::number(error_connect), QString::number(error_playlist));
-    queryThread->execute("createReport", sql);
-}
-
-void StatisticDatabase::findReportsToSend()
-{
-    QString sql = "select * from report where sent IS NULL";
-    queryThread->execute("findReportsToSend", sql);
 }
 
 void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
@@ -335,56 +322,20 @@ void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
 }
 
 
-void StatisticDatabase::createSystemInfo(int cpu, int memory, double trafficIn, double trafficOut, bool monitor, bool connection, double balance)
-{
-    QString sql = QString("insert into SystemInfo (time, cpu, memory, traffic, out, monitor, connect, balance) VALUES ('%1', %2, %3, %4, %5, %6, %7, %8)").arg(
-                serializeDate(QDateTime::currentDateTime()),QString::number(cpu),QString::number(memory),
-                QString::number(trafficIn),QString::number(trafficOut),
-                QString::number(monitor), QString::number(connection), QString::number(balance));
-    queryThread->execute("createSystemInfo", sql);
-}
-
 void StatisticDatabase::findSystemInfoToSend()
 {
     QString sql = "select * from SystemInfo";
     queryThread->execute("findSystemInfoToSend",sql);
 }
 
-void StatisticDatabase::createGPS(double latitude, double longitude)
+void StatisticDatabase::playsUploaded()
 {
-    QString sql = QString("insert into gps (time, latitude, longitude) VALUES ('%1', %2, %3)").arg(
-                serializeDate(QDateTime::currentDateTime()),QString::number(latitude), QString::number(longitude));
-    queryThread->execute("createGPS", sql);
+    queryThread->execute("uploadingSuccess:","delete from Play");
 }
 
-void StatisticDatabase::findGPStoSend()
+void StatisticDatabase::systemInfoUploaded()
 {
-    QString sql = "select * from gps where sent IS NULL";
-    queryThread->execute("findGPStoSend",sql);
-}
-
-void StatisticDatabase::peekItems()
-{
-    queryThread->execute("peekItems:play", "update Play set sent = 0 where SENT IS NULL");
-    queryThread->execute("peekItems:report", "update Report set sent = 0 where SENT IS NULL");
-    queryThread->execute("peekItems:systemInfo", "update systemInfo set sent = 0 WHERE sent IS NULL");
-    queryThread->execute("peekItems:gps", "update gps set sent = 0 where sent is NULL");
-}
-
-void StatisticDatabase::uploadingFailed()
-{
-    queryThread->execute("uploadingFailed:play","update Play set sent = NULL where sent = 0");
-    queryThread->execute("uploadingFailed:report","update Report set sent = NULL where sent = 0");
-    queryThread->execute("uploadingFailed:systemInfo","update systemInfo set sent = NULL WHERE sent = 0");
-    queryThread->execute("uploadingFailed:GPS","update gps set sent = NULL where sent = 0");
-}
-
-void StatisticDatabase::uploadingSuccessfull()
-{
-    queryThread->execute("uploadingSuccess:","delete from Play where sent = 0");
-    queryThread->execute("uploadingSuccess:","delete from Report where sent = 0");
-    queryThread->execute("uploadingSuccess:","delete from systemInfo where sent = 0");
-    queryThread->execute("uploadingSuccess:","delete from gps where sent = 0");
+    queryThread->execute("uploadingSuccess:","delete from SystemInfo");
 }
 
 QString StatisticDatabase::serializeDate(QDateTime date)
@@ -422,26 +373,12 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
             plays.append(Play::fromRecord(record));
         emit playsFound(plays);
     }
-    else if (queryId == "findReportsToSend")
-    {
-        QList<Report> reports;
-        foreach (const QSqlRecord& record, records)
-            reports.append(Report::fromRecord(record));
-        emit reportsFound(reports);
-    }
     else if (queryId == "findSystemInfoToSend")
     {
         QList<PlatformSpecific::SystemInfo> systemInfos;
         foreach (const QSqlRecord& record, records)
             systemInfos.append(PlatformSpecific::SystemInfo::fromRecord(record));
         emit systemInfoFound(systemInfos);
-    }
-    else if (queryId == "findGPStoSend")
-    {
-        QList<GPS> gpses;
-        foreach (const QSqlRecord& record, records)
-            gpses.append(GPS::fromRecord(record));
-        emit gpsFound(gpses);
     }
     else
         emit unknownResult(queryId, records);
@@ -451,32 +388,21 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
 StatisticDatabase::Play StatisticDatabase::Play::fromRecord(const QSqlRecord &record)
 {
     Play result;
-    result.playId = record.value("play_id").toInt();
-    result.areaId = record.value("area_id").toInt();
-    result.playlistId = record.value("playlist_id").toInt();
-    result.iid = record.value("iid").toString();
-    result.time = deserializeDate(record.value("time").toString());
-    result.latitude = record.value("latitude").toDouble();
-    result.longitude = record.value("longitude").toDouble();
-    result.version = record.value("version").toString();
-    result.sent = record.value("sent").toInt();
+    result.time = record.value("time").toString();
+    result.screen = record.value("screen").toString();
+    result.area = record.value("area").toString();
+    result.content = record.value("content").toString();
     return result;
 }
 
-StatisticDatabase::Report StatisticDatabase::Report::fromRecord(const QSqlRecord &record)
+QJsonObject StatisticDatabase::Play::serialize() const
 {
-    Report result;
-    result.reportId = record.value("report_id").toInt();
-    result.time = deserializeDate(record.value("time").toString());
-    result.downloads = record.value("downloads").toInt();
-    result.contentPlay = record.value("content_play").toInt();
-    result.contentTotal = record.value("content_total").toInt();
-    result.errorConnect = record.value("error_connect").toInt();
-    result.errorPlaylist = record.value("error_playlist").toInt();
-    result.sent = record.value("sent").toInt();
+    QJsonObject result;
+    result["timestamp"] = qint64(QDateTime::fromString(this->time,"yyyy-MM-dd HH:mm:ss").toTime_t());
+    result["virtual_screen_area_id"] = this->area;
+    result["content_id"] = this->content;
     return result;
 }
-
 StatisticDatabase::SystemInfo StatisticDatabase::SystemInfo::fromRecord(const QSqlRecord &record)
 {
     SystemInfo result;
@@ -490,16 +416,6 @@ StatisticDatabase::SystemInfo StatisticDatabase::SystemInfo::fromRecord(const QS
     result.connect = record.value("connect").toInt();
     result.balance = record.value("balance").toDouble();
     result.sent = record.value("sent").toInt();
-    return result;
-}
-
-StatisticDatabase::GPS StatisticDatabase::GPS::fromRecord(const QSqlRecord &record)
-{
-    GPS result;
-    result.gpsId = record.value("gps_id").toInt();
-    result.time = deserializeDate(record.value("time").toString());
-    result.latitude = record.value("latitude").toDouble();
-    result.longitude = record.value("longitude").toDouble();
     return result;
 }
 

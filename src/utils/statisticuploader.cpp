@@ -18,8 +18,7 @@
 
 StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent) : QObject(parent)
 {
-    state = IDLE;
-
+    qDebug() << "Statistic Uploader Initialization";
     this->videoService = videoService;
 
     connect(&DatabaseInstance,SIGNAL(playsFound(QList<StatisticDatabase::Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
@@ -29,16 +28,30 @@ StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent
 
 bool StatisticUploader::start()
 {
+    DatabaseInstance.findSystemInfoToSend();
+    DatabaseInstance.findPlaysToSend();
     return false;
 }
 
 void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
 {
-    this->plays = plays;
-    QTimer::singleShot(500,this,SLOT(nextState()));
+    if (plays.count() == 0)
+        return;
+    QJsonArray result;
+    foreach (const StatisticDatabase::Play &play, plays)
+        result.append(play.serialize());
+    QJsonDocument doc(result);
+    QString strToSend = doc.toJson();
+    videoService->sendPlays(strToSend);
+
+  //  this->plays = plays;
+  //  QTimer::singleShot(500,this,SLOT(nextState()));
 }
 void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data)
 {
+    qDebug() << "StatisticUploader::systemInfoReady";
+    if (data.count() == 0)
+        return;
     QJsonArray result;
     foreach (const PlatformSpecific::SystemInfo &info, data)
         result.append(info.serialize());
@@ -50,23 +63,16 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
     //  QTimer::singleShot(500,this,SLOT(nextState()));
 }
 
-
-
-void StatisticUploader::replyFinished(QNetworkReply *reply)
-{
-    qDebug() << reply->readAll();
-}
-
 void StatisticUploader::uploadResult(NonQueryResult result)
 {
     if (result.status == "success")
     {
         qDebug() << "UPLOAD SUCCESS!!!";
-        DatabaseInstance.uploadingSuccessfull();
+        //DatabaseInstance.uploadingSuccessfull();
     }
     else
     {
         qDebug() << "UPLOAD FAILED" << result.source;
-        DatabaseInstance.uploadingFailed();
+       // DatabaseInstance.uploadingFailed();
     }
 }

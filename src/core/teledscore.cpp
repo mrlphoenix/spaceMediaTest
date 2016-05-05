@@ -31,7 +31,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     rpiPlayer = new TeleDSPlayer(this);
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    //statsTimer->start(90000);
+    statsTimer->start(60000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
@@ -39,16 +39,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(videoService,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)),this,SLOT(virtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
     connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SLOT(virtualScreensResult(PlayerConfigNew)));
 
-
-  //  connect (&sheduler,SIGNAL(cpuInfo()), this, SLOT(checkCPUStatus()));
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
-   // connect (&CPUStatInstance,SIGNAL(infoReady(CPUStatWorker::DeviceInfo)),this,SLOT(updateCPUStatus(CPUStatWorker::DeviceInfo)));
-    //connect (&sheduler, SIGNAL(report()), this, SLOT(generateReport()));
-    //connect (&sheduler, SIGNAL(sysInfo()), this, SLOT(generateSysInfo()));
-    //connect (&sheduler, SIGNAL(resourceCounter()), this, SLOT(getResourceCount()));
-    //connect (&DatabaseInstance,SIGNAL(resourceCount(int)),this,SLOT(resourceCountUpdate(int)));
-    //connect (&sheduler, SIGNAL(gps()),this,SLOT(getGps()));
- //   connect (rpiPlayer,SIGNAL(refreshNeeded()),this, SLOT(initPlayer()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
 
 
@@ -184,7 +175,8 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
-            statsTimer->start(result.stats_interval*1000);
+            qDebug() << "STATS INTERVAL: " << result.stats_interval;
+            //statsTimer->start(result.stats_interval*1000);
         }
     }
 }
@@ -296,26 +288,9 @@ void TeleDSCore::checkCPUStatus()
     CPUStatInstance.getInfo();
 }
 
-void TeleDSCore::generateReport()
-{
-    GlobalStats::Report report = GlobalStatsInstance.generateReport();
-    DatabaseInstance.createReport(report.downloadCount,report.contentPlayCount,report.contentTotalCount,report.connectionErrorCount,report.playlistErrorCount);
-}
-
-void TeleDSCore::generateSysInfo()
-{
-    GlobalStats::SystemInfo sysInfo = GlobalStatsInstance.generateSystemInfo();
-    DatabaseInstance.createSystemInfo(sysInfo.cpu,sysInfo.memory,sysInfo.trafficIn,sysInfo.trafficOut,sysInfo.monitorActive,sysInfo.connectionActive,sysInfo.balance);
-}
-
 void TeleDSCore::getResourceCount()
 {
     DatabaseInstance.resourceCount();
-}
-
-void TeleDSCore::getGps()
-{
-    DatabaseInstance.createGPS(GlobalStatsInstance.getLatitude(),GlobalStatsInstance.getLongitude());
 }
 
 void TeleDSCore::updateCPUStatus(CPUStatWorker::DeviceInfo info)
