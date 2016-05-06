@@ -148,6 +148,12 @@ int64_t PlatformSpecific::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     qDebug() << "get Traffic In";
+    QAndroidJniEnvironment env;
+    jclass clazz = env->FindClass("android.net.TrafficStats");
+    jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
+    jlong value = env->CallStaticLongMethod(clazz,mid);
+    qDebug() << "WOW JNI IN BYTES = " + QString::number(value);
+    /*
     QProcess uidListProcess;
     uidListProcess.start("ls /proc/uid_stat");
     uidListProcess.waitForFinished();
@@ -161,8 +167,8 @@ int64_t PlatformSpecific::getTrafficIn()
         tcpValueProcess.start("cat /proc/uid_stat/" + uid + "/tcp_rcv");
         tcpValueProcess.waitForFinished();
         traffic += QString(tcpValueProcess.readAll()).toLongLong();
-    }
-    return traffic;
+    }*/
+    return value;
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
@@ -527,14 +533,14 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::get()
     result.latitude = GlobalStatsInstance.getLatitude();
     result.longitude = GlobalStatsInstance.getLongitude();
     result.battery = PlatformSpecific::getBattery();
-    result.traffic = GlobalStatsInstance.getTrafficIn() + GlobalStatsInstance.getTrafficOut();
+
+    GlobalStatsInstance.setTraffic(PlatformSpecific::getTrafficIn(),0.0);
+    result.traffic = GlobalStatsInstance.getTrafficIn();
     result.free_memory = PlatformSpecific::getFreeMemory();
     result.wifi_mac = PlatformSpecific::getWifiMac();
     result.hdmi_cec = PlatformSpecific::getHdmiCEC();
     result.hdmi_gpio = PlatformSpecific::getHdmiGPIO();
     result.free_space = PlatformSpecific::getFreeSpace();
-
-
 
     qDebug() << result.time << result.cpu <<
                 result.latitude << result.longitude <<

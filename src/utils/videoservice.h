@@ -14,6 +14,7 @@
 class VideoServiceRequest
 {
     friend class VideoService;
+    friend class VideoServiceRequestFabric;
 public:
     VideoServiceRequest(){;}
     virtual ~VideoServiceRequest(){;}
@@ -36,61 +37,18 @@ protected:
     QHash<QNetworkRequest::KnownHeaders, QString> knownHeaders;
 };
 
-class InitVideoPlayerRequest : public VideoServiceRequest
+class VideoServiceRequestFabric
 {
 public:
-    InitVideoPlayerRequest();
-    virtual ~InitVideoPlayerRequest();
-};
-
-
-class GetPlaylistRequest : public VideoServiceRequest
-{
-public:
-    GetPlaylistRequest(QString playerId, QString cryptedSessionKey);
-    virtual ~GetPlaylistRequest();
-};
-
-class SendStatisticRequest : public VideoServiceRequest
-{
-public:
-    SendStatisticRequest(QString data);
-    virtual ~SendStatisticRequest();
-};
-
-class SendPlaysRequest : public VideoServiceRequest
-{
-public:
-    SendPlaysRequest(QString data);
-    virtual ~SendPlaysRequest();
-};
-
-class AdvancedInitRequest : public VideoServiceRequest
-{
-public:
-    AdvancedInitRequest();
-    virtual ~AdvancedInitRequest();
-};
-
-class GetPlaylistSettingsRequest : public VideoServiceRequest
-{
-public:
-    GetPlaylistSettingsRequest();
-    virtual ~GetPlaylistSettingsRequest();
-};
-
-class GetPlayerAreasRequest : public VideoServiceRequest
-{
-public:
-    GetPlayerAreasRequest();
-    virtual ~GetPlayerAreasRequest();
-};
-class GetVirtualScreenPlaylistRequest : public VideoServiceRequest
-{
-public:
-    GetVirtualScreenPlaylistRequest();
-    GetVirtualScreenPlaylistRequest(QStringList areas);
-    virtual ~GetVirtualScreenPlaylistRequest(){;}
+    static VideoServiceRequest initVideoPlayerRequest();
+    static VideoServiceRequest getPlaylistRequest(QString playerId, QString cryptedSessionKey);
+    static VideoServiceRequest sendStatisticRequest(QString data);
+    static VideoServiceRequest sendPlaysRequest(QString data);
+    static VideoServiceRequest advancedInitRequest();
+    static VideoServiceRequest getPlaylistSettingsRequest();
+    static VideoServiceRequest getPlayerAreasRequest();
+    static VideoServiceRequest getVirtualScreenPlaylistRequest();
+    static VideoServiceRequest getVirtualScreenPlaylistRequest(QStringList areas);
 };
 //---------------------------------------------------------------------
 
@@ -124,7 +82,7 @@ public:
     void sendPlays(QString data);
     void advancedInit();
 
-    void executeRequest(VideoServiceRequest* request);
+    void executeRequest(VideoServiceRequest request);
 
 
 
@@ -156,13 +114,14 @@ public slots:
 
 private:
 
-    void performRequest(VideoServiceRequest* request);
+    void performRequest(VideoServiceRequest request);
     void nextRequest();
 
 
-    QQueue<VideoServiceRequest*> requests;
+    QQueue<VideoServiceRequest> requests;
     QNetworkAccessManager * manager;
-    VideoServiceRequest * currentRequest;
+    VideoServiceRequest currentRequest;
+    bool currentRequestExists;
     QString serverURL;
     VideoServiceResultProcessor resultProcessor;
 };

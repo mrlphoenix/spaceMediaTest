@@ -17,7 +17,6 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
 {
     manager = new QNetworkAccessManager(this);
     this->serverURL = serverURL;
-    currentRequest = NULL;
 
     connect(this,SIGNAL(initVideoRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(initRequestResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
@@ -35,61 +34,63 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SIGNAL(getPlayerAreasResult(PlayerConfigNew)));
     connect(&resultProcessor,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)), this, SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
 
+    currentRequestExists = false;
 }
 
 void VideoService::init()
 {
-    executeRequest(new InitVideoPlayerRequest());
+    executeRequest(VideoServiceRequestFabric::initVideoPlayerRequest());
 }
 
 void VideoService::getPlaylist(QString playerId, QString cryptedSessionKey)
 {
-    executeRequest(new GetPlaylistRequest(playerId, cryptedSessionKey));
+    executeRequest(VideoServiceRequestFabric::getPlaylistRequest(playerId,cryptedSessionKey));
 }
 
 void VideoService::getPlayerSettings()
 {
-    executeRequest(new GetPlaylistSettingsRequest());
+    executeRequest(VideoServiceRequestFabric::getPlaylistSettingsRequest());
 }
 
 void VideoService::getPlayerAreas()
 {
-    executeRequest(new GetPlayerAreasRequest());
+    executeRequest(VideoServiceRequestFabric::getPlayerAreasRequest());
 }
 
 void VideoService::getPlaylist(QString areaId)
 {
-    executeRequest(new GetVirtualScreenPlaylistRequest(QStringList(areaId)));
+    executeRequest(VideoServiceRequestFabric::getVirtualScreenPlaylistRequest(QStringList(areaId)));
 }
 
 void VideoService::getPlaylist()
 {
-    executeRequest(new GetVirtualScreenPlaylistRequest());
+    executeRequest(VideoServiceRequestFabric::getVirtualScreenPlaylistRequest());
 }
 
 void VideoService::sendStatistic(QString data)
 {
-    executeRequest(new SendStatisticRequest(data));
+    executeRequest(VideoServiceRequestFabric::sendStatisticRequest(data));
 }
 
 void VideoService::sendPlays(QString data)
 {
-    executeRequest(new SendPlaysRequest(data));
+    executeRequest(VideoServiceRequestFabric::sendPlaysRequest(data));
 }
 
 void VideoService::advancedInit()
 {
-    executeRequest(new AdvancedInitRequest());
+    executeRequest(VideoServiceRequestFabric::advancedInitRequest());
 }
 
-void VideoService::executeRequest(VideoServiceRequest *request)
+void VideoService::executeRequest(VideoServiceRequest request)
 {
-    if (currentRequest)
+    if (currentRequestExists)
         requests.enqueue(request);
     else
     {
         currentRequest = request;
         performRequest(request);
+        currentRequestExists = true;
     }
 }
 
@@ -173,57 +174,57 @@ void VideoService::getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply *re
     nextRequest();
 }
 
-void VideoService::performRequest(VideoServiceRequest *request)
+void VideoService::performRequest(VideoServiceRequest request)
 {
     QUrl url(serverURL);
     QUrlQuery query;
     QByteArray data;
-    foreach (const VideoServiceRequest::VideoServiceRequestParam& param, request->params)
+    foreach (const VideoServiceRequest::VideoServiceRequestParam& param, request.params)
         query.addQueryItem(param.key,param.value);
-    url.setPath("/" + request->methodAPI);
-    if (request->method == "GET")
+    url.setPath("/" + request.methodAPI);
+    if (request.method == "GET")
         url.setQuery(query);
     else
     {
-        if (request->body.count())
-            data = request->body;
+        if (request.body.count())
+            data = request.body;
         else
             data = query.toString(QUrl::FullyEncoded).toUtf8();
     }
 
     QNetworkRequest networkRequest(url);
-    if (request->method == "POST")
+    if (request.method == "POST")
         networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    foreach (const QNetworkRequest::KnownHeaders &key, request->knownHeaders.keys())
-        networkRequest.setHeader(key,request->knownHeaders[key]);
-    foreach (const QString &key, request->headers.keys())
-        networkRequest.setRawHeader(key.toLocal8Bit(), request->headers[key].toLocal8Bit());
+    foreach (const QNetworkRequest::KnownHeaders &key, request.knownHeaders.keys())
+        networkRequest.setHeader(key,request.knownHeaders[key]);
+    foreach (const QString &key, request.headers.keys())
+        networkRequest.setRawHeader(key.toLocal8Bit(), request.headers[key].toLocal8Bit());
 
 
     manager->disconnect();
 
-    if (request->name == "init")
+    if (request.name == "init")
         connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(initVideoRequestFinishedSlot(QNetworkReply*)));
-    else if (request->name == "getPlaylist")
+    else if (request.name == "getPlaylist")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlaylistRequestFinishedSlot(QNetworkReply*)));
 
-    else if (request->name == "settings")
+    else if (request.name == "settings")
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerSettingsRequestFinishedSlot(QNetworkReply*)));
-    else if (request->name == "areas")
+    else if (request.name == "areas")
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerAreasRequestFinishedSlot(QNetworkReply*)));
-    else if (request->name == "playlist")
+    else if (request.name == "playlist")
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply*)));
-    else if (request->name == "statistics:system")
+    else if (request.name == "statistics:system")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticRequestFinishedSlot(QNetworkReply*)));
-    else if (request->name == "statistics:plays")
+    else if (request.name == "statistics:plays")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticPlaysRequestFinishedSlot(QNetworkReply*)));
     else
     {
-        qDebug() << "ERROR: undefined method: " << request->name;
+        qDebug() << "ERROR: undefined method: " << request.name;
     }
 
-    if (request->method == "GET")
+    if (request.method == "GET")
         manager->get(networkRequest);
     else
         manager->post(networkRequest, data);
@@ -231,68 +232,78 @@ void VideoService::performRequest(VideoServiceRequest *request)
 
 void VideoService::nextRequest()
 {
-    if (currentRequest)
-        delete currentRequest;
     if (requests.count() > 0)
     {
         currentRequest = requests.dequeue();
         performRequest(currentRequest);
+        currentRequestExists = true;
     }
     else
-        currentRequest = NULL;
+        currentRequestExists = false;
 }
 
-InitVideoPlayerRequest::InitVideoPlayerRequest()
+
+VideoServiceRequest::VideoServiceRequestParam::VideoServiceRequestParam(QString key, QString value)
 {
-    methodAPI = "initialization";
-    name = "init";
-    method = "GET";
+    this->key = key;
+    this->value = value;
 }
 
-InitVideoPlayerRequest::~InitVideoPlayerRequest()
-{
 
+VideoServiceRequest VideoServiceRequestFabric::initVideoPlayerRequest()
+{
+    VideoServiceRequest result;
+    result.methodAPI = "initialization";
+    result.name = "init";
+    result.method = "GET";
+    return result;
 }
 
-GetPlaylistRequest::GetPlaylistRequest(QString playerId, QString cryptedSessionKey)
+VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest(QString playerId, QString cryptedSessionKey)
 {
-    //http://api.teleds.com/getplaylist?player_id=r2s6-6fb9-5hdb&ctypted_session_key=XZH%2F57V...
-    VideoServiceRequestParam playerIdParam, cryptedSessionKeyParam;
+    VideoServiceRequest result;
+    VideoServiceRequest::VideoServiceRequestParam playerIdParam, cryptedSessionKeyParam;
     playerIdParam.key = "player_id";
     playerIdParam.value = playerId;
 
     cryptedSessionKeyParam.key = "ctypted_session_key";
     cryptedSessionKeyParam.value = cryptedSessionKey;
-    params.append(playerIdParam);
-    params.append(cryptedSessionKeyParam);
+    result.params.append(playerIdParam);
+    result.params.append(cryptedSessionKeyParam);
 
-    methodAPI = "getplaylist";
-    name = "getPlaylist";
-    method = "GET";
+    result.methodAPI = "getplaylist";
+    result.name = "getPlaylist";
+    result.method = "GET";
+    return result;
 }
 
-GetPlaylistRequest::~GetPlaylistRequest()
+VideoServiceRequest VideoServiceRequestFabric::sendStatisticRequest(QString data)
 {
-
+    VideoServiceRequest result;
+    result.body = data.toLocal8Bit();
+    result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "event/state";
+    result.method = "POST";
+    result.name = "statistics:system";
+    return result;
 }
 
-SendStatisticRequest::SendStatisticRequest(QString data)
+VideoServiceRequest VideoServiceRequestFabric::sendPlaysRequest(QString data)
 {
-    body = data.toLocal8Bit();
-    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "event/state";
-    method = "POST";
-    name = "statistics:system";
+    VideoServiceRequest result;
+    result.body = data.toLocal8Bit();
+    result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "event/play";
+    result.method = "POST";
+    result.name = "statistics:plays";
+    return result;
 }
 
-SendStatisticRequest::~SendStatisticRequest()
+VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest()
 {
-
-}
-
-AdvancedInitRequest::AdvancedInitRequest()
-{
+    VideoServiceRequest result;
     QJsonObject jsonBody;
     jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
     jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
@@ -313,82 +324,53 @@ AdvancedInitRequest::AdvancedInitRequest()
     QByteArray jsonData = doc.toJson();
     qDebug() << QString(jsonData);
 
-    body = jsonData;
-    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    result.body = jsonData;
+    result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
 
-    methodAPI = "player";
-    name = "init";
-    method = "POST";
+    result.methodAPI = "player";
+    result.name = "init";
+    result.method = "POST";
+    return result;
 }
 
-AdvancedInitRequest::~AdvancedInitRequest()
+VideoServiceRequest VideoServiceRequestFabric::getPlaylistSettingsRequest()
 {
-
+    VideoServiceRequest result;
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "player/settings";
+    result.name = "settings";
+    result.method = "GET";
+    return result;
 }
 
-GetPlaylistSettingsRequest::GetPlaylistSettingsRequest()
+VideoServiceRequest VideoServiceRequestFabric::getPlayerAreasRequest()
 {
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "player/settings";
-    name = "settings";
-    method = "GET";
+    VideoServiceRequest result;
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "player/virtual-screens";
+    result.name = "areas";
+    result.method = "GET";
+    return result;
 }
 
-GetPlaylistSettingsRequest::~GetPlaylistSettingsRequest()
+VideoServiceRequest VideoServiceRequestFabric::getVirtualScreenPlaylistRequest()
 {
-
+    VideoServiceRequest result;
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "player/playlist";
+    result.name = "playlist";
+    result.method = "GET";
+    return result;
 }
 
-GetPlayerAreasRequest::GetPlayerAreasRequest()
+VideoServiceRequest VideoServiceRequestFabric::getVirtualScreenPlaylistRequest(QStringList areas)
 {
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "player/virtual-screens";
-    name = "areas";
-    method = "GET";
-}
+    VideoServiceRequest result;
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "player/playlist";
+    result.name = "playlist";
+    result.method = "GET";
 
-GetPlayerAreasRequest::~GetPlayerAreasRequest()
-{
-
-}
-
-GetVirtualScreenPlaylistRequest::GetVirtualScreenPlaylistRequest()
-{
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "player/playlist";
-    name = "playlist";
-    method = "GET";
-}
-
-GetVirtualScreenPlaylistRequest::GetVirtualScreenPlaylistRequest(QStringList areas)
-{
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "player/playlist";
-    name = "playlist";
-    method = "GET";
-
-    params.append(VideoServiceRequestParam("areas", areas.join(",")));
-}
-
-VideoServiceRequest::VideoServiceRequestParam::VideoServiceRequestParam(QString key, QString value)
-{
-    this->key = key;
-    this->value = value;
-}
-
-SendPlaysRequest::SendPlaysRequest(QString data)
-{
-    body = data.toLocal8Bit();
-    qDebug() << "SEND PLAYS DATA: " << data;
-    PlatformSpecific::writeToFile(data.toLocal8Bit(),"/sdcard/download/sendplaysdata.txt");
-    knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
-    headers["Authorization"] = GlobalConfigInstance.getToken();
-    methodAPI = "event/play";
-    method = "POST";
-    name = "statistics:plays";
-}
-
-SendPlaysRequest::~SendPlaysRequest()
-{
-
+    result.params.append(VideoServiceRequest::VideoServiceRequestParam("areas", areas.join(",")));
+    return result;
 }
