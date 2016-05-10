@@ -12,5 +12,6 @@
         <file>refresh_2.png</file>
         <file>browser.qml</file>
         <file>VideoPlayer.qml</file>
+        <file>audio.svg</file>
     </qresource>
 </RCC>

@@ -61,7 +61,6 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
         result.append(info.serialize());
     QJsonDocument doc(result);
     QString strToSend = doc.toJson();
-    PlatformSpecific::writeToFile(strToSend.toLocal8Bit(),"/sdcard/download/teleds/systemInfoData.txt");
 
     videoService->sendStatistic(strToSend);
   //  this->monitoring = monitoring;

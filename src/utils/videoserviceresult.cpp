@@ -461,6 +461,15 @@ PlayerConfig::Area::Playlist::Item PlayerConfig::Area::Playlist::Item::fromNewIt
     return result;
 }
 
+QString PlayerConfig::Area::Playlist::Item::extension()
+{
+    QStringList tokens = path.split(".");
+    if (tokens.count() < 2)
+        return "";
+    else
+        return "." + tokens.last();
+}
+
 SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
 {
     SettingsRequestResult result;
@@ -564,6 +573,7 @@ QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json
     }
     return result;
 }
+
 /*
 I’m trying to send HDMI-CEC command from a TV set to my Android phone (both of them can support CEC protocol).
 */
@@ -592,6 +602,14 @@ PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
         result.screens[screen.id] = screen;
     }
     return result;
+}
+
+QString PlaylistAPIResult::PlaylistItem::getExtension() const
+{
+    QStringList tokens = fileUrl.split(".");
+    if (tokens.count() < 2)
+        return "";
+    return "." + tokens.last();
 }
 
 bool PlaylistAPIResult::PlaylistItem::checkTimeTargeting() const

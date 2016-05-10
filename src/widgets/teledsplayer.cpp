@@ -86,7 +86,7 @@ TeleDSPlayer::~TeleDSPlayer()
 
 QString TeleDSPlayer::getFullPath(QString fileName)
 {
-    QString nextFile = VIDEO_FOLDER + fileName + ".mp4";
+    QString nextFile = VIDEO_FOLDER + fileName + playlist->findItemById(fileName).getExtension();
     QFileInfo fileInfo(nextFile);
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }
@@ -190,6 +190,16 @@ void TeleDSPlayer::invokeNextVideoMethod(QString name)
     QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
 }
 
+void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
+{
+    qDebug() << "invoking next method::advanced";
+    PlaylistAPIResult::PlaylistItem item = playlist->findItemById(name);
+    QVariant source = QUrl(getFullPath(name));
+    QVariant type = item.type;
+    QVariant build = CONFIG_BUILD_NAME;
+    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",Q_ARG(QVariant,source), Q_ARG(QVariant, type), Q_ARG(QVariant, build));
+}
+
 void TeleDSPlayer::invokeFileProgress(double p, QString name)
 {
     qDebug() << "invoking file progress";
@@ -274,7 +284,8 @@ void TeleDSPlayer::playNext()
         return;
     }
     QString nextItem = playlist->next();
-    invokeNextVideoMethod(nextItem);
+    invokeNextVideoMethodAdvanced(nextItem);
+    //invokeNextVideoMethod(nextItem);
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
         SunsetSystem sunSystem;

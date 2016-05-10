@@ -3,7 +3,10 @@ import QtMultimedia 5.0
 
 Item {
     signal next()
+    signal videoPlayed()
+    signal audioPlayed()
     property bool firstPlayer: true
+    property bool isVideoPlaying: true
     anchors.fill: parent
 
     function getDuration(duration){
@@ -41,7 +44,6 @@ Item {
         interval: 1000
         onTriggered:{
             videoOut2.opacity = 0.0
-            //videoOut2.visible = false
         }
     }
 
@@ -50,12 +52,8 @@ Item {
         repeat: false
         interval: 1000
         onTriggered:{
-          //  videoOut2.visible = true
-          //  videoOut1.visible = false
             videoOut2.opacity = 1.0
-            //videoOut2.visible = true
             videoOut1.opacity = 0.0
-            //videoOut1.visible = false
         }
     }
 
@@ -77,13 +75,25 @@ Item {
         id: mp1
         autoLoad: true
         source: ""
+        property bool isVideo: true
         property bool fakePlay: false
 
         onPlaying:{
             console.log("MP1:onPlay")
+            if (isVideo){
+                if (!isVideoPlaying){
+                    isVideoPlaying = true
+                    videoPlayed()
+                }
+            }
+            else{
+                if (isVideoPlaying){
+                    isVideoPlaying = false
+                    audioPlayed()
+                }
+            }
             if (fakePlay == false)
             {
-                //videoOut1.visible = true
                 videoOut1.opacity = 1
                 showVideo1.start()
                 nextVideoTimer.interval = getDuration(mp1.duration)
@@ -100,16 +110,28 @@ Item {
         id: mp2
         autoLoad: true
         source: ""
+        property bool isVideo: true
         property bool fakePlay: false
 
         onPlaying:{
             console.log("MP2:onPlay")
+            if (isVideo){
+                if (!isVideoPlaying){
+                    isVideoPlaying = true
+                    videoPlayed()
+                }
+            }
+            else{
+                if (isVideoPlaying){
+                    isVideoPlaying = false
+                    audioPlayed()
+                }
+            }
+
             if (fakePlay == false)
             {
                 videoOut2.opacity = 1.0
-                //videoOut2.visible = true
                 videoOut1.opacity = 0.0
-                //videoOut1.visible = false
                 nextVideoTimer.interval = getDuration(mp2.duration)
                 nextVideoTimer.start()
             }
@@ -125,22 +147,50 @@ Item {
             console.log("Filling src < MP1")
             mp1.source = filename
             mp1.play()
+            mp1.isVideo = true
         }
         else if (mp2.source == "")
         {
             console.log("Filling src < MP2")
             mp2.source = filename
-         //   mp2.fakePlay = true
-         //   mp2.play()
+            mp2.isVideo = true
         }
         else{
             if (firstPlayer){
                 console.log("Load to MP2")
                 mp2.source = filename
+                mp2.isVideo = true
             }
             else{
                 console.log("Load to MP1")
                 mp1.source = filename
+                mp1.isVideo = true
+            }
+        }
+    }
+    function playAudioItem(filename){
+        if (mp1.source == ""){
+            console.log("Filling src < MP1")
+            mp1.source = filename
+            mp1.play()
+            mp1.isVideo = false
+        }
+        else if (mp2.source == "")
+        {
+            console.log("Filling src < MP2")
+            mp2.source = filename
+            mp2.isVideo = false
+        }
+        else{
+            if (firstPlayer){
+                console.log("Load to MP2")
+                mp2.source = filename
+                mp2.isVideo = false
+            }
+            else{
+                console.log("Load to MP1")
+                mp1.source = filename
+                mp1.isVideo = false
             }
         }
     }

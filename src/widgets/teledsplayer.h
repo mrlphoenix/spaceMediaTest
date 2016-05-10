@@ -43,6 +43,7 @@ signals:
     void refreshNeeded();
 public slots:
     void invokeNextVideoMethod(QString name);
+    void invokeNextVideoMethodAdvanced(QString name);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);

@@ -22,12 +22,6 @@ Item {
     property bool preloader: false
     property bool useSecondPlayer: false
 
-
-    /*
-      1. play item1 -> mp1
-      2. preload item2 -> mp2 | preload = true; useSecondPlayer = false
-      3. play item3 => |preload = true|useSecondPlayer=false| -> {mp1->visible = false; mp2->visible = true; mp2->play; mp1->load item3; useSecondPlayer = true;}
-      */
     signal nextItem()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
@@ -35,8 +29,6 @@ Item {
     onHeightChanged: {
         heightP = height
         widthP = width
-        //console.log("native height " + height + "heightp " + heightP)
-        //console.log("native width" + width + "widthp" + width) // 2048
     }
 
     function enablePreloading(filename)
@@ -50,9 +42,17 @@ Item {
         videoPlayer.playItem(filename)
     }
 
-    function hideVideoLayer(object)
+    function playFileAdvanced(filename, type, build)
     {
-        object.visible = false
+        if (type === "video")
+        {
+            playFile(filename)
+            return
+        }
+        else if (type === "audio")
+        {
+            videoPlayer.playAudioItem(filename)
+        }
     }
 
     function downloadComplete(){
@@ -76,21 +76,23 @@ Item {
         downloadProgressBar.value = p
     }
     function showVideo(isVisible){
-        videoPlayer.visible = isVisible
-        logoColumn.visible = false
-        if (!isVisible)
-        {
-            overlayBgRect.color = "#333e47"
-        }
-        else if (videoOutBrightness > 1.0)
-        {
-            overlayBgRect.color = "#FFFFFF"
-        }
-        else if (videoOutBrightness < 0.99){
-            overlayBgRect.color = "#000000"
-        }
-        else{
-            overlayBgRect.color = "#333e47"
+        if (videoPlayer.isVideoPlaying){
+            videoPlayer.visible = isVisible
+            logoColumn.visible = false
+            if (!isVisible)
+            {
+                overlayBgRect.color = "#333e47"
+            }
+            else if (videoOutBrightness > 1.0)
+            {
+                overlayBgRect.color = "#FFFFFF"
+            }
+            else if (videoOutBrightness < 0.99){
+                overlayBgRect.color = "#000000"
+            }
+            else{
+                overlayBgRect.color = "#333e47"
+            }
         }
     }
     function setBrightness(value){
@@ -136,14 +138,8 @@ Item {
         playerIDText.text = playerID
 
         playerIDItem.visible = true
-      //  refreshPlayerID.sourceSize.width = playerIDRect.height
-       // refreshPlayerID.sourceSize.height = playerIDRect.height
-       // refreshPlayerID.visible = true
         waitingBlock.visible = true
-       // refreshButtonDeactivator.start()
         playerIDText.color = "#333e47"
-   //     refreshTimeTimer.updateDelay = updateDelay - 1
-   //     refreshTimeTimer.start()
     }
     function getPointSize(text){
         if (text.length > 40)
@@ -188,7 +184,6 @@ Item {
     function getTopValue(h)
     {
         console.log("y: " + waitingRefreshInText.y)
-     //   if (waitingRefreshInText.y + waitingRefreshInText.height > h)
         console.log("DIFFS: " + (waitingRefreshInText.y + waitingRefreshInText.height - h))
         console.log("BASIC: " + (h * 0.248148148 * aspect))
         console.log("RETURN: " + (h * 0.248148148 * aspect - (waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h)))
@@ -197,7 +192,6 @@ Item {
             return h * 0.248148148 * aspect
         else
             return result
-    //    return parent.height * 0.248148148 * aspect
     }
 
     PositionSource {
@@ -231,11 +225,6 @@ Item {
             updateDelay = updateDelay-1;
             if (updateDelay == -1)
                 updateDelay = 10;
-          //  console.log("refreshTimer triggered" + updateDelay.toString())
-
-           /* if (refreshplayerIDAnimation.running)
-                waitingRefreshInText.text = "Refreshing"
-            else*/
             if (updateDelay != 0)
                 waitingRefreshInText.text = "Refresh in " + updateDelay + "s"
             else
@@ -381,10 +370,6 @@ Item {
         sourceSize.height: parent.height
         width: parent.width
         height: parent.height
-      //  fillMode: Image.Stretch
-       // fillMode: Image.Tile
-       // horizontalAlignment: Image.AlignLeft
-      //  verticalAlignment: Image.AlignTop
     }
     Image {
         id: bgLogoImageV
@@ -394,17 +379,12 @@ Item {
         sourceSize.height: parent.height
         width: parent.width
         height: parent.height
-       // fillMode: Image.Stretch
-      //  horizontalAlignment: Image.AlignLeft
-      //  verticalAlignment: Image.AlignTop
     }
     Item
     {
         id: logoColumn
         width: parent.width
-        //y: parent.height * 0.248148148 * aspect
         y: getTopValue(parent.height)
-     //   y: 0
         Text{
             id: testText
             font.family: ubuntuFont.name
@@ -442,7 +422,6 @@ Item {
             font.family: ubuntuFont.name
             font.pointSize: getPointSize(text)
             text: "Initialization"
-         //   x: parent.width/2 - width/2
             y: brRect.y + brRect.height + (75.0 * aspect)
             color: "white"
             wrapMode: Text.Wrap
@@ -511,8 +490,6 @@ Item {
             Text {
                 y: playerIDRect.y + playerIDRect.height + 55 * aspect
                 x: item.width/2 - width/2
-            //    anchors.top: parent.top
-            //    anchors.left: refreshPlayerID.right
                 id: waitingText
 
                 font.family: ubuntuFont.name
@@ -587,6 +564,25 @@ Item {
         onNext: {
             nextItem()
         }
+        onVideoPlayed: {
+            videoPlayer.visible = true
+            audioIcon.visible = false
+        }
+        onAudioPlayed: {
+            videoPlayer.visible = false
+            audioIcon.visible = true
+        }
+    }
+    Image {
+        id: audioIcon
+        visible: false
+        source: "audio.svg"
+        sourceSize.width: hValue
+        sourceSize.height: hValue
+        width: hValue
+        height: hValue
+        x: parent.width/2 - width/2
+        y: parent.height/2 - height/2
     }
 
     Keys.onReleased: {

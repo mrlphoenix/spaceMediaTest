@@ -82,7 +82,10 @@ void VideoDownloaderWorker::checkDownloadNew()
         PlaylistAPIResult playlist = configNew.screens[area].playlist;
         foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
         {
-            QString filename = VIDEO_FOLDER + item.id + ".mp4";
+            //no need to download online resource
+            if (item.type == "html5_online")
+                continue;
+            QString filename = VIDEO_FOLDER + item.id + item.getExtension();
             QString filehash;
             if (!QFile::exists(filename))
             {
@@ -115,7 +118,13 @@ void VideoDownloaderWorker::download()
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
         emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
 
-        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].iid + ".mp4_";
+        QStringList currentItemUrlTokens = itemsToDownload[currentItemIndex].path.split(".");
+        QString extension;
+        if (currentItemUrlTokens.count() < 2)
+            extension = "";
+        else
+            extension = "." + currentItemUrlTokens.last();
+        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].iid + extension + "_";
 
         if (QFile::exists(tempFileName))
         {
@@ -306,7 +315,8 @@ void VideoDownloaderWorker::httpFinished()
         return;
     }
     qDebug()<<"File downloading Finished. Registering in database.";
-    QString currentItemId = itemsToDownload[currentItemIndex].iid;
+    PlayerConfig::Area::Playlist::Item currentItem = itemsToDownload[currentItemIndex];
+    QString currentItemId = currentItem.iid;
     currentItemIndex++;
     file->flush();
     file->close();
@@ -315,7 +325,7 @@ void VideoDownloaderWorker::httpFinished()
     reply = 0;
     delete file;
     file = 0;
-    swapper.add(VIDEO_FOLDER + currentItemId + ".mp4", VIDEO_FOLDER + currentItemId + ".mp4_");
+    swapper.add(VIDEO_FOLDER + currentItemId + currentItem.extension(), VIDEO_FOLDER + currentItemId + currentItem.extension() + "_");
     swapper.start();
 
   //  download();
@@ -323,6 +333,8 @@ void VideoDownloaderWorker::httpFinished()
 
 void VideoDownloaderWorker::httpReadyRead()
 {
+    static int v = 0;
+    v++;
     if (restarter)
         restarter->stop();
     if (file)
@@ -330,7 +342,8 @@ void VideoDownloaderWorker::httpReadyRead()
       //  QtConcurrent::run(writeToFileJob, file, reply);
         file->write(reply->readAll());
         file->flush();
-        qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
+        if (v % 10 == 0)
+            qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
        // DatabaseInstance.updateResourceDownloadStatus(itemsToDownload[currentItemIndex].iid,file->size());
     }
 }

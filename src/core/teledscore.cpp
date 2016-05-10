@@ -353,6 +353,7 @@ void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
     }
     currentConfigNew = newConfig;
     downloader->runDownloadNew();
+    sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
 }
 
 

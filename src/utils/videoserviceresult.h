@@ -58,6 +58,7 @@ struct PlaylistAPIResult
     QString type;
     struct PlaylistItem
     {
+        QString getExtension() const;
         QString id;
         QString name;
         QString fileUrl;
@@ -141,6 +142,7 @@ struct PlayerConfig
                 void init();
                 void buildGeo();
                 static Item fromNewItem(PlaylistAPIResult::PlaylistItem item);
+                QString extension();
 
                 QString iid;
                 QString itype;
