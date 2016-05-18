@@ -6,8 +6,6 @@ import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
 
 
-
-
 Item {
     id: item
     property bool invokeNext:true
@@ -21,6 +19,9 @@ Item {
     //properties for seamless video player
     property bool preloader: false
     property bool useSecondPlayer: false
+
+    //properties for cross content managing
+    property string currentType: "videoPlayer"
 
     signal nextItem()
     signal refreshId()
@@ -42,16 +43,52 @@ Item {
         videoPlayer.playItem(filename)
     }
 
-    function playFileAdvanced(filename, type, build)
+    function playFileAdvanced(filename, type, build, length)
     {
+        console.debug("playfile is called " + filename)
         if (type === "video")
         {
-            playFile(filename)
+            console.log("playfileAdvanced::video")
+            videoPlayer.playItem(filename)
+            if (currentType === "browser"){
+                currentType = "videoPlayer"
+                console.log("playfileAdvanced::replacing browser with media player")
+                nextItem()
+                androidBrowser.visible = false
+            }
             return
         }
         else if (type === "audio")
         {
-            videoPlayer.playAudioItem(filename)
+            console.log("playfileAdvanced::audio")
+            videoPlayer.playAudioItemAdv(filename,length,0)
+            if (currentType === "browser"){
+                currentType = "videoPlayer"
+                console.log("playfileAdvanced::replacing browser with media player")
+                nextItem()
+                androidBrowser.visible = false
+            }
+        }
+        else if (type === "html5_online")
+        {
+            if (currentType === "videoPlayer")
+            {
+                //prepare for Browser
+                console.log("playfileAdvanced::html5")
+                videoPlayer.prepareStop = true
+                currentType = "browser"
+                if (build === "android"){
+                    androidBrowser.load(filename)
+                    androidBrowser.setShowTime(length)
+                }
+            }
+            else if (currentType === "browser"){
+                console.log("playfileAdvanced::html5 from browser")
+                if (build === "android"){
+                    androidBrowser.load(filename)
+                    androidBrowser.setShowTime(length)
+                }
+            }
         }
     }
 
@@ -239,115 +276,6 @@ Item {
         onTriggered: {
             dialogAndroid.close()
             item.focus = true
-        }
-    }
-
-    Dialog {
-        id: dialogAndroid
-      //  width: 600  // for desktop ::TODO
-       // height: 500 // for desktop ::TODO
-
-        // Создаём содержимое диалогового окна
-        contentItem: Rectangle {
-            width: 600
-            height: 500
-            color: "#333e47"
-
-            Rectangle {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: dividerHorizontal.top
-                color: "#333e47"
-
-                Label {
-                    id: textLabel
-                    text: qsTr("Are you sure?")
-                    color: "#00cdc1"
-                    anchors.centerIn: parent
-                }
-            }
-
-            // Создаём горизонтальный разделитель с помощью Rectangle</center> <p/> <center
-            Rectangle {
-                id: dividerHorizontal
-                color: "#d7d7d7"
-                height: 2
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: row.top
-            }
-
-            Row {
-                id: row
-                height: 100
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                Button {
-                    id: dialogButtonCancel
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width / 2 - 1
-
-                    style: ButtonStyle {
-                        background: Rectangle {
-                            color: control.pressed ? "#d7d7d7" : "#333e47"
-                            border.width: 0
-                        }
-
-                        label: Text {
-                            text: qsTr("Cancel")
-                            color: "#00cdc1"
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                        }
-                    }
-                    onClicked: {
-                        dialogAndroid.close()
-                        item.focus = true
-                    }
-                }
-
-                Rectangle {
-                    id: dividerVertical
-                    width: 2
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    color: "#d7d7d7"
-                }
-
-                Button {
-                    id: dialogButtonOk
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width / 2 - 1
-
-                    style: ButtonStyle {
-                        background: Rectangle {
-                            color: control.pressed ? "#d7d7d7" : "#333e47"
-                            border.width: 0
-                        }
-
-                        label: Text {
-                            text: qsTr("Ok")
-                            color: "#00cdc1"
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                        }
-                    }
-                    Keys.onReleased: {
-                        console.log("DIALOG ON RELEASED!!!")
-                        if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
-                            dialogAndroid.close()
-                            item.focus = true
-                            event.accepted = true
-                        }
-                    }
-                    onClicked: Qt.quit()
-                }
-            }
         }
     }
 
@@ -559,20 +487,33 @@ Item {
         }
     }
 
+    //content types
+    //video player
     VideoPlayer {
         id: videoPlayer
         onNext: {
+            console.log("video player:invoking next item")
             nextItem()
         }
         onVideoPlayed: {
+            console.log("video player:video played")
             videoPlayer.visible = true
             audioIcon.visible = false
         }
         onAudioPlayed: {
+            console.log("videoplayer:audio played")
             videoPlayer.visible = false
             audioIcon.visible = true
         }
+        onVideoStopped: {
+            console.log("video player:video stopped")
+            //videoPlayer.visible = false
+            videoPlayer.stopPlayer()
+            androidBrowser.visible = true
+            androidBrowser.startShow()
+        }
     }
+    //image for audio playback
     Image {
         id: audioIcon
         visible: false
@@ -584,6 +525,130 @@ Item {
         x: parent.width/2 - width/2
         y: parent.height/2 - height/2
     }
+
+    AndroidBrowser{
+        id: androidBrowser
+        visible: false
+
+        onLoadFinished: {
+        }
+        onEndShow: {
+            console.log("browser end show!")
+            nextItem()
+        }
+    }
+
+
+
+    Dialog {
+        id: dialogAndroid
+      //  width: 600  // for desktop ::TODO
+       // height: 500 // for desktop ::TODO
+
+        // Создаём содержимое диалогового окна
+        contentItem: Rectangle {
+            width: 600
+            height: 500
+            color: "#333e47"
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: dividerHorizontal.top
+                color: "#333e47"
+
+                Label {
+                    id: textLabel
+                    text: qsTr("Are you sure?")
+                    color: "#00cdc1"
+                    anchors.centerIn: parent
+                }
+            }
+
+            // Создаём горизонтальный разделитель с помощью Rectangle</center> <p/> <center
+            Rectangle {
+                id: dividerHorizontal
+                color: "#d7d7d7"
+                height: 2
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: row.top
+            }
+
+            Row {
+                id: row
+                height: 100
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Button {
+                    id: dialogButtonCancel
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 2 - 1
+
+                    style: ButtonStyle {
+                        background: Rectangle {
+                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            border.width: 0
+                        }
+
+                        label: Text {
+                            text: qsTr("Cancel")
+                            color: "#00cdc1"
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+                    onClicked: {
+                        dialogAndroid.close()
+                        item.focus = true
+                    }
+                }
+
+                Rectangle {
+                    id: dividerVertical
+                    width: 2
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    color: "#d7d7d7"
+                }
+
+                Button {
+                    id: dialogButtonOk
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width / 2 - 1
+
+                    style: ButtonStyle {
+                        background: Rectangle {
+                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            border.width: 0
+                        }
+
+                        label: Text {
+                            text: qsTr("Ok")
+                            color: "#00cdc1"
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+                    Keys.onReleased: {
+                        console.log("DIALOG ON RELEASED!!!")
+                        if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                            dialogAndroid.close()
+                            item.focus = true
+                            event.accepted = true
+                        }
+                    }
+                    onClicked: Qt.quit()
+                }
+            }
+        }
+    }
+
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {

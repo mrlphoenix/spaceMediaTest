@@ -5,8 +5,10 @@ Item {
     signal next()
     signal videoPlayed()
     signal audioPlayed()
+    signal videoStopped()
     property bool firstPlayer: true
     property bool isVideoPlaying: true
+    property bool prepareStop: false
     anchors.fill: parent
 
     function getDuration(duration){
@@ -20,21 +22,37 @@ Item {
         }
     }
 
+    function stopPlayer(){
+        nextVideoTimer.stop()
+        mp1.stop()
+        mp1.source = ""
+        mp2.source = ""
+        mp2.stop()
+        isVideoPlaying = true
+        firstPlayer = true
+    }
+
     Timer{
         id: nextVideoTimer
         repeat: false
         onTriggered: {
-            console.log("NEXT VIDEO!")
-            if (firstPlayer){
-                console.log("MP2 Play called")
-                firstPlayer = false
-                mp2.play()
-            } else {
-                console.log("MP1 Play called")
-                firstPlayer = true
-                mp1.play()
+            if (prepareStop == false){
+                console.log("NEXT VIDEO!")
+                if (firstPlayer){
+                    console.log("MP2 Play called")
+                    firstPlayer = false
+                    mp2.play()
+                } else {
+                    console.log("MP1 Play called")
+                    firstPlayer = true
+                    mp1.play()
+                }
+                next()
             }
-            next()
+            else{
+                prepareStop = false
+                videoStopped()
+            }
         }
     }
 
@@ -77,9 +95,11 @@ Item {
         source: ""
         property bool isVideo: true
         property bool fakePlay: false
+        property int durationMsecs: 0
+        property int seekMsecs: 0
 
         onPlaying:{
-            console.log("MP1:onPlay")
+            console.log("MP1:onPlay::" + isVideo + " source=" + source)
             if (isVideo){
                 if (!isVideoPlaying){
                     isVideoPlaying = true
@@ -96,8 +116,13 @@ Item {
             {
                 videoOut1.opacity = 1
                 showVideo1.start()
-                nextVideoTimer.interval = getDuration(mp1.duration)
+                if (durationMsecs == 0)
+                    nextVideoTimer.interval = getDuration(mp1.duration)
+                else
+                    nextVideoTimer.interval = durationMsecs
                 nextVideoTimer.start()
+                if (seekMsecs > 0)
+                    seek(seekMsecs)
             }
             else{
                 console.log("MP1:Fake play called")
@@ -112,6 +137,8 @@ Item {
         source: ""
         property bool isVideo: true
         property bool fakePlay: false
+        property int durationMsecs: 0
+        property int seekMsecs: 0
 
         onPlaying:{
             console.log("MP2:onPlay")
@@ -132,8 +159,13 @@ Item {
             {
                 videoOut2.opacity = 1.0
                 videoOut1.opacity = 0.0
-                nextVideoTimer.interval = getDuration(mp2.duration)
+                if (durationMsecs == 0)
+                    nextVideoTimer.interval = getDuration(mp2.duration)
+                else
+                    nextVideoTimer.interval = durationMsecs
                 nextVideoTimer.start()
+                if (seekMsecs > 0)
+                    seek(seekMsecs)
             }
             else{
                 console.log("MP2:Fake play called")
@@ -142,57 +174,65 @@ Item {
         }
     }
 
-    function playItem(filename){
+    function playItemGeneric(filename, type, duration, seek)
+    {
         if (mp1.source == ""){
             console.log("Filling src < MP1")
+            mp1.durationMsecs = duration
             mp1.source = filename
+            if (type === "video")
+                mp1.isVideo = true
+            else
+                mp1.isVideo = false
             mp1.play()
-            mp1.isVideo = true
+
+            mp1.seekMsecs = seek
         }
         else if (mp2.source == "")
         {
             console.log("Filling src < MP2")
             mp2.source = filename
-            mp2.isVideo = true
+            if (type === "video")
+                mp2.isVideo = true
+            else
+                mp2.isVideo = false
+            mp1.durationMsecs = duration
+            mp1.seekMsecs = seek
         }
         else{
             if (firstPlayer){
                 console.log("Load to MP2")
                 mp2.source = filename
-                mp2.isVideo = true
+                if (type === "video")
+                    mp2.isVideo = true
+                else
+                    mp2.isVideo = false
+                mp1.durationMsecs = duration
+                mp1.seekMsecs = seek
             }
             else{
                 console.log("Load to MP1")
                 mp1.source = filename
-                mp1.isVideo = true
+                if (type === "video")
+                    mp1.isVideo = true
+                else
+                    mp1.isVideo = false
+                mp1.durationMsecs = duration
+                mp1.seekMsecs = seek
             }
         }
+    }
+
+    function playItem(filename){
+        playItemGeneric(filename,"video",0,0)
     }
     function playAudioItem(filename){
-        if (mp1.source == ""){
-            console.log("Filling src < MP1")
-            mp1.source = filename
-            mp1.play()
-            mp1.isVideo = false
-        }
-        else if (mp2.source == "")
-        {
-            console.log("Filling src < MP2")
-            mp2.source = filename
-            mp2.isVideo = false
-        }
-        else{
-            if (firstPlayer){
-                console.log("Load to MP2")
-                mp2.source = filename
-                mp2.isVideo = false
-            }
-            else{
-                console.log("Load to MP1")
-                mp1.source = filename
-                mp1.isVideo = false
-            }
-        }
+        playItemGeneric(filename,"audio",0,0)
+    }
+    function playAudioItemAdv(filename, length, seek){
+        playItemGeneric(filename,"audio",length,seek)
     }
 }
+
+
 

@@ -17,6 +17,7 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
 
         save();
         configured = false;
+
     }
     else
         loadFromJson();

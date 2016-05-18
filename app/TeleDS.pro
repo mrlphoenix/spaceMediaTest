@@ -24,6 +24,7 @@ contains (KIT, Raspberry){
 include(../src/core/core.pri)
 include(../src/utils/utils.pri)
 include(../src/widgets/widgets.pri)
+include(../src/zip/zip.pri)
 
 OTHER_FILES += ../qml/simple_player.qml \
            VideoPlayer.qml

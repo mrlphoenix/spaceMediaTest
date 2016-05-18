@@ -39,6 +39,7 @@ private:
     int currentItemIndex;
 };
 
+
 class RandomPlaylist : public AbstractPlaylist
 {
     Q_OBJECT

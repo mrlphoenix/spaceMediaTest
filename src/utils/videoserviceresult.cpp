@@ -35,7 +35,6 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
     else
     {
         QByteArray data = reply->readAll();
-        qDebug() << data;
         QJsonDocument doc = QJsonDocument::fromJson(data);
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
         emit initResult(result);
@@ -642,3 +641,4 @@ bool PlaylistAPIResult::PlaylistItem::checkGeoTargeting(QPointF gps) const
     }
     else return true;
 }
+

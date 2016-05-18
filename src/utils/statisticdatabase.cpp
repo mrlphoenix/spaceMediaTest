@@ -54,7 +54,6 @@ void DatabaseWorker::slotExecutePrepared(const QString &queryId, const QString &
 
 void DatabaseWorker::executeOneTime(const QString& queryId, const QString& sql)
 {
-    qDebug()<<"execute one tgime method Entering";
     // use previously defined db connection
     QSqlQuery query(m_database);
     // execute query, get result
@@ -68,7 +67,6 @@ void DatabaseWorker::executeOneTime(const QString& queryId, const QString& sql)
         return;
     }
     // send executed signal
-    qDebug() << "seems like query is executed well";
     emit executed(queryId, QString());
     // accumulate data and emit result
     QList<QSqlRecord> recs;
@@ -313,7 +311,7 @@ void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space));
 
-    qDebug() << "SQL>>" + sql;
+    //qDebug() << "SQL>>" + sql;
 
     //insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space)
     //VALUES ('YYYY-04-20 09:42:00', 11.85, 0, 0, 99, 0, 0, 42188800, '00:00:00:00:00:00', 1, 1, 7950688, %12)"
@@ -351,7 +349,7 @@ QDateTime StatisticDatabase::deserializeDate(QString date)
 }
 void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
-    qDebug() << "slot result is called " << queryId;
+  //  qDebug() << "slot result is called " << queryId;
     if (queryId == "findResource")
     {
         QList<StatisticDatabase::Resource> result;

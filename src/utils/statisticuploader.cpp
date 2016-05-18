@@ -50,10 +50,10 @@ void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
 }
 void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data)
 {
-    qDebug() << "StatisticUploader::systemInfoReady";
+    //qDebug() << "StatisticUploader::systemInfoReady";
     if (data.count() == 0)
     {
-        qDebug() << "StatisticUploader info count = " + QString::number(data.count());
+      //  qDebug() << "StatisticUploader info count = " + QString::number(data.count());
         return;
     }
     QJsonArray result;

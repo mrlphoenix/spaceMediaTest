@@ -194,10 +194,17 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
 {
     qDebug() << "invoking next method::advanced";
     PlaylistAPIResult::PlaylistItem item = playlist->findItemById(name);
-    QVariant source = QUrl(getFullPath(name));
+
+    QVariant source;
+    if (item.type == "video" || item.type == "audio")
+        source = QUrl(getFullPath(name));
+    else if (item.type == "html5_online")
+        source = item.fileUrl;
+
     QVariant type = item.type;
     QVariant build = CONFIG_BUILD_NAME;
-    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",Q_ARG(QVariant,source), Q_ARG(QVariant, type), Q_ARG(QVariant, build));
+    QVariant duration = item.duration * 1000;
+    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",Q_ARG(QVariant,source), Q_ARG(QVariant, type), Q_ARG(QVariant, build), Q_ARG(QVariant, duration));
 }
 
 void TeleDSPlayer::invokeFileProgress(double p, QString name)

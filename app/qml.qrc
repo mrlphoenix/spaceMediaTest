@@ -10,7 +10,7 @@
         <file>refresh_1.svg</file>
         <file>refresh_2.svg</file>
         <file>refresh_2.png</file>
-        <file>browser.qml</file>
+        <file>AndroidBrowser.qml</file>
         <file>VideoPlayer.qml</file>
         <file>audio.svg</file>
     </qresource>

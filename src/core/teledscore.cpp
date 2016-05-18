@@ -41,6 +41,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
+    GlobalConfigInstance.setGetPlaylistTimerTime(10000);
 
 
     QTimer::singleShot(70000,uploader,SLOT(start()));

@@ -88,3 +88,4 @@ private:
 };
 
 #endif // GLOBALCONFIG_H
+
