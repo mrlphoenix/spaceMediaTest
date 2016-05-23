@@ -310,6 +310,7 @@ void TeleDSPlayer::playNext()
     GlobalStatsInstance.setCurrentItem(nextItem);
 
     showVideo();
+
 }
 
 void TeleDSPlayer::bindObjects()

@@ -382,7 +382,6 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
         emit unknownResult(queryId, records);
 }
 
-
 StatisticDatabase::Play StatisticDatabase::Play::fromRecord(const QSqlRecord &record)
 {
     Play result;
