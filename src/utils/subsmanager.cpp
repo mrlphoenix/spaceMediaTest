@@ -81,7 +81,7 @@ void SubManager::start(int msecs)
         startTimer.start();
         endTimer.setInterval(currentTime.msecsTo(items.at(currentItemIndex).timeStart) +
                              items.at(currentItemIndex).timeStart.msecsTo(items.at(currentItemIndex).timeEnd));
-        endTimer.start();
+        endTimer.start();;;
     }
 }
 
