@@ -148,11 +148,20 @@ int64_t PlatformSpecific::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     qDebug() << "get Traffic In";
+    jlong value = 0;
     QAndroidJniEnvironment env;
-    jclass clazz = env->FindClass("android.net.TrafficStats");
-    jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
-    jlong value = env->CallStaticLongMethod(clazz,mid);
-    qDebug() << "WOW JNI IN BYTES = " + QString::number(value);
+    qDebug() << "clazz";
+    jclass clazz = env->FindClass("android/net/TrafficStats");
+    if (clazz)
+    {
+        qDebug() << "method";
+        jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
+        if (mid){
+            qDebug() << "getValue";
+            value = env->CallStaticLongMethod(clazz,mid);
+            qDebug() << "WOW JNI IN BYTES = " + QString::number(value);
+        }
+    }
     /*
     QProcess uidListProcess;
     uidListProcess.start("ls /proc/uid_stat");

@@ -312,7 +312,10 @@ void TeleDSPlayer::playNext()
         double originalValue = sunSystem.getLinPercent();
         double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
         qDebug() <<"Autobrightness is active with value: LINEAR= " + QString::number(originalValue) + " , SIN= " + QString::number(brightnessValue);
-        setBrightness(brightnessValue/100.);
+        if (brightnessValue/100. < 0.05)
+            setBrightness(1.0);
+        else
+            setBrightness(brightnessValue/100.);
     }
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(playlist->findItemById(nextItem));
