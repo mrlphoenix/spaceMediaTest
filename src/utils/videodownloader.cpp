@@ -7,6 +7,7 @@
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "platformdefines.h"
+#include "JlCompress.h"
 
 VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *parent) : QObject(parent)
 {
@@ -325,7 +326,20 @@ void VideoDownloaderWorker::httpFinished()
     reply = 0;
     delete file;
     file = 0;
-    swapper.add(VIDEO_FOLDER + currentItemId + currentItem.extension(), VIDEO_FOLDER + currentItemId + currentItem.extension() + "_");
+    if (currentItem.dtype == "html5_zip")
+    {
+        QDir dir(VIDEO_FOLDER + currentItemId);
+        dir.removeRecursively();
+        QDir().mkdir(VIDEO_FOLDER + currentItemId);
+        QFile::rename(VIDEO_FOLDER + currentItemId + currentItem.extension() + "_", VIDEO_FOLDER + currentItemId + currentItem.extension());
+        QFile * zipContentFile = new QFile(VIDEO_FOLDER + currentItemId + currentItem.extension());
+        zipContentFile->open(QFile::ReadOnly);
+        JlCompress::extractDir(zipContentFile,VIDEO_FOLDER + currentItemId + "/");
+        zipContentFile->close();
+        delete zipContentFile;
+    }
+    else
+        swapper.add(VIDEO_FOLDER + currentItemId + currentItem.extension(), VIDEO_FOLDER + currentItemId + currentItem.extension() + "_");
     swapper.start();
 
   //  download();
@@ -344,7 +358,6 @@ void VideoDownloaderWorker::httpReadyRead()
         file->flush();
         if (v % 10 == 0)
             qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
-       // DatabaseInstance.updateResourceDownloadStatus(itemsToDownload[currentItemIndex].iid,file->size());
     }
 }
 

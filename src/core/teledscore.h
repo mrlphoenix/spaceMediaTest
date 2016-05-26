@@ -12,6 +12,7 @@
 #include "cpustat.h"
 #include "teledssheduler.h"
 #include "statisticuploader.h"
+#include "JlCompress.h"
 
 class TeleDSCore : public QObject
 {

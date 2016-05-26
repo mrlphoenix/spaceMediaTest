@@ -13,10 +13,6 @@ struct InitRequestResult
     QString status;
     int error_id;
     QString error_text;
-
-    //QString player_id;
-    //QString public_key;
-    //QString session_key;
     QString code;
     QString token;
 };
@@ -181,11 +177,11 @@ struct PlayerConfig
     QVector<Area> areas;
 };
 
-class VideoServiceResultProcessor : public QObject
+class VideoServiceResponseHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit VideoServiceResultProcessor(QObject *parent = 0);
+    explicit VideoServiceResponseHandler(QObject *parent = 0);
 
 signals:
     void initResult(InitRequestResult result);
@@ -206,9 +202,5 @@ public slots:
     void getVirtualScreenPlaylist(QNetworkReply * reply);
 private:
 };
-/*
- * token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL2x1bWVuLnRyZWVsaW5lLmFwcFwvYXV0aFwvbG9naW4iLCJpYXQiOiIxNDM1MjI4MDk2IiwiZXhwIjoiMTQzNTIzMTY5NiIsIm5iZiI6IjE0MzUyMjgwOTYiLCJqdGkiOiJmZjJhOTZkYjI4YTY2MzY5ZmNmZjZjNDEyYWRkNjdiMyJ9.M2NjNzY3NGU4NGM1MGI2ZDA4MTlhZmE5MGYwNjE5MzNmNGFlNmEyZTJmNTgwMjQ4MjUzMzAyZjQxMmI1MjViNQ",
-  "code": "12341234"
- * */
 
 #endif // VIDEOSERVICERESULT_H

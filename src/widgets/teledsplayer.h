@@ -23,6 +23,7 @@ public:
     explicit TeleDSPlayer(QObject * parent);
     ~TeleDSPlayer();
     QString getFullPath(QString fileName);
+    QString getFullPathZip(QString path);
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::Area area);
     void setConfig(PlayerConfigNew::VirtualScreen area);

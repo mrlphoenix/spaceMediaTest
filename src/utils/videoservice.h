@@ -84,8 +84,6 @@ public:
 
     void executeRequest(VideoServiceRequest request);
 
-
-
 signals:
     void initResult(InitRequestResult result);
     void getPlaylistResult(PlayerConfig result);
@@ -123,7 +121,7 @@ private:
     VideoServiceRequest currentRequest;
     bool currentRequestExists;
     QString serverURL;
-    VideoServiceResultProcessor resultProcessor;
+    VideoServiceResponseHandler resultProcessor;
 };
 
 

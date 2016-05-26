@@ -11,6 +11,7 @@
 #include <QList>
 #include <QTimer>
 #include <QHash>
+
 #include "videoserviceresult.h"
 #include "statisticdatabase.h"
 

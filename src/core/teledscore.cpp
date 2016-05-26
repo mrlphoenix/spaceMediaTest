@@ -8,7 +8,6 @@
 #include <QUrl>
 
 
-#include <widgetfabric.h>
 #include "teledscore.h"
 #include "globalconfig.h"
 #include "statisticdatabase.h"
@@ -69,6 +68,10 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     downloader = 0;
    // rpiPlayer->setBrightness(0.5);
     qDebug() << "TELEDS initialization done";
+    QFile *zipFile = new QFile("/sdcard/download/teleds/zip.zip");
+    zipFile->open(QFile::ReadOnly);
+    QDir().mkdir("/sdcard/download/teleds/zip_out");
+    JlCompress::extractDir(zipFile,"/sdcard/download/teleds/zip_out/");
 }
 
 

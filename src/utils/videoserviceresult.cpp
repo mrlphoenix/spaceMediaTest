@@ -18,12 +18,12 @@
 
 
 
-VideoServiceResultProcessor::VideoServiceResultProcessor(QObject *parent) : QObject(parent)
+VideoServiceResponseHandler::VideoServiceResponseHandler(QObject *parent) : QObject(parent)
 {
 
 }
 
-void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
 {
     if (reply->error())
     {
@@ -41,7 +41,7 @@ void VideoServiceResultProcessor::initRequestResultReply(QNetworkReply *reply)
     }
 }
 
-void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
 {
     if (reply->error())
     {
@@ -84,7 +84,7 @@ void VideoServiceResultProcessor::getPlaylistResultReply(QNetworkReply *reply)
     }
 }
 
-void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::sendStatisticResultReply(QNetworkReply *reply)
 {
     NonQueryResult result;
     if (reply->error())
@@ -107,7 +107,7 @@ void VideoServiceResultProcessor::sendStatisticResultReply(QNetworkReply *reply)
     emit sendStatisticResult(result);
 }
 
-void VideoServiceResultProcessor::sendStatisticPlaysResultReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::sendStatisticPlaysResultReply(QNetworkReply *reply)
 {
     NonQueryResult result;
     if (reply->error())
@@ -130,7 +130,7 @@ void VideoServiceResultProcessor::sendStatisticPlaysResultReply(QNetworkReply *r
     emit sendStatisticPlaysResult(result);
 }
 
-void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
 {
     SettingsRequestResult result;
     if (reply->error())
@@ -155,7 +155,7 @@ void VideoServiceResultProcessor::getPlayerSettingsReply(QNetworkReply *reply)
     emit getPlayerSettingsResult(result);
 }
 
-void VideoServiceResultProcessor::getPlayerAreasReply(QNetworkReply *reply)
+void VideoServiceResponseHandler::getPlayerAreasReply(QNetworkReply *reply)
 {
     PlayerConfigNew result;
     if (reply->error())
@@ -180,7 +180,7 @@ void VideoServiceResultProcessor::getPlayerAreasReply(QNetworkReply *reply)
     emit getPlayerAreasResult(result);
 }
 
-void VideoServiceResultProcessor::getVirtualScreenPlaylist(QNetworkReply *reply)
+void VideoServiceResponseHandler::getVirtualScreenPlaylist(QNetworkReply *reply)
 {
     QHash<QString, PlaylistAPIResult> result;
     if (reply->error()){;}
@@ -491,9 +491,6 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
     PlaylistAPIResult result;
     if (json.count() > 0)
     {
-
-        //QJsonValue rootValue = json[json.keys().at(0)];
-        //QJsonArray items = rootValue.toArray();
         foreach(const QJsonValue item, json)
         {
             QJsonObject itemObject = item.toObject();
@@ -572,10 +569,6 @@ QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json
     }
     return result;
 }
-
-/*
-I’m trying to send HDMI-CEC command from a TV set to my Android phone (both of them can support CEC protocol).
-*/
 
 PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
 {

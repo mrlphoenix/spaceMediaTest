@@ -152,8 +152,8 @@ Item {
         logoDownloadProgressBar.visible = false
         playerIDItem.visible = false
         waitingBlock.visible = false
-        waitingText.visible = false
-        waitingRefreshInText.visible = false
+       // waitingText.visible = false
+       // waitingRefreshInText.visible = false
     }
     function setDownloadLogo(){
         logoColumn.visible = true
@@ -163,8 +163,8 @@ Item {
         logoDownloadProgressBar.visible = true
         playerIDItem.visible = false
         waitingBlock.visible = false
-        waitingText.visible = false
-        waitingRefreshInText.visible = false
+       // waitingText.visible = false
+       // waitingRefreshInText.visible = false
     }
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
@@ -177,6 +177,7 @@ Item {
         playerIDItem.visible = true
         waitingBlock.visible = true
         playerIDText.color = "#333e47"
+
     }
     function getPointSize(text){
         if (text.length > 40)
@@ -220,10 +221,6 @@ Item {
     }
     function getTopValue(h)
     {
-        console.log("y: " + waitingRefreshInText.y)
-        console.log("DIFFS: " + (waitingRefreshInText.y + waitingRefreshInText.height - h))
-        console.log("BASIC: " + (h * 0.248148148 * aspect))
-        console.log("RETURN: " + (h * 0.248148148 * aspect - (waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h)))
         var result = h * 0.248148148 - Math.max(waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h,0)*1.5
         if (result < 0)
             return h * 0.248148148 * aspect
@@ -511,6 +508,7 @@ Item {
             videoPlayer.stopPlayer()
             androidBrowser.visible = true
             androidBrowser.startShow()
+            audioIcon.visible = false
         }
     }
     //image for audio playback
@@ -518,13 +516,14 @@ Item {
         id: audioIcon
         visible: false
         source: "audio.svg"
-        sourceSize.width: hValue
-        sourceSize.height: hValue
-        width: hValue
-        height: hValue
+        sourceSize.width: hValue/2
+        sourceSize.height: hValue/2
+        width: hValue/2
+        height: hValue/2
         x: parent.width/2 - width/2
         y: parent.height/2 - height/2
     }
+
 
     AndroidBrowser{
         id: androidBrowser
@@ -537,8 +536,6 @@ Item {
             nextItem()
         }
     }
-
-
 
     Dialog {
         id: dialogAndroid

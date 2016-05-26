@@ -91,6 +91,12 @@ QString TeleDSPlayer::getFullPath(QString fileName)
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }
 
+QString TeleDSPlayer::getFullPathZip(QString path)
+{
+    QFileInfo fileInfo(path);
+    return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
+}
+
 void TeleDSPlayer::update(PlayerConfig config)
 {
     foreach (const PlayerConfig::Area& area, config.areas)
@@ -200,8 +206,15 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
         source = QUrl(getFullPath(name));
     else if (item.type == "html5_online")
         source = item.fileUrl;
+    else if (item.type == "html5_zip")
+        source = getFullPathZip(VIDEO_FOLDER + item.id + "/index.html");
 
-    QVariant type = item.type;
+    QVariant type;
+    if (item.type == "html5_zip")
+        type = "html5_online";
+    else
+        type = item.type;
+
     QVariant build = CONFIG_BUILD_NAME;
     QVariant duration = item.duration * 1000;
     QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",Q_ARG(QVariant,source), Q_ARG(QVariant, type), Q_ARG(QVariant, build), Q_ARG(QVariant, duration));
@@ -310,7 +323,6 @@ void TeleDSPlayer::playNext()
     GlobalStatsInstance.setCurrentItem(nextItem);
 
     showVideo();
-
 }
 
 void TeleDSPlayer::bindObjects()
@@ -349,5 +361,4 @@ void TeleDSPlayer::invokeShowVideo(bool isVisible)
     qDebug() << "invoking video visibility change -> " + (isVisible ? QString("true") : QString("false"));
     QVariant isVisibleArg(isVisible);
     QMetaObject::invokeMethod(viewRootObject,"showVideo",Q_ARG(QVariant, isVisibleArg));
-
 }
