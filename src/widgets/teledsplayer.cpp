@@ -319,7 +319,6 @@ void TeleDSPlayer::playNext()
     }
     qDebug() << "inserting into database PLAY";
     DatabaseInstance.playResource(playlist->findItemById(nextItem));
-  //  DatabaseInstance.playResource(config.id,config.playlist.id,nextItem,0.0,0.0);
     DatabaseInstance.createSystemInfo(PlatformSpecific::SystemInfo::get());
     status.isPlaying = true;
     status.item = nextItem;
