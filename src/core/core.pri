@@ -11,7 +11,8 @@ HEADERS += \
     $$PWD/call_once.h \
     $$PWD/teledssheduler.h \
     $$PWD/platformdefines.h \
-    $$PWD/platformspecs.h
+    $$PWD/platformspecs.h \
+    $$PWD/version.h
 
 FORMS += \
     $$PWD/mainwindow.ui

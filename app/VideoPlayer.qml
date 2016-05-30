@@ -179,6 +179,7 @@ Item {
         if (mp1.source == ""){
             console.log("Filling src < MP1")
             mp1.durationMsecs = duration
+            mp1.seekMsecs = seek
             mp1.source = filename
             if (type === "video")
                 mp1.isVideo = true
@@ -186,7 +187,6 @@ Item {
                 mp1.isVideo = false
             mp1.play()
 
-            mp1.seekMsecs = seek
         }
         else if (mp2.source == "")
         {
@@ -231,6 +231,9 @@ Item {
     }
     function playAudioItemAdv(filename, length, seek){
         playItemGeneric(filename,"audio",length,seek)
+    }
+    function playItemAdv(filename, length, seek){
+        playItemGeneric(filename,"video",length,seek)
     }
 }
 

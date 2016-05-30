@@ -63,6 +63,7 @@ struct PlaylistAPIResult
         int videoWidth;
         int videoHeight;
         int duration;
+        int skipTime;
         QString type;
         int play_priority;
         int play_timeout;

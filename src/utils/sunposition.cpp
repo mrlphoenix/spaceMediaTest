@@ -91,8 +91,6 @@ QDateTime SunsetSystem::GetSunrise()
     else if((dLat < -66.4) && (iJulianDay > 79) && (iJulianDay < 267))
         timeGMT = findNextSunrise(iJulianDay, dLat, dLon);
 
-
-
     double dHour = timeGMT / 60;
     int iHour = (int)dHour;
     double dMinute = 60 * (dHour - iHour);

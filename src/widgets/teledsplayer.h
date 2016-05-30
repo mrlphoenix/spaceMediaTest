@@ -49,6 +49,7 @@ public slots:
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);
     void invokeDownloadDone();
+    void invokeVersionText();
 
     void invokePlayerActivationRequiredView(QString url, QString playerId);
     void invokeNoItemsView(QString url);

@@ -5,6 +5,7 @@
 #include "globalconfig.h"
 #include "platformspecs.h"
 #include "sunposition.h"
+#include "version.h"
 
 TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
@@ -30,6 +31,7 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
     QTimer::singleShot(1000,this,SLOT(next()));
+    QTimer::singleShot(1000,this,SLOT(invokeVersionText()));
 
 #ifdef PLAYER_MODE_WINDOWED
     view.show();
@@ -64,6 +66,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     viewRootObject = dynamic_cast<QObject*>(view.rootObject());
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
+    QTimer::singleShot(500,this,SLOT(invokeVersionText()));
 
 #ifdef PLAYER_MODE_WINDOWED
     view.show();
@@ -217,7 +220,13 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
 
     QVariant build = CONFIG_BUILD_NAME;
     QVariant duration = item.duration * 1000;
-    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",Q_ARG(QVariant,source), Q_ARG(QVariant, type), Q_ARG(QVariant, build), Q_ARG(QVariant, duration));
+    QVariant skip = item.skipTime * 1000;
+    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",
+                              Q_ARG(QVariant,source),
+                              Q_ARG(QVariant, type),
+                              Q_ARG(QVariant, build),
+                              Q_ARG(QVariant, duration),
+                              Q_ARG(QVariant, skip));
 }
 
 void TeleDSPlayer::invokeFileProgress(double p, QString name)
@@ -245,6 +254,13 @@ void TeleDSPlayer::invokeDownloadDone()
 {
     qDebug() << "invoking download completed";
     QMetaObject::invokeMethod(viewRootObject,"downloadComplete");
+}
+
+void TeleDSPlayer::invokeVersionText()
+{
+    qDebug() << "invoking version text";
+    QVariant versionText(TeleDSVersion::getVersion());
+    QMetaObject::invokeMethod(viewRootObject,"setVersion",Q_ARG(QVariant, versionText));
 }
 
 void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)

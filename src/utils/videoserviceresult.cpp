@@ -502,6 +502,7 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
             newItem.videoWidth = itemObject["videoWidth"].toInt();
             newItem.videoHeight = itemObject["videoHeight"].toInt();
             newItem.duration = itemObject["duration"].toInt();
+            newItem.skipTime = itemObject["play_start"].toInt();
             newItem.type = itemObject["type"].toString();
             newItem.play_priority = itemObject["play_priority"].toInt();
             newItem.play_type = itemObject["play_type"].toString();

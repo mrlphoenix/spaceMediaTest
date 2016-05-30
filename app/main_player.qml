@@ -43,13 +43,14 @@ Item {
         videoPlayer.playItem(filename)
     }
 
-    function playFileAdvanced(filename, type, build, length)
+    function playFileAdvanced(filename, type, build, length, skip)
     {
         console.debug("playfile is called " + filename)
         if (type === "video")
         {
             console.log("playfileAdvanced::video")
-            videoPlayer.playItem(filename)
+            //videoPlayer.playItem(filename)
+            videoPlayer.playItemAdv(filename,length,skip)
             if (currentType === "browser"){
                 currentType = "videoPlayer"
                 console.log("playfileAdvanced::replacing browser with media player")
@@ -61,7 +62,7 @@ Item {
         else if (type === "audio")
         {
             console.log("playfileAdvanced::audio")
-            videoPlayer.playAudioItemAdv(filename,length,0)
+            videoPlayer.playAudioItemAdv(filename,length,skip)
             if (currentType === "browser"){
                 currentType = "videoPlayer"
                 console.log("playfileAdvanced::replacing browser with media player")
@@ -142,6 +143,9 @@ Item {
             overlayBgRect.color = "#000000"
             videoPlayer.opacity = value
         }
+    }
+    function setVersion(version){
+        versionText.text = version
     }
 
     function setNoItemsLogo(link){
@@ -482,6 +486,12 @@ Item {
                        }
                    }
         }
+    }
+    Text {
+        id: versionText
+        x: parent.width - width
+        y: parent.height - height
+        text: ""
     }
 
     //content types
