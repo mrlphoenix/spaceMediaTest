@@ -15,6 +15,7 @@
 #include <QAndroidJniObject>
 #include "sys/system_properties.h"
 #include "sys/sysinfo.h"
+#include "JlCompress.h"
 
 #define ANDROID_OS_BUILD_VERSION_RELEASE     "ro.build.version.release"          // * The user-visible version string. E.g., "1.0" or "3.4b5".
 #define ANDROID_OS_BUILD_VERSION_INCREMENTAL "ro.build.version.incremental"      // The internal value used by the underlying source control to represent this build.
@@ -147,19 +148,17 @@ QString PlatformSpecific::getUniqueId()
 int64_t PlatformSpecific::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    qDebug() << "get Traffic In";
+    qDebug() << "get Traffic";
     jlong value = 0;
     QAndroidJniEnvironment env;
-    qDebug() << "clazz";
     jclass clazz = env->FindClass("android/net/TrafficStats");
     if (clazz)
     {
-        qDebug() << "method";
         jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
         if (mid){
             qDebug() << "getValue";
             value = env->CallStaticLongMethod(clazz,mid);
-            qDebug() << "WOW JNI IN BYTES = " + QString::number(value);
+            qDebug() << "TRAFFIC BYTES = " + QString::number(value);
         }
     }
     /*
@@ -334,7 +333,6 @@ double PlatformSpecific::getAvgUsage()
 #ifdef PLATFORM_DEFINE_WINDOWS
     return 0.;
 #else
-    qDebug() << "AVG CALLED";
     QProcess loadAvgProcess;
     loadAvgProcess.start("cat /proc/loadavg");
     loadAvgProcess.waitForFinished();
@@ -496,6 +494,34 @@ PlatformSpecific::HardwareInfo PlatformSpecific::getHardwareInfo()
     return result;
 }
 
+void PlatformSpecific::extractFile(QString file, QString id)
+{
+    QDir dir(VIDEO_FOLDER + id);
+    dir.removeRecursively();
+    QDir().mkdir(VIDEO_FOLDER + id);
+    QFile::rename(VIDEO_FOLDER + file + "_", VIDEO_FOLDER + file);
+#ifdef PLATFORM_DEFINE_ANDROID
+    QFile * zipContentFile = new QFile(VIDEO_FOLDER + file);
+    zipContentFile->open(QFile::ReadOnly);
+    JlCompress::extractDir(zipContentFile,VIDEO_FOLDER + id + "/");
+    zipContentFile->close();
+    delete zipContentFile;
+#endif
+
+#ifdef PLATFORM_DEFINE_RPI
+    QProcess unzipProc;
+    unzipProc.start("unzip -o " + VIDEO_FOLDER + file + " -d " + VIDEO_FOLDER + id);
+    unzipProc.waitForFinished();
+    unzipProc.close();
+#endif
+#ifdef PLATFORM_DEFINE_LINUX
+    QProcess unzipProc;
+    unzipProc.start("unzip -o " + VIDEO_FOLDER + file + " -d " + VIDEO_FOLDER + id);
+    unzipProc.waitForFinished();
+    unzipProc.close();
+#endif
+}
+
 void PlatformSpecific::writeToFile(QByteArray data, QString filename)
 {
     QFile f(filename);
@@ -575,9 +601,9 @@ PlatformSpecific::SystemInfo PlatformSpecific::SystemInfo::fromRecord(const QSql
     result.longitude = record.value("longitude").toDouble();
     result.traffic = record.value("traffic_in").toInt();
     result.wifi_mac = record.value("wifi_mac").toString();
-    qDebug() << result.time << result.battery << result.free_memory << result.free_space <<
+ /*   qDebug() << result.time << result.battery << result.free_memory << result.free_space <<
                 result.hdmi_cec << result.hdmi_gpio << result.latitude << result.longitude <<
-                result.traffic <<result.wifi_mac;
+                result.traffic <<result.wifi_mac;*/
     return result;
 }
 

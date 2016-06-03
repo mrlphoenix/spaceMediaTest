@@ -97,6 +97,7 @@ public:
     void resourceCount();
 
     void playResource(PlaylistAPIResult::PlaylistItem item);
+    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info);
     void removeResource(QString itemId);
 
     void createSystemInfo(PlatformSpecific::SystemInfo info);
@@ -104,16 +105,18 @@ public:
     //statistic operation
     void playsUploaded();
     void systemInfoUploaded();
+    void eventsUploaded();
 
     void findResource(QString iid);
     void findPlaysToSend();
     void findSystemInfoToSend();
+    void findEventsToSend();
 
     struct Play
     {
         static Play fromRecord(const QSqlRecord& record);
         QJsonObject serialize() const;
-        QString time, screen, area, content;
+        QString time, screen, area, content, campaign;
     };
     struct SystemInfo
     {
@@ -139,12 +142,30 @@ public:
         int filesize;
         QDateTime lastTimePlayed;
     };
+    struct PlayEvent
+    {
+        static PlayEvent fromRecord(const QSqlRecord& record);
+        QJsonObject serialize() const;
+        QString time, screen, area, content, campaign;
+        int systemInfoId;
 
+        double cpu;
+        double latitude;
+        double longitude;
+        double battery;
+        int traffic;
+        int free_memory;
+        QString wifi_mac;
+        int hdmi_cec;
+        int hdmi_gpio;
+        int free_space;
+    };
 
 signals:
     void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
     void systemInfoFound(QList<PlatformSpecific::SystemInfo> records);
+    void eventsFound(QList<StatisticDatabase::PlayEvent> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);
 

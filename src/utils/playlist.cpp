@@ -41,9 +41,6 @@ QString RandomPlaylist::next()
     return result;
 }
 
-
-
-
 void RandomPlaylist::splitItems()
 {
     fixedFloatingItems.clear();

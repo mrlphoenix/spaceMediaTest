@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2016-05-30T13:01:11. -->
+<!-- Written by QtCreator 3.5.1, 2016-05-31T18:07:21. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -625,7 +625,7 @@
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.4">
       <value type="QString" key="BuildTargetSdk">android-23</value>
-      <value type="QString" key="KeystoreLocation"></value>
+      <value type="QString" key="KeystoreLocation">/home/nother/android_release.keystore</value>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Build Android APK</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>

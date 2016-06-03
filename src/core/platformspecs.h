@@ -52,6 +52,7 @@ public:
     static QString getWifiMac();
     static int getFreeSpace();
     static HardwareInfo getHardwareInfo();
+    static void extractFile(QString file, QString id);
 
     static void writeToFile(QByteArray data, QString filename);
 

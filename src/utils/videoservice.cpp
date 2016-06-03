@@ -22,6 +22,7 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
     connect(this,SIGNAL(sendStatisticRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(sendStatisticResultReply(QNetworkReply*)));
     connect(this,SIGNAL(sendStatisticPlaysRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(sendStatisticPlaysResultReply(QNetworkReply*)));
+    connect(this,SIGNAL(sendStatisticEventsRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(sendStatisticEventsResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerSettingsRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlayerSettingsReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerAreasRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getPlayerAreasReply(QNetworkReply*)));
     connect(this,SIGNAL(getVirtualScreenPlaylistRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getVirtualScreenPlaylist(QNetworkReply*)));
@@ -30,6 +31,7 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfig)),this,SIGNAL(getPlaylistResult(PlayerConfig)));
     connect(&resultProcessor,SIGNAL(sendStatisticResult(NonQueryResult)),this,SIGNAL(sendStatisticResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(sendStatisticPlaysResult(NonQueryResult)),this,SIGNAL(sendStatisticPlaysResult(NonQueryResult)));
+    connect(&resultProcessor,SIGNAL(sendStatisticEventsResult(NonQueryResult)),this,SIGNAL(sendStatisticEventsResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
     connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SIGNAL(getPlayerAreasResult(PlayerConfigNew)));
     connect(&resultProcessor,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)), this, SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
@@ -77,6 +79,11 @@ void VideoService::sendPlays(QString data)
     executeRequest(VideoServiceRequestFabric::sendPlaysRequest(data));
 }
 
+void VideoService::sendEvents(QString data)
+{
+    executeRequest(VideoServiceRequestFabric::sendEventsRequest(data));
+}
+
 void VideoService::advancedInit()
 {
     executeRequest(VideoServiceRequestFabric::advancedInitRequest());
@@ -94,14 +101,21 @@ void VideoService::executeRequest(VideoServiceRequest request)
     }
 }
 
-
-void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
+bool VideoService::processReplyError(const QNetworkReply *reply, QString method)
 {
     if (reply->error())
     {
-        qDebug() << "init:error" + reply->errorString();
+        qDebug() << method + "::reply_error: " + reply->errorString();
         GlobalStatsInstance.registryConnectionError();
+        return true;
     }
+    return false;
+}
+
+
+void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
+{
+    processReplyError(reply,"init");
     emit initVideoRequestFinished(reply);
     nextRequest();
 }
@@ -109,67 +123,50 @@ void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 
 void VideoService::getPlaylistRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "getPlaylist:error" + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
+    if (processReplyError(reply,"getPlaylist"))
         GlobalStatsInstance.registryPlaylistError();
-    }
     emit getPlaylistRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::sendStatisticRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "sendStatistic:system:error " + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
+    processReplyError(reply,"sendStatistic:system");
     emit sendStatisticRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::sendStatisticPlaysRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "sendStatistic:plays:error " + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
+    processReplyError(reply,"sendStatistic:plays");
     emit sendStatisticPlaysRequestFinished(reply);
+    nextRequest();
+}
+
+void VideoService::sendStatisticEventsRequestFinishedSlot(QNetworkReply *reply)
+{
+    processReplyError(reply,"sendStatistic:events");
+    emit sendStatisticEventsRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "get player settings error " + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
+    processReplyError(reply,"settings");
     emit getPlayerSettingsRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::getPlayerAreasRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "get player areas error" + reply->errorString();
-        GlobalStatsInstance.registryConnectionError();
-    }
+    processReplyError(reply,"playerAreas");
     emit getPlayerAreasRequestFinished(reply);
     nextRequest();
 }
 
 void VideoService::getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply *reply)
 {
-    if (reply->error())
-    {
-        qDebug() << "get player areas error" + reply->errorString();
-        GlobalStatsInstance.registryPlaylistError();
-    }
+    processReplyError(reply,"playerVirtualScreenPlaylist");
     emit getVirtualScreenPlaylistRequestFinished(reply);
     nextRequest();
 }
@@ -219,6 +216,8 @@ void VideoService::performRequest(VideoServiceRequest request)
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticRequestFinishedSlot(QNetworkReply*)));
     else if (request.name == "statistics:plays")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticPlaysRequestFinishedSlot(QNetworkReply*)));
+    else if (request.name == "statistics:events")
+        connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticEventsRequestFinishedSlot(QNetworkReply*)));
     else
     {
         qDebug() << "ERROR: undefined method: " << request.name;
@@ -286,6 +285,18 @@ VideoServiceRequest VideoServiceRequestFabric::sendStatisticRequest(QString data
     result.methodAPI = "event/state";
     result.method = "POST";
     result.name = "statistics:system";
+    return result;
+}
+
+VideoServiceRequest VideoServiceRequestFabric::sendEventsRequest(QString data)
+{
+    VideoServiceRequest result;
+    result.body = data.toLocal8Bit();
+    result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "event";
+    result.method = "POST";
+    result.name = "statistics:events";
     return result;
 }
 

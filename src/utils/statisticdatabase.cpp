@@ -21,10 +21,11 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
     {
         m_database.exec("create table resource (iid TEXT PRIMARY KEY, name TEXT, lastupdated TEXT, size INTEGER, filesize INTEGER, lastTimePlayed TEXT)");
         m_database.transaction();
-        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)");
+        m_database.exec("create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT)");
         m_database.transaction();
         m_database.exec("create table systemInfo (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic_in INTEGER, traffic_out INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
         m_database.transaction();
+        m_database.exec("create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
         m_database.commit();
     }
 }
@@ -275,15 +276,40 @@ void StatisticDatabase::resourceCount()
 void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
 {
     //create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)
-    QString sql = QString("insert into play(time, screen, area, content) VALUES ('%1', '%2', '%3', '%4')").arg(
+    QString sql = QString("insert into play(time, screen, area, content, campaign) VALUES ('%1', '%2', '%3', '%4', '%5')").arg(
                     QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
                     GlobalConfigInstance.getVirtualScreenId(),
                     item.areaId,
-                    item.id
+                    item.id,
+                    item.campaignId
                 );
     queryThread->execute("playResource", sql);
     sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), item.id);
     queryThread->execute("playResource",sql);
+}
+
+void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info)
+{
+    //		create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT,
+    //                          cpu REAL, latitude REAL, longitude REAL, battery REAL,
+    //                          traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)
+    QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) " +
+                  QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15)")).arg(
+                    QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
+                    GlobalConfigInstance.getVirtualScreenId(),
+                    item.areaId,
+                    item.id,
+                    item.campaignId).arg(
+                    QString::number(info.cpu),
+                    QString::number(info.latitude), QString::number(info.longitude),
+                    QString::number(info.battery), QString::number(info.traffic),
+                    QString::number(info.free_memory), info.wifi_mac,
+                    QString::number(info.hdmi_cec)).arg(
+                    QString::number(info.hdmi_gpio),
+                    QString::number(info.free_space)
+                );
+    qDebug() << "create play event sql = " + sql;
+    queryThread->execute("playResource", sql);
 }
 
 void StatisticDatabase::removeResource(QString itemId)
@@ -326,6 +352,12 @@ void StatisticDatabase::findSystemInfoToSend()
     queryThread->execute("findSystemInfoToSend",sql);
 }
 
+void StatisticDatabase::findEventsToSend()
+{
+    QString sql = "select * from event";
+    queryThread->execute("findEventsToSend", sql);
+}
+
 void StatisticDatabase::playsUploaded()
 {
     queryThread->execute("uploadingSuccess:","delete from Play");
@@ -334,6 +366,11 @@ void StatisticDatabase::playsUploaded()
 void StatisticDatabase::systemInfoUploaded()
 {
     queryThread->execute("uploadingSuccess:","delete from SystemInfo");
+}
+
+void StatisticDatabase::eventsUploaded()
+{
+    queryThread->execute("uploadingSuccess:", "delete from event");
 }
 
 QString StatisticDatabase::serializeDate(QDateTime date)
@@ -378,6 +415,14 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
             systemInfos.append(PlatformSpecific::SystemInfo::fromRecord(record));
         emit systemInfoFound(systemInfos);
     }
+    else if (queryId == "findEventsToSend")
+    {
+        qDebug() << "events found in DB: " << records.count();
+        QList<PlayEvent> events;
+        foreach (const QSqlRecord &record, records)
+            events.append(PlayEvent::fromRecord(record));
+        emit eventsFound(events);
+    }
     else
         emit unknownResult(queryId, records);
 }
@@ -389,6 +434,7 @@ StatisticDatabase::Play StatisticDatabase::Play::fromRecord(const QSqlRecord &re
     result.screen = record.value("screen").toString();
     result.area = record.value("area").toString();
     result.content = record.value("content").toString();
+    result.campaign = record.value("campaign").toString();
     return result;
 }
 
@@ -400,6 +446,7 @@ QJsonObject StatisticDatabase::Play::serialize() const
     result["content_id"] = this->content;
     return result;
 }
+
 StatisticDatabase::SystemInfo StatisticDatabase::SystemInfo::fromRecord(const QSqlRecord &record)
 {
     SystemInfo result;
@@ -424,5 +471,49 @@ StatisticDatabase::Resource StatisticDatabase::Resource::fromRecord(const QSqlRe
     result.lastupdated = deserializeDate(record.value("lastupdated").toString());
     result.filesize = record.value("filesize").toInt();
     result.size = record.value("size").toInt();
+    return result;
+}
+
+StatisticDatabase::PlayEvent StatisticDatabase::PlayEvent::fromRecord(const QSqlRecord &record)
+{
+    PlayEvent result;
+    result.time = record.value("time").toString();
+    result.screen = record.value("screen").toString();
+    result.area = record.value("area").toString();
+    result.content = record.value("content").toString();
+    result.campaign = record.value("campaign").toString();
+
+    result.battery = record.value("battery").toDouble();
+    result.cpu = record.value("cpu").toDouble();
+    result.free_memory = record.value("free_memory").toInt();
+    result.free_space = record.value("free_space").toInt();
+    result.hdmi_cec = record.value("hdmi_cec").toInt();
+    result.hdmi_gpio = record.value("hdmi_gpio").toInt();
+    result.latitude = record.value("longitude").toDouble();
+    result.longitude = record.value("longitude").toDouble();
+    result.traffic = record.value("traffic").toInt();
+    result.wifi_mac = record.value("wifi_mac").toString();
+    return result;
+}
+
+QJsonObject StatisticDatabase::PlayEvent::serialize() const
+{
+    QJsonObject result;
+    result["timestamp"] = qint64(QDateTime::fromString(this->time,"yyyy-MM-dd HH:mm:ss").toTime_t());
+    result["virtual_screen_area_id"] = area;
+    result["content_id"] = content;
+    result["campaign_id"] = campaign;
+    QJsonObject gpsObject;
+    gpsObject["latitude"] = latitude;
+    gpsObject["longitude"] = longitude;
+    result["gps"] = gpsObject;
+    result["cpu_load"] = cpu;
+    result["battery"] = battery;
+    result["traffic"] = traffic;
+    result["free_memory"] = free_memory;
+    result["wifi_mac"] = wifi_mac;
+    result["hdmi_cec"] = ((hdmi_cec == 1) ? true : false);
+    result["hdmi_gpio"] = ((hdmi_gpio == 1) ? true : false);
+    result["free_space"] = free_space;
     return result;
 }

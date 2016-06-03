@@ -21,16 +21,18 @@ StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent
     qDebug() << "Statistic Uploader Initialization";
     this->videoService = videoService;
 
+    connect(&DatabaseInstance,SIGNAL(eventsFound(QList<StatisticDatabase::PlayEvent>)),this,SLOT(eventsReady(QList<StatisticDatabase::PlayEvent>)));
     connect(&DatabaseInstance,SIGNAL(playsFound(QList<StatisticDatabase::Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
-    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<PlatformSpecific::SystemInfo>)),this, SLOT(systemInfoReady(QList<PlatformSpecific::SystemInfo>)));
+    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<PlatformSpecific::SystemInfo>)),this,SLOT(systemInfoReady(QList<PlatformSpecific::SystemInfo>)));
     connect(videoService,SIGNAL(sendStatisticResult(NonQueryResult)),this,SLOT(systemInfoUploadResult(NonQueryResult)));
     connect(videoService,SIGNAL(sendStatisticPlaysResult(NonQueryResult)),this,SLOT(playsUploadResult(NonQueryResult)));
+    connect(videoService,SIGNAL(sendStatisticEventsResult(NonQueryResult)),this,SLOT(eventsUploadResult(NonQueryResult)));
 }
 
 bool StatisticUploader::start()
 {
-    DatabaseInstance.findSystemInfoToSend();
-    DatabaseInstance.findPlaysToSend();
+    qDebug() << "Uploader:start";
+    DatabaseInstance.findEventsToSend();
     return false;
 }
 
@@ -44,16 +46,11 @@ void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
     QJsonDocument doc(result);
     QString strToSend = doc.toJson();
     videoService->sendPlays(strToSend);
-
-  //  this->plays = plays;
-  //  QTimer::singleShot(500,this,SLOT(nextState()));
 }
 void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data)
 {
-    //qDebug() << "StatisticUploader::systemInfoReady";
     if (data.count() == 0)
     {
-      //  qDebug() << "StatisticUploader info count = " + QString::number(data.count());
         return;
     }
     QJsonArray result;
@@ -63,8 +60,45 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
     QString strToSend = doc.toJson();
 
     videoService->sendStatistic(strToSend);
-  //  this->monitoring = monitoring;
-    //  QTimer::singleShot(500,this,SLOT(nextState()));
+}
+
+void StatisticUploader::eventsReady(QList<StatisticDatabase::PlayEvent> events)
+{
+    /*
+     *   {
+    "timestamp": 0,
+    "virtual_screen_area_id": "string",
+    "content_id": "string",
+    "campaign_id": "string",
+    "gps": {
+      "latitude": 0,
+      "longitude": 0
+    },
+    "cpu_load": 0,
+    "battery": 0,
+    "traffic": 0,
+    "free_memory": 0,
+    "wifi_mac": "string",
+    "hdmi_cec": true,
+    "hdmi_gpio": true,
+    "free_space": 0
+  }
+     * */
+    if (events.count() == 0)
+    {
+        return;
+    }
+    QJsonArray result;
+    foreach (const StatisticDatabase::PlayEvent &event, events)
+        result.append(event.serialize());
+    QJsonDocument doc(result);
+    QString strToSend = doc.toJson();
+
+    //for debugging
+    PlatformSpecific::writeToFile(strToSend.toLocal8Bit(), VIDEO_FOLDER + "stats.txt");
+
+    //send via videoService
+    videoService->sendEvents(strToSend);
 }
 
 void StatisticUploader::systemInfoUploadResult(NonQueryResult result)
@@ -90,5 +124,18 @@ void StatisticUploader::playsUploadResult(NonQueryResult result)
     else
     {
         qDebug() << "PlaysUploadResult::FAIL" << result.source;
+    }
+}
+
+void StatisticUploader::eventsUploadResult(NonQueryResult result)
+{
+    if (result.status == "success")
+    {
+        qDebug() << "EventsUploadResult::Success";
+        DatabaseInstance.eventsUploaded();
+    }
+    else
+    {
+        qDebug() << "EventsUploadResult::FAIL" << result.source;
     }
 }

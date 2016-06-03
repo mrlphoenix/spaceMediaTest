@@ -107,6 +107,29 @@ void VideoServiceResponseHandler::sendStatisticResultReply(QNetworkReply *reply)
     emit sendStatisticResult(result);
 }
 
+void VideoServiceResponseHandler::sendStatisticEventsResultReply(QNetworkReply *reply)
+{
+    NonQueryResult result;
+    if (reply->error())
+    {
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.status = root["error"].toString();
+    }
+    else
+    {
+        result.error_id = 0;
+        result.status = "success";
+    }
+    emit sendStatisticEventsResult(result);
+}
+
 void VideoServiceResponseHandler::sendStatisticPlaysResultReply(QNetworkReply *reply)
 {
     NonQueryResult result;
@@ -499,6 +522,7 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
             newItem.name = itemObject["name"].toString();
             newItem.fileUrl = itemObject["fileUrl"].toString();
             newItem.fileHash = itemObject["fileHash"].toString();
+            newItem.campaignId = itemObject["campaign_id"].toString();
             newItem.videoWidth = itemObject["videoWidth"].toInt();
             newItem.videoHeight = itemObject["videoHeight"].toInt();
             newItem.duration = itemObject["duration"].toInt();

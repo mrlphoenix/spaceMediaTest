@@ -20,12 +20,15 @@ public slots:
 
     void playsReady(QList<StatisticDatabase::Play> plays);
     void systemInfoReady(QList<PlatformSpecific::SystemInfo> data);
+    void eventsReady(QList<StatisticDatabase::PlayEvent> events);
     void systemInfoUploadResult(NonQueryResult result);
     void playsUploadResult(NonQueryResult result);
+    void eventsUploadResult(NonQueryResult result);
 
 private:
     QNetworkAccessManager manager;
     VideoService * videoService;
 };
+
 
 #endif // STATISTICUPLOADER_H

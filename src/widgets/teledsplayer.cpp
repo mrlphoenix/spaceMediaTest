@@ -291,7 +291,7 @@ void TeleDSPlayer::invokeEnablePreloading()
     if (invokedOnce)
         return;
     QString nextItem = playlist->next();
-    DatabaseInstance.playResource(playlist->findItemById(nextItem));
+//    DatabaseInstance.playResource(playlist->findItemById(nextItem));
 
     QVariant nextItemParam = QUrl(getFullPath(nextItem));
     QMetaObject::invokeMethod(viewRootObject, "enablePreloading", Q_ARG(QVariant, nextItemParam));
@@ -334,8 +334,9 @@ void TeleDSPlayer::playNext()
             setBrightness(brightnessValue/100.);
     }
     qDebug() << "inserting into database PLAY";
-    DatabaseInstance.playResource(playlist->findItemById(nextItem));
-    DatabaseInstance.createSystemInfo(PlatformSpecific::SystemInfo::get());
+    DatabaseInstance.createPlayEvent(playlist->findItemById(nextItem), PlatformSpecific::SystemInfo::get());
+    //DatabaseInstance.playResource(playlist->findItemById(nextItem));
+    //DatabaseInstance.createSystemInfo(PlatformSpecific::SystemInfo::get());
     status.isPlaying = true;
     status.item = nextItem;
     GlobalStatsInstance.setCurrentItem(nextItem);

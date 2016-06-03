@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QProcess>
 #include <QUrl>
+#include <QDir>
 
 
 #include "teledscore.h"
@@ -42,9 +43,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (rpiPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
-
-
-    QTimer::singleShot(70000,uploader,SLOT(start()));
 
     qDebug() << CONFIG_FOLDER;
 
@@ -101,12 +99,12 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
     if (result.error == 300 || result.error == 106 || result.error == 301)
     {
-        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode());
         return;
     }
     if (result.error == 201)
     {
-        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+        rpiPlayer->invokeNoItemsView("http://teleds.com");
         return;
     }
 
@@ -145,7 +143,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
     }
     else
     {
-        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+        rpiPlayer->invokeNoItemsView("http://teleds.com");
         GlobalStatsInstance.registryPlaylistError();
     }
     GlobalConfigInstance.setPlayerConfig(result.data);
@@ -159,7 +157,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
     {
         if (result.error != "")
             GlobalConfigInstance.setActivationCode(result.error);
-        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.tv",GlobalConfigInstance.getActivationCode());
+        rpiPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode());
     }
     if (result.error_id == 403)
     {
@@ -196,7 +194,7 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
     int count = 0;
     if (result.count() == 0)
     {
-        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+        rpiPlayer->invokeNoItemsView("http://teleds.com");
         return;
     }
     foreach (const QString & k, result.keys())
@@ -260,7 +258,7 @@ void TeleDSCore::downloaded()
                 if (v.type != "audio")
                 {
                     if (v.playlist.items.count() == 0)
-                        rpiPlayer->invokeNoItemsView("http://teleds.tv");
+                        rpiPlayer->invokeNoItemsView("http://teleds.com");
                     else
                     {
                         rpiPlayer->invokeDownloadDone();
@@ -282,8 +280,6 @@ void TeleDSCore::downloaded()
         }
     }
 }
-
-
 
 void TeleDSCore::checkCPUStatus()
 {

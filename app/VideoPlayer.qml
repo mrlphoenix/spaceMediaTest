@@ -18,7 +18,7 @@ Item {
         }
         else{
             console.log("duration = " + duration)
-            return duration - 1200
+            return duration - 800
         }
     }
 

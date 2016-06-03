@@ -43,6 +43,7 @@ public:
     static VideoServiceRequest initVideoPlayerRequest();
     static VideoServiceRequest getPlaylistRequest(QString playerId, QString cryptedSessionKey);
     static VideoServiceRequest sendStatisticRequest(QString data);
+    static VideoServiceRequest sendEventsRequest(QString data);
     static VideoServiceRequest sendPlaysRequest(QString data);
     static VideoServiceRequest advancedInitRequest();
     static VideoServiceRequest getPlaylistSettingsRequest();
@@ -80,14 +81,18 @@ public:
 
     void sendStatistic(QString data);
     void sendPlays(QString data);
+    void sendEvents(QString data);
     void advancedInit();
 
     void executeRequest(VideoServiceRequest request);
+
+    bool processReplyError(const QNetworkReply * reply, QString method);
 
 signals:
     void initResult(InitRequestResult result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void sendStatisticEventsResult(NonQueryResult result);
     void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
     void getPlayerAreasResult(PlayerConfigNew result);
@@ -97,6 +102,7 @@ signals:
     void getPlaylistRequestFinished(QNetworkReply * reply);
     void sendStatisticRequestFinished(QNetworkReply * reply);
     void sendStatisticPlaysRequestFinished(QNetworkReply * reply);
+    void sendStatisticEventsRequestFinished(QNetworkReply * reply);
     void getPlayerSettingsRequestFinished(QNetworkReply * reply);
     void getPlayerAreasRequestFinished(QNetworkReply * reply);
     void getVirtualScreenPlaylistRequestFinished(QNetworkReply* reply);
@@ -106,6 +112,7 @@ public slots:
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticPlaysRequestFinishedSlot(QNetworkReply * reply);
+    void sendStatisticEventsRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerSettingsRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerAreasRequestFinishedSlot(QNetworkReply * reply);
     void getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply * reply);

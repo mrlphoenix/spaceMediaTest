@@ -86,8 +86,10 @@ Item {
             else if (currentType === "browser"){
                 console.log("playfileAdvanced::html5 from browser")
                 if (build === "android"){
+                    console.log("build = android, len = " + length)
                     androidBrowser.load(filename)
                     androidBrowser.setShowTime(length)
+                    androidBrowser.startShow()
                 }
             }
         }
@@ -151,8 +153,8 @@ Item {
     function setNoItemsLogo(link){
         logoColumn.visible = true
         videoPlayer.opacity = 0
-        titleText.text = "No playlist available"
-        progressText.text = "Go to <a href=\"" + link + "\">" + link +  "</a></html>"
+        titleText.text = "Nothing to play"
+        progressText.text = "Go to <a href=\"" + link + "\">teleds.com</a></html>"
         logoDownloadProgressBar.visible = false
         playerIDItem.visible = false
         waitingBlock.visible = false
@@ -162,7 +164,7 @@ Item {
     function setDownloadLogo(){
         logoColumn.visible = true
         videoPlayer.opacity = 0
-        titleText.text = "Downloading playlist"
+        titleText.text = "Downloading..."
         progressText.text = "Please wait..."
         logoDownloadProgressBar.visible = true
         playerIDItem.visible = false

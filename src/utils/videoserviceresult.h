@@ -59,6 +59,7 @@ struct PlaylistAPIResult
         QString name;
         QString fileUrl;
         QString fileHash;
+        QString campaignId;
         QString areaId;
         int videoWidth;
         int videoHeight;
@@ -188,6 +189,7 @@ signals:
     void initResult(InitRequestResult result);
     void getPlaylistResult(PlayerConfig result);
     void sendStatisticResult(NonQueryResult result);
+    void sendStatisticEventsResult(NonQueryResult result);
     void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
     void getPlayerAreasResult(PlayerConfigNew result);
@@ -197,6 +199,7 @@ public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
     void sendStatisticResultReply(QNetworkReply * reply);
+    void sendStatisticEventsResultReply(QNetworkReply * reply);
     void sendStatisticPlaysResultReply(QNetworkReply * reply);
     void getPlayerSettingsReply(QNetworkReply * reply);
     void getPlayerAreasReply(QNetworkReply * reply);

@@ -5,26 +5,6 @@ import QtWebView 1.1
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
 
-/*ApplicationWindow {
-    property bool showProgress: webView.loading
-                                && Qt.platform.os !== "ios"
-                                && Qt.platform.os !== "winphone"
-                                && Qt.platform.os !== "winrt"
-    visible: true
-    x: initialX
-    y: initialY
-    width: initialWidth
-    height: initialHeight
-    title: webView.title
-
-    WebView {
-        id: webView
-        anchors.fill: parent
-        url: initialUrl
-    }
-
-}
-*/
 Item{
     anchors.fill: parent
     function load(url){
@@ -35,6 +15,7 @@ Item{
         console.log("browser show time = " + msecs)
     }
     function startShow(){
+        turnOffTimer.stop()
         turnOffTimer.start()
     }
 

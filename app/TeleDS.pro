@@ -24,7 +24,10 @@ contains (KIT, Raspberry){
 include(../src/core/core.pri)
 include(../src/utils/utils.pri)
 include(../src/widgets/widgets.pri)
-include(../src/zip/zip.pri)
+
+contains(KIT, Android){
+    include(../src/zip/zip.pri)
+}
 
 OTHER_FILES += ../qml/simple_player.qml \
            VideoPlayer.qml
@@ -39,7 +42,7 @@ QML_IMPORT_PATH =
 
 LIBS += -lssl -lcrypto
 
-contains (KIT, Android){
+contains (KIT, Android) {
     include(deployment.pri)
     QT += androidextras
 }

@@ -7,7 +7,11 @@
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "platformdefines.h"
+
+
+#ifdef PLATFORM_DEFINE_ANDROID
 #include "JlCompress.h"
+#endif
 
 VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *parent) : QObject(parent)
 {
@@ -35,8 +39,6 @@ VideoDownloaderWorker::~VideoDownloaderWorker()
 {
     if (file)
         file->deleteLater();
- //   if (reply)
- //       reply->deleteLater();
 }
 
 void VideoDownloaderWorker::prepareDownload()
@@ -328,15 +330,18 @@ void VideoDownloaderWorker::httpFinished()
     file = 0;
     if (currentItem.dtype == "html5_zip")
     {
-        QDir dir(VIDEO_FOLDER + currentItemId);
+        PlatformSpecific::extractFile(currentItemId + currentItem.extension(), currentItemId);
+     /*   QDir dir(VIDEO_FOLDER + currentItemId);
         dir.removeRecursively();
         QDir().mkdir(VIDEO_FOLDER + currentItemId);
         QFile::rename(VIDEO_FOLDER + currentItemId + currentItem.extension() + "_", VIDEO_FOLDER + currentItemId + currentItem.extension());
+#ifdef PLATFORM_DEFINE_ANDROID
         QFile * zipContentFile = new QFile(VIDEO_FOLDER + currentItemId + currentItem.extension());
         zipContentFile->open(QFile::ReadOnly);
         JlCompress::extractDir(zipContentFile,VIDEO_FOLDER + currentItemId + "/");
         zipContentFile->close();
         delete zipContentFile;
+#endif*/
     }
     else
         swapper.add(VIDEO_FOLDER + currentItemId + currentItem.extension(), VIDEO_FOLDER + currentItemId + currentItem.extension() + "_");
