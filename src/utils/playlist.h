@@ -10,6 +10,10 @@
 
 #define MAGIC_PLAYLIST_VALUE 4.
 
+
+//this file is for virtual playlist implementations
+//main difference in these playlist is in implementation of next() method
+//also updatePlaylist can be vary as we need to prepare lists in different manner
 class AbstractPlaylist : public QObject
 {
     Q_OBJECT

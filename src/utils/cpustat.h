@@ -11,6 +11,10 @@
 
 class QStringList;
 
+
+//this is outdated class for getting system stats asyncroniusly for raspberry pi
+//as we move to linux and android - we dont need it anymore
+//all stuff in this class now is incapsulated in PlatformSpecific class
 class CPUStatWorker : public QObject
 {
     Q_OBJECT

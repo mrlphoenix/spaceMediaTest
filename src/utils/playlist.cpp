@@ -18,6 +18,9 @@ QString RandomPlaylist::next()
     bool found = false;
     QString result;
 
+    //first we need to try to find proper item in fixed | floating types
+    //test item for delay, timeRange, DateRange.
+    //In future: test for GeoTargeting.
     foreach (const PlaylistAPIResult::PlaylistItem &item, fixedFloatingItems)
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
@@ -28,6 +31,8 @@ QString RandomPlaylist::next()
             result = item.id;
             break;
         }
+    //if we didnt found item in fixed | floating types - we need to find it in floating | none parts of playlist
+    //note that we dont test item for delay
     if (!found)
         foreach (const PlaylistAPIResult::PlaylistItem &item, floatingNoneItems)
             if (item.checkTimeTargeting() && item.checkDateRange())
@@ -59,6 +64,7 @@ void RandomPlaylist::splitItems()
 
 void RandomPlaylist::shuffle()
 {
+    //this method is called when we need to shuffle our playlist items
     QList<PlaylistAPIResult::PlaylistItem> newFixed, newFloating;
     while (fixedFloatingItems.count() > 0)
     {
@@ -121,6 +127,7 @@ void StandartPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 
 QString StandartPlaylist::next()
 {
+    //in standart playlist next() method is simple - we just play items one by one
     int itemsCount = playlist.items.count();
     if (currentItemIndex >= itemsCount)
         currentItemIndex = itemsCount-1;
@@ -142,7 +149,9 @@ void MagicRandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
     this->playlist = playlist;
     splitItems();
     allLength = 0;
+    //pretend we just played all items
     minPlayTime = QDateTime::currentDateTimeUtc();
+    //calculating total play time
     foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
         allLength += item.duration;
     minPlayTime.addSecs(-allLength);
@@ -162,6 +171,20 @@ void MagicRandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 
 QString MagicRandomPlaylist::next()
 {
+    /*
+     * 1. Перемешиваем массив
+    2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
+    3. Эмулируем свойство lastplayed для каждого ролика (только если ролик не разу не проигрывался на устройстве)
+        1. $last_play = $time(текущее время) - $total_video_time + $tmptime;
+        2. $tmptime += $lenght;
+    4. Высчитываем промежуток сортировки ($magic)
+        1. $magic = round($total / $count * 4); // общее время проигрывание роликов / колво роликов * 4
+    5. Сортируем массив кастомной сортировкой
+        1. Сортировка по return (ceil($a_lastplayed/$magic) < ceil($b_lastplayed/$magic)) ? -1 : 1;
+        2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // Timeout (если ==)
+    6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
+     * */
+
     qDebug() << "RandomPlaylist::next";
     shuffle();
     bool found = false;
@@ -201,18 +224,4 @@ QString MagicRandomPlaylist::next()
                 break;
             }
     return result;
-
-    /*
-     * 1. Перемешиваем массив
-    2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
-    3. Эмулируем свойство lastplayed для каждого ролика (только если ролик не разу не проигрывался на устройстве)
-        1. $last_play = $time(текущее время) - $total_video_time + $tmptime;
-        2. $tmptime += $lenght;
-    4. Высчитываем промежуток сортировки ($magic)
-        1. $magic = round($total / $count * 4); // общее время проигрывание роликов / колво роликов * 4
-    5. Сортируем массив кастомной сортировкой
-        1. Сортировка по return (ceil($a_lastplayed/$magic) < ceil($b_lastplayed/$magic)) ? -1 : 1;
-        2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // Timeout (если ==)
-    6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
-     * */
 }

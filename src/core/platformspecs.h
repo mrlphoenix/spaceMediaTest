@@ -7,11 +7,14 @@
 #include <QSqlRecord>
 #include "platformdefines.h"
 
+
+//class contains platform specific method for generating some data
 class PlatformSpecific : public QObject
 {
     Q_OBJECT
 public:
 
+    //struct used to send while initialization of player
     struct HardwareInfo
     {
         QString vendor;
@@ -22,11 +25,23 @@ public:
         QString cpuName;
     };
 
+    //struct contains current device state
+    //used to send as part of statistics
     struct SystemInfo
     {
+        //method get read system data from device
+        //use PlayformSpecific::SystemInfo::get()
         static SystemInfo get();
+
+        //generates SystemInfo from SQL Record
+        //used when we read events from database
         static SystemInfo fromRecord(const QSqlRecord &record);
+
+        //serializes SystemInfo to JSON object
+        //used when we send statistic
         QJsonObject serialize() const;
+
+
         QDateTime time;
         double cpu;
         double latitude;
@@ -40,6 +55,9 @@ public:
         int free_space;
     };
     explicit PlatformSpecific(QObject *parent = 0);
+
+    //following methods are used by SystemInfo::get
+    //provide platform independent interface for system data
     static QString getUniqueId();
     static int64_t getTrafficIn();
     static int64_t getTrafficOut();
@@ -51,9 +69,22 @@ public:
     static double getAvgUsage();
     static QString getWifiMac();
     static int getFreeSpace();
+
+    //GPIO
+    static void init();
+    static void writeGPIO(int n, int value);
+    static void turnOnFirst();
+    static void turnOffFirst();
+    static void turnOnSecond();
+    static void turnOffSecond();
+
+    //helper method for generating HardwareInfo used for initialization
     static HardwareInfo getHardwareInfo();
+
+    //method for extracting zip-file content using zip file name and content-id
     static void extractFile(QString file, QString id);
 
+    //helper method used to flush data to file
     static void writeToFile(QByteArray data, QString filename);
 
 signals:
@@ -62,5 +93,6 @@ public slots:
 private:
     static QString getRpiDeviceNameById(QString id);
 };
+
 
 #endif // ANDROIDSPECS_H

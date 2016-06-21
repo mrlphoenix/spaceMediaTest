@@ -50,8 +50,11 @@
 #endif
 
 #ifdef PLATFORM_DEFINE_RPI
-
+#include <wiringPi.h>
+#define RPI_WIRINGPI_GPIO_PIN_1 27
+#define RPI_WIRINGPI_GPIO_PIN_2 28
 #endif
+
 
 
 
@@ -88,7 +91,7 @@ QString PlatformSpecific::getUniqueId()
     len = __system_property_get(ANDROID_OS_BUILD_HARDWARE, model_id);
     result = result + QString::number(len);*/
 
-
+    //if platform is Android - get DeviceID using JNI
     QAndroidJniEnvironment env;
     jclass contextClass = env->FindClass("android/content/Context");
     jfieldID fieldId = env->GetStaticFieldID(contextClass, "TELEPHONY_SERVICE", "Ljava/lang/String;");
@@ -106,12 +109,14 @@ QString PlatformSpecific::getUniqueId()
 
     char* buf_devid = new char[64];
     env->GetStringUTFRegion(jstr, 0, len, buf_devid);
-    QString imei(buf_devid);
+    QString result(buf_devid);
     delete buf_devid;
-    return imei;
+    return result;
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
+
+    //if platform is linux - get processor unique number using gcc asm commands
     char PSN[30];
     int varEAX, varEBX, varECX, varEDX;
     char str[9];
@@ -130,6 +135,8 @@ QString PlatformSpecific::getUniqueId()
 #endif
 
 #ifdef PLATFORM_DEFINE_RPI
+
+    //if platform is rpi - get proccessor id stored in cpuinfo
     QProcess cpuInfoProcess;
     QProcess grepProcess;
 
@@ -148,6 +155,7 @@ QString PlatformSpecific::getUniqueId()
 int64_t PlatformSpecific::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
+    //if platform is android - get traffic bytes using JNI
     qDebug() << "get Traffic";
     jlong value = 0;
     QAndroidJniEnvironment env;
@@ -155,31 +163,14 @@ int64_t PlatformSpecific::getTrafficIn()
     if (clazz)
     {
         jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
-        if (mid){
-            qDebug() << "getValue";
+        if (mid)
             value = env->CallStaticLongMethod(clazz,mid);
-            qDebug() << "TRAFFIC BYTES = " + QString::number(value);
-        }
     }
-    /*
-    QProcess uidListProcess;
-    uidListProcess.start("ls /proc/uid_stat");
-    uidListProcess.waitForFinished();
-    QByteArray result = uidListProcess.readAll();
-    qDebug() << result;
-    QStringList uids = QString(result).split("\n");
-    int64_t traffic = 0;
-    foreach (const QString &uid, uids)
-    {
-        QProcess tcpValueProcess;
-        tcpValueProcess.start("cat /proc/uid_stat/" + uid + "/tcp_rcv");
-        tcpValueProcess.waitForFinished();
-        traffic += QString(tcpValueProcess.readAll()).toLongLong();
-    }*/
     return value;
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
+    //if platform is linux/rpi - get traffic bytes using cpu_usage script
     QProcess cpuUsageProcess;
     cpuUsageProcess.start("bash data/cpu_usage.sh");
     cpuUsageProcess.waitForFinished();
@@ -375,6 +366,50 @@ int PlatformSpecific::getFreeSpace()
 #endif
     QStorageInfo infoRoot = QStorageInfo::root();
     return infoRoot.bytesAvailable()/1024;
+}
+
+void PlatformSpecific::init()
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    wiringPiSetup();
+    pinMode(RPI_WIRINGPI_GPIO_PIN_1, OUTPUT);
+    pinMode(RPI_WIRINGPI_GPIO_PIN_2, OUTPUT);
+#endif
+}
+
+void PlatformSpecific::writeGPIO(int n, int value)
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    digitalWrite(n, value);
+#endif
+}
+
+void PlatformSpecific::turnOnFirst()
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    writeGPIO(RPI_WIRINGPI_GPIO_PIN_1, LOW);
+#endif
+}
+
+void PlatformSpecific::turnOffFirst()
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    writeGPIO(RPI_WIRINGPI_GPIO_PIN_1, HIGH);
+#endif
+}
+
+void PlatformSpecific::turnOnSecond()
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    writeGPIO(RPI_WIRINGPI_GPIO_PIN_2, LOW);
+#endif
+}
+
+void PlatformSpecific::turnOffSecond()
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    writeGPIO(RPI_WIRINGPI_GPIO_PIN_2, HIGH);
+#endif
 }
 
 PlatformSpecific::HardwareInfo PlatformSpecific::getHardwareInfo()

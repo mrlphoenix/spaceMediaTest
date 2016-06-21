@@ -2,7 +2,9 @@
 #define PLATFORMDEFINES
 
 
-#define PLATFORM_DEFINE_ANDROID
+#define PLATFORM_DEFINE_RPI
+
+#define PLATFORM_RPI_ENABLE_GPIO
 
 
 #define CONFIG_FOLDER_LINUX         QString("data/")

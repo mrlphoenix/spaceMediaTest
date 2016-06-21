@@ -10,6 +10,9 @@
 #include <openssl/bio.h>
 #include <openssl/objects.h>
 
+//outdated class
+//it was used when we were forced to encode data on our own
+//i keep it alive just in the case (maybe we will need some crazy encoding in the future)
 class SSLEncoder : public QObject
 {
     Q_OBJECT

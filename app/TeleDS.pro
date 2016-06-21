@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 PKGCONFIG += openssl
 
-KIT = Android
+KIT = Raspberry
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 
@@ -19,6 +19,8 @@ contains (KIT, Raspberry){
     TARGET = SpaceMediaTest
     target.path = /home/pi/
     INSTALLS += target
+    INCLUDEPATH += /home/nother/raspi/sysroot/usr/local/include
+    LIBS += -L/home/nother/raspi/sysroot/usr/local/lib -lwiringPi
 }
 
 include(../src/core/core.pri)

@@ -114,6 +114,7 @@ struct PlayerConfigNew
 };
 
 
+
 struct PlayerConfig
 {
     static PlayerConfig fromJson(QJsonObject json);

@@ -7,6 +7,10 @@
 #include <QVector>
 #include <singleton.h>
 
+
+//class contains current player config
+//as its signleton you can access it by GlobalConfigInstance
+//every time you call set*() method - it saves result into config file
 class GlobalConfig : public QObject
 {
     Q_OBJECT
@@ -42,23 +46,6 @@ public:
     QString getVirtualScreenId(){return virtualScreenId;}
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
-
-    /*
-     * {
-  "name": null,
-  "gps_lat": 0,
-  "gps_long": 0,
-  "video_quality": "720p",
-  "created_at": "2016-04-08 07:34:03",
-  "updated_at": "2016-04-08 07:35:52",
-  "stats_interval": 0,
-  "autobright": 0,
-  "min_bright": 0,
-  "max_bright": 100,
-  "time_targeting_relay_1": null,
-  "time_targeting_relay_2": null
-}
-     * */
 
 signals:
 

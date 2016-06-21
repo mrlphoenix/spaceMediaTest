@@ -5,6 +5,9 @@
 #include <QVector>
 #include <QByteArray>
 
+
+//outdated class used to display latest instagramm post by tag
+//i keep it as i hear we have plan for our own inst
 class InstagramRecentPostModel
 {
 public:

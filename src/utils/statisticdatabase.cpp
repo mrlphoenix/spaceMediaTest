@@ -153,6 +153,8 @@ void DatabaseWorker::slotBindValue(const QString &queryId, const QString &placeh
     query = m_queries.value(queryId);
     // bind value
     query->bindValue(placeholder, val);
+
+    // bind query to
 }
 
 

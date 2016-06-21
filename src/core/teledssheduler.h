@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QTimer>
 
+//this class is wrapper for any timed events in the player
+//currently it has only one task - get player, but later we can extend it for any new timed event
 class TeleDSSheduler : public QObject
 {
     Q_OBJECT

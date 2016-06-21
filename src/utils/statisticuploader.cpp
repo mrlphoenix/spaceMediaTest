@@ -64,26 +64,6 @@ void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data
 
 void StatisticUploader::eventsReady(QList<StatisticDatabase::PlayEvent> events)
 {
-    /*
-     *   {
-    "timestamp": 0,
-    "virtual_screen_area_id": "string",
-    "content_id": "string",
-    "campaign_id": "string",
-    "gps": {
-      "latitude": 0,
-      "longitude": 0
-    },
-    "cpu_load": 0,
-    "battery": 0,
-    "traffic": 0,
-    "free_memory": 0,
-    "wifi_mac": "string",
-    "hdmi_cec": true,
-    "hdmi_gpio": true,
-    "free_space": 0
-  }
-     * */
     if (events.count() == 0)
     {
         return;

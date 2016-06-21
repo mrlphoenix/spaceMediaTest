@@ -16,6 +16,7 @@ Item {
     property int widthP: width
     property int decreasingTextValue: 0
 
+
     //properties for seamless video player
     property bool preloader: false
     property bool useSecondPlayer: false
@@ -46,6 +47,7 @@ Item {
     function playFileAdvanced(filename, type, build, length, skip)
     {
         console.debug("playfile is called " + filename)
+        console.log("Platform: " + Qt.platform.os)
         if (type === "video")
         {
             console.log("playfileAdvanced::video")
@@ -78,19 +80,15 @@ Item {
                 console.log("playfileAdvanced::html5")
                 videoPlayer.prepareStop = true
                 currentType = "browser"
-                if (build === "android"){
                     androidBrowser.load(filename)
                     androidBrowser.setShowTime(length)
-                }
             }
             else if (currentType === "browser"){
                 console.log("playfileAdvanced::html5 from browser")
-                if (build === "android"){
                     console.log("build = android, len = " + length)
                     androidBrowser.load(filename)
                     androidBrowser.setShowTime(length)
                     androidBrowser.startShow()
-                }
             }
         }
     }
@@ -135,6 +133,7 @@ Item {
             }
         }
     }
+
     function setBrightness(value){
         videoOutBrightness = value
         if (value > 1.0) {
@@ -245,6 +244,7 @@ Item {
             gpsChanged(coord.latitude, coord.longitude)
         }
     }
+
     Timer{
         property var object: ({})
         id: hideVideoDelayTimer
@@ -657,7 +657,6 @@ Item {
             }
         }
     }
-
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {

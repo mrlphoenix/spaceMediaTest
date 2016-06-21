@@ -16,6 +16,10 @@
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
 
+
+//Database Worker - is universal worker for database
+//it can execute any query and will raise signal when it will be executed
+//also it incapsulate query queue
 class DatabaseWorker : public QObject
 {
     Q_OBJECT
@@ -44,7 +48,8 @@ private:
     void executePrepared(const QString &queryId, const QString &resultId = QString());
 };
 
-
+//QueryThread class is needed
+//to run DB Worker in separated thread so we wont get freezes during transanctions
 class QueryThread : public QThread
 {
     Q_OBJECT
@@ -75,12 +80,15 @@ signals:
     void fwdExecutePrepared(const QString &queryId, const QString &resultId = QString());
     void fwdPrepare(const QString &queryId, const QString &sql);
     void fwdBindValue(const QString &queryId, const QString &placeholder, const QVariant &val);
-
 private:
     DatabaseWorker *m_worker;
     QString dbName;
 };
 
+
+
+//StatisticDatabase - class that resembles service-layer interface for our DB configuration
+//its singleton so you can just call StatisticDatabase.method in any other part of code
 class StatisticDatabase : public QObject
 {
     Q_OBJECT
@@ -90,27 +98,41 @@ public:
     static QString serializeDate(QDateTime date);
     static QDateTime deserializeDate(QString date);
 
+    //registies player in DB
     void registryResource(QString iid, QString name, QDateTime lastupdated, int size);
+    //outdated method used to track how much we downloaded
     void updateResourceDownloadStatus(QString iid, int filesize);
 
+    //oudated methods
     void getResources();
     void resourceCount();
 
+    //oudated methods - use createPlayEvent instead
     void playResource(PlaylistAPIResult::PlaylistItem item);
-    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info);
-    void removeResource(QString itemId);
-
     void createSystemInfo(PlatformSpecific::SystemInfo info);
 
-    //statistic operation
+    //store in DB information about item was played and current state
+    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info);
+
+    void removeResource(QString itemId);
+
+    //statistic operations
+    //outdated method - use eventsUploaded instead
     void playsUploaded();
     void systemInfoUploaded();
+
+    //call this when we successfully upload event to server
+    //it removes all items from event table
     void eventsUploaded();
 
+    //find resources
     void findResource(QString iid);
+
+    //outdated methods - use findEventstoSend
     void findPlaysToSend();
     void findSystemInfoToSend();
     void findEventsToSend();
+
 
     struct Play
     {

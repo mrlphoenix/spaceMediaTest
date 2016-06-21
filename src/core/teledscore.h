@@ -22,32 +22,56 @@ public:
 signals:
     void playerIdUpdate(QString playerId);
 public slots:
+    //slot is called when we should reinit player
     void initPlayer();
 
+    //slot is called after player init backend response
     void initResult(InitRequestResult result);
+    //slot is called after playlist got loaded
     void playlistResult(PlayerConfig result);
+    //slot is called when backed returned player settings
     void playerSettingsResult(SettingsRequestResult result);
+    //slot is called after we load virtual screens
     void virtualScreensResult(PlayerConfigNew result);
+    //slot is called after we get response from loading virtual screens playlists
     void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
+    //slot is called when we need to update playlist
     void getPlaylistTimerSlot();
 
-    void fakeInit();
+    //slot is called when every item got downloaded and we need to show items
     void downloaded();
 
+    //method is outdated
+    //used for loading systemInfo
+    //now we do it when we play item
     void checkCPUStatus();
+
+    //method is outdated
+    //used for getting resource count from db
+    //now we ignore this
     void getResourceCount();
 
+    //method is outdated
+    //used for update cpu
+    //now instaed we updating it @ player play
     void updateCPUStatus(CPUStatWorker::DeviceInfo info);
+
+    //method is outdated
+    //we dont count resources
     void resourceCountUpdate(int count);
 
+    //
     void needToDownloadResult(int count);
+
+
+    void blinkGPIO();
 
 protected:
     void setupDownloader(PlayerConfig& config);
     void setupDownloader(PlayerConfigNew& newConfig);
     QVector<QObject*> widgets;
-    TeleDSPlayer * rpiPlayer;
+    TeleDSPlayer * teledsPlayer;
 
     VideoService * videoService;
     StatisticUploader * uploader;
@@ -61,6 +85,5 @@ protected:
 
     PlayerConfigNew currentConfigNew;
 };
-
 
 #endif // TELEDSCORE_H

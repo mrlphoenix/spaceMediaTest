@@ -6,6 +6,11 @@
 
 #define GlobalStatsInstance Singleton<GlobalStats>::instance()
 
+
+
+//this class is for storing current device stats
+//unlike globalconfig it does not store info in file
+//its singleton and can be aceessed by GlobalStatsInstance helper
 class GlobalStats : public QObject
 {
     Q_OBJECT
