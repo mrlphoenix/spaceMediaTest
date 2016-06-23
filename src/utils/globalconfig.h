@@ -29,6 +29,12 @@ public:
     void setMinBrightness(int minBrightness);
     void setMaxBrightness(int maxBrightness);
 
+    void setReleyConfig(QHash<int, QList<int> > &reley_1, QHash<int, QList<int> > &reley_2);
+    bool getFirstReleyStatus();
+    bool getSecondReleyStatus();
+    void setReleyEnabled(bool first, bool second);
+    bool getReleyEnabled(bool isFirst){return isFirst? firstReleyEnabled : secondReleyEnabled;}
+
 
     int getStatsInterval(){return statsInterval;}
     bool isAutoBrightnessActive(){return autobright;}
@@ -66,8 +72,11 @@ private:
     bool autobright;
     int min_bright;
     int max_bright;
-    QHash<QString, QVector<int> > time_targeting_relay_1;
-    QHash<QString, QVector<int> > time_targeting_relay_2;
+
+
+    QHash<int, QList<int> > time_targeting_relay_1;
+    QHash<int, QList<int> > time_targeting_relay_2;
+    bool firstReleyEnabled, secondReleyEnabled;
 
 
     int getPlaylistTimerTime;

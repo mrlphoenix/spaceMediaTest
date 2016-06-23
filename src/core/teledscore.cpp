@@ -23,9 +23,10 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     qDebug() << "Unique Id: " << PlatformSpecific::getUniqueId();
 
     //blinking GPIO
-    QTimer * blinkTimer = new QTimer();
-    connect(blinkTimer, SIGNAL(timeout()),this,SLOT(blinkGPIO()));
-    blinkTimer->start(1000);
+    QTimer * releyTimer = new QTimer();
+    connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));
+    releyTimer->start(60000);
+
 
 
     DatabaseInstance;
@@ -170,7 +171,12 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
     //this method is called when we try to get player settings
+
     GlobalConfigInstance.setVideoQuality(result.video_quality);
+
+    //saving time targeting reley config
+    GlobalConfigInstance.setReleyEnabled(result.reley_1_enabled, result.reley_2_enabled);
+    GlobalConfigInstance.setReleyConfig(result.time_targeting_relay_1, result.time_targeting_relay_2);
 
     //if backend responsed with 401 - it means player need to be reactivated
     if (result.error_id == 401)
@@ -333,22 +339,39 @@ void TeleDSCore::needToDownloadResult(int count)
         teledsPlayer->invokeDownloadingView();
 }
 
-void TeleDSCore::blinkGPIO()
+void TeleDSCore::checkReleyTime()
 {
-    static int value = 0;
-    if (value)
+
+    qDebug() << "TeleDSCore::checkReleyTime";
+
+    if (GlobalConfigInstance.getReleyEnabled(true))
     {
-        qDebug() << "RIGHT BLINK";
-        PlatformSpecific::turnOnFirst();
-        PlatformSpecific::turnOffSecond();
+        qDebug() << "TeleDSCore::checkReleyTime -> first reley is enabled";
+        if (GlobalConfigInstance.getFirstReleyStatus())
+        {
+            qDebug() << "TeleDSCore::checkReleyTime -> turn on first reley";
+            PlatformSpecific::turnOnFirstReley();
+        }
+        else
+        {
+            qDebug() << "TeleDSCore::checkReleyTime -> turn off first reley";
+            PlatformSpecific::turnOffFirstReley();
+        }
     }
-    else
+    if (GlobalConfigInstance.getReleyEnabled(false))
     {
-        qDebug() << "LEFT BLINK";
-        PlatformSpecific::turnOffFirst();
-        PlatformSpecific::turnOnSecond();
+        qDebug() << "TeleDSCore::checkReleyTime -> second reley is enabled";
+        if (GlobalConfigInstance.getSecondReleyStatus())
+        {
+            qDebug() << "TeleDSCore::checkReleyTime -> turn on second reley";
+            PlatformSpecific::turnOnSecondReley();
+        }
+        else
+        {
+            qDebug() << "TeleDSCore::checkReleyTime -> turn off second reley";
+            PlatformSpecific::turnOffSecondReley();
+        }
     }
-    value = 1 - value;
 }
 
 void TeleDSCore::setupDownloader(PlayerConfig &config)

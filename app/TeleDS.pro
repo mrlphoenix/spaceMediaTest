@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 PKGCONFIG += openssl
 
-KIT = Raspberry
+KIT = Android
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 
@@ -34,7 +34,7 @@ contains(KIT, Android){
 OTHER_FILES += ../qml/simple_player.qml \
            VideoPlayer.qml
 
-SOURCES += main.cpp \
+SOURCES += main.cpp
 
 RESOURCES += \
     qml.qrc
@@ -61,5 +61,7 @@ ANDROID_PERMISSIONS = android.permission.READ_PHONE_STATE
         $$PWD/../../../../usr/local/ssl/android-9/lib/libssl_1_0_0.so
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+HEADERS +=
 
 

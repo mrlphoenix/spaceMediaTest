@@ -1,13 +1,14 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
-//import QtWebView 1.1
-import QtWebKit 3.0
+import QtWebView 1.1
+//import QtWebKit 3.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
 
 Item{
     anchors.fill: parent
     function load(url){
+       // webView.url = "http://www.whatarecookies.com/cookietest.asp"
         webView.url = url
     }
     function setShowTime(msecs){

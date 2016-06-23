@@ -44,6 +44,7 @@ private:
 };
 
 
+
 class RandomPlaylist : public AbstractPlaylist
 {
     Q_OBJECT

@@ -5,12 +5,19 @@
 #include <QFile>
 #include <QDebug>
 #include <QFileInfo>
+#include <QDateTime>
 #include "globalconfig.h"
 #include "platformdefines.h"
 
 GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
 {
     qDebug() << "global config init";
+
+    statsInterval = 60000;
+    autobright = false;
+    min_bright = max_bright = 0;
+    firstReleyEnabled = secondReleyEnabled = false;
+
     if (!QFile::exists(CONFIG_FOLDER + "config.dat"))
     {
         qDebug() << "config file does not exists; creating new one";
@@ -71,6 +78,35 @@ void GlobalConfig::setMaxBrightness(int maxBrightness)
     max_bright = maxBrightness;
 }
 
+void GlobalConfig::setReleyConfig(QHash<int, QList<int> > &reley_1, QHash<int, QList<int> > &reley_2)
+{
+    time_targeting_relay_1 = reley_1;
+    time_targeting_relay_2 = reley_2;
+}
+
+bool GlobalConfig::getFirstReleyStatus()
+{
+    QDateTime currentTime = QDateTime::currentDateTime();
+    int dayOfWeek = currentTime.date().dayOfWeek() - 1;
+    int hour = currentTime.time().hour();
+    qDebug() << "dayOfWeek: " << dayOfWeek << " hour: " << hour;
+    return time_targeting_relay_1[dayOfWeek].contains(hour);
+}
+
+bool GlobalConfig::getSecondReleyStatus()
+{
+    QDateTime currentTime = QDateTime::currentDateTime();
+    int dayOfWeek = currentTime.date().dayOfWeek()-1;
+    int hour = currentTime.time().hour();
+    return time_targeting_relay_2[dayOfWeek].contains(hour);
+}
+
+void GlobalConfig::setReleyEnabled(bool first, bool second)
+{
+    firstReleyEnabled = first;
+    secondReleyEnabled = second;
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
@@ -81,8 +117,6 @@ void GlobalConfig::loadFromJson()
     QJsonObject root = doc.object();
     this->device = root["device"].toString();
     this->token = root["token"].toString();
-
-
 
     qDebug() << "currentConfig: " << token;
     configFile.close();

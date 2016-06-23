@@ -36,7 +36,11 @@ struct SettingsRequestResult
     QDateTime created_at;
     QDateTime updated_at;
     QString error;
+    QHash<int, QList<int> > time_targeting_relay_1;
+    QHash<int, QList<int> > time_targeting_relay_2;
+    bool reley_1_enabled, reley_2_enabled;
 
+    static QHash<int, QList<int> > generateHashByString(QString content);
 
     double gps_lat;
     double gps_long;

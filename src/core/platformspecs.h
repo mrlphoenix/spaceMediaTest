@@ -73,10 +73,10 @@ public:
     //GPIO
     static void init();
     static void writeGPIO(int n, int value);
-    static void turnOnFirst();
-    static void turnOffFirst();
-    static void turnOnSecond();
-    static void turnOffSecond();
+    static void turnOnFirstReley();
+    static void turnOffFirstReley();
+    static void turnOnSecondReley();
+    static void turnOffSecondReley();
 
     //helper method for generating HardwareInfo used for initialization
     static HardwareInfo getHardwareInfo();

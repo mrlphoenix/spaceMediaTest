@@ -506,6 +506,46 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.min_bright = data["min_bright"].toInt();
     result.max_bright = data["max_bright"].toInt();
     result.name = data["name"].toString();
+
+    result.reley_1_enabled = !data["time_targeting_relay_1"].isNull();
+    result.reley_2_enabled = !data["time_targeting_relay_2"].isNull();
+
+    if (result.reley_1_enabled)
+        result.time_targeting_relay_1 = generateHashByString(data["time_targeting_relay_1"].toObject()["content"].toString());
+    if (result.reley_2_enabled)
+        result.time_targeting_relay_2 = generateHashByString(data["time_targeting_relay_2"].toObject()["content"].toString());
+
+    return result;
+}
+
+QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString content)
+{
+    QHash <int, QList<int> > result;
+    content = "{\"content\":" + content + "}";
+    QJsonDocument doc = QJsonDocument::fromJson(content.toUtf8());
+    QJsonObject root = doc.object();
+    QJsonArray weekDayArray = root["content"].toArray();
+    int currentDay = 0;
+    foreach (const QJsonValue &weekDayValue, weekDayArray)
+    {
+        QList <int> hours;
+        QJsonArray hoursArray = weekDayValue.toArray();
+        foreach (const QJsonValue &v, hoursArray)
+            hours.append(v.toInt());
+        result[currentDay] = hours;
+        currentDay++;
+    }
+
+    qDebug() << "Trying to out Time range " << content;
+    foreach (const int &d, result.keys())
+    {
+        qDebug() << "KEY: " << d;
+        foreach (const int &v, result[d])
+        {
+            qDebug() << v;
+        }
+    }
+    qDebug() << result;
     return result;
 }
 

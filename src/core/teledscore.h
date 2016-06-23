@@ -64,8 +64,7 @@ public slots:
     //
     void needToDownloadResult(int count);
 
-
-    void blinkGPIO();
+    void checkReleyTime();
 
 protected:
     void setupDownloader(PlayerConfig& config);
