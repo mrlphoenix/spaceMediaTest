@@ -3,7 +3,6 @@
 #include "statisticdatabase.h"
 #include "globalstats.h"
 #include "globalconfig.h"
-#include "platformspecs.h"
 #include "sunposition.h"
 #include "version.h"
 
