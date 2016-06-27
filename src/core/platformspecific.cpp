@@ -58,7 +58,7 @@
 #endif
 
 
-PlatformSpecific1::SystemInfo PlatformSpecific1::SystemInfo::fromRecord(const QSqlRecord &record)
+Platform::SystemInfo Platform::SystemInfo::fromRecord(const QSqlRecord &record)
 {
     SystemInfo result;
     result.time = QDateTime::fromString(record.value("time").toString(),"yyyy-MM-dd HH:mm:ss");
@@ -78,7 +78,7 @@ PlatformSpecific1::SystemInfo PlatformSpecific1::SystemInfo::fromRecord(const QS
     return result;
 }
 
-QJsonObject PlatformSpecific1::SystemInfo::serialize() const
+QJsonObject Platform::SystemInfo::serialize() const
 {
     QJsonObject result;
     result["timestamp"] = qint64(this->time.toTime_t());
@@ -97,12 +97,7 @@ QJsonObject PlatformSpecific1::SystemInfo::serialize() const
     return result;
 }
 
-PlatformSpecific1::PlatformSpecificWorker::PlatformSpecificWorker()
-{
-
-}
-
-PlatformSpecific1::PlatformSpecificWorker::PlatformSpecificWorker(QObject *parent) : QObject(parent)
+Platform::PlatformSpecificWorker::PlatformSpecificWorker()
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     wiringPiSetup();
@@ -113,12 +108,23 @@ PlatformSpecific1::PlatformSpecificWorker::PlatformSpecificWorker(QObject *paren
 #endif
 }
 
-PlatformSpecific1::PlatformSpecificWorker::~PlatformSpecificWorker()
+Platform::PlatformSpecificWorker::PlatformSpecificWorker(QObject *parent) : QObject(parent)
+{
+#if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    wiringPiSetup();
+    pinMode(RPI_WIRINGPI_GPIO_PIN_1, OUTPUT);
+    pinMode(RPI_WIRINGPI_GPIO_PIN_2, OUTPUT);
+    turnOffFirstReley();
+    turnOffSecondReley();
+#endif
+}
+
+Platform::PlatformSpecificWorker::~PlatformSpecificWorker()
 {
 
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::generateSystemInfo()
+void Platform::PlatformSpecificWorker::generateSystemInfo()
 {
     qDebug() << "PlatformSpecific::SystemInfo::get()";
     SystemInfo result;
@@ -145,7 +151,7 @@ void PlatformSpecific1::PlatformSpecificWorker::generateSystemInfo()
     emit systemInfoReady(result);
 }
 
-QString PlatformSpecific1::PlatformSpecificWorker::getUniqueId()
+QString Platform::PlatformSpecificWorker::getUniqueId()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
 /*
@@ -232,7 +238,7 @@ QString PlatformSpecific1::PlatformSpecificWorker::getUniqueId()
     return "";
 }
 
-int64_t PlatformSpecific1::PlatformSpecificWorker::getTrafficIn()
+int64_t Platform::PlatformSpecificWorker::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     //if platform is android - get traffic bytes using JNI
@@ -264,7 +270,7 @@ int64_t PlatformSpecific1::PlatformSpecificWorker::getTrafficIn()
     return 0;
 }
 
-int64_t PlatformSpecific1::PlatformSpecificWorker::getTrafficOut()
+int64_t Platform::PlatformSpecificWorker::getTrafficOut()
 {
 #if (defined PLATFORM_DEFINE_LINUX) || (defined PLATFORM_DEFINE_RPI)
     QProcess cpuUsageProcess;
@@ -281,7 +287,7 @@ int64_t PlatformSpecific1::PlatformSpecificWorker::getTrafficOut()
     return 0;
 }
 
-int PlatformSpecific1::PlatformSpecificWorker::getMemoryUsage()
+int Platform::PlatformSpecificWorker::getMemoryUsage()
 {
 #if (defined PLATFORM_DEFINE_LINUX) || (defined PLATFORM_DEFINE_ANDROID)
     struct sysinfo info;
@@ -291,7 +297,7 @@ int PlatformSpecific1::PlatformSpecificWorker::getMemoryUsage()
     return 0;
 }
 
-int PlatformSpecific1::PlatformSpecificWorker::getFreeMemory()
+int Platform::PlatformSpecificWorker::getFreeMemory()
 {
 #ifdef PLATFORM_DEFINE_LINUX
     struct sysinfo info;
@@ -323,7 +329,7 @@ int PlatformSpecific1::PlatformSpecificWorker::getFreeMemory()
     return 0;
 }
 
-bool PlatformSpecific1::PlatformSpecificWorker::getHdmiCEC()
+bool Platform::PlatformSpecificWorker::getHdmiCEC()
 {
 #ifdef PLATFORM_DEFINE_RPI
     return true;
@@ -331,7 +337,7 @@ bool PlatformSpecific1::PlatformSpecificWorker::getHdmiCEC()
     return true;
 }
 
-bool PlatformSpecific1::PlatformSpecificWorker::getHdmiGPIO()
+bool Platform::PlatformSpecificWorker::getHdmiGPIO()
 {
 #ifdef PLATFORM_DEFINE_RPI
     return true;
@@ -339,7 +345,7 @@ bool PlatformSpecific1::PlatformSpecificWorker::getHdmiGPIO()
     return true;
 }
 
-double PlatformSpecific1::PlatformSpecificWorker::getBattery()
+double Platform::PlatformSpecificWorker::getBattery()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QProcess process;
@@ -350,7 +356,7 @@ double PlatformSpecific1::PlatformSpecificWorker::getBattery()
     return 0.;
 }
 
-double PlatformSpecific1::PlatformSpecificWorker::getAvgUsage()
+double Platform::PlatformSpecificWorker::getAvgUsage()
 {
 #ifdef PLATFORM_DEFINE_WINDOWS
     return 0.;
@@ -365,7 +371,7 @@ double PlatformSpecific1::PlatformSpecificWorker::getAvgUsage()
 #endif
 }
 
-QString PlatformSpecific1::PlatformSpecificWorker::getWifiMac()
+QString Platform::PlatformSpecificWorker::getWifiMac()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
@@ -389,7 +395,7 @@ QString PlatformSpecific1::PlatformSpecificWorker::getWifiMac()
     return "";
 }
 
-int PlatformSpecific1::PlatformSpecificWorker::getFreeSpace()
+int Platform::PlatformSpecificWorker::getFreeSpace()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     QStorageInfo info("/sdcard/");
@@ -399,42 +405,42 @@ int PlatformSpecific1::PlatformSpecificWorker::getFreeSpace()
     return infoRoot.bytesAvailable()/1024;
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::writeGPIO(int n, int value)
+void Platform::PlatformSpecificWorker::writeGPIO(int n, int value)
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     digitalWrite(n, value);
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::turnOnFirstReley()
+void Platform::PlatformSpecificWorker::turnOnFirstReley()
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     writeGPIO(RPI_WIRINGPI_GPIO_PIN_1, LOW);
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::turnOffFirstReley()
+void Platform::PlatformSpecificWorker::turnOffFirstReley()
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     writeGPIO(RPI_WIRINGPI_GPIO_PIN_1, HIGH);
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::turnOnSecondReley()
+void Platform::PlatformSpecificWorker::turnOnSecondReley()
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     writeGPIO(RPI_WIRINGPI_GPIO_PIN_2, LOW);
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::turnOffSecondReley()
+void Platform::PlatformSpecificWorker::turnOffSecondReley()
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     writeGPIO(RPI_WIRINGPI_GPIO_PIN_2, HIGH);
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::getHardwareInfo()
+void Platform::PlatformSpecificWorker::getHardwareInfo()
 {
     HardwareInfo result;
 #ifdef PLATFORM_DEFINE_WINDOWS
@@ -548,10 +554,11 @@ void PlatformSpecific1::PlatformSpecificWorker::getHardwareInfo()
     qDebug() << "Vendor: " << result.vendor << "; OsVersion: " << result.osVersion << "; deviceName: " << result.deviceName
              << "; deviceModel: " << result.deviceModel << "; CpuName: " << result.cpuName;
 #endif
+    result.uid = getUniqueId();
     emit hardwareInfoReady(result);
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::extractFile(QString file, QString id)
+void Platform::PlatformSpecificWorker::extractFile(QString file, QString id)
 {
     QDir dir(VIDEO_FOLDER + id);
     dir.removeRecursively();
@@ -573,7 +580,7 @@ void PlatformSpecific1::PlatformSpecificWorker::extractFile(QString file, QStrin
 #endif
 }
 
-void PlatformSpecific1::PlatformSpecificWorker::writeToFile(QByteArray data, QString filename)
+void Platform::PlatformSpecificWorker::writeToFile(QByteArray data, QString filename)
 {
     QFile f(filename);
     f.open(QFile::WriteOnly);
@@ -582,7 +589,7 @@ void PlatformSpecific1::PlatformSpecificWorker::writeToFile(QByteArray data, QSt
     f.close();
 }
 
-QString PlatformSpecific1::PlatformSpecificWorker::getRpiDeviceNameById(QString id)
+QString Platform::PlatformSpecificWorker::getRpiDeviceNameById(QString id)
 {
     if (id == "0002")
         return "Model B Revision 1.0";
@@ -609,61 +616,61 @@ QString PlatformSpecific1::PlatformSpecificWorker::getRpiDeviceNameById(QString 
     return "";
 }
 
-PlatformSpecific1::PlatformSpecificThread::PlatformSpecificThread(QObject *parent) : QThread(parent)
+Platform::PlatformSpecificThread::PlatformSpecificThread(QObject *parent) : QThread(parent)
 {
 
 }
 
-PlatformSpecific1::PlatformSpecificThread::~PlatformSpecificThread()
+Platform::PlatformSpecificThread::~PlatformSpecificThread()
 {
 
 }
 
-void PlatformSpecific1::PlatformSpecificThread::generateSystemInfo()
+void Platform::PlatformSpecificThread::generateSystemInfo()
 {
     emit generateSystemInfoSignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::generateHardwareInfo()
+void Platform::PlatformSpecificThread::generateHardwareInfo()
 {
     emit generateHardwareInfoSignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::turnOnFirstReley()
+void Platform::PlatformSpecificThread::turnOnFirstReley()
 {
     emit turnOnFirstReleySignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::turnOffFirstReley()
+void Platform::PlatformSpecificThread::turnOffFirstReley()
 {
     emit turnOffFirstReleySignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::turnOnSecondReley()
+void Platform::PlatformSpecificThread::turnOnSecondReley()
 {
     emit turnOnSecondReleySignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::turnOffSecondReley()
+void Platform::PlatformSpecificThread::turnOffSecondReley()
 {
     emit turnOffSecondReleySignal();
 }
 
-void PlatformSpecific1::PlatformSpecificThread::extractFile(QString file, QString id)
+void Platform::PlatformSpecificThread::extractFile(QString file, QString id)
 {
     emit extractFileSignal(file, id);
 }
 
-void PlatformSpecific1::PlatformSpecificThread::writeToFile(QByteArray data, QString filename)
+void Platform::PlatformSpecificThread::writeToFile(QByteArray data, QString filename)
 {
     emit writeToFileSignal(data, filename);
 }
 
-void PlatformSpecific1::PlatformSpecificThread::run()
+void Platform::PlatformSpecificThread::run()
 {
     worker = new PlatformSpecificWorker();
-    connect (worker,SIGNAL(systemInfoReady(SystemInfo)),this,SIGNAL(systemInfoReady(SystemInfo)));
-    connect (worker,SIGNAL(hardwareInfoReady(HardwareInfo)), this, SIGNAL(hardwareInfoReady(HardwareInfo)));
+    connect (worker,SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SIGNAL(systemInfoReady(Platform::SystemInfo)));
+    connect (worker,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)), this, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)));
     connect (this, SIGNAL(generateSystemInfoSignal()), worker, SLOT(generateSystemInfo()));
     connect (this, SIGNAL(generateHardwareInfoSignal()), worker, SLOT(getHardwareInfo()));
     connect (this, SIGNAL(turnOffFirstReleySignal()), worker, SLOT(turnOffFirstReley()));
@@ -671,64 +678,64 @@ void PlatformSpecific1::PlatformSpecificThread::run()
     connect (this, SIGNAL(turnOnFirstReleySignal()), worker, SLOT(turnOnFirstReley()));
     connect (this, SIGNAL(turnOnSecondReleySignal()), worker, SLOT(turnOnSecondReley()));
     connect (this, SIGNAL(extractFileSignal(QString,QString)), worker, SLOT(extractFile(QString,QString)));
-    connect (this, SIGNAL(writeToFileSignal(QByteArray,QString)), worker, SLOT(extractFile(QString,QString)));
+    connect (this, SIGNAL(writeToFileSignal(QByteArray,QString)), worker, SLOT(writeToFile(QByteArray,QString)));
 
     exec();
 }
 
-PlatformSpecific1::PlatformSpecific::PlatformSpecific()
+Platform::PlatformSpecific::PlatformSpecific()
 {
-    qRegisterMetaType< PlatformSpecific1::SystemInfo >( "PlatformSpecific1::SystemInfo" );
-    qRegisterMetaType< PlatformSpecific1::HardwareInfo >( "PlatformSpecific1::HardwareInfo" );
+    qRegisterMetaType< Platform::SystemInfo >( "Platform::SystemInfo" );
+    qRegisterMetaType< Platform::HardwareInfo >( "Platform::HardwareInfo" );
 
     thread = new PlatformSpecificThread();
-    connect(thread, SIGNAL(systemInfoReady(SystemInfo)),this,SIGNAL(systemInfoReady(SystemInfo)));
-    connect(thread, SIGNAL(hardwareInfoReady(HardwareInfo)), this, SIGNAL(hardwareInfoReady(HardwareInfo)));
+    connect(thread, SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SIGNAL(systemInfoReady(Platform::SystemInfo)));
+    connect(thread, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)), this, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)));
     thread->start();
 }
 
-PlatformSpecific1::PlatformSpecific::~PlatformSpecific()
+Platform::PlatformSpecific::~PlatformSpecific()
 {
     thread->quit();
     thread->deleteLater();
 }
 
-void PlatformSpecific1::PlatformSpecific::generateSystemInfo()
+void Platform::PlatformSpecific::generateSystemInfo()
 {
     thread->generateSystemInfo();
 }
 
-void PlatformSpecific1::PlatformSpecific::generateHardwareInfo()
+void Platform::PlatformSpecific::generateHardwareInfo()
 {
     thread->generateHardwareInfo();
 }
 
-void PlatformSpecific1::PlatformSpecific::turnOnFirstReley()
+void Platform::PlatformSpecific::turnOnFirstReley()
 {
     thread->turnOnFirstReley();
 }
 
-void PlatformSpecific1::PlatformSpecific::turnOffFirstReley()
+void Platform::PlatformSpecific::turnOffFirstReley()
 {
     thread->turnOffFirstReley();
 }
 
-void PlatformSpecific1::PlatformSpecific::turnOnSecondReley()
+void Platform::PlatformSpecific::turnOnSecondReley()
 {
     thread->turnOnSecondReley();
 }
 
-void PlatformSpecific1::PlatformSpecific::turnOffSecondReley()
+void Platform::PlatformSpecific::turnOffSecondReley()
 {
     thread->turnOffSecondReley();
 }
 
-void PlatformSpecific1::PlatformSpecific::extractFile(QString file, QString id)
+void Platform::PlatformSpecific::extractFile(QString file, QString id)
 {
     thread->extractFile(file, id);
 }
 
-void PlatformSpecific1::PlatformSpecific::writeToFile(QByteArray data, QString filename)
+void Platform::PlatformSpecific::writeToFile(QByteArray data, QString filename)
 {
     thread->writeToFile(data, filename);
 }

@@ -7,7 +7,9 @@
 #include <QProcess>
 #include <QUrl>
 #include <QDir>
-
+#include <QTime>
+#include <QTimeZone>
+#include <QScreen>
 
 #include "teledscore.h"
 #include "globalconfig.h"
@@ -15,12 +17,13 @@
 #include "globalstats.h"
 #include "sslencoder.h"
 #include "platformdefines.h"
-#include "platformspecs.h"
+#include "platformspecific.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
-    PlatformSpecific::init();
-    qDebug() << "Unique Id: " << PlatformSpecific::getUniqueId();
+    DatabaseInstance;
+    CPUStatInstance;
+    PlatformSpecificService;
 
     //blinking GPIO
     QTimer * releyTimer = new QTimer();
@@ -29,8 +32,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
 
 
-    DatabaseInstance;
-    CPUStatInstance;
+
     videoService = new VideoService("http://api.teleds.com");
     QDir().mkpath("/sdcard/download/teleds");
 
@@ -49,6 +51,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (teledsPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
+
+    connect (&PlatformSpecificService,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)),this,SLOT(hardwareInfoReady(Platform::HardwareInfo)));
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
 
     qDebug() << CONFIG_FOLDER;
@@ -82,8 +86,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 void TeleDSCore::initPlayer()
 {
     qDebug() << "!!! Video service initialization";
-   // videoService->init();
-    videoService->advancedInit();
+    PlatformSpecificService.generateHardwareInfo();
+    //videoService->advancedInit();
 }
 
 
@@ -107,6 +111,28 @@ void TeleDSCore::initResult(InitRequestResult result)
 
     //start get playlist
     QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
+}
+
+void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
+{
+    QJsonObject jsonBody;
+    jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
+    jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
+    jsonBody["uniqid"] = info.uid;
+    jsonBody["screen_width"] = qApp->screens().first()->geometry().width();
+    jsonBody["screen_height"] = qApp->screens().first()->geometry().height();
+    jsonBody["device_vendor"] = info.vendor;
+    jsonBody["device_model"] = info.deviceModel;
+    jsonBody["cpumodel"] = info.cpuName;
+    jsonBody["os"] = info.osName;
+    jsonBody["os_version"] = info.osVersion;
+
+    jsonBody["gps_lat"] = GlobalStatsInstance.getLatitude();
+    jsonBody["gps_long"] = GlobalStatsInstance.getLongitude();
+
+    QJsonDocument doc(jsonBody);
+    QByteArray jsonData = doc.toJson();
+    videoService->advancedInit(jsonData);
 }
 
 void TeleDSCore::playlistResult(PlayerConfig result)
@@ -350,12 +376,12 @@ void TeleDSCore::checkReleyTime()
         if (GlobalConfigInstance.getFirstReleyStatus())
         {
             qDebug() << "TeleDSCore::checkReleyTime -> turn on first reley";
-            PlatformSpecific::turnOnFirstReley();
+            PlatformSpecificService.turnOnFirstReley();
         }
         else
         {
             qDebug() << "TeleDSCore::checkReleyTime -> turn off first reley";
-            PlatformSpecific::turnOffFirstReley();
+            PlatformSpecificService.turnOffFirstReley();
         }
     }
     if (GlobalConfigInstance.getReleyEnabled(false))
@@ -364,12 +390,12 @@ void TeleDSCore::checkReleyTime()
         if (GlobalConfigInstance.getSecondReleyStatus())
         {
             qDebug() << "TeleDSCore::checkReleyTime -> turn on second reley";
-            PlatformSpecific::turnOnSecondReley();
+            PlatformSpecificService.turnOnSecondReley();
         }
         else
         {
             qDebug() << "TeleDSCore::checkReleyTime -> turn off second reley";
-            PlatformSpecific::turnOffSecondReley();
+            PlatformSpecificService.turnOffSecondReley();
         }
     }
 }

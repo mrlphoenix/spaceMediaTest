@@ -10,10 +10,10 @@
 #include "platformdefines.h"
 #include "singleton.h"
 
-#define PlatformSpecificService Singleton<PlatformSpecific1::PlatformSpecific>::instance()
+#define PlatformSpecificService Singleton<Platform::PlatformSpecific>::instance()
 
 
-namespace PlatformSpecific1 {
+namespace Platform {
 
 struct HardwareInfo
 {
@@ -23,6 +23,7 @@ struct HardwareInfo
     QString osVersion;
     QString osName;
     QString cpuName;
+    QString uid;
 };
 
 struct SystemInfo
@@ -61,8 +62,8 @@ public:
     ~PlatformSpecificWorker();
 
 signals:
-    void systemInfoReady(SystemInfo info);
-    void hardwareInfoReady(HardwareInfo info);
+    void systemInfoReady(Platform::SystemInfo info);
+    void hardwareInfoReady(Platform::HardwareInfo info);
 public slots:
 
     //provide platform independent interface for system stats
@@ -121,8 +122,8 @@ public:
 
 signals:
     //signals from PlatformSpecificWorker
-    void systemInfoReady(SystemInfo info);
-    void hardwareInfoReady(HardwareInfo info);
+    void systemInfoReady(Platform::SystemInfo info);
+    void hardwareInfoReady(Platform::HardwareInfo info);
 
     //signals to PlatformSpecificWorker
     void generateSystemInfoSignal();
@@ -161,8 +162,8 @@ public slots:
     void writeToFile(QByteArray data, QString filename);
 
 signals:
-    void systemInfoReady(SystemInfo info);
-    void hardwareInfoReady(HardwareInfo info);
+    void systemInfoReady(Platform::SystemInfo info);
+    void hardwareInfoReady(Platform::HardwareInfo info);
 
 private:
     PlatformSpecificThread * thread;

@@ -10,7 +10,9 @@
 #include <QTimer>
 #include <QList>
 #include <QDebug>
+#include <QQueue>
 #include "playlist.h"
+#include "platformspecific.h"
 
 
 
@@ -64,6 +66,8 @@ public slots:
     void hideVideo();
     void setBrightness(double value);//[0; 1] - lower brightness [1; 2] - higher brightness
     void gpsUpdate(double lat, double lgt);
+
+    void systemInfoReady(Platform::SystemInfo info);
 protected:
     void invokeShowVideo(bool isVisible);
 
@@ -73,6 +77,7 @@ protected:
     PlayerConfig::Area config;
     PlaylistAPIResult configNew;
     QObject * viewRootObject;
+    QQueue<QString> playedIds;
 
     CurrentItemStatus status;
     int delay;

@@ -23,7 +23,7 @@ StatisticUploader::StatisticUploader(VideoService *videoService, QObject *parent
 
     connect(&DatabaseInstance,SIGNAL(eventsFound(QList<StatisticDatabase::PlayEvent>)),this,SLOT(eventsReady(QList<StatisticDatabase::PlayEvent>)));
     connect(&DatabaseInstance,SIGNAL(playsFound(QList<StatisticDatabase::Play>)),this,SLOT(playsReady(QList<StatisticDatabase::Play>)));
-    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<PlatformSpecific::SystemInfo>)),this,SLOT(systemInfoReady(QList<PlatformSpecific::SystemInfo>)));
+    connect(&DatabaseInstance, SIGNAL(systemInfoFound(QList<Platform::SystemInfo>)),this,SLOT(systemInfoReady(QList<Platform::SystemInfo>)));
     connect(videoService,SIGNAL(sendStatisticResult(NonQueryResult)),this,SLOT(systemInfoUploadResult(NonQueryResult)));
     connect(videoService,SIGNAL(sendStatisticPlaysResult(NonQueryResult)),this,SLOT(playsUploadResult(NonQueryResult)));
     connect(videoService,SIGNAL(sendStatisticEventsResult(NonQueryResult)),this,SLOT(eventsUploadResult(NonQueryResult)));
@@ -47,14 +47,14 @@ void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
     QString strToSend = doc.toJson();
     videoService->sendPlays(strToSend);
 }
-void StatisticUploader::systemInfoReady(QList<PlatformSpecific::SystemInfo> data)
+void StatisticUploader::systemInfoReady(QList<Platform::SystemInfo> data)
 {
     if (data.count() == 0)
     {
         return;
     }
     QJsonArray result;
-    foreach (const PlatformSpecific::SystemInfo &info, data)
+    foreach (const Platform::SystemInfo &info, data)
         result.append(info.serialize());
     QJsonDocument doc(result);
     QString strToSend = doc.toJson();
@@ -75,7 +75,7 @@ void StatisticUploader::eventsReady(QList<StatisticDatabase::PlayEvent> events)
     QString strToSend = doc.toJson();
 
     //for debugging
-    PlatformSpecific::writeToFile(strToSend.toLocal8Bit(), VIDEO_FOLDER + "stats.txt");
+    PlatformSpecificService.writeToFile(strToSend.toLocal8Bit(), VIDEO_FOLDER + "stats.txt");
 
     //send via videoService
     videoService->sendEvents(strToSend);

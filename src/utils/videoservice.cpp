@@ -11,7 +11,7 @@
 #include "singleton.h"
 #include "globalstats.h"
 #include "globalconfig.h"
-#include "platformspecs.h"
+#include "platformspecific.h"
 
 VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
 {
@@ -84,9 +84,9 @@ void VideoService::sendEvents(QString data)
     executeRequest(VideoServiceRequestFabric::sendEventsRequest(data));
 }
 
-void VideoService::advancedInit()
+void VideoService::advancedInit(QByteArray data)
 {
-    executeRequest(VideoServiceRequestFabric::advancedInitRequest());
+    executeRequest(VideoServiceRequestFabric::advancedInitRequest(data));
 }
 
 void VideoService::executeRequest(VideoServiceRequest request)
@@ -312,30 +312,42 @@ VideoServiceRequest VideoServiceRequestFabric::sendPlaysRequest(QString data)
     return result;
 }
 
-VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest()
+/*
+ * class PersistentCookieJar : public QNetworkCookieJar {
+public:
+    PersistentCookieJar(QObject *parent) : QNetworkCookieJar(parent) { load(); }
+    ~PersistentCookieJar() { save(); }
+
+public:
+    void save()
+    {
+        QList<QNetworkCookie> list = allCookies();
+        QByteArray data;
+        foreach (QNetworkCookie cookie, list) {
+            if (!cookie.isSessionCookie()) {
+                data.append(cookie.toRawForm());
+                data.append("\n");
+            }
+        }
+        QSettings settings;
+        settings.setValue("Cookies",data);
+    }
+
+    void load()
+    {
+        QSettings settings;
+        QByteArray data = settings.value("Cookies").toByteArray();
+        setAllCookies(QNetworkCookie::parseCookies(data));
+    }
+};
+ * */
+
+
+VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest(QByteArray bodyData)
 {
     VideoServiceRequest result;
-    QJsonObject jsonBody;
-    jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
-    jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
-    jsonBody["uniqid"] = PlatformSpecific::getUniqueId();
-    jsonBody["screen_width"] = qApp->screens().first()->geometry().width();
-    jsonBody["screen_height"] = qApp->screens().first()->geometry().height();
-    PlatformSpecific::HardwareInfo hardwareInfo = PlatformSpecific::getHardwareInfo();
-    jsonBody["device_vendor"] = hardwareInfo.vendor;
-    jsonBody["device_model"] = hardwareInfo.deviceModel;
-    jsonBody["cpumodel"] = hardwareInfo.cpuName;
-    jsonBody["os"] = hardwareInfo.osName;
-    jsonBody["os_version"] = hardwareInfo.osVersion;
 
-    jsonBody["gps_lat"] = GlobalStatsInstance.getLatitude();
-    jsonBody["gps_long"] = GlobalStatsInstance.getLongitude();
-
-    QJsonDocument doc(jsonBody);
-    QByteArray jsonData = doc.toJson();
-    qDebug() << QString(jsonData);
-
-    result.body = jsonData;
+    result.body = bodyData;
     result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
 
     result.methodAPI = "player";

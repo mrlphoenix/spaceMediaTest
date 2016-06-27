@@ -19,7 +19,7 @@ public slots:
     bool start();
 
     void playsReady(QList<StatisticDatabase::Play> plays);
-    void systemInfoReady(QList<PlatformSpecific::SystemInfo> data);
+    void systemInfoReady(QList<Platform::SystemInfo> data);
     void eventsReady(QList<StatisticDatabase::PlayEvent> events);
     void systemInfoUploadResult(NonQueryResult result);
     void playsUploadResult(NonQueryResult result);

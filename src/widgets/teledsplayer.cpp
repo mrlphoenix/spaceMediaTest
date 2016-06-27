@@ -10,8 +10,6 @@
 TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    PlatformSpecific specs;
-    qDebug() << "Unique id: " << specs.getUniqueId();
     QTimer * trafficDisplay = new QTimer(this);
     QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
     trafficDisplay->start(10000);
@@ -48,8 +46,6 @@ TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    PlatformSpecific specs;
-    qDebug() << "Unique id: " << specs.getUniqueId();
     QTimer * trafficDisplay = new QTimer(this);
     QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
     trafficDisplay->start(10000);
@@ -334,9 +330,9 @@ void TeleDSPlayer::playNext()
             setBrightness(brightnessValue/100.);
     }
     qDebug() << "inserting into database PLAY";
-    DatabaseInstance.createPlayEvent(playlist->findItemById(nextItem), PlatformSpecific::SystemInfo::get());
-    //DatabaseInstance.playResource(playlist->findItemById(nextItem));
-    //DatabaseInstance.createSystemInfo(PlatformSpecific::SystemInfo::get());
+    playedIds.enqueue(nextItem);
+    PlatformSpecificService.generateSystemInfo();
+
     status.isPlaying = true;
     status.item = nextItem;
     GlobalStatsInstance.setCurrentItem(nextItem);
@@ -347,6 +343,7 @@ void TeleDSPlayer::playNext()
 void TeleDSPlayer::bindObjects()
 {
     qDebug() << "binding QML and C++";
+    connect(&PlatformSpecificService,SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SLOT(systemInfoReady(Platform::SystemInfo)));
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
@@ -373,6 +370,12 @@ void TeleDSPlayer::setBrightness(double value)
 void TeleDSPlayer::gpsUpdate(double lat, double lgt)
 {
     GlobalStatsInstance.setGps(lat, lgt);
+}
+
+void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
+{
+    qDebug() << "systemInfoReady";
+    DatabaseInstance.createPlayEvent(playlist->findItemById(playedIds.dequeue()), info);
 }
 
 void TeleDSPlayer::invokeShowVideo(bool isVisible)

@@ -330,7 +330,7 @@ void VideoDownloaderWorker::httpFinished()
     file = 0;
     if (currentItem.dtype == "html5_zip")
     {
-        PlatformSpecific::extractFile(currentItemId + currentItem.extension(), currentItemId);
+        PlatformSpecificService.extractFile(currentItemId + currentItem.extension(), currentItemId);
      /*   QDir dir(VIDEO_FOLDER + currentItemId);
         dir.removeRecursively();
         QDir().mkdir(VIDEO_FOLDER + currentItemId);

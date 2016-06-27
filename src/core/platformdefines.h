@@ -2,11 +2,11 @@
 #define PLATFORMDEFINES
 
 
-#define PLATFORM_DEFINE_ANDROID
+#define PLATFORM_DEFINE_RPI
 
 //Enable this if you want to enable GPIO
 //Disable for debugging in QtCreator
-#define PLATFORM_RPI_ENABLE_GPIO
+//#define PLATFORM_RPI_ENABLE_GPIO
 
 
 #define CONFIG_FOLDER_LINUX         QString("data/")

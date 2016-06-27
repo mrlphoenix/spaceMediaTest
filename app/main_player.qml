@@ -100,6 +100,7 @@ Item {
         videoPlayer.visible = true
         playerName.visible = false
         bgLogoImage.visible = false
+        bgLogoImageV.visible = false
         logoColumn.visible = false
         videoPlayer.opacity = videoOutBrightness
     }
@@ -157,6 +158,9 @@ Item {
         logoDownloadProgressBar.visible = false
         playerIDItem.visible = false
         waitingBlock.visible = false
+
+        bgLogoImage.visible = true
+        bgLogoImageV.visible = true
        // waitingText.visible = false
        // waitingRefreshInText.visible = false
     }
@@ -182,6 +186,10 @@ Item {
         playerIDItem.visible = true
         waitingBlock.visible = true
         playerIDText.color = "#333e47"
+
+
+        bgLogoImage.visible = true
+        bgLogoImageV.visible = true
 
     }
     function getPointSize(text){
@@ -551,8 +559,6 @@ Item {
 
     Dialog {
         id: dialogAndroid
-      //  width: 600  // for desktop ::TODO
-       // height: 500 // for desktop ::TODO
 
         // Создаём содержимое диалогового окна
         contentItem: Rectangle {

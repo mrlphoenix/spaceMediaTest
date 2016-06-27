@@ -12,6 +12,7 @@
 #include "cpustat.h"
 #include "teledssheduler.h"
 #include "statisticuploader.h"
+#include "platformspecific.h"
 
 class TeleDSCore : public QObject
 {
@@ -27,6 +28,9 @@ public slots:
 
     //slot is called after player init backend response
     void initResult(InitRequestResult result);
+    //slot is called when hardware info is ready
+    void hardwareInfoReady(Platform::HardwareInfo info);
+
     //slot is called after playlist got loaded
     void playlistResult(PlayerConfig result);
     //slot is called when backed returned player settings

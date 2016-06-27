@@ -45,7 +45,7 @@ public:
     static VideoServiceRequest sendStatisticRequest(QString data);
     static VideoServiceRequest sendEventsRequest(QString data);
     static VideoServiceRequest sendPlaysRequest(QString data);
-    static VideoServiceRequest advancedInitRequest();
+    static VideoServiceRequest advancedInitRequest(QByteArray bodyData);
     static VideoServiceRequest getPlaylistSettingsRequest();
     static VideoServiceRequest getPlayerAreasRequest();
     static VideoServiceRequest getVirtualScreenPlaylistRequest();
@@ -82,7 +82,7 @@ public:
     void sendStatistic(QString data);
     void sendPlays(QString data);
     void sendEvents(QString data);
-    void advancedInit();
+    void advancedInit(QByteArray data);
 
     void executeRequest(VideoServiceRequest request);
 

@@ -11,7 +11,7 @@
 #include <QSqlRecord>
 #include <QDateTime>
 #include "singleton.h"
-#include "platformspecs.h"
+#include "platformspecific.h"
 #include "videoserviceresult.h"
 
 #define DatabaseInstance Singleton<StatisticDatabase>::instance()
@@ -109,10 +109,10 @@ public:
 
     //oudated methods - use createPlayEvent instead
     void playResource(PlaylistAPIResult::PlaylistItem item);
-    void createSystemInfo(PlatformSpecific::SystemInfo info);
+    void createSystemInfo(Platform::SystemInfo info);
 
     //store in DB information about item was played and current state
-    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info);
+    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, Platform::SystemInfo info);
 
     void removeResource(QString itemId);
 
@@ -186,7 +186,7 @@ public:
 signals:
     void resourceFound(QList<StatisticDatabase::Resource> records);
     void playsFound(QList<StatisticDatabase::Play> records);
-    void systemInfoFound(QList<PlatformSpecific::SystemInfo> records);
+    void systemInfoFound(QList<Platform::SystemInfo> records);
     void eventsFound(QList<StatisticDatabase::PlayEvent> records);
     void resourceCount(int count);
     void unknownResult(QString queryId, QList<QSqlRecord> records);

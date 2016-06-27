@@ -290,7 +290,7 @@ void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
     queryThread->execute("playResource",sql);
 }
 
-void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, PlatformSpecific::SystemInfo info)
+void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, Platform::SystemInfo info)
 {
     //		create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT,
     //                          cpu REAL, latitude REAL, longitude REAL, battery REAL,
@@ -326,7 +326,7 @@ void StatisticDatabase::findPlaysToSend()
     queryThread->execute("findPlaysToSend",sql);
 }
 
-void StatisticDatabase::createSystemInfo(PlatformSpecific::SystemInfo info)
+void StatisticDatabase::createSystemInfo(Platform::SystemInfo info)
 {
     QString sql = QString(QString("insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) ") +
                   QString("VALUES ('%1', %2, %3, %4, %5, %6, %6, %7, '%8', %9, %10, %11)")).arg(
@@ -412,9 +412,9 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
     }
     else if (queryId == "findSystemInfoToSend")
     {
-        QList<PlatformSpecific::SystemInfo> systemInfos;
+        QList<Platform::SystemInfo> systemInfos;
         foreach (const QSqlRecord& record, records)
-            systemInfos.append(PlatformSpecific::SystemInfo::fromRecord(record));
+            systemInfos.append(Platform::SystemInfo::fromRecord(record));
         emit systemInfoFound(systemInfos);
     }
     else if (queryId == "findEventsToSend")
