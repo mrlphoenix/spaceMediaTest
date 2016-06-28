@@ -128,19 +128,19 @@ void Platform::PlatformSpecificWorker::generateSystemInfo()
 {
     qDebug() << "PlatformSpecific::SystemInfo::get()";
     SystemInfo result;
-    result.time = QDateTime::currentDateTimeUtc();                          qDebug() << "TIME";
-    result.cpu = getAvgUsage();                                             qDebug() << "AVG";
-    result.latitude = GlobalStatsInstance.getLatitude();                    qDebug() << "LAT";
-    result.longitude = GlobalStatsInstance.getLongitude();                  qDebug() << "LON";
-    result.battery = getBattery();                                          qDebug() << "BAT";
+    result.time = QDateTime::currentDateTimeUtc();
+    result.cpu = getAvgUsage();
+    result.latitude = GlobalStatsInstance.getLatitude();
+    result.longitude = GlobalStatsInstance.getLongitude();
+    result.battery = getBattery();
 
-    GlobalStatsInstance.setTraffic(getTrafficIn(),0.0);                     qDebug() << "TRA";
-    result.traffic = GlobalStatsInstance.getTrafficIn();                    qDebug() << "IN";
-    result.free_memory = getFreeMemory();                                   qDebug() << "MEM";
-    result.wifi_mac = getWifiMac();                                         qDebug() << "WIFI";
-    result.hdmi_cec = getHdmiCEC();                                         qDebug() << "CEC";
-    result.hdmi_gpio = getHdmiGPIO();                                       qDebug() << "GPIO";
-    result.free_space = getFreeSpace();                                     qDebug() << "FREE";
+    GlobalStatsInstance.setTraffic(getTrafficIn(),0.0);
+    result.traffic = GlobalStatsInstance.getTrafficIn();
+    result.free_memory = getFreeMemory();
+    result.wifi_mac = getWifiMac();
+    result.hdmi_cec = getHdmiCEC();
+    result.hdmi_gpio = getHdmiGPIO();
+    result.free_space = getFreeSpace();
 
     qDebug() << result.time << result.cpu <<
                 result.latitude << result.longitude <<

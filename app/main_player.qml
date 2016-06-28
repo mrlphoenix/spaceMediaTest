@@ -22,7 +22,7 @@ Item {
     property bool useSecondPlayer: false
 
     //properties for cross content managing
-    property string currentType: "videoPlayer"
+    property string currentType: "null"
 
     signal nextItem()
     signal refreshId()
@@ -50,45 +50,72 @@ Item {
         console.log("Platform: " + Qt.platform.os)
         if (type === "video")
         {
-            console.log("playfileAdvanced::video")
-            //videoPlayer.playItem(filename)
-            videoPlayer.playItemAdv(filename,length,skip)
-            if (currentType === "browser"){
+            //browser just started to play, nextItem returned video - we need to preload video
+            //on browser show end -> we should play this video
+            //
+            if (currentType === "browser")
+            {
+                console.log("playFileAdv::video/browser -> preloading video")
+
+                videoPlayer.preloadItem(filename, type, length, skip)
+                androidBrowser.setNextItem(filename, length, "video", skip)
+            }
+            else
+            {
+                console.log("playFileAdv::video/video -> loading next video | assuming its preloaded")
+                videoPlayer.playItemAdv(filename, length, skip)
                 currentType = "videoPlayer"
-                console.log("playfileAdvanced::replacing browser with media player")
-                nextItem()
-                androidBrowser.visible = false
             }
             return
         }
         else if (type === "audio")
         {
-            console.log("playfileAdvanced::audio")
-            videoPlayer.playAudioItemAdv(filename,length,skip)
-            if (currentType === "browser"){
+
+            if (currentType === "browser")
+            {
+                console.log("playFileAdv::audio/browser -> preloading audio")
+                videoPlayer.preloadItem(filename, "audio", length, skip)
+                androidBrowser.setNextItem(filename, length, "audio", skip)
+            }
+            else
+            {
+                console.log("playFileAdv::audio/multi -> loading next audio | assuming its preloaded")
+                videoPlayer.playAudioItemAdv(filename, length, skip)
                 currentType = "videoPlayer"
-                console.log("playfileAdvanced::replacing browser with media player")
-                nextItem()
-                androidBrowser.visible = false
             }
         }
         else if (type === "html5_online")
         {
-            if (currentType === "videoPlayer")
+            if (currentType === "null")
+            {
+                console.log("playFileAdv::browser/null -> loading and whowing browser")
+                androidBrowser.load(filename)
+                androidBrowser.setShowTime(length)
+                showBrowserTimer.browserVisible = true
+                showBrowserTimer.start()
+                //androidBrowser.visible = true
+                androidBrowser.startShow()
+                currentType = "browser"
+                nextItem()
+            }
+            else if (currentType === "videoPlayer")
             {
                 //prepare for Browser
                 console.log("playfileAdvanced::html5")
                 videoPlayer.prepareStop = true
                 currentType = "browser"
-                    androidBrowser.load(filename)
-                    androidBrowser.setShowTime(length)
+                androidBrowser.load(filename)
+                androidBrowser.setShowTime(length)
             }
             else if (currentType === "browser"){
+                console.log("playFileAdv::browser/browser -> filling nextItem with new browser item")
+                androidBrowser.setNextItem(filename, length, "browser", 0)
+                /*
                 console.log("playfileAdvanced::html5 from browser")
-                    console.log("build = android, len = " + length)
-                    androidBrowser.load(filename)
-                    androidBrowser.setShowTime(length)
-                    androidBrowser.startShow()
+                console.log("build = android, len = " + length)
+                androidBrowser.load(filename)
+                androidBrowser.setShowTime(length)
+                androidBrowser.startShow()*/
             }
         }
     }
@@ -504,6 +531,16 @@ Item {
         text: ""
     }
 
+    Timer {
+        id: showBrowserTimer
+        interval: 300
+        repeat: false
+        property bool browserVisible: true
+        onTriggered: {
+            androidBrowser.visible = browserVisible
+        }
+    }
+
     //content types
     //video player
     VideoPlayer {
@@ -524,11 +561,16 @@ Item {
         }
         onVideoStopped: {
             console.log("video player:video stopped")
-            //videoPlayer.visible = false
+
+
             videoPlayer.stopPlayer()
-            androidBrowser.visible = true
+
+            showBrowserTimer.browserVisible = true
+            showBrowserTimer.start()
             androidBrowser.startShow()
             audioIcon.visible = false
+
+            nextItem()
         }
     }
     //image for audio playback
@@ -548,11 +590,44 @@ Item {
     AndroidBrowser{
         id: androidBrowser
         visible: false
+        property string nextItemUrl: ""
+        property int nextItemTime: 0
+        property string nextItemType: ""
+        property int nextItemSkipTime: 0
+
+        function setNextItem(item, length, type, skip)
+        {
+            nextItemUrl = item
+            nextItemTime = length
+            nextItemType = type
+            nextItemSkipTime = skip
+        }
 
         onLoadFinished: {
         }
         onEndShow: {
-            console.log("browser end show!")
+            if (nextItemUrl == ""){
+            console.log("browser end show, no next Item!")
+            }
+            else
+            {
+                if (nextItemType === "browser")
+                {
+                    console.log("browser end show but there is next BROWSER Item ahead")
+                    androidBrowser.load(nextItemUrl)
+                    androidBrowser.setShowTime(nextItemTime)
+                    androidBrowser.startShow()
+                }
+                else if (nextItemType === "video" || nextItemType === "audio")
+                {
+                    console.log("browser end show but there is next MULTIMEDIA item ahead")
+                    showBrowserTimer.browserVisible = false
+                    showBrowserTimer.start()
+                    currentType = "videoPlayer"
+                    videoPlayer.playPreloaded()
+                }
+                nextItemUrl = ""
+            }
             nextItem()
         }
     }

@@ -171,7 +171,7 @@ QueryThread::~QueryThread()
 
 void QueryThread::execute(const QString &queryId, const QString &sql)
 {
-    qDebug() << "EXECUTE " + queryId + " [" + sql + "]";
+  //  qDebug() << "EXECUTE " + queryId + " [" + sql + "]";
     emit fwdExecute(queryId, sql); // forwards to the worker
 }
 
@@ -310,7 +310,7 @@ void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, Pl
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space)
                 );
-    qDebug() << "create play event sql = " + sql;
+   // qDebug() << "create play event sql = " + sql;
     queryThread->execute("playResource", sql);
 }
 
@@ -488,7 +488,7 @@ StatisticDatabase::PlayEvent StatisticDatabase::PlayEvent::fromRecord(const QSql
     result.battery = record.value("battery").toDouble();
     result.cpu = record.value("cpu").toDouble();
     result.free_memory = record.value("free_memory").toInt();
-    result.free_space = record.value("free_space").toInt();
+    result.free_space = record.value("free_space").toInt();qDebug() << "FREE";
     result.hdmi_cec = record.value("hdmi_cec").toInt();
     result.hdmi_gpio = record.value("hdmi_gpio").toInt();
     result.latitude = record.value("longitude").toDouble();

@@ -72,8 +72,6 @@ void GlobalStats::setTraffic(qlonglong in, qlonglong out)
     }
     else
     {
-        qDebug() <<"not dropped";
-
         if (trafficTotalIn != 0 || trafficTotalOut != 0)
         {
             trafficIn = in - trafficTotalIn;

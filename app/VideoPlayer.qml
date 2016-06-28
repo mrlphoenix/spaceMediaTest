@@ -18,7 +18,7 @@ Item {
         }
         else{
             console.log("duration = " + duration)
-            return duration - 800
+            return duration - 300
         }
     }
 
@@ -26,8 +26,8 @@ Item {
         nextVideoTimer.stop()
         mp1.stop()
         mp1.source = ""
-        mp2.source = ""
         mp2.stop()
+        mp2.source = ""
         isVideoPlaying = true
         firstPlayer = true
     }
@@ -59,7 +59,7 @@ Item {
     Timer{
         id: showVideo1
         repeat: false
-        interval: 1000
+        interval: 340
         onTriggered:{
             videoOut2.opacity = 0.0
         }
@@ -68,7 +68,7 @@ Item {
     Timer{
         id: showVideo2
         repeat: false
-        interval: 1000
+        interval: 340
         onTriggered:{
             videoOut2.opacity = 1.0
             videoOut1.opacity = 0.0
@@ -119,7 +119,7 @@ Item {
                 if (durationMsecs == 0)
                     nextVideoTimer.interval = getDuration(mp1.duration)
                 else
-                    nextVideoTimer.interval = durationMsecs
+                    nextVideoTimer.interval = durationMsecs -900
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
                     seek(seekMsecs)
@@ -141,7 +141,7 @@ Item {
         property int seekMsecs: 0
 
         onPlaying:{
-            console.log("MP2:onPlay")
+            console.log("MP2:onPlay " + isVideo + " source=" + source)
             if (isVideo){
                 if (!isVideoPlaying){
                     isVideoPlaying = true
@@ -157,12 +157,13 @@ Item {
 
             if (fakePlay == false)
             {
-                videoOut2.opacity = 1.0
-                videoOut1.opacity = 0.0
+                showVideo2.start()
+               // videoOut2.opacity = 1.0
+                //videoOut1.opacity = 0.0
                 if (durationMsecs == 0)
                     nextVideoTimer.interval = getDuration(mp2.duration)
                 else
-                    nextVideoTimer.interval = durationMsecs
+                    nextVideoTimer.interval = durationMsecs -900
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
                     seek(seekMsecs)
@@ -172,6 +173,23 @@ Item {
                 fakePlay = false
             }
         }
+    }
+
+    //function called when we ned to preload first item after browser
+    function preloadItem(filename, type, duration, seek)
+    {
+        console.log("Filling src < MP1")
+        mp1.durationMsecs = duration
+        mp1.seekMsecs = seek
+        mp1.source = filename
+        if (type === "video")
+            mp1.isVideo = true
+        else
+            mp1.isVideo = false
+    }
+    function playPreloaded()
+    {
+        mp1.play()
     }
 
     function playItemGeneric(filename, type, duration, seek)
@@ -186,7 +204,6 @@ Item {
             else
                 mp1.isVideo = false
             mp1.play()
-
         }
         else if (mp2.source == "")
         {
@@ -196,8 +213,10 @@ Item {
                 mp2.isVideo = true
             else
                 mp2.isVideo = false
-            mp1.durationMsecs = duration
-            mp1.seekMsecs = seek
+            mp2.durationMsecs = duration
+            mp2.seekMsecs = seek
+         //   if (mp1.playbackState != MediaPlayer.PlayingState)
+         //       mp1.play()
         }
         else{
             if (firstPlayer){
@@ -207,8 +226,8 @@ Item {
                     mp2.isVideo = true
                 else
                     mp2.isVideo = false
-                mp1.durationMsecs = duration
-                mp1.seekMsecs = seek
+                mp2.durationMsecs = duration
+                mp2.seekMsecs = seek
             }
             else{
                 console.log("Load to MP1")

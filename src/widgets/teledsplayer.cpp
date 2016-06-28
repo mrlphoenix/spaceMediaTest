@@ -144,6 +144,18 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
 {
     qDebug() << "TeleDSPlayer::set config: ";
     configNew = area.playlist;
+    if (playlist == NULL)
+    {
+        playlist = new StandartPlaylist(this);
+    }
+   /* if (playlist)
+    {
+        playlist->deleteLater();
+    }
+
+    playlist = new StandartPlaylist(this);*/
+    isPlaylistRandom = false;
+    /*
     if (playlist)
     {
         if (area.type == "random" && playlist->getType() != "random")
@@ -172,7 +184,7 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
         qDebug() << "RPI Player::playlist STANDART";
         playlist = new StandartPlaylist(this);
         isPlaylistRandom = false;
-    }
+    }*/
     playlist->updatePlaylist(area.playlist);
 }
 
@@ -196,9 +208,10 @@ void TeleDSPlayer::invokeNextVideoMethod(QString name)
 
 void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
 {
-    qDebug() << "invoking next method::advanced";
     PlaylistAPIResult::PlaylistItem item = playlist->findItemById(name);
 
+
+    qDebug() << "invoking next method::advanced -> " << item.name;
     QVariant source;
     if (item.type == "video" || item.type == "audio")
         source = QUrl(getFullPath(name));
