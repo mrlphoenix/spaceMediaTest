@@ -535,17 +535,6 @@ QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString cont
         result[currentDay] = hours;
         currentDay++;
     }
-
-    qDebug() << "Trying to out Time range " << content;
-    foreach (const int &d, result.keys())
-    {
-        qDebug() << "KEY: " << d;
-        foreach (const int &v, result[d])
-        {
-            qDebug() << v;
-        }
-    }
-    qDebug() << result;
     return result;
 }
 

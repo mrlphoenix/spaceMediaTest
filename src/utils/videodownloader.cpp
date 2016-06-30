@@ -307,13 +307,18 @@ void VideoDownloaderWorker::httpFinished()
 {
     if (reply->error())
     {
+        qDebug() << "VDW::httpFinished -> Error No internet connection";
+        reply->disconnect();
         QTimer::singleShot(10000,this,SLOT(download()));
     //    delete reply;
     //    reply = 0;
     //    delete file;
     //    file = 0;
         if (manager)
+        {
+            manager->disconnect();
             manager->deleteLater();
+        }
         manager = new QNetworkAccessManager(this);
         return;
     }
@@ -362,7 +367,7 @@ void VideoDownloaderWorker::httpReadyRead()
         file->write(reply->readAll());
         file->flush();
         if (v % 10 == 0)
-            qDebug() << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
+            qDebug() << QDateTime::currentDateTime().time().toString("HH:mm:ss ") << "updating file status: " << itemsToDownload[currentItemIndex].iid << " [ " << file->size() << " ] bytes";
     }
 }
 

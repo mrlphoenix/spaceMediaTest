@@ -18,6 +18,8 @@
 #include "sys/system_properties.h"
 #include "sys/sysinfo.h"
 #include "JlCompress.h"
+#include "unistd.h"
+#include "linux/reboot.h"
 
 #define ANDROID_OS_BUILD_VERSION_RELEASE     "ro.build.version.release"          // * The user-visible version string. E.g., "1.0" or "3.4b5".
 #define ANDROID_OS_BUILD_VERSION_INCREMENTAL "ro.build.version.incremental"      // The internal value used by the underlying source control to represent this build.
@@ -739,3 +741,4 @@ void Platform::PlatformSpecific::writeToFile(QByteArray data, QString filename)
 {
     thread->writeToFile(data, filename);
 }
+

@@ -288,7 +288,23 @@ void TeleDSCore::downloaded()
 {
     //this slot is called when all items got downloaded
 
-    qDebug() << "!!!!!!!!downloaded!";
+  /*  QProcess quitProcess(this);
+    quitProcess.start("su", QString("-c|reboot -p").split("|"));
+    if (quitProcess.waitForStarted(-1)){
+    qDebug() << "quit started";
+
+    quitProcess.waitForFinished();
+    PlatformSpecificService.writeToFile(quitProcess.readAll(),"/sdcard/download/teleds/quitproc.txt");
+    qDebug() << quitProcess.error();
+    qDebug() << quitProcess.errorString();
+    }
+    else
+    {
+        qDebug() << "not started";
+        qDebug() << quitProcess.error();
+        qDebug() << quitProcess.errorString();
+    }*/
+    qDebug() << "TeleDSCore::downloaded";
 
     //after we download items - update playlists every 30 secs
     GlobalConfigInstance.setGetPlaylistTimerTime(30000);
@@ -309,11 +325,13 @@ void TeleDSCore::downloaded()
             if (!teledsPlayer->isPlaying())
             {
                 teledsPlayer->play();
-                QTimer::singleShot(3000,teledsPlayer, SLOT(invokeEnablePreloading()));
+                QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
+               // QTimer::singleShot(3000,teledsPlayer, SLOT(invokeEnablePreloading()));
             }
         }
         else if (currentConfigNew.screens.count())
         {
+
             //skip "audio" area - not supported yet
             foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
                 if (v.type != "audio")
@@ -327,7 +345,8 @@ void TeleDSCore::downloaded()
                         if (!teledsPlayer->isPlaying())
                         {
                             teledsPlayer->play();
-                            QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
+                            QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
+                            //QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
                         }
                         break;
                     }
@@ -367,7 +386,6 @@ void TeleDSCore::needToDownloadResult(int count)
 
 void TeleDSCore::checkReleyTime()
 {
-
     qDebug() << "TeleDSCore::checkReleyTime";
 
     if (GlobalConfigInstance.getReleyEnabled(true))

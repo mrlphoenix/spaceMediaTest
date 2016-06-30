@@ -313,6 +313,15 @@ Item {
         interval: 10000
         onTriggered: {
             dialogAndroid.close()
+            if (currentType == "browser")
+            {
+                androidBrowser.visible = true
+                videoPlayer.visible = true
+            }
+            else if (currentType == "videoPlayer")
+            {
+                videoPlayer.visible = true
+            }
             item.focus = true
         }
     }
@@ -533,7 +542,7 @@ Item {
 
     Timer {
         id: showBrowserTimer
-        interval: 300
+        interval: 200
         repeat: false
         property bool browserVisible: true
         onTriggered: {
@@ -694,6 +703,19 @@ Item {
                     }
                     onClicked: {
                         dialogAndroid.close()
+                        if (currentType == "browser")
+                        {
+                            androidBrowser.visible = true
+                            videoPlayer.visible = true
+                            bgLogoImage.visible = false
+                            bgLogoImageV.visible = false
+                        }
+                        else if (currentType == "videoPlayer")
+                        {
+                            bgLogoImage.visible = false
+                            bgLogoImageV.visible = false
+                        }
+
                         item.focus = true
                     }
                 }
@@ -729,6 +751,19 @@ Item {
                         console.log("DIALOG ON RELEASED!!!")
                         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
                             dialogAndroid.close()
+                            if (currentType === "browser")
+                            {
+                                androidBrowser.visible = true
+                                videoPlayer.visible = true
+                                bgLogoImage.visible = false
+                                bgLogoImageV.visible = false
+                            }
+                            else if (currentType == "videoPlayer")
+                            {
+                                bgLogoImage.visible = false
+                                bgLogoImageV.visible = false
+                            }
+
                             item.focus = true
                             event.accepted = true
                         }
@@ -744,6 +779,16 @@ Item {
             dialogCloseTimer.start()
             dialogAndroid.open()
             dialogButtonOk.focus = true
+            if (currentType == "browser")
+            {
+                if (item.width > item.height)
+                    bgLogoImage.visible = true
+                else
+                    bgLogoImageV.visible = true
+                androidBrowser.visible = false
+                videoPlayer.visible = false
+            }
+
             event.accepted = true
             console.log("back key pressed: main")
         }

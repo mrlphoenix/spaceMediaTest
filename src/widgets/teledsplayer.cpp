@@ -144,28 +144,22 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
 {
     qDebug() << "TeleDSPlayer::set config: ";
     configNew = area.playlist;
-    if (playlist == NULL)
+   /* if (playlist == NULL)
     {
         playlist = new StandartPlaylist(this);
     }
-   /* if (playlist)
-    {
-        playlist->deleteLater();
-    }
+    isPlaylistRandom = false;*/
 
-    playlist = new StandartPlaylist(this);*/
-    isPlaylistRandom = false;
-    /*
     if (playlist)
     {
-        if (area.type == "random" && playlist->getType() != "random")
+        if (area.playlist.type == "random" && playlist->getType() != "random")
         {
             qDebug() << "RPI Player::playlist Standart -> RANDOM";
             playlist->deleteLater();
             playlist = new MagicRandomPlaylist(this);
             isPlaylistRandom = true;
         }
-        else if (area.type != "random" && playlist->getType() == "random")
+        else if (area.playlist.type != "random" && playlist->getType() == "random")
         {
             qDebug() << "RPI Player::playlist RANDOM -> STANDART";
             playlist->deleteLater();
@@ -173,7 +167,7 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
             isPlaylistRandom = false;
         }
     }
-    else if (area.type == "random")
+    else if (area.playlist.type == "random")
     {
         qDebug() << "RPI Player::playlist RANDOM";
         playlist = new MagicRandomPlaylist(this);
@@ -184,7 +178,7 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
         qDebug() << "RPI Player::playlist STANDART";
         playlist = new StandartPlaylist(this);
         isPlaylistRandom = false;
-    }*/
+    }
     playlist->updatePlaylist(area.playlist);
 }
 

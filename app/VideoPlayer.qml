@@ -122,7 +122,10 @@ Item {
                     nextVideoTimer.interval = durationMsecs -900
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
+                {
+                    console.log("MP1:seek " + seekMsecs)
                     seek(seekMsecs)
+                }
             }
             else{
                 console.log("MP1:Fake play called")
@@ -166,7 +169,10 @@ Item {
                     nextVideoTimer.interval = durationMsecs -900
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
+                {
+                    console.log("MP2:seek " + seekMsecs)
                     seek(seekMsecs)
+                }
             }
             else{
                 console.log("MP2:Fake play called")

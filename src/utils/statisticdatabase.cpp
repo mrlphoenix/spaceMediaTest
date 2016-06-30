@@ -488,10 +488,10 @@ StatisticDatabase::PlayEvent StatisticDatabase::PlayEvent::fromRecord(const QSql
     result.battery = record.value("battery").toDouble();
     result.cpu = record.value("cpu").toDouble();
     result.free_memory = record.value("free_memory").toInt();
-    result.free_space = record.value("free_space").toInt();qDebug() << "FREE";
+    result.free_space = record.value("free_space").toInt();
     result.hdmi_cec = record.value("hdmi_cec").toInt();
     result.hdmi_gpio = record.value("hdmi_gpio").toInt();
-    result.latitude = record.value("longitude").toDouble();
+    result.latitude = record.value("latitude").toDouble();
     result.longitude = record.value("longitude").toDouble();
     result.traffic = record.value("traffic").toInt();
     result.wifi_mac = record.value("wifi_mac").toString();
