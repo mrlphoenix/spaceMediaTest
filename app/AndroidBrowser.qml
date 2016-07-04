@@ -1,15 +1,23 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
-//import QtWebView 1.1
-import QtWebKit 3.0
+import QtWebView 1.1
+//import QtWebKit 3.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
 
 Item{
     anchors.fill: parent
+    property string prevUrl:""
     function load(url){
-       // webView.url = "http://www.whatarecookies.com/cookietest.asp"
-        webView.url = url
+        if (prevUrl === url){
+            console.log("WebBrowser::load -> realoding page")
+            webView.reload()
+        }
+        else
+        {
+            prevUrl = url
+            webView.url = url
+        }
     }
     function setShowTime(msecs){
         turnOffTimer.interval = msecs
@@ -18,6 +26,9 @@ Item{
     function startShow(){
         turnOffTimer.stop()
         turnOffTimer.start()
+    }
+    function stopBrowser(){
+        turnOffTimer.stop()
     }
 
     property bool isActive: false

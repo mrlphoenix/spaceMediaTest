@@ -33,6 +33,17 @@ Item {
         widthP = width
     }
 
+    function stopPlayer()
+    {
+        videoPlayer.stopPlayer();
+        videoPlayer.visible = false;
+        if (androidBrowser.visible == true){
+            androidBrowser.visible = false
+            androidBrowser.stopBrowser()
+        }
+        currentType = null
+    }
+
     function enablePreloading(filename)
     {
         console.log("Preloading: MP2->: " +filename)
@@ -157,7 +168,7 @@ Item {
                 overlayBgRect.color = "#000000"
             }
             else{
-                overlayBgRect.color = "#333e47"
+                overlayBgRect.color = "#000000"
             }
         }
     }
@@ -211,13 +222,11 @@ Item {
         playerIDText.text = playerID
 
         playerIDItem.visible = true
-        waitingBlock.visible = true
+       // waitingBlock.visible = true
         playerIDText.color = "#333e47"
-
 
         bgLogoImage.visible = true
         bgLogoImageV.visible = true
-
     }
     function getPointSize(text){
         if (text.length > 40)
@@ -242,7 +251,6 @@ Item {
         else
             return 18
     }
-
     function getRefreshButtonPositionY(w, h)
     {
         if (w > h)
@@ -254,7 +262,6 @@ Item {
             return playerIDRect.y + playerIDRect.height + 8
         }
     }
-
     function setDownloadProgressSimple(value)
     {
         logoDownloadProgressBar.value = value
@@ -267,7 +274,6 @@ Item {
         else
             return result
     }
-
     PositionSource {
         id: src
         updateInterval: 1000
@@ -279,7 +285,6 @@ Item {
             gpsChanged(coord.latitude, coord.longitude)
         }
     }
-
     Timer{
         property var object: ({})
         id: hideVideoDelayTimer
@@ -289,7 +294,6 @@ Item {
             object.visible = false
         }
     }
-
     Timer {
         property int updateDelay: 10
         id: refreshTimeTimer
@@ -306,7 +310,6 @@ Item {
                 waitingRefreshInText.text = "Refreshing..."
         }
     }
-
     Timer {
         id: dialogCloseTimer
         repeat: false
@@ -727,6 +730,7 @@ Item {
                     anchors.bottom: parent.bottom
                     color: "#d7d7d7"
                 }
+
 
                 Button {
                     id: dialogButtonOk

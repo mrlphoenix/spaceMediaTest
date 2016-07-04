@@ -15,13 +15,10 @@
 #include "platformspecific.h"
 
 
-
-
 class TeleDSPlayer : public QObject
 {
     Q_OBJECT
 public:
-    explicit TeleDSPlayer(PlayerConfig::Area config, QObject * parent);
     explicit TeleDSPlayer(QObject * parent);
     ~TeleDSPlayer();
     QString getFullPath(QString fileName);
@@ -57,10 +54,12 @@ public slots:
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
     void invokeEnablePreloading();
+    void invokeStop();
 
     void next();
     void playNext();
     void bindObjects();
+    void stopPlaying();
 
     void showVideo();
     void hideVideo();
@@ -81,6 +80,7 @@ protected:
 
     CurrentItemStatus status;
     int delay;
+    bool isActive;
 };
 
 

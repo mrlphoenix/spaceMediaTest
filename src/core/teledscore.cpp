@@ -196,6 +196,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
+    qDebug() << "playerSettingsResult";
     //this method is called when we try to get player settings
 
     GlobalConfigInstance.setVideoQuality(result.video_quality);
@@ -207,13 +208,19 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
     //if backend responsed with 401 - it means player need to be reactivated
     if (result.error_id == 401)
     {
+        qDebug() << "backend responsed with 401 - it means player need to be reactivated";
         if (result.error != "")
             GlobalConfigInstance.setActivationCode(result.error);
+        if (teledsPlayer->isPlaying())
+            teledsPlayer->stopPlaying();
         teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode());
     }
     //403: player is not configurated - requesting initialization
     if (result.error_id == 403)
     {
+        if (teledsPlayer->isPlaying())
+            teledsPlayer->stopPlaying();
+        qDebug() << "403: player is not configurated - requesting initialization";
         initPlayer();
     }
     else
@@ -265,7 +272,7 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
     }
      qDebug() << "Core: Playlist " << count;
 
-     //setting up playlist for every virtual screen
+     //setting up playlist for every virtual screen0
     foreach (const QString &s, result.keys())
     {
         if (currentConfigNew.screens.contains(s))
@@ -278,6 +285,7 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
 
 void TeleDSCore::getPlaylistTimerSlot()
 {
+    qDebug() << "getPlaylistTimerSlot";
     qDebug() << "grabbing areas";
     //first - we load settings and restart playlist timer
     videoService->getPlayerSettings();
@@ -309,49 +317,42 @@ void TeleDSCore::downloaded()
     //after we download items - update playlists every 30 secs
     GlobalConfigInstance.setGetPlaylistTimerTime(30000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
-    //initialization of teledsPlayer
-    if (teledsPlayer == NULL)
-    {
-        qDebug() << "creating RPI Video Player";
-        teledsPlayer = new TeleDSPlayer(currentConfig.areas[0],this);
-    }
-    else
-    {
-        //currently only one area is supported, so we display first one
-        if (currentConfig.areas.count())
-        {
-            teledsPlayer->setConfig(currentConfig.areas.first());
-            //if player is inactive - start player and preload next item
-            if (!teledsPlayer->isPlaying())
-            {
-                teledsPlayer->play();
-                QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
-               // QTimer::singleShot(3000,teledsPlayer, SLOT(invokeEnablePreloading()));
-            }
-        }
-        else if (currentConfigNew.screens.count())
-        {
 
-            //skip "audio" area - not supported yet
-            foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
-                if (v.type != "audio")
-                {
-                    if (v.playlist.items.count() == 0)
-                        teledsPlayer->invokeNoItemsView("http://teleds.com");
-                    else
-                    {
-                        teledsPlayer->invokeDownloadDone();
-                        teledsPlayer->setConfig(v);
-                        if (!teledsPlayer->isPlaying())
-                        {
-                            teledsPlayer->play();
-                            QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
-                            //QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
-                        }
-                        break;
-                    }
-                }
+    //initialization of teledsPlayer
+    //currently only one area is supported, so we display first one
+    if (currentConfig.areas.count())
+    {
+        teledsPlayer->setConfig(currentConfig.areas.first());
+        //if player is inactive - start player and preload next item
+        if (!teledsPlayer->isPlaying())
+        {
+            teledsPlayer->play();
+            QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
+           // QTimer::singleShot(3000,teledsPlayer, SLOT(invokeEnablePreloading()));
         }
+    }
+    else if (currentConfigNew.screens.count())
+    {
+
+        //skip "audio" area - not supported yet
+        foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
+            if (v.type != "audio")
+            {
+                if (v.playlist.items.count() == 0)
+                    teledsPlayer->invokeNoItemsView("http://teleds.com");
+                else
+                {
+                    teledsPlayer->invokeDownloadDone();
+                    teledsPlayer->setConfig(v);
+                    if (!teledsPlayer->isPlaying())
+                    {
+                        teledsPlayer->play();
+                        QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
+                        //QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
+                    }
+                    break;
+                }
+            }
     }
 }
 
@@ -460,6 +461,6 @@ void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
     }
     currentConfigNew = newConfig;
     //starting downloading and stop getPlaylist timer
-    downloader->runDownloadNew();
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
+    downloader->runDownloadNew();
 }

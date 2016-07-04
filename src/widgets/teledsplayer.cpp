@@ -6,49 +6,8 @@
 #include "sunposition.h"
 #include "version.h"
 
-TeleDSPlayer::TeleDSPlayer(PlayerConfig::Area config, QObject *parent) : QObject(parent)
-{
-#ifdef PLATFORM_DEFINE_ANDROID
-    QTimer * trafficDisplay = new QTimer(this);
-    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
-    trafficDisplay->start(10000);
-#endif
-    playlist = 0;
-    QSurfaceFormat curSurface = view.format();
-    curSurface.setRedBufferSize(8);
-    curSurface.setGreenBufferSize(8);
-    curSurface.setBlueBufferSize(8);
-    curSurface.setAlphaBufferSize(0);
-    view.setFormat(curSurface);
-    this->config = config;
-    setConfig(config);
-
-    view.setSource(QUrl(QStringLiteral("qrc:/main_player.qml")));
-    viewRootObject = dynamic_cast<QObject*>(view.rootObject());
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
-    QTimer::singleShot(1000,this,SLOT(bindObjects()));
-    QTimer::singleShot(1000,this,SLOT(next()));
-    QTimer::singleShot(1000,this,SLOT(invokeVersionText()));
-
-#ifdef PLAYER_MODE_WINDOWED
-    view.show();
-    view.setMinimumHeight(520);
-    view.setMinimumWidth(920);
-#else
-    view.showFullScreen();
-#endif
-    delay = 0;
-    status.isPlaying = false;
-    status.item = "";
-}
-
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
-#ifdef PLATFORM_DEFINE_ANDROID
-    QTimer * trafficDisplay = new QTimer(this);
-    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(invokeDisplayTrafficUpdate()));
-    trafficDisplay->start(10000);
-#endif
     playlist = 0;
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
@@ -74,6 +33,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     delay = 0000;
     status.isPlaying = false;
     status.item = "";
+    isActive = true;
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -132,7 +92,11 @@ void TeleDSPlayer::setConfig(PlayerConfig::Area area)
     }
     else
     {
-        qDebug() << "RPI Player:: playlist STANDART";
+        qDebug() << "RPI Player:: playlist STANDART";#ifdef PLATFORM_DEFINE_ANDROID
+    QTimer * trafficDisplay = new QTimer(this);
+    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(()));
+    trafficDisplay->start(10000);
+#endif
         playlist = new StandartPlaylist(this);
         isPlaylistRandom = false;
     }
@@ -184,6 +148,7 @@ void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
 
 void TeleDSPlayer::play()
 {
+    isActive = true;
     QTimer::singleShot(1000,this,SLOT(next()));
 }
 
@@ -203,8 +168,6 @@ void TeleDSPlayer::invokeNextVideoMethod(QString name)
 void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
 {
     PlaylistAPIResult::PlaylistItem item = playlist->findItemById(name);
-
-
     qDebug() << "invoking next method::advanced -> " << item.name;
     QVariant source;
     if (item.type == "video" || item.type == "audio")
@@ -300,17 +263,30 @@ void TeleDSPlayer::invokeEnablePreloading()
     invokedOnce = true;
 }
 
+void TeleDSPlayer::invokeStop()
+{
+    qDebug() << "TeleDSPlayer::invokeStop";
+    QMetaObject::invokeMethod(viewRootObject, "stopPlayer");
+}
+
 void TeleDSPlayer::next()
 {
-    qDebug() << "next method is called";
-    if (delay == 0)
-        playNext();
+    if (isActive)
+    {
+        qDebug() << "next method is called";
+        if (delay == 0)
+            playNext();
+        else
+        {
+            QTimer::singleShot(delay,this,SLOT(playNext()));
+            hideVideo();
+            status.isPlaying = false;
+            status.item = "";
+        }
+    }
     else
     {
-        QTimer::singleShot(delay,this,SLOT(playNext()));
-        hideVideo();
-        status.isPlaying = false;
-        status.item = "";
+        qDebug() << "Player is not active, so no next item";
     }
 }
 
@@ -354,6 +330,14 @@ void TeleDSPlayer::bindObjects()
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
     QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));
+}
+
+void TeleDSPlayer::stopPlaying()
+{
+    isActive = false;
+    status.isPlaying = false;
+    invokeStop();
+    invokeNoItemsView("http://teleds.com");
 }
 
 void TeleDSPlayer::showVideo()
