@@ -80,7 +80,7 @@ public:
     virtual QString next();
 protected:
     int allLength;
-    int magic;
+    double magic;
     QDateTime minPlayTime;
 };
 

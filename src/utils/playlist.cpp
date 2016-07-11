@@ -88,7 +88,8 @@ bool RandomPlaylist::itemDelayPassed(const PlaylistAPIResult::PlaylistItem &item
     {
         if (QDateTime::currentDateTime() > lastTimeShowed[item.id])
         {
-            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.id << " [" << item.name << "]";
+            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.id << " [" << item.name << "]" <<
+                        QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.id].time().toString();
             return true;
         }
         else
@@ -181,7 +182,7 @@ QString MagicRandomPlaylist::next()
         1. $magic = round($total / $count * 4); // общее время проигрывание роликов / колво роликов * 4
     5. Сортируем массив кастомной сортировкой
         1. Сортировка по return (ceil($a_lastplayed/$magic) < ceil($b_lastplayed/$magic)) ? -1 : 1;
-        2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // Timeout (если ==)
+        2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // `Timeout (если ==)
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
 
@@ -194,8 +195,8 @@ QString MagicRandomPlaylist::next()
               [&, this](const PlaylistAPIResult::PlaylistItem &a,
                 const PlaylistAPIResult::PlaylistItem &b)
         {
-            int aLastPlayed = minPlayTime.secsTo(lastTimeShowed[a.id]) % magic;
-            int bLastPlayed = minPlayTime.secsTo(lastTimeShowed[b.id]) % magic;
+            int aLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[a.id]) / magic );
+            int bLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[b.id]) / magic );
             if (aLastPlayed == bLastPlayed)
                 return a.play_timeout < b.play_timeout;
             else
@@ -207,18 +208,20 @@ QString MagicRandomPlaylist::next()
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime.addSecs(item.play_timeout);
+            delayPassTime = delayPassTime.addSecs(item.play_timeout);
             lastTimeShowed[item.id] = delayPassTime;
             result = item.id;
             found = true;
+            break;
         }
     }
+    qDebug() << "couldnt find proper item with fixed-floating type. Trying to search in floating-none list";
     if (!found)
         foreach(const PlaylistAPIResult::PlaylistItem &item,floatingNoneItems)
             if (item.checkTimeTargeting() && item.checkDateRange())
             {
                 QDateTime delayPassTime = QDateTime::currentDateTime();
-                delayPassTime.addSecs(item.play_timeout);
+                delayPassTime = delayPassTime.addSecs(item.play_timeout);
                 lastTimeShowed[item.id] = delayPassTime;
                 result = item.id;
                 break;

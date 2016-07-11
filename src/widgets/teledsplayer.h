@@ -23,6 +23,8 @@ public:
     ~TeleDSPlayer();
     QString getFullPath(QString fileName);
     QString getFullPathZip(QString path);
+
+    void show();
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::Area area);
     void setConfig(PlayerConfigNew::VirtualScreen area);
@@ -55,6 +57,15 @@ public slots:
     void invokeDownloadingView();
     void invokeEnablePreloading();
     void invokeStop();
+    /*
+     *  "brand_background": "",
+  "brand_logo": "",
+  "brand_color_1": "",
+  "brand_color_2": "",
+  "brand_teleds_copyright": 0
+     * */
+    void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3);
+    void invokeRestoreDefaultTheme();
 
     void next();
     void playNext();

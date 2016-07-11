@@ -17,6 +17,41 @@ Item {
     property int decreasingTextValue: 0
 
 
+    //properties for branding
+    //
+    property color brand_blackColor:                "#000000"
+    property color brand_whiteColor:                "#FFFFFF"
+    property color brand_backgroundColor:           "#333e47"
+    property color brand_foregroundColor:           "#00cdc1"
+    property color brand_borderGrayColor:           "#d7d7d7"
+    //properties for text
+    property string brand_nothingToPlayText:        "Nothing to play"
+    property string brand_nothingToPlayLinkText:    "teleds.com"
+    property string brand_downloadingText:          "Downloading..."
+    property string brand_pleaseWaitText:           "Please wait..."
+    property string brand_setupText:                "To setup this player use the following code at"
+    property string brand_waitingForActivationText: "Waiting for activation"
+    property string brand_initialization:           "Initialization"
+    //properties for images
+    property url brand_backgroundLogoHorizonal:     "logo_bg.svg"
+    property url brand_backgroundLogoVertical:      "logo_bg_vertical.svg"
+    property url brand_logoImage:                   "logo.svg"
+    property url brand_logoLabel:                   "logo_teleds.png"
+    property url brand_audioIcon:                   "audio.svg"
+
+
+    //properties for default brand theme
+    property color brand_default_blackColor:                "#000000"
+    property color brand_default_whiteColor:                "#FFFFFF"
+    property color brand_default_backgroundColor:           "#333e47"
+    property color brand_default_foregroundColor:           "#00cdc1"
+    property color brand_default_borderGrayColor:           "#d7d7d7"
+    property url brand_default_backgroundLogoHorizonal:     "logo_bg.svg"
+    property url brand_default_backgroundLogoVertical:      "logo_bg_vertical.svg"
+    property url brand_default_logoImage:                   "logo.svg"
+    property url brand_default_logoLabel:                   "logo_teleds.png"
+    property url brand_default_audioIcon:                   "audio.svg"
+
     //properties for seamless video player
     property bool preloader: false
     property bool useSecondPlayer: false
@@ -28,9 +63,39 @@ Item {
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
     focus: true
+
     onHeightChanged: {
         heightP = height
         widthP = width
+    }
+
+
+    function setTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, brandGRColor)
+    {
+        brand_backgroundColor = brandBGColor
+        brand_foregroundColor = brandFGColor
+        brand_borderGrayColor = brandGRColor
+
+        brand_backgroundLogoHorizonal = brandBGLogo
+        brand_backgroundLogoVertical = brandBGLogo
+        brand_logoImage = brandLogo
+
+        bgLogoBlock.setTileMode()
+        teledsLogo.opacity = 0.0
+    }
+
+    function restoreDefaultTheme()
+    {
+        brand_backgroundColor = brand_default_backgroundColor
+        brand_foregroundColor = brand_default_foregroundColor
+        brand_borderGrayColor = brand_default_borderGrayColor
+
+        brand_backgroundLogoHorizonal = brand_default_backgroundLogoHorizonal
+        brand_backgroundLogoVertical = brand_default_backgroundLogoVertical
+        brand_logoImage = brand_default_logoImage
+
+        teledsLogo.opacity = 1.0
+        bgLogoBlock.setDefaultMode()
     }
 
     function stopPlayer()
@@ -81,7 +146,6 @@ Item {
         }
         else if (type === "audio")
         {
-
             if (currentType === "browser")
             {
                 console.log("playFileAdv::audio/browser -> preloading audio")
@@ -99,7 +163,7 @@ Item {
         {
             if (currentType === "null")
             {
-                console.log("playFileAdv::browser/null -> loading and whowing browser")
+                console.log("playFileAdv::browser/null -> loading and showing browser")
                 androidBrowser.load(filename)
                 androidBrowser.setShowTime(length)
                 showBrowserTimer.browserVisible = true
@@ -121,12 +185,6 @@ Item {
             else if (currentType === "browser"){
                 console.log("playFileAdv::browser/browser -> filling nextItem with new browser item")
                 androidBrowser.setNextItem(filename, length, "browser", 0)
-                /*
-                console.log("playfileAdvanced::html5 from browser")
-                console.log("build = android, len = " + length)
-                androidBrowser.load(filename)
-                androidBrowser.setShowTime(length)
-                androidBrowser.startShow()*/
             }
         }
     }
@@ -137,8 +195,7 @@ Item {
         downloadProgressBar.visible = false
         videoPlayer.visible = true
         playerName.visible = false
-        bgLogoImage.visible = false
-        bgLogoImageV.visible = false
+        bgLogoBlock.visible = false
         logoColumn.visible = false
         videoPlayer.opacity = videoOutBrightness
     }
@@ -158,17 +215,17 @@ Item {
             logoColumn.visible = false
             if (!isVisible)
             {
-                overlayBgRect.color = "#333e47"
+                overlayBgRect.color = brand_backgroundColor
             }
             else if (videoOutBrightness > 1.0)
             {
-                overlayBgRect.color = "#FFFFFF"
+                overlayBgRect.color = brand_whiteColor
             }
             else if (videoOutBrightness < 0.99){
-                overlayBgRect.color = "#000000"
+                overlayBgRect.color = brand_blackColor
             }
             else{
-                overlayBgRect.color = "#000000"
+                overlayBgRect.color = brand_blackColor
             }
         }
     }
@@ -176,11 +233,11 @@ Item {
     function setBrightness(value){
         videoOutBrightness = value
         if (value > 1.0) {
-            overlayBgRect.color = "#FFFFFF"
+            overlayBgRect.color = brand_whiteColor
             videoPlayer.opacity = 2.0 - value
         }
         else {
-            overlayBgRect.color = "#000000"
+            overlayBgRect.color = brand_blackColor
             videoPlayer.opacity = value
         }
     }
@@ -191,42 +248,36 @@ Item {
     function setNoItemsLogo(link){
         logoColumn.visible = true
         videoPlayer.opacity = 0
-        titleText.text = "Nothing to play"
-        progressText.text = "Go to <a href=\"" + link + "\">teleds.com</a></html>"
+        titleText.text = brand_nothingToPlayText
+        progressText.text = "Go to <a href=\"" + link + "\">" + brand_nothingToPlayLinkText +"</a></html>"
         logoDownloadProgressBar.visible = false
         playerIDItem.visible = false
         waitingBlock.visible = false
 
-        bgLogoImage.visible = true
-        bgLogoImageV.visible = true
-       // waitingText.visible = false
-       // waitingRefreshInText.visible = false
+        bgLogoBlock.visible = true
     }
     function setDownloadLogo(){
         logoColumn.visible = true
         videoPlayer.opacity = 0
-        titleText.text = "Downloading..."
-        progressText.text = "Please wait..."
+        titleText.text = brand_downloadingText
+        progressText.text = brand_pleaseWaitText
         logoDownloadProgressBar.visible = true
         playerIDItem.visible = false
         waitingBlock.visible = false
-       // waitingText.visible = false
-       // waitingRefreshInText.visible = false
     }
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
         videoPlayer.opacity = 0
-        titleText.text = "To setup this player use the following code at"
+        titleText.text = brand_setupText
         progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
         logoDownloadProgressBar.visible = false
         playerIDText.text = playerID
 
         playerIDItem.visible = true
        // waitingBlock.visible = true
-        playerIDText.color = "#333e47"
+        playerIDText.color = brand_backgroundColor
 
-        bgLogoImage.visible = true
-        bgLogoImageV.visible = true
+        bgLogoBlock.visible = true
     }
     function getPointSize(text){
         if (text.length > 40)
@@ -336,27 +387,61 @@ Item {
 
     Rectangle {
         id: overlayBgRect
-        color: "#333e47"
+        color: brand_backgroundColor
         width: parent.width
         height: parent.height
     }
 
-    Image {
-        id: bgLogoImage
-        source: "logo_bg.svg"
-        sourceSize.width: parent.width
-        sourceSize.height: parent.height
-        width: parent.width
-        height: parent.height
-    }
-    Image {
-        id: bgLogoImageV
-        visible: parent.width < parent.height
-        source: "logo_bg_vertical.svg"
-        sourceSize.width: parent.width
-        sourceSize.height: parent.height
-        width: parent.width
-        height: parent.height
+    Item {
+        id: bgLogoBlock
+        width: item.width
+        height: item.height
+        Item{
+            id: defaultLogoBlock
+            width: parent.width
+            height: parent.height
+            Image {
+                id: bgLogoImage
+                source: brand_backgroundLogoHorizonal
+                sourceSize.width: parent.width
+                sourceSize.height: parent.height
+                width: parent.width
+                height: parent.height
+            }
+
+            Image {
+                id: bgLogoImageV
+                visible: item.width < item.height
+                source: brand_backgroundLogoVertical
+                sourceSize.width: item.width
+                sourceSize.height: item.height
+                width: parent.width
+                height: parent.height
+            }
+        }
+
+        Image {
+            id: bgLogoImageTiling
+            source: brand_backgroundLogoHorizonal
+            sourceSize.width: parent.width
+            sourceSize.height: parent.height
+            width: parent.width
+            height: parent.height
+            fillMode: Image.Tile
+            horizontalAlignment: Image.AlignLeft
+            verticalAlignment: Image.AlignTop
+            visible: false
+        }
+        function setDefaultMode()
+        {
+            defaultLogoBlock.visible = true
+            bgLogoImageTiling.visible = false
+        }
+        function setTileMode()
+        {
+            defaultLogoBlock.visible = false
+            bgLogoImageTiling.visible = true
+        }
     }
     Item
     {
@@ -373,7 +458,7 @@ Item {
 
         Image {
             id: teledsLogoImg
-            source: "logo.svg"
+            source: brand_logoImage
             sourceSize.width: 195.0 * aspect
             sourceSize.height: 156.0 * aspect
             x: parent.width/2 - width/2
@@ -382,7 +467,7 @@ Item {
             id: teledsLogo
             y: teledsLogoImg.y + teledsLogoImg.height + (22.0 * aspect)
             x: parent.width/2 - width/2
-            source: "logo_teleds.png"
+            source: brand_logoLabel
 
             scale: aspect
         }
@@ -393,13 +478,13 @@ Item {
             height: 8 * aspect
             y: teledsLogo.y + teledsLogo.height + (75.0 * aspect)
             x: parent.width/2 - width/2
-            color: "#00cdc1"
+            color: brand_foregroundColor
         }
         Text {
             id: titleText
             font.family: ubuntuFont.name
             font.pointSize: getPointSize(text)
-            text: "Initialization"
+            text: brand_initialization
             y: brRect.y + brRect.height + (75.0 * aspect)
             color: "white"
             wrapMode: Text.Wrap
@@ -413,8 +498,8 @@ Item {
             text: "..."
             x: parent.width/2 - width/2
             y: titleText.y + titleText.height + 18 * aspect
-            color: "#00cdc1"
-            linkColor: "#00cdc1"
+            color: brand_foregroundColor
+            linkColor: brand_foregroundColor
             onLinkActivated: Qt.openUrlExternally(link)
         }
 
@@ -432,8 +517,8 @@ Item {
                         implicitHeight: 68 * aspect
                     }
                     progress: Rectangle {
-                        color: "#00cdc1"
-                        border.color: "#00cdc1"
+                        color: brand_foregroundColor
+                        border.color: brand_foregroundColor
                     }
                 }
         }
@@ -446,11 +531,11 @@ Item {
             visible: false
             Rectangle {
                 id: playerIDRect
-                color: "#00cdc1"
+                color: brand_foregroundColor
                 Text {
                     id: playerIDText
                     text: ""
-                    color: "#333e47"
+                    color: brand_backgroundColor
                     font.family: ubuntuFont.name
                     font.pointSize: 38
                 }
@@ -472,8 +557,8 @@ Item {
 
                 font.family: ubuntuFont.name
                 font.pointSize: 20
-                text: "Waiting for activation"
-                color: "#00cdc1"
+                text: brand_waitingForActivationText
+                color: brand_foregroundColor
             }
             Text {
                 y: waitingText.y + waitingText.height
@@ -481,8 +566,8 @@ Item {
                 id: waitingRefreshInText
                 font.family: ubuntuFont.name
                 font.pointSize: 20
-                text: "Refresh in 10s"
-                color: "#00cdc1"
+                text: ""
+                color: brand_foregroundColor
             }
         }
     }
@@ -542,6 +627,16 @@ Item {
         y: parent.height - height
         text: ""
     }
+    /*
+    Image {
+        id: audioFG
+        width: item.width; height: item.height
+        fillMode: Image.Tile
+        horizontalAlignment: Image.AlignLeft
+        verticalAlignment: Image.AlignTop
+        source: "audio.svg"
+    }
+*/
 
     Timer {
         id: showBrowserTimer
@@ -589,7 +684,7 @@ Item {
     Image {
         id: audioIcon
         visible: false
-        source: "audio.svg"
+        source: brand_audioIcon
         sourceSize.width: hValue/2
         sourceSize.height: hValue/2
         width: hValue/2
@@ -642,6 +737,7 @@ Item {
             }
             nextItem()
         }
+
     }
 
     Dialog {
@@ -651,19 +747,19 @@ Item {
         contentItem: Rectangle {
             width: 600
             height: 500
-            color: "#333e47"
+            color: brand_backgroundColor
 
             Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.bottom: dividerHorizontal.top
-                color: "#333e47"
+                color: brand_backgroundColor
 
                 Label {
                     id: textLabel
                     text: qsTr("Are you sure?")
-                    color: "#00cdc1"
+                    color: brand_foregroundColor
                     anchors.centerIn: parent
                 }
             }
@@ -671,7 +767,7 @@ Item {
             // Создаём горизонтальный разделитель с помощью Rectangle</center> <p/> <center
             Rectangle {
                 id: dividerHorizontal
-                color: "#d7d7d7"
+                color: brand_borderGrayColor
                 height: 2
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -693,13 +789,13 @@ Item {
 
                     style: ButtonStyle {
                         background: Rectangle {
-                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            color: control.pressed ? brand_borderGrayColor : brand_backgroundColor
                             border.width: 0
                         }
 
                         label: Text {
                             text: qsTr("Cancel")
-                            color: "#00cdc1"
+                            color: brand_foregroundColor
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
                         }
@@ -710,13 +806,11 @@ Item {
                         {
                             androidBrowser.visible = true
                             videoPlayer.visible = true
-                            bgLogoImage.visible = false
-                            bgLogoImageV.visible = false
+                            bgLogoBlock.visible = false
                         }
                         else if (currentType == "videoPlayer")
                         {
-                            bgLogoImage.visible = false
-                            bgLogoImageV.visible = false
+                            bgLogoBlock.visible = false
                         }
 
                         item.focus = true
@@ -728,7 +822,7 @@ Item {
                     width: 2
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
-                    color: "#d7d7d7"
+                    color: brand_borderGrayColor
                 }
 
 
@@ -740,13 +834,13 @@ Item {
 
                     style: ButtonStyle {
                         background: Rectangle {
-                            color: control.pressed ? "#d7d7d7" : "#333e47"
+                            color: control.pressed ? brand_borderGrayColor : brand_backgroundColor
                             border.width: 0
                         }
 
                         label: Text {
                             text: qsTr("Ok")
-                            color: "#00cdc1"
+                            color: brand_foregroundColor
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
                         }
@@ -759,15 +853,12 @@ Item {
                             {
                                 androidBrowser.visible = true
                                 videoPlayer.visible = true
-                                bgLogoImage.visible = false
-                                bgLogoImageV.visible = false
+                                bgLogoBlock.visible = false
                             }
                             else if (currentType == "videoPlayer")
                             {
-                                bgLogoImage.visible = false
-                                bgLogoImageV.visible = false
+                                bgLogoBlock.visible = false
                             }
-
                             item.focus = true
                             event.accepted = true
                         }
@@ -785,13 +876,11 @@ Item {
             dialogButtonOk.focus = true
             if (currentType == "browser")
             {
-                if (item.width > item.height)
-                    bgLogoImage.visible = true
-                else
-                    bgLogoImageV.visible = true
+                bgLogoBlock.visible = true
                 androidBrowser.visible = false
                 videoPlayer.visible = false
             }
+            console.log("item width: " + item.width.toString() + " item height: " + item.height.toString()+ "VIS: " + bgLogoImage.visible.toString() +"/" + bgLogoImageV.visible.toString() )
 
             event.accepted = true
             console.log("back key pressed: main")

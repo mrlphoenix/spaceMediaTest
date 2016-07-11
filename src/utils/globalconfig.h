@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QHash>
 #include <QVector>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <singleton.h>
 
 
@@ -34,6 +36,13 @@ public:
     bool getSecondReleyStatus();
     void setReleyEnabled(bool first, bool second);
     bool getReleyEnabled(bool isFirst){return isFirst? firstReleyEnabled : secondReleyEnabled;}
+
+    void setSettings(QJsonObject json);
+    QJsonObject getSettings();
+    void setVirtualScreens(QJsonArray json);
+    QJsonArray getVirtualScreens();
+    void setPlaylist(QJsonArray json);
+    QJsonArray getPlaylist();
 
 
     int getStatsInterval(){return statsInterval;}
@@ -80,6 +89,10 @@ private:
 
 
     int getPlaylistTimerTime;
+
+    QJsonObject settings;
+    QJsonArray virtualScreens;
+    QJsonArray playlist;
 
 };
 

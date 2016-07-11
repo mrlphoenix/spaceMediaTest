@@ -515,6 +515,16 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     if (result.reley_2_enabled)
         result.time_targeting_relay_2 = generateHashByString(data["time_targeting_relay_2"].toObject()["content"].toString());
 
+    result.brand_active = data["brand_active"].toInt();
+    result.brand_background = data["brand_background"].toString();
+    result.brand_logo = data["brand_logo"].toString();
+    result.brand_color_1 = data["brand_color_1"].toString();
+    result.brand_color_2 = data["brand_color_2"].toString();
+    result.brand_teleds_copyright = data["brand_teleds_copyright"].toInt();
+    result.stats_interval = data["stats_interval"].toInt();
+
+    GlobalConfigInstance.setSettings(data);
+
     return result;
 }
 
@@ -604,6 +614,7 @@ PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonArray json)
             result.items.append(newItem);
         }
     }
+    GlobalConfigInstance.setPlaylist(json);
     return result;
 }
 
@@ -647,6 +658,7 @@ PlayerConfigNew PlayerConfigNew::fromJson(QJsonArray data)
         screen.resfreshTime = virtualScreenObject["refresh_at"].toInt();
         result.screens[screen.id] = screen;
     }
+    GlobalConfigInstance.setVirtualScreens(data);
     return result;
 }
 

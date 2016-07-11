@@ -70,6 +70,7 @@ public slots:
 
     void checkReleyTime();
 
+
 protected:
     void setupDownloader(PlayerConfig& config);
     void setupDownloader(PlayerConfigNew& newConfig);

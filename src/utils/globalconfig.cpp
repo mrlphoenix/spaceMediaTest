@@ -107,6 +107,39 @@ void GlobalConfig::setReleyEnabled(bool first, bool second)
     secondReleyEnabled = second;
 }
 
+void GlobalConfig::setSettings(QJsonObject json)
+{
+    settings = json;
+    save();
+}
+
+QJsonObject GlobalConfig::getSettings()
+{
+    return settings;
+}
+
+void GlobalConfig::setVirtualScreens(QJsonArray json)
+{
+    virtualScreens = json;
+    save();
+}
+
+QJsonArray GlobalConfig::getVirtualScreens()
+{
+    return virtualScreens;
+}
+
+void GlobalConfig::setPlaylist(QJsonArray json)
+{
+    playlist = json;
+    save();
+}
+
+QJsonArray GlobalConfig::getPlaylist()
+{
+    return playlist;
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
@@ -117,6 +150,9 @@ void GlobalConfig::loadFromJson()
     QJsonObject root = doc.object();
     this->device = root["device"].toString();
     this->token = root["token"].toString();
+    this->settings = root["settings"].toObject();
+    this->virtualScreens = root["virtualScreens"].toArray();
+    this->playlist = root["playlist"].toArray();
 
     qDebug() << "currentConfig: " << token;
     configFile.close();
@@ -128,6 +164,9 @@ void GlobalConfig::save()
     QJsonObject root;
     root["device"] = device;
     root["token"] = token;
+    root["settings"] = settings;
+    root["virtualScreens"] = virtualScreens;
+    root["playlist"] = playlist;
 
     QJsonDocument doc(root);
     QFile file (CONFIG_FOLDER + "config.dat");
@@ -136,7 +175,6 @@ void GlobalConfig::save()
     file.flush();
     file.close();
 }
-
 
 void GlobalConfig::checkConfiguration()
 {

@@ -150,6 +150,9 @@ class PlatformSpecific : public QObject
 public:
     PlatformSpecific();
     ~PlatformSpecific();
+
+    static QString getFileHash(QString filename);
+
 public slots:
     void generateSystemInfo();
     void generateHardwareInfo();

@@ -224,6 +224,7 @@ QString VideoDownloaderWorker::getFileHash(QString fileName)
     if (f.open(QFile::ReadOnly)) {
         QCryptographicHash hash(QCryptographicHash::Md5);
         if (hash.addData(&f)) {
+            f.close();
             return QString(hash.result().toHex()).toLower();
         }
     }

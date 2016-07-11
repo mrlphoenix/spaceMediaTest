@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QStorageInfo>
 #include <QDebug>
+#include <QCryptographicHash>
 #include "singleton.h"
 #include "globalstats.h"
 #include "platformspecific.h"
@@ -700,6 +701,19 @@ Platform::PlatformSpecific::~PlatformSpecific()
 {
     thread->quit();
     thread->deleteLater();
+}
+
+QString Platform::PlatformSpecific::getFileHash(QString filename)
+{
+    QFile f(filename);
+    if (f.open(QFile::ReadOnly)) {
+        QCryptographicHash hash(QCryptographicHash::Md5);
+        if (hash.addData(&f)) {
+            f.close();
+            return QString(hash.result().toHex()).toLower();
+        }
+    }
+    return "";
 }
 
 void Platform::PlatformSpecific::generateSystemInfo()

@@ -22,13 +22,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     QTimer::singleShot(1000,this,SLOT(bindObjects()));
     QTimer::singleShot(500,this,SLOT(invokeVersionText()));
 
-#ifdef PLAYER_MODE_WINDOWED
-    view.show();
-    view.setMinimumHeight(520);
-    view.setMinimumWidth(920);
-#else
-    view.showFullScreen();
-#endif
+   // show();
 
     delay = 0000;
     status.isPlaying = false;
@@ -53,6 +47,17 @@ QString TeleDSPlayer::getFullPathZip(QString path)
 {
     QFileInfo fileInfo(path);
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
+}
+
+void TeleDSPlayer::show()
+{
+#ifdef PLAYER_MODE_WINDOWED
+    view.show();
+    view.setMinimumHeight(520);
+    view.setMinimumWidth(920);
+#else
+    view.showFullScreen();
+#endif
 }
 
 void TeleDSPlayer::update(PlayerConfig config)
@@ -234,7 +239,10 @@ void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playe
     QVariant urlParam(url);
     QVariant playerIdParam("  " + playerId.toUpper() + "  ");
     QVariant updateDelayParam(GlobalConfigInstance.getGetPlaylistTimerTime()/1000);
-    QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",Q_ARG(QVariant, urlParam), Q_ARG(QVariant, playerIdParam), Q_ARG(QVariant, updateDelayParam));
+    QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",
+                              Q_ARG(QVariant, urlParam),
+                              Q_ARG(QVariant, playerIdParam),
+                              Q_ARG(QVariant, updateDelayParam));
 }
 
 void TeleDSPlayer::invokeNoItemsView(QString url)
@@ -267,6 +275,28 @@ void TeleDSPlayer::invokeStop()
 {
     qDebug() << "TeleDSPlayer::invokeStop";
     QMetaObject::invokeMethod(viewRootObject, "stopPlayer");
+}
+
+void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3)
+{
+    qDebug() << "TeleDSPlayer::invokeSetTheme";
+    QVariant backgroundURLParam = QUrl(backgroundURL);
+    QVariant logoURLParam = QUrl(logoURL);
+    QVariant color1Param = QColor(color1);
+    QVariant color2Param = QColor(color2);
+    QVariant color3Param = QColor(color3);
+    QMetaObject::invokeMethod(viewRootObject, "setTheme",
+                              Q_ARG(QVariant, backgroundURLParam),
+                              Q_ARG(QVariant, logoURLParam),
+                              Q_ARG(QVariant, color1Param),
+                              Q_ARG(QVariant, color2Param),
+                              Q_ARG(QVariant, color3Param));
+}
+
+void TeleDSPlayer::invokeRestoreDefaultTheme()
+{
+    qDebug() << "TeleDSPlayer::invokeRestoreDefaultTheme";
+    QMetaObject::invokeMethod(viewRootObject, "restoreDefaultTheme");
 }
 
 void TeleDSPlayer::next()

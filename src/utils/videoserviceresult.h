@@ -48,6 +48,22 @@ struct SettingsRequestResult
     int min_bright;
     int max_bright;
     int stats_interval;
+
+    //branding
+    bool brand_active;
+    QString brand_background;
+    QString brand_logo;
+    QString brand_color_1;
+    QString brand_color_2;
+    int brand_teleds_copyright;
+
+    /*
+    "brand_active": 0,
+      "brand_background": "",
+      "brand_logo": "",
+      "brand_color_1": "",
+      "brand_color_2": "",
+      "brand_teleds_copyright": 0*/
 };
 
 struct PlaylistAPIResult

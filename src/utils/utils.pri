@@ -15,7 +15,8 @@ SOURCES += \
     $$PWD/sslencoder.cpp \
     $$PWD/playlist.cpp \
     $$PWD/sunposition.cpp \
-    $$PWD/subsmanager.cpp
+    $$PWD/subsmanager.cpp \
+    $$PWD/skinmanager.cpp
 HEADERS += \ 
     $$PWD/yandexweathermodel.h \
     $$PWD/instagramrecentpostmodel.h \
@@ -30,6 +31,7 @@ HEADERS += \
     $$PWD/sslencoder.h \
     $$PWD/playlist.h \
     $$PWD/sunposition.h \
-    $$PWD/subsmanager.h
+    $$PWD/subsmanager.h \
+    $$PWD/skinmanager.h
 FORMS   +=
 

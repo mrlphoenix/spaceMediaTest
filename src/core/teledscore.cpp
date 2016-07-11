@@ -31,14 +31,12 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     releyTimer->start(60000);
 
 
-
-
     videoService = new VideoService("http://api.teleds.com");
     QDir().mkpath("/sdcard/download/teleds");
 
-
     uploader = new StatisticUploader(videoService,this);
     teledsPlayer = new TeleDSPlayer(this);
+    teledsPlayer->show();
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
     statsTimer->start(60000);
@@ -67,6 +65,17 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         qDebug()<< "loading: token = " << result.token;
         playerInitParams = result;
 
+        //if settings is stored in config and if brand is active
+        SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
+        if (settings.brand_active)
+        {
+            playerSettingsResult(settings);
+        }
+        else
+        {
+            teledsPlayer->show();
+        }
+
         //until we load actual playlist - update timer every 10 sec
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
         sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
@@ -76,6 +85,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     {
         qDebug() << "player is not configurated";
         QTimer::singleShot(1000,this,SLOT(initPlayer()));
+        teledsPlayer->show();
     }
 
     downloader = 0;
@@ -89,7 +99,6 @@ void TeleDSCore::initPlayer()
     PlatformSpecificService.generateHardwareInfo();
     //videoService->advancedInit();
 }
-
 
 void TeleDSCore::initResult(InitRequestResult result)
 {
@@ -242,7 +251,19 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
             qDebug() << "STATS INTERVAL: " << result.stats_interval;
-            //statsTimer->start(result.stats_interval*1000);
+            if (result.stats_interval >= 60000)
+                statsTimer->start(result.stats_interval);
+
+            if (result.brand_active)
+            {
+                auto tdsPlayer = this->teledsPlayer;
+                QTimer::singleShot(1000, [result, tdsPlayer]() mutable {
+                    tdsPlayer->invokeSetTheme(result.brand_background, result.brand_logo, result.brand_color_1, result.brand_color_2, "#d7d7d7");
+                });
+
+                //we should set brand active
+                //and send to teleDS player brand params
+            }
         }
     }
 }
@@ -278,7 +299,6 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
         if (currentConfigNew.screens.contains(s))
             currentConfigNew.screens[s].playlist = result[s];
     }
-
     //prepare downloader
     setupDownloader(this->currentConfigNew);
 }
