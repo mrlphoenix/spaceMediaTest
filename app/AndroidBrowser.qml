@@ -1,7 +1,7 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
-//import QtWebView 1.1
-import QtWebKit 3.0
+import QtWebView 1.1
+//import QtWebKit 3.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
 

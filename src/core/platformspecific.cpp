@@ -561,6 +561,27 @@ void Platform::PlatformSpecificWorker::getHardwareInfo()
     emit hardwareInfoReady(result);
 }
 
+void Platform::PlatformSpecificWorker::getBatteryInfo()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QString capacity, status;
+    QProcess capacityProcess, batteryStatusProcess;
+    capacityProcess.start("cat /sys/class/power_supply/battery/capacity");
+    if (capacityProcess.waitForFinished())
+        capacity = capacityProcess.readAll();
+    batteryStatusProcess.start("cat /sys/class/power_supply/battery/status");
+    if (batteryStatusProcess.waitForFinished())
+        status = batteryStatusProcess.readAll();
+    BatteryInfo result;
+    result.value = capacity.toInt();
+    if (status.contains("Charging") || status.contains("Full"))
+        result.isCharging = true;
+    else
+        result.isCharging = false;
+    emit batteryInfoReady(result);
+#endif
+}
+
 void Platform::PlatformSpecificWorker::extractFile(QString file, QString id)
 {
     QDir dir(VIDEO_FOLDER + id);
@@ -639,6 +660,11 @@ void Platform::PlatformSpecificThread::generateHardwareInfo()
     emit generateHardwareInfoSignal();
 }
 
+void Platform::PlatformSpecificThread::generateBatteryInfo()
+{
+    emit generateBatteryInfoSignal();
+}
+
 void Platform::PlatformSpecificThread::turnOnFirstReley()
 {
     emit turnOnFirstReleySignal();
@@ -674,8 +700,10 @@ void Platform::PlatformSpecificThread::run()
     worker = new PlatformSpecificWorker();
     connect (worker,SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SIGNAL(systemInfoReady(Platform::SystemInfo)));
     connect (worker,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)), this, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)));
+    connect (worker,SIGNAL(batteryInfoReady(Platform::BatteryInfo)), this, SIGNAL(batteryInfoReady(Platform::BatteryInfo)));
     connect (this, SIGNAL(generateSystemInfoSignal()), worker, SLOT(generateSystemInfo()));
     connect (this, SIGNAL(generateHardwareInfoSignal()), worker, SLOT(getHardwareInfo()));
+    connect (this, SIGNAL(generateBatteryInfoSignal()), worker, SLOT(getBatteryInfo()));
     connect (this, SIGNAL(turnOffFirstReleySignal()), worker, SLOT(turnOffFirstReley()));
     connect (this, SIGNAL(turnOffSecondReleySignal()), worker, SLOT(turnOffSecondReley()));
     connect (this, SIGNAL(turnOnFirstReleySignal()), worker, SLOT(turnOnFirstReley()));
@@ -690,10 +718,12 @@ Platform::PlatformSpecific::PlatformSpecific()
 {
     qRegisterMetaType< Platform::SystemInfo >( "Platform::SystemInfo" );
     qRegisterMetaType< Platform::HardwareInfo >( "Platform::HardwareInfo" );
+    qRegisterMetaType< Platform::BatteryInfo >( "Platform::BatteryInfo");
 
     thread = new PlatformSpecificThread();
     connect(thread, SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SIGNAL(systemInfoReady(Platform::SystemInfo)));
     connect(thread, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)), this, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)));
+    connect(thread, SIGNAL(batteryInfoReady(Platform::BatteryInfo)), this, SIGNAL(batteryInfoReady(Platform::BatteryInfo)));
     thread->start();
 }
 
@@ -724,6 +754,11 @@ void Platform::PlatformSpecific::generateSystemInfo()
 void Platform::PlatformSpecific::generateHardwareInfo()
 {
     thread->generateHardwareInfo();
+}
+
+void Platform::PlatformSpecific::generateBatteryInfo()
+{
+    thread->generateBatteryInfo();
 }
 
 void Platform::PlatformSpecific::turnOnFirstReley()

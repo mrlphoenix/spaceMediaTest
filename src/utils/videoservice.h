@@ -95,7 +95,7 @@ signals:
     void sendStatisticEventsResult(NonQueryResult result);
     void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
-    void getPlayerAreasResult(PlayerConfigNew result);
+    void getPlayerAreasResult(PlayerConfig result);
     void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
     void initVideoRequestFinished(QNetworkReply * reply);

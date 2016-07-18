@@ -25,10 +25,18 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     CPUStatInstance;
     PlatformSpecificService;
 
-    //blinking GPIO
+    //GPIO Releys
     QTimer * releyTimer = new QTimer();
     connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));
     releyTimer->start(60000);
+
+    //Android battery shutdown-conditions checker
+    QTimer * shutdownTimer = new QTimer();
+    connect(shutdownTimer, SIGNAL(timeout()), this, SLOT(checkForAutomaticShutdown()));
+    shutdownTimer->start(60000);
+
+   // batteryStatus.setActive(true);
+   // batteryStatus.setConfig(98, -1);
 
 
     videoService = new VideoService("http://api.teleds.com");
@@ -45,12 +53,13 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfig)),this,SLOT(playlistResult(PlayerConfig)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
     connect(videoService,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)),this,SLOT(virtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
-    connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SLOT(virtualScreensResult(PlayerConfigNew)));
+    connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfig)),this,SLOT(virtualScreensResult(PlayerConfig)));
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (teledsPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
 
     connect (&PlatformSpecificService,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)),this,SLOT(hardwareInfoReady(Platform::HardwareInfo)));
+    connect (&PlatformSpecificService,SIGNAL(batteryInfoReady(Platform::BatteryInfo)),this,SLOT(automaticShutdownBatteryInfoReady(Platform::BatteryInfo)));
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
 
     qDebug() << CONFIG_FOLDER;
@@ -69,7 +78,10 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
         if (settings.brand_active)
         {
-            playerSettingsResult(settings);
+            auto tdsPlayer = this->teledsPlayer;
+            QTimer::singleShot(1000, [settings, tdsPlayer]() mutable {
+                tdsPlayer->invokeSetTheme(settings.brand_background, settings.brand_logo, settings.brand_color_1, settings.brand_color_2, "#d7d7d7");
+            });
         }
         else
         {
@@ -144,18 +156,33 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     videoService->advancedInit(jsonData);
 }
 
+void TeleDSCore::checkForAutomaticShutdown()
+{
+    qDebug() << "TeleDSCore::checkForAutomaticShutdown";
+    PlatformSpecificService.generateBatteryInfo();
+}
+
+void TeleDSCore::automaticShutdownBatteryInfoReady(Platform::BatteryInfo info)
+{
+    if (batteryStatus.checkIfNeedToShutDown(info))
+    {
+        QProcess shutdownProcess;
+        shutdownProcess.startDetached("reboot -p");
+    }
+}
+
 void TeleDSCore::playlistResult(PlayerConfig result)
 {
     //this slot is called when we get playlist result from backend
 
     //300/106/301 errors - player device need to be activated
-    if (result.error == 300 || result.error == 106 || result.error == 301)
+    if (result.error_id == 300 || result.error_id == 106 || result.error_id == 301)
     {
         teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode());
         return;
     }
     //201 error - playlist is empty; nothing to play
-    if (result.error == 201)
+    if (result.error_id == 201)
     {
         teledsPlayer->invokeNoItemsView("http://teleds.com");
         return;
@@ -163,11 +190,12 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
     //if error is unknown - seems like we have problems with internet connection
     //load config from file
-    if (result.error == -1)
+    if (result.error_id == -1)
     {
         GlobalStatsInstance.setConnectionState(false);
         qDebug() << "No connection to the server";
-        QJsonParseError error;
+        //TODO: reworked with new type
+       /* QJsonParseError error;
         QJsonDocument configJsonDoc = QJsonDocument::fromJson(GlobalConfigInstance.getPlayerConfig().toLocal8Bit(), &error);
         if (error.error)
         {
@@ -176,7 +204,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         }
         QJsonObject root = configJsonDoc.object();
         PlayerConfig config = PlayerConfig::fromJson(root);
-        result = config;
+        result = config;*/
     }
     else
         GlobalStatsInstance.setConnectionState(true);
@@ -187,7 +215,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
 
     //if config contains at least one area - prepare download and turn off get playlist timer
     //else we show "nothing to play" activity
-    if (result.areas.count() > 0)
+    if (result.screens.count() > 0)
     {
         qDebug() << "areas found!";
         sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
@@ -200,7 +228,7 @@ void TeleDSCore::playlistResult(PlayerConfig result)
         GlobalStatsInstance.registryPlaylistError();
     }
     //saving config to file
-    GlobalConfigInstance.setPlayerConfig(result.data);
+   // GlobalConfigInstance.setPlayerConfig(result.data);
 }
 
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
@@ -260,19 +288,20 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
                 QTimer::singleShot(1000, [result, tdsPlayer]() mutable {
                     tdsPlayer->invokeSetTheme(result.brand_background, result.brand_logo, result.brand_color_1, result.brand_color_2, "#d7d7d7");
                 });
-
-                //we should set brand active
-                //and send to teleDS player brand params
             }
+
+            //should check in settings insead
+            batteryStatus.setActive(true);
+            batteryStatus.setConfig(30, 0);
         }
     }
 }
 
-void TeleDSCore::virtualScreensResult(PlayerConfigNew result)
+void TeleDSCore::virtualScreensResult(PlayerConfig result)
 {
     //after we load virtual screens list - load playlists for every screen
     qDebug() <<"Core: virtual screens " << result.screens.count();
-    currentConfigNew = result;
+    currentConfig = result;
     videoService->getPlaylist();
 }
 
@@ -296,11 +325,11 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
      //setting up playlist for every virtual screen0
     foreach (const QString &s, result.keys())
     {
-        if (currentConfigNew.screens.contains(s))
-            currentConfigNew.screens[s].playlist = result[s];
+        if (currentConfig.screens.contains(s))
+            currentConfig.screens[s].playlist = result[s];
     }
     //prepare downloader
-    setupDownloader(this->currentConfigNew);
+    setupDownloader(this->currentConfig);
 }
 
 void TeleDSCore::getPlaylistTimerSlot()
@@ -340,22 +369,10 @@ void TeleDSCore::downloaded()
 
     //initialization of teledsPlayer
     //currently only one area is supported, so we display first one
-    if (currentConfig.areas.count())
+    if (currentConfig.screens.count())
     {
-        teledsPlayer->setConfig(currentConfig.areas.first());
-        //if player is inactive - start player and preload next item
-        if (!teledsPlayer->isPlaying())
-        {
-            teledsPlayer->play();
-            QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
-           // QTimer::singleShot(3000,teledsPlayer, SLOT(invokeEnablePreloading()));
-        }
-    }
-    else if (currentConfigNew.screens.count())
-    {
-
         //skip "audio" area - not supported yet
-        foreach (const PlayerConfigNew::VirtualScreen &v, currentConfigNew.screens)
+        foreach (const PlayerConfig::VirtualScreen &v, currentConfig.screens)
             if (v.type != "audio")
             {
                 if (v.playlist.items.count() == 0)
@@ -367,7 +384,7 @@ void TeleDSCore::downloaded()
                     if (!teledsPlayer->isPlaying())
                     {
                         teledsPlayer->play();
-                        QTimer::singleShot(2500, teledsPlayer, SLOT(playNext()));
+                        QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
                         //QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
                     }
                     break;
@@ -439,29 +456,7 @@ void TeleDSCore::checkReleyTime()
     }
 }
 
-void TeleDSCore::setupDownloader(PlayerConfig &config)
-{
-    if (downloader)
-        downloader->updateConfig(config);
-    else
-    {
-        downloader = new VideoDownloader(config, this);
-        downloader->start();
-        connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
-        //connect(downloader,SIGNAL(downloadProgress(double)),rpiPlayer,SLOT(invokeProgress(double)));
-        //connect(downloader,SIGNAL(totalDownloadProgress(double,QString)),rpiPlayer,SLOT(invokeFileProgress(double,QString)));
-        connect(downloader,SIGNAL(done()),teledsPlayer,SLOT(invokeDownloadDone()));
-        connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),teledsPlayer,SLOT(invokeSimpleProgress(double,QString)));
-        connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
-    }
-    currentConfig = config;
-    downloader->runDownload();
-    sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
-    downloader->checkDownload();
-    downloader->startDownload();
-}
-
-void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
+void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
 {
     qDebug() <<"Core: setup Downloader";
     //if downloader already initializated - update items
@@ -479,8 +474,52 @@ void TeleDSCore::setupDownloader(PlayerConfigNew &newConfig)
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),teledsPlayer,SLOT(invokeSimpleProgress(double,QString)));
         connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
     }
-    currentConfigNew = newConfig;
+    currentConfig = newConfig;
     //starting downloading and stop getPlaylist timer
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();
+}
+
+void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)
+{
+    this->minCapacityLevel = minCapacityLevel;
+    this->maxTimeWithoutPower = maxTimeWithoutPower;
+}
+
+void BatteryStatus::setActive(bool isActive)
+{
+    this->isActive = isActive;
+    if (!isActive)
+    {
+        QDateTime invalidDate;
+        lastTimeChecked = invalidDate;
+        inactiveTime = 0;
+    }
+}
+
+bool BatteryStatus::checkIfNeedToShutDown(Platform::BatteryInfo status)
+{
+    if (!isActive)
+        return false;
+    if (!lastTimeChecked.isValid())
+    {
+        lastTimeChecked = QDateTime::currentDateTime();
+        this->status = status;
+        return false;
+    }
+    else
+    {
+        this->status = status;
+        QDateTime currentTime = QDateTime::currentDateTime();
+        if (status.isCharging)
+            inactiveTime = 0;
+        else
+            inactiveTime+= lastTimeChecked.secsTo(currentTime);
+        lastTimeChecked = currentTime;
+        if (status.value < minCapacityLevel && !status.isCharging)
+            return true;
+        if (maxTimeWithoutPower != -1 && inactiveTime >= maxTimeWithoutPower)
+            return true;
+    }
+    return false;
 }

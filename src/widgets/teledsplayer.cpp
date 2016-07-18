@@ -1,4 +1,5 @@
 #include <QFileInfo>
+#include <QProcess>
 #include "teledsplayer.h"
 #include "statisticdatabase.h"
 #include "globalstats.h"
@@ -28,6 +29,8 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     status.isPlaying = false;
     status.item = "";
     isActive = true;
+  //  QProcess proc;
+  //  proc.startDetached("reboot -p");
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -62,92 +65,24 @@ void TeleDSPlayer::show()
 
 void TeleDSPlayer::update(PlayerConfig config)
 {
-    foreach (const PlayerConfig::Area& area, config.areas)
-        if (area.id == this->config.id)
-            setConfig(area);
+    foreach (const PlayerConfig::VirtualScreen &screen, config.screens)
+        if (screen.id == this->config.id)
+            setConfig(screen);
 }
 
-void TeleDSPlayer::setConfig(PlayerConfig::Area area)
-{
-    area.id = 0;
-  /*  qDebug() << "RPI PLAYER: given playlist = " << area.playlist.type;
-    config = area;
-    if (playlist)
-    {
-        if (area.playlist.type == "random" && playlist->getType() != "random")
-        {
-            qDebug() << "RPI Player:: playlist STANDART -> RANDOM";
-            playlist->deleteLater();
-            playlist = new RandomPlaylist(this);
-            isPlaylistRandom = true;
-        }
-        else if (area.playlist.type != "random" && playlist->getType() == "random")
-        {
-            qDebug() << "RPI Player:: playlist RANDOM -> STANDART";
-            playlist->deleteLater();
-            playlist = new StandartPlaylist(this);
-            isPlaylistRandom = false;
-        }
-    }
-    else if (area.playlist.type == "random")
-    {
-        qDebug() << "RPI Player:: playlist RANDOM";
-        playlist = new RandomPlaylist(this);
-        isPlaylistRandom = true;
-    }
-    else
-    {
-        qDebug() << "RPI Player:: playlist STANDART";#ifdef PLATFORM_DEFINE_ANDROID
-    QTimer * trafficDisplay = new QTimer(this);
-    QObject::connect(trafficDisplay,SIGNAL(timeout()),this,SLOT(()));
-    trafficDisplay->start(10000);
-#endif
-        playlist = new StandartPlaylist(this);
-        isPlaylistRandom = false;
-    }
-    playlist->updatePlaylist(area.playlist);*/
-
-}
-
-void TeleDSPlayer::setConfig(PlayerConfigNew::VirtualScreen area)
+void TeleDSPlayer::setConfig(PlayerConfig::VirtualScreen area)
 {
     qDebug() << "TeleDSPlayer::set config: ";
-    configNew = area.playlist;
+    config = area.playlist;
    /* if (playlist == NULL)
     {
         playlist = new StandartPlaylist(this);
     }
     isPlaylistRandom = false;*/
+if (playlist == NULL)
+    playlist = new SuperPlaylist(this);
+    isPlaylistRandom = true;
 
-    if (playlist)
-    {
-        if (area.playlist.type == "random" && playlist->getType() != "random")
-        {
-            qDebug() << "RPI Player::playlist Standart -> RANDOM";
-            playlist->deleteLater();
-            playlist = new MagicRandomPlaylist(this);
-            isPlaylistRandom = true;
-        }
-        else if (area.playlist.type != "random" && playlist->getType() == "random")
-        {
-            qDebug() << "RPI Player::playlist RANDOM -> STANDART";
-            playlist->deleteLater();
-            playlist = new StandartPlaylist(this);
-            isPlaylistRandom = false;
-        }
-    }
-    else if (area.playlist.type == "random")
-    {
-        qDebug() << "RPI Player::playlist RANDOM";
-        playlist = new MagicRandomPlaylist(this);
-        isPlaylistRandom = true;
-    }
-    else
-    {
-        qDebug() << "RPI Player::playlist STANDART";
-        playlist = new StandartPlaylist(this);
-        isPlaylistRandom = false;
-    }
     playlist->updatePlaylist(area.playlist);
 }
 
@@ -189,8 +124,8 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
         type = item.type;
 
     QVariant build = CONFIG_BUILD_NAME;
-    QVariant duration = item.duration * 1000;
-    QVariant skip = item.skipTime * 1000;
+    QVariant duration = item.duration;// * 1000;
+    QVariant skip = item.skipTime;// * 1000;
     QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",
                               Q_ARG(QVariant,source),
                               Q_ARG(QVariant, type),

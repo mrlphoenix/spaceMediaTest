@@ -22,7 +22,7 @@ public:
     virtual ~AbstractPlaylist(){;}
     virtual void updatePlaylist(PlaylistAPIResult playlist)=0;
     virtual QString getType()=0;
-    virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid);
+    virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid)=0;
 public slots:
     virtual QString next()=0;
 protected:
@@ -82,6 +82,34 @@ protected:
     int allLength;
     double magic;
     QDateTime minPlayTime;
+};
+
+class SuperPlaylist : public AbstractPlaylist
+{
+    Q_OBJECT
+public:
+    explicit SuperPlaylist(QObject * parent);
+    virtual ~SuperPlaylist(){;}
+    virtual void updatePlaylist(PlaylistAPIResult playlist);
+    virtual QString next();
+    virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid);
+    virtual QString getType() {return "random";}
+protected:
+    void splitItems();
+    void shuffle();
+    bool itemDelayPassed(const PlaylistAPIResult::CampaignItem &item);
+
+
+    int allLength;
+    double magic;
+    QDateTime minPlayTime;
+    QString currentCampaignId;
+    int currentItemIndex;
+
+    QList<PlaylistAPIResult::CampaignItem> fixedFloatingItems;
+    QList<PlaylistAPIResult::CampaignItem> floatingNoneItems;
+    QHash<QString,PlaylistAPIResult::CampaignItem> campaigns;
+    QHash<QString,QDateTime> lastTimeShowed;
 };
 
 #endif // RANDOMPLAYLIST_H

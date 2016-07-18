@@ -26,8 +26,7 @@ public:
 
     void show();
     void update(PlayerConfig config);
-    void setConfig(PlayerConfig::Area area);
-    void setConfig(PlayerConfigNew::VirtualScreen area);
+    void setConfig(PlayerConfig::VirtualScreen area);
     void play();
     void stop();
 
@@ -84,8 +83,7 @@ protected:
     QQuickView view;
     AbstractPlaylist * playlist;
     bool isPlaylistRandom;
-    PlayerConfig::Area config;
-    PlaylistAPIResult configNew;
+    PlaylistAPIResult config;
     QObject * viewRootObject;
     QQueue<QString> playedIds;
 

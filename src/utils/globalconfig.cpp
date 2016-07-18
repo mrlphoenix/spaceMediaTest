@@ -129,13 +129,13 @@ QJsonArray GlobalConfig::getVirtualScreens()
     return virtualScreens;
 }
 
-void GlobalConfig::setPlaylist(QJsonArray json)
+void GlobalConfig::setPlaylist(QJsonObject json)
 {
     playlist = json;
     save();
 }
 
-QJsonArray GlobalConfig::getPlaylist()
+QJsonObject GlobalConfig::getPlaylist()
 {
     return playlist;
 }
@@ -152,7 +152,7 @@ void GlobalConfig::loadFromJson()
     this->token = root["token"].toString();
     this->settings = root["settings"].toObject();
     this->virtualScreens = root["virtualScreens"].toArray();
-    this->playlist = root["playlist"].toArray();
+    this->playlist = root["playlist"].toObject();
 
     qDebug() << "currentConfig: " << token;
     configFile.close();

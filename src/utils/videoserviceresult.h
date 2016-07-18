@@ -56,22 +56,15 @@ struct SettingsRequestResult
     QString brand_color_1;
     QString brand_color_2;
     int brand_teleds_copyright;
-
-    /*
-    "brand_active": 0,
-      "brand_background": "",
-      "brand_logo": "",
-      "brand_color_1": "",
-      "brand_color_2": "",
-      "brand_teleds_copyright": 0*/
 };
 
 struct PlaylistAPIResult
 {
-    static PlaylistAPIResult fromJson(QJsonArray json);
+    static PlaylistAPIResult fromJson(QJsonObject json);
     static QHash<QString, PlaylistAPIResult> getAllItems(QJsonArray json);
     QString id;
     QString type;
+
     struct PlaylistItem
     {
         QString getExtension() const;
@@ -86,9 +79,7 @@ struct PlaylistAPIResult
         int duration;
         int skipTime;
         QString type;
-        int play_priority;
-        int play_timeout;
-        QString play_type;
+        int play_order;
         QDateTime play_starts;
         QDateTime play_ends;
         QDateTime updated_at;
@@ -106,15 +97,23 @@ struct PlaylistAPIResult
         bool checkDateRange() const;
         bool checkGeoTargeting(QPointF gps) const;
     };
-    QVector<PlaylistItem> items;
 
+    struct CampaignItem
+    {
+        QString id;
+        int play_order;
+        int play_timeout;
+        QString play_type;
+        QString areaId;
+        QVector<PlaylistItem> content;
+    };
+
+    QVector<CampaignItem> items;
 };
 
-
-
-struct PlayerConfigNew
+struct PlayerConfig
 {
-    static PlayerConfigNew fromJson(QJsonArray data);
+    static PlayerConfig fromJson(QJsonArray data);
     int error_id;
     QString error;
     struct VirtualScreen
@@ -133,73 +132,6 @@ struct PlayerConfigNew
     QHash<QString, VirtualScreen> screens;
 };
 
-
-
-struct PlayerConfig
-{
-    static PlayerConfig fromJson(QJsonObject json);
-    static PlayerConfig fromErrorJson(QJsonObject json);
-
-    static QString fromUtfEscapes(QString str);
-    QString status;
-    int error;
-    QString error_text;
-    QString data;
-
-    struct Area
-    {
-        int id;
-        QString type;
-
-        struct Playlist
-        {
-            int id;
-            QString type;
-            QString content;
-            struct Item
-            {
-                void init();
-                void buildGeo();
-                static Item fromNewItem(PlaylistAPIResult::PlaylistItem item);
-                QString extension();
-
-                QString iid;
-                QString itype;
-                int position;
-                int version;
-                QDateTime lastupdate;
-                int delay;
-                QString dtype;
-                struct PDate
-                {
-                    bool pstart, pend;
-                    QDateTime pstartDate, pendDate;
-                };
-                PDate pdate;
-                QVector<QVector<QString> > ttargeting;
-                QVector<QVector<double> > gtargeting;
-                QString name;
-                QString path;
-                QString sha1;
-                int size;
-                int width;
-                int height;
-                int duration;
-
-                bool checkTimeTargeting() const;
-                bool checkDateRange() const;
-                bool checkGeoTargeting(QPointF gps) const;
-            private:
-                QPolygonF geoPolygon;
-                bool isPolygonSet;
-            };
-            QVector<Item> items;
-        };
-        Playlist playlist;
-    };
-    QVector<Area> areas;
-};
-
 class VideoServiceResponseHandler : public QObject
 {
     Q_OBJECT
@@ -213,7 +145,7 @@ signals:
     void sendStatisticEventsResult(NonQueryResult result);
     void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
-    void getPlayerAreasResult(PlayerConfigNew result);
+    void getPlayerAreasResult(PlayerConfig result);
     void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
 public slots:

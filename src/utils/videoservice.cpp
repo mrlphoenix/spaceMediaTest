@@ -33,7 +33,7 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(&resultProcessor,SIGNAL(sendStatisticPlaysResult(NonQueryResult)),this,SIGNAL(sendStatisticPlaysResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(sendStatisticEventsResult(NonQueryResult)),this,SIGNAL(sendStatisticEventsResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
-    connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfigNew)),this,SIGNAL(getPlayerAreasResult(PlayerConfigNew)));
+    connect(&resultProcessor,SIGNAL(getPlayerAreasResult(PlayerConfig)),this,SIGNAL(getPlayerAreasResult(PlayerConfig)));
     connect(&resultProcessor,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)), this, SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
 
 
@@ -312,37 +312,6 @@ VideoServiceRequest VideoServiceRequestFabric::sendPlaysRequest(QString data)
     result.name = "statistics:plays";
     return result;
 }
-
-/*
- * class PersistentCookieJar : public QNetworkCookieJar {
-public:
-    PersistentCookieJar(QObject *parent) : QNetworkCookieJar(parent) { load(); }
-    ~PersistentCookieJar() { save(); }
-
-public:
-    void save()
-    {
-        QList<QNetworkCookie> list = allCookies();
-        QByteArray data;
-        foreach (QNetworkCookie cookie, list) {
-            if (!cookie.isSessionCookie()) {
-                data.append(cookie.toRawForm());
-                data.append("\n");
-            }
-        }
-        QSettings settings;
-        settings.setValue("Cookies",data);
-    }
-
-    void load()
-    {
-        QSettings settings;
-        QByteArray data = settings.value("Cookies").toByteArray();
-        setAllCookies(QNetworkCookie::parseCookies(data));
-    }
-};
- * */
-
 
 VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest(QByteArray bodyData)
 {

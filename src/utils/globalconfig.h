@@ -41,8 +41,8 @@ public:
     QJsonObject getSettings();
     void setVirtualScreens(QJsonArray json);
     QJsonArray getVirtualScreens();
-    void setPlaylist(QJsonArray json);
-    QJsonArray getPlaylist();
+    void setPlaylist(QJsonObject json);
+    QJsonObject getPlaylist();
 
 
     int getStatsInterval(){return statsInterval;}
@@ -92,7 +92,7 @@ private:
 
     QJsonObject settings;
     QJsonArray virtualScreens;
-    QJsonArray playlist;
+    QJsonObject playlist;
 
 };
 

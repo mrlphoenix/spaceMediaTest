@@ -14,6 +14,24 @@
 #include "statisticuploader.h"
 #include "platformspecific.h"
 
+
+class BatteryStatus
+{
+public:
+    BatteryStatus(){minCapacityLevel = 0; maxTimeWithoutPower = -1; inactiveTime = 0; isActive = false;}
+    ~BatteryStatus(){;}
+    void setConfig(int minCapacityLevel, int maxTimeWithoutPower);
+    void setActive(bool isActive);
+    bool checkIfNeedToShutDown(Platform::BatteryInfo status);
+
+private:
+    Platform::BatteryInfo status;
+    int minCapacityLevel, maxTimeWithoutPower;
+    int inactiveTime;
+    QDateTime lastTimeChecked;
+    bool isActive;
+};
+
 class TeleDSCore : public QObject
 {
     Q_OBJECT
@@ -31,12 +49,17 @@ public slots:
     //slot is called when hardware info is ready
     void hardwareInfoReady(Platform::HardwareInfo info);
 
+
+    //slots for automatic shutdown
+    void checkForAutomaticShutdown();
+    void automaticShutdownBatteryInfoReady(Platform::BatteryInfo info);
+
     //slot is called after playlist got loaded
     void playlistResult(PlayerConfig result);
     //slot is called when backed returned player settings
     void playerSettingsResult(SettingsRequestResult result);
     //slot is called after we load virtual screens
-    void virtualScreensResult(PlayerConfigNew result);
+    void virtualScreensResult(PlayerConfig result);
     //slot is called after we get response from loading virtual screens playlists
     void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
@@ -72,8 +95,7 @@ public slots:
 
 
 protected:
-    void setupDownloader(PlayerConfig& config);
-    void setupDownloader(PlayerConfigNew& newConfig);
+    void setupDownloader(PlayerConfig& newConfig);
     QVector<QObject*> widgets;
     TeleDSPlayer * teledsPlayer;
 
@@ -84,10 +106,10 @@ protected:
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;
-    PlayerConfig currentConfig;
     TeleDSSheduler sheduler;
 
-    PlayerConfigNew currentConfigNew;
+    PlayerConfig currentConfig;
+    BatteryStatus batteryStatus;
 };
 
 #endif // TELEDSCORE_H

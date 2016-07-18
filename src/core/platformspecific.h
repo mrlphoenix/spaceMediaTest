@@ -52,6 +52,12 @@ struct SystemInfo
     int free_space;
 };
 
+struct BatteryInfo
+{
+    int value;
+    bool isCharging;
+};
+
 
 class PlatformSpecificWorker : public QObject
 {
@@ -64,6 +70,7 @@ public:
 signals:
     void systemInfoReady(Platform::SystemInfo info);
     void hardwareInfoReady(Platform::HardwareInfo info);
+    void batteryInfoReady(Platform::BatteryInfo info);
 public slots:
 
     //provide platform independent interface for system stats
@@ -94,6 +101,8 @@ public slots:
     //helper method for generating HardwareInfo used for initialization request
     void getHardwareInfo();
 
+    void getBatteryInfo();
+
     //method for extracting zip-file content using zip file name and content-id
     void extractFile(QString file, QString id);
 
@@ -113,6 +122,7 @@ public:
 
     void generateSystemInfo();
     void generateHardwareInfo();
+    void generateBatteryInfo();
     void turnOnFirstReley();
     void turnOffFirstReley();
     void turnOnSecondReley();
@@ -124,10 +134,12 @@ signals:
     //signals from PlatformSpecificWorker
     void systemInfoReady(Platform::SystemInfo info);
     void hardwareInfoReady(Platform::HardwareInfo info);
+    void batteryInfoReady(Platform::BatteryInfo info);
 
     //signals to PlatformSpecificWorker
     void generateSystemInfoSignal();
     void generateHardwareInfoSignal();
+    void generateBatteryInfoSignal();
     void turnOnFirstReleySignal();
     void turnOffFirstReleySignal();
     void turnOnSecondReleySignal();
@@ -156,6 +168,7 @@ public:
 public slots:
     void generateSystemInfo();
     void generateHardwareInfo();
+    void generateBatteryInfo();
     void turnOnFirstReley();
     void turnOffFirstReley();
     void turnOnSecondReley();
@@ -167,6 +180,7 @@ public slots:
 signals:
     void systemInfoReady(Platform::SystemInfo info);
     void hardwareInfoReady(Platform::HardwareInfo info);
+    void batteryInfoReady(Platform::BatteryInfo info);
 
 private:
     PlatformSpecificThread * thread;

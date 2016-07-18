@@ -44,7 +44,6 @@ class VideoDownloaderWorker : public QObject
     Q_OBJECT
 public:
     explicit VideoDownloaderWorker(PlayerConfig config, QObject *parent = 0);
-    explicit VideoDownloaderWorker(PlayerConfigNew config, QObject *parent = 0);
     ~VideoDownloaderWorker();
 
 
@@ -66,7 +65,6 @@ signals:
     void checkDownloadItemsTodownloadResult(int c);
 public slots:
     void updateConfig(PlayerConfig config);
-    void updateConfigNew(PlayerConfigNew config);
     int itemsToDownloadCount(){return itemsToDownload.count();}
     void prepareDownload();
     void start();
@@ -76,7 +74,6 @@ public slots:
     void getResources(QList<StatisticDatabase::Resource> resources);
     void getDatabaseInfo();
     void checkDownload();
-    void checkDownloadNew();
 private slots:
     void download();
     void connectError(QNetworkReply::NetworkError err);
@@ -84,14 +81,13 @@ private slots:
     void runDownloadNew();
     static void writeToFileJob(QFile* f, QNetworkReply * r);
 private:
-    bool isFileUpdated(PlayerConfig::Area::Playlist::Item item);
+    bool isFileUpdated(PlaylistAPIResult::PlaylistItem item);
 
     QNetworkAccessManager * manager;
     QNetworkReply * reply;
     PlayerConfig config;
-    PlayerConfigNew configNew;
     QFile * file;
-    QVector<PlayerConfig::Area::Playlist::Item> itemsToDownload;
+    QVector<PlaylistAPIResult::PlaylistItem> itemsToDownload;
     QList<StatisticDatabase::Resource> resources;
     FileSwapper swapper;
     QTimer * restarter;
@@ -105,7 +101,6 @@ class VideoDownloader : public QThread
     Q_OBJECT
 public:
     VideoDownloader(PlayerConfig config, QObject *parent);
-    VideoDownloader(PlayerConfigNew config, QObject *parent);
     ~VideoDownloader();
 
 
@@ -117,7 +112,6 @@ public slots:
     void startDownload(){worker->start();}
     int itemsToDownloadCount() {return worker->itemsToDownloadCount();}
     void updateConfig(PlayerConfig config){worker->updateConfig(config);}
-    void updateConfig(PlayerConfigNew config){worker->updateConfigNew(config);}
 signals:
     void done();
     void downloadProgressSingle(double p, QString name);
