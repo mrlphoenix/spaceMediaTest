@@ -74,6 +74,8 @@ public slots:
     void getResources(QList<StatisticDatabase::Resource> resources);
     void getDatabaseInfo();
     void checkDownload();
+    void onSslError(QNetworkReply* reply, QList<QSslError>);
+    void onSslError(QList<QSslError> data);
 private slots:
     void download();
     void connectError(QNetworkReply::NetworkError err);

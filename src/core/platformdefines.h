@@ -8,6 +8,9 @@
 //Disable for debugging in QtCreator
 //#define PLATFORM_RPI_ENABLE_GPIO
 
+//enable this if you want to encode config file so users couldnt read
+//#define PLATFORM_ENCODE_CONFIG
+
 
 #define CONFIG_FOLDER_LINUX         QString("data/")
 #define VIDEO_FOLDER_LINUX          QString("data/video/")

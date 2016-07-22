@@ -10,6 +10,7 @@
 #include <QTime>
 #include <QTimeZone>
 #include <QScreen>
+#include <QSslSocket>
 
 #include "teledscore.h"
 #include "globalconfig.h"
@@ -25,6 +26,9 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     PlatformSpecificService;
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
 
+
+
+    qDebug() << "SSL" << QSslSocket::supportsSsl();
     //GPIO Releys
     QTimer * releyTimer = new QTimer();
     connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));

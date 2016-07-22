@@ -50,18 +50,19 @@ contains (KIT, Android) {
 }
 
 android: {
-    INCLUDEPATH += /usr/local/ssl/android-9/include
-    LIBS += -L/usr/local/ssl/android-9/lib
+    INCLUDEPATH += /home/nother/openssl101t/include
+    LIBS += -L/home/nother/openssl101t/
 }
 ANDROID_PERMISSIONS = android.permission.READ_PHONE_STATE
-
-
-    ANDROID_EXTRA_LIBS = \
-        $$PWD/../../../../usr/local/ssl/android-9/lib/libcrypto_1_0_0.so \
-        $$PWD/../../../../usr/local/ssl/android-9/lib/libssl_1_0_0.so
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 HEADERS +=
+
+contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
+    ANDROID_EXTRA_LIBS = \
+        /home/nother/openssl101t/libssl.so \
+        $$PWD/../../openssl101t/libcrypto.so
+}
 
 

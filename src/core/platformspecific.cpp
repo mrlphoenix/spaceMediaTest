@@ -9,6 +9,7 @@
 #include <QStorageInfo>
 #include <QDebug>
 #include <QCryptographicHash>
+#include <QDataStream>
 #include "singleton.h"
 #include "globalstats.h"
 #include "platformspecific.h"
@@ -789,4 +790,30 @@ void Platform::PlatformSpecific::extractFile(QString file, QString id)
 void Platform::PlatformSpecific::writeToFile(QByteArray data, QString filename)
 {
     thread->writeToFile(data, filename);
+}
+
+QByteArray Platform::lfsrEncode(QByteArray data, QString pass)
+{
+    QByteArray hash = QCryptographicHash::hash(pass.toLocal8Bit(),QCryptographicHash::Md5);
+    hash = hash.mid(0,4);
+    QDataStream ds(hash);
+    int seed;
+    ds >> seed;
+    QByteArray result;
+    for (int i = 0; i< data.count(); ++i)
+    {
+        char b = 0;
+        for (int bIndex = 0; bIndex < 8; ++bIndex)
+        {
+            if (seed & 0x00000001)
+            {
+                seed = (seed ^ 0x80000057 >> 1) | 0x80000000;
+                b |= (1 << bIndex);
+            }
+            else
+                seed >>= 1;
+        }
+        result.append(data[i] ^ b);
+    }
+    return result;
 }

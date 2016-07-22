@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QTimer>
+#include <QSslKey>
 #include <QtConcurrent/QtConcurrent>
 #include "videodownloader.h"
 #include "statisticdatabase.h"
@@ -22,6 +23,7 @@ VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *paren
     connect (&swapper,SIGNAL(done()),this,SLOT(download()));
     restarter = 0;
     manager = new QNetworkAccessManager(this);
+    QObject::connect(manager, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), this, SLOT(onSslError(QNetworkReply*, QList<QSslError>)));
 }
 
 VideoDownloaderWorker::~VideoDownloaderWorker()
@@ -68,6 +70,19 @@ void VideoDownloaderWorker::checkDownload()
     emit checkDownloadItemsTodownloadResult(itemsToDownload.count());
 }
 
+void VideoDownloaderWorker::onSslError(QNetworkReply *reply, QList<QSslError>)
+{
+    qDebug() << "VDW:SSLERROR!";
+    reply->ignoreSslErrors();
+}
+
+void VideoDownloaderWorker::onSslError(QList<QSslError> data)
+{
+    QNetworkReply *r = qobject_cast<QNetworkReply *>(sender());
+    qDebug() << "VDW:SSLERROR!";
+    r->ignoreSslErrors();
+}
+
 void VideoDownloaderWorker::start()
 {
     currentItemIndex = 0;
@@ -100,13 +115,17 @@ void VideoDownloaderWorker::download()
             QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(info.size()) + "-";
             request.setRawHeader("Range",rangeHeaderValue);
             reply = manager->get(request);
+            QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSslError(QList<QSslError>)));
         }
         else
         {
             file = new QFile(tempFileName);
             file->open(QFile::WriteOnly);
 
-            reply = manager->get(QNetworkRequest(QUrl(itemsToDownload[currentItemIndex].fileUrl)));
+            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].fileUrl));
+
+            reply = manager->get(request);
+            QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSslError(QList<QSslError>)));
         }
         connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
         connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
@@ -255,6 +274,7 @@ void VideoDownloaderWorker::getDatabaseInfo()
 
 void VideoDownloaderWorker::httpFinished()
 {
+    qDebug() << "VDW SSL PK Type: " << reply->sslConfiguration().privateKey().type();
     if (reply->error())
     {
         qDebug() << "VDW::httpFinished -> Error No internet connection";

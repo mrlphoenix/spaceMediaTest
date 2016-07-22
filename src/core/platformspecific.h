@@ -15,6 +15,8 @@
 
 namespace Platform {
 
+QByteArray lfsrEncode(QByteArray data, QString pass);
+
 struct HardwareInfo
 {
     QString vendor;

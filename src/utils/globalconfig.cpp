@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include "globalconfig.h"
 #include "platformdefines.h"
+#include "platformspecific.h"
 
 GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
 {
@@ -163,7 +164,11 @@ void GlobalConfig::loadFromJson()
     QFile configFile(CONFIG_FOLDER + "config.dat");
     configFile.open(QFile::ReadOnly);
     QJsonDocument doc;
-    doc = QJsonDocument::fromJson(configFile.readAll());
+    QByteArray data = configFile.readAll();
+#ifdef PLATFORM_ENCODE_CONFIG
+    data =  qUncompress(Platform::lfsrEncode(data, CONFIG_FOLDER));
+#endif
+    doc = QJsonDocument::fromJson(data);
     QJsonObject root = doc.object();
     this->device = root["device"].toString();
     this->token = root["token"].toString();
@@ -192,7 +197,11 @@ void GlobalConfig::save()
     QJsonDocument doc(root);
     QFile file (CONFIG_FOLDER + "config.dat");
     file.open(QFile::WriteOnly);
-    file.write(doc.toJson());
+    QByteArray data = doc.toJson();
+#ifdef PLATFORM_ENCODE_CONFIG
+    data =  Platform::lfsrEncode(qCompress(data), CONFIG_FOLDER);
+#endif
+    file.write(data);
     file.flush();
     file.close();
 }
