@@ -140,6 +140,23 @@ QJsonObject GlobalConfig::getPlaylist()
     return playlist;
 }
 
+void GlobalConfig::setAreas(QJsonArray json)
+{
+    areas = json;
+    save();
+}
+
+QJsonArray GlobalConfig::getAreas()
+{
+    return areas;
+}
+
+void GlobalConfig::setPlaylistNetworkError(int error_id)
+{
+    playlistNetworkErrorId = error_id;
+    save();
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
@@ -153,6 +170,8 @@ void GlobalConfig::loadFromJson()
     this->settings = root["settings"].toObject();
     this->virtualScreens = root["virtualScreens"].toArray();
     this->playlist = root["playlist"].toObject();
+    this->areas = root["areas"].toArray();
+    this->playlistNetworkErrorId = root["playlistNetworkErrorId"].toInt();
 
     qDebug() << "currentConfig: " << token;
     configFile.close();
@@ -167,6 +186,8 @@ void GlobalConfig::save()
     root["settings"] = settings;
     root["virtualScreens"] = virtualScreens;
     root["playlist"] = playlist;
+    root["areas"] = areas;
+    root["playlistNetworkErrorId"] = playlistNetworkErrorId;
 
     QJsonDocument doc(root);
     QFile file (CONFIG_FOLDER + "config.dat");

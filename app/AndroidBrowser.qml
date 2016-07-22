@@ -6,7 +6,8 @@ import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
 
 Item{
-    anchors.fill: parent
+    width: parent.width
+    height: parent.height
     property string prevUrl:""
     function load(url){
         if (prevUrl === url){
@@ -20,6 +21,8 @@ Item{
         }
     }
     function setShowTime(msecs){
+        if (msecs < 1000)
+            msecs = 10000
         turnOffTimer.interval = msecs
         console.log("browser show time = " + msecs)
     }

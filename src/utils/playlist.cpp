@@ -345,9 +345,9 @@ QString SuperPlaylist::next()
                     break;
             }
         }
-        qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list";
         if (!found)
         {
+            qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list";
             foreach (const PlaylistAPIResult::CampaignItem &campaign, floatingNoneItems)
             {
                 bool freeItemFound = false;
@@ -386,6 +386,7 @@ PlaylistAPIResult::PlaylistItem SuperPlaylist::findItemById(QString iid)
 
 void SuperPlaylist::splitItems()
 {
+    qDebug() << "SuperPlaylist::splitItems";
     fixedFloatingItems.clear();
     floatingNoneItems.clear();
     foreach (const PlaylistAPIResult::CampaignItem &item, playlist.items)
@@ -398,6 +399,7 @@ void SuperPlaylist::splitItems()
             fixedFloatingItems.append(item);
             floatingNoneItems.append(item);
         }
+    qDebug() << "FF: " << fixedFloatingItems.count() << " FN: " << floatingNoneItems.count();
 }
 
 void SuperPlaylist::shuffle()

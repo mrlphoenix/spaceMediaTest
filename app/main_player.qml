@@ -69,7 +69,6 @@ Item {
         widthP = width
     }
 
-
     function setTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, brandGRColor)
     {
         brand_backgroundColor = brandBGColor
@@ -522,8 +521,6 @@ Item {
                     }
                 }
         }
-
-
         Item{
             id: playerIDItem
             width: parent.width
@@ -737,8 +734,19 @@ Item {
             }
             nextItem()
         }
-
     }
+
+   /* SideBrowser{
+        id: sideBrowser
+        visible: false
+        x: 0//1.6 * Math.min(item.height, item.width)
+        y:
+        width: Math.max(item.height, item.width) - 1.6*Math.min(item.height, item.width)
+        height: item.height
+        onNext: {
+            //sideBrowser::next
+        }
+    }*/
 
     Dialog {
         id: dialogAndroid
@@ -869,7 +877,7 @@ Item {
         }
     }
 
-    Keys.onReleased: {
+    Keys.onReleased:{
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             dialogCloseTimer.start()
             dialogAndroid.open()

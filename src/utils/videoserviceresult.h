@@ -53,9 +53,16 @@ struct SettingsRequestResult
     bool brand_active;
     QString brand_background;
     QString brand_logo;
+    QString brand_background_hash;
+    QString brand_logo_hash;
     QString brand_color_1;
     QString brand_color_2;
     int brand_teleds_copyright;
+
+    //auto off
+    int off_power_loss;
+    int off_charge_percent;
+    bool autooff_active;
 };
 
 struct PlaylistAPIResult

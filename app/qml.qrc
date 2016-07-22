@@ -13,5 +13,6 @@
         <file>AndroidBrowser.qml</file>
         <file>VideoPlayer.qml</file>
         <file>audio.svg</file>
+        <file>SideBrowser.qml</file>
     </qresource>
 </RCC>

@@ -3,6 +3,9 @@
 #include "statisticdatabase.h"
 #include "globalconfig.h"
 
+/*
+ * */
+
 DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
     : QObject( parent )
 {

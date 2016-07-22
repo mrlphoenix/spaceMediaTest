@@ -790,4 +790,3 @@ void Platform::PlatformSpecific::writeToFile(QByteArray data, QString filename)
 {
     thread->writeToFile(data, filename);
 }
-

@@ -13,6 +13,7 @@
 #include "teledssheduler.h"
 #include "statisticuploader.h"
 #include "platformspecific.h"
+#include "skinmanager.h"
 
 
 class BatteryStatus
@@ -54,14 +55,14 @@ public slots:
     void checkForAutomaticShutdown();
     void automaticShutdownBatteryInfoReady(Platform::BatteryInfo info);
 
-    //slot is called after playlist got loaded
-    void playlistResult(PlayerConfig result);
     //slot is called when backed returned player settings
     void playerSettingsResult(SettingsRequestResult result);
     //slot is called after we load virtual screens
     void virtualScreensResult(PlayerConfig result);
     //slot is called after we get response from loading virtual screens playlists
     void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
+
+    void onThemeReady(ThemeDesc desc);
 
     //slot is called when we need to update playlist
     void getPlaylistTimerSlot();
@@ -93,6 +94,8 @@ public slots:
 
     void checkReleyTime();
 
+    void showPlayer();
+
 
 protected:
     void setupDownloader(PlayerConfig& newConfig);
@@ -110,6 +113,10 @@ protected:
 
     PlayerConfig currentConfig;
     BatteryStatus batteryStatus;
+    SkinManager * skinManager;
+
+    bool shouldShowPlayer;
+
 };
 
 #endif // TELEDSCORE_H

@@ -43,6 +43,10 @@ public:
     QJsonArray getVirtualScreens();
     void setPlaylist(QJsonObject json);
     QJsonObject getPlaylist();
+    void setAreas(QJsonArray json);
+    QJsonArray getAreas();
+    void setPlaylistNetworkError(int error_id);
+    int getPlaylistNetworkError(){return playlistNetworkErrorId;}
 
 
     int getStatsInterval(){return statsInterval;}
@@ -91,9 +95,9 @@ private:
     int getPlaylistTimerTime;
 
     QJsonObject settings;
-    QJsonArray virtualScreens;
+    QJsonArray virtualScreens, areas;
     QJsonObject playlist;
-
+    int playlistNetworkErrorId;
 };
 
 #endif // GLOBALCONFIG_H

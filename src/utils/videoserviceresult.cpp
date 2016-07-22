@@ -125,6 +125,8 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
             result.error_id = httpStatus.toInt();
         else
             result.error_id = -1;
+
+        qDebug() << "VideoServiceResponseHandler::Settings -> network eror." << result.error_id;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
@@ -161,6 +163,7 @@ void VideoServiceResponseHandler::getPlayerAreasReply(QNetworkReply *reply)
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonArray root = doc.array();
         result = PlayerConfig::fromJson(root);
+        GlobalConfigInstance.setAreas(root);
     }
     emit getPlayerAreasResult(result);
 }
@@ -168,22 +171,24 @@ void VideoServiceResponseHandler::getPlayerAreasReply(QNetworkReply *reply)
 void VideoServiceResponseHandler::getVirtualScreenPlaylist(QNetworkReply *reply)
 {
     QHash<QString, PlaylistAPIResult> result;
-    if (reply->error()){;}
+    if (reply->error())
+    {
+        int error_id = 0;
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            error_id = httpStatus.toInt();
+        else
+            error_id = -1;
+        GlobalConfigInstance.setPlaylistNetworkError(error_id);
+    }
     else
     {
+        GlobalConfigInstance.setPlaylistNetworkError(0);
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonArray root = doc.array();
         result = PlaylistAPIResult::getAllItems(root);
-
-        /*QJsonObject root = doc.object();
-        foreach (const QString& id, root.keys())
-        {
-            QJsonArray playlistEntry = root[id].toArray();
-            PlaylistAPIResult playlistAPI = PlaylistAPIResult::fromJson(playlistEntry);
-            playlistAPI.id = id;
-            result[id] = playlistAPI;
-        }*/
+        GlobalConfigInstance.setVirtualScreens(root);
     }
     emit getVirtualScreenPlaylistResult(result);
 }
@@ -236,13 +241,19 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     if (result.reley_2_enabled)
         result.time_targeting_relay_2 = generateHashByString(data["time_targeting_relay_2"].toObject()["content"].toString());
 
-    result.brand_active = data["brand_active"].toInt();
+    result.brand_active = data["brand_active"].toBool();
     result.brand_background = data["brand_background"].toString();
     result.brand_logo = data["brand_logo"].toString();
+    result.brand_background_hash = data["brand_background_hash"].toString();
+    result.brand_logo_hash = data["brand_logo_hash"].toString();
     result.brand_color_1 = data["brand_color_1"].toString();
     result.brand_color_2 = data["brand_color_2"].toString();
     result.brand_teleds_copyright = data["brand_teleds_copyright"].toInt();
     result.stats_interval = data["stats_interval"].toInt();
+
+    result.autooff_active = data["autooff_active"].toBool();
+    result.off_power_loss = data["off_power_loss"].toInt();
+    result.off_charge_percent = data["off_charge_percent"].toInt();
 
     GlobalConfigInstance.setSettings(data);
 
@@ -385,7 +396,6 @@ PlayerConfig PlayerConfig::fromJson(QJsonArray data)
         screen.resfreshTime = virtualScreenObject["refresh_at"].toInt();
         result.screens[screen.id] = screen;
     }
-    GlobalConfigInstance.setVirtualScreens(data);
     return result;
 }
 

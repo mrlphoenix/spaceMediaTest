@@ -20,7 +20,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     view.setSource(QUrl(QStringLiteral("qrc:/main_player.qml")));
     viewRootObject = dynamic_cast<QObject*>(view.rootObject());
     view.setResizeMode(QQuickView::SizeRootObjectToView);
-    QTimer::singleShot(1000,this,SLOT(bindObjects()));
+    QTimer::singleShot(500,this,SLOT(bindObjects()));
     QTimer::singleShot(500,this,SLOT(invokeVersionText()));
 
    // show();
@@ -54,6 +54,7 @@ QString TeleDSPlayer::getFullPathZip(QString path)
 
 void TeleDSPlayer::show()
 {
+    qDebug() << "TeleDSPlayer::show";
 #ifdef PLAYER_MODE_WINDOWED
     view.show();
     view.setMinimumHeight(520);
@@ -124,8 +125,8 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
         type = item.type;
 
     QVariant build = CONFIG_BUILD_NAME;
-    QVariant duration = item.duration;// * 1000;
-    QVariant skip = item.skipTime;// * 1000;
+    QVariant duration = item.duration;
+    QVariant skip = item.skipTime;
     QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",
                               Q_ARG(QVariant,source),
                               Q_ARG(QVariant, type),
@@ -226,12 +227,14 @@ void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QStrin
                               Q_ARG(QVariant, color1Param),
                               Q_ARG(QVariant, color2Param),
                               Q_ARG(QVariant, color3Param));
+    this->show();
 }
 
 void TeleDSPlayer::invokeRestoreDefaultTheme()
 {
     qDebug() << "TeleDSPlayer::invokeRestoreDefaultTheme";
     QMetaObject::invokeMethod(viewRootObject, "restoreDefaultTheme");
+    this->show();
 }
 
 void TeleDSPlayer::next()

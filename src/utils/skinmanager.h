@@ -31,6 +31,7 @@ signals:
 public slots:
 
     void updateSkin(QString backgroundURL, QString logoURL, QString bgHash, QString logoHash, QString color1, QString color2);
+    bool isSkinReady(QString backgroundURL, QString logoURL, QString bgHash, QString logoHash);
 private slots:
     void replyFinished(QNetworkReply * reply);
 private:

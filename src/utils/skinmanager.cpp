@@ -30,36 +30,69 @@ void SkinManager::updateSkin(QString backgroundURL, QString logoURL, QString bgH
     currentSkin.backgroundURL = backgroundURL;
     currentSkin.logoURL = logoURL;
 
+    currentSkin.isDefault = (backgroundURL == "" && logoURL == "" && color1 == "" && color2 == "");
+
     bgExt = getFileExt(backgroundURL);
     logoExt = getFileExt(logoURL);
 
-    if (getBgHash(bgExt) != bgHash)
+    needToDownloadLogo = (getLogoHash(logoExt) != logoHash);
+    bool needToDownloadBg = getBgHash(bgExt) != bgHash;
+
+    qDebug() << "TeleDSCore::settings " << needToDownloadBg << " " << needToDownloadLogo;
+
+    if (needToDownloadBg)
     {
+        qDebug() << "TeleDSCore::settings URL: " << backgroundURL;
         manager.get(QNetworkRequest(QUrl(backgroundURL)));
         state = BACKGROUND_STATE;
-        needToDownloadLogo = (getLogoHash(logoExt) != logoHash);
     }
-    else if (getLogoHash(logoExt) != logoHash)
+    else
     {
+        QString filepath = CONFIG_FOLDER + "bg" + bgExt;
+        currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(filepath);
+    }
+    if (!needToDownloadLogo)
+    {
+        QString filepath = CONFIG_FOLDER + "logo" + logoExt;
+        currentSkin.relocatedLogoURL = QUrl::fromLocalFile(filepath);
+    }
+    if (!needToDownloadBg &&  needToDownloadLogo)
+    {
+        qDebug() << "TeleDSCore::settings URL: " << logoURL;
         manager.get(QNetworkRequest(QUrl(logoURL)));
         state = LOGO_STATE;
     }
-    else
-        state = IDLE;
+    if (!needToDownloadBg && !needToDownloadLogo)
+    {
+        emit skinReady(currentSkin);
+    }
+
+}
+
+bool SkinManager::isSkinReady(QString backgroundURL, QString logoURL, QString bgHash, QString logoHash)
+{
+    QString bgExtension, logoExtension;
+    bgExtension = getFileExt(backgroundURL);
+    logoExtension = getFileExt(logoURL);
+    bool shouldDownloadLogo = (getLogoHash(logoExtension) != logoHash), shouldDownloadBg = (getBgHash(bgExtension) != bgHash);
+    return !shouldDownloadLogo && !shouldDownloadBg;
 }
 
 void SkinManager::replyFinished(QNetworkReply *reply)
 {
+    qDebug() << "TeleDSCore::settingsSkinManager::replyfinished";
     if (reply->error())
     {
-        qDebug() << "SkinManager::replyFinished -> network error: " + reply->errorString();
+        qDebug() << "TeleDSCore::settingsSkinManager::replyFinished -> network error: " + reply->errorString();
     }
     else
     {
         if (state == BACKGROUND_STATE)
         {
+            qDebug() << "TeleDSCore::settings SkinManager::BGState -> " << CONFIG_FOLDER + "bg" + bgExt;
             QString filepath = CONFIG_FOLDER + "bg" + bgExt;
             writeToFileSync(reply->readAll(),filepath);
+            cachedBgHash = "";
             reply->deleteLater();
             currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(filepath);
             if (needToDownloadLogo)
@@ -76,8 +109,10 @@ void SkinManager::replyFinished(QNetworkReply *reply)
         }
         else if (state == LOGO_STATE)
         {
+            qDebug() << "TeleDSCore::settings SkinManager::LogoState -> " << CONFIG_FOLDER + "logo" + logoExt;
             QString filepath = CONFIG_FOLDER + "logo" + logoExt;
             writeToFileSync(reply->readAll(),filepath);
+            cachedLogoHash = "";
             reply->deleteLater();
             currentSkin.relocatedLogoURL = QUrl::fromLocalFile(filepath);
             state = IDLE;

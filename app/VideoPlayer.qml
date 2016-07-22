@@ -160,9 +160,9 @@ Item {
 
             if (fakePlay == false)
             {
-                showVideo2.start()
-               // videoOut2.opacity = 1.0
-                //videoOut1.opacity = 0.0
+                //showVideo2.start()
+                videoOut2.opacity = 1.0
+                videoOut1.opacity = 0.0
                 if (durationMsecs == 0)
                     nextVideoTimer.interval = getDuration(mp2.duration)
                 else
@@ -221,8 +221,6 @@ Item {
                 mp2.isVideo = false
             mp2.durationMsecs = duration
             mp2.seekMsecs = seek
-         //   if (mp1.playbackState != MediaPlayer.PlayingState)
-         //       mp1.play()
         }
         else{
             if (firstPlayer){
