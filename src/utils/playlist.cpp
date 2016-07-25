@@ -347,7 +347,7 @@ QString SuperPlaylist::next()
         }
         if (!found)
         {
-            qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list";
+            qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
             foreach (const PlaylistAPIResult::CampaignItem &campaign, floatingNoneItems)
             {
                 bool freeItemFound = false;

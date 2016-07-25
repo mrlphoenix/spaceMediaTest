@@ -31,15 +31,19 @@ contains(KIT, Android){
     include(../src/zip/zip.pri)
 }
 
-OTHER_FILES += ../qml/simple_player.qml \
-           VideoPlayer.qml
+OTHER_FILES += VideoPlayer.qml \
+               main_player.qml \
+               AndroidBrowser.qml \
+               SideBrowser.qml \
+               android/src/org/qtproject/qt5/android/bindings/QtActivity.java
 
 SOURCES += main.cpp
 
 RESOURCES += \
     qml.qrc
 
-DISTFILES += android/AndroidManifest.xml
+DISTFILES += android/AndroidManifest.xml \
+    android/src/org/qtproject/qt5/android/bindings/KioskService.java
 QML_IMPORT_PATH =
 
 LIBS += -lssl -lcrypto

@@ -89,8 +89,192 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.accessibility.AccessibilityEvent;
 import dalvik.system.DexClassLoader;
+import android.view.ViewGroup;
+import android.view.Gravity;
+import android.graphics.PixelFormat;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
+import android.app.Notification;
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.os.IBinder;
+import android.provider.SyncStateContract.Constants;
+import android.app.ActivityManager;
+import java.util.concurrent.TimeUnit;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import java.util.List;
 
 
+class customViewGroup extends ViewGroup {
+
+    public customViewGroup(Context context) {
+        super(context);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.v("customViewGroup", "**********Intercepted");
+        return true;
+    }
+}
+
+/*
+class LockscreenIntentReceiver extends BroadcastReceiver {
+
+        // Handle actions and display Lockscreen
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)
+                                || intent.getAction().equals(Intent.ACTION_SCREEN_ON)
+                                || intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+                        start_lockscreen(context);
+                }
+
+        }
+
+        // Display lock screen
+        private void start_lockscreen(Context context) {
+                Intent mIntent = new Intent(context, LockScreenActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(mIntent);
+        }
+
+}
+
+class LockscreenService extends Service {
+
+        private BroadcastReceiver mReceiver;
+
+        @Override
+        public IBinder onBind(Intent intent) {
+                return null;
+        }
+
+        @Override
+        public void onCreate() {
+                super.onCreate();
+        }
+
+        // Register for Lockscreen event intents
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+                filter.addAction(Intent.ACTION_SCREEN_OFF);
+                mReceiver = new LockscreenIntentReceiver();
+                registerReceiver(mReceiver, filter);
+                startForeground();
+                return START_STICKY;
+        }
+
+        // Run service in foreground so it is less likely to be killed by system
+        private void startForeground() {
+                Notification notification = new NotificationCompat.Builder(this)
+                 .setContentTitle(getResources().getString(R.string.app_name))
+                 .setTicker(getResources().getString(R.string.app_name))
+                 .setContentText("Running")
+                 .setSmallIcon(R.drawable.ic_launcher)
+                 .setContentIntent(null)
+                 .setOngoing(true)
+                 .build();
+                 startForeground(9999,notification);
+        }
+
+        // Unregister receiver
+        @Override
+        public void onDestroy() {
+                super.onDestroy();
+                unregisterReceiver(mReceiver);MyActivity
+        }
+}
+
+class LockscreenUtils {
+
+        // Member variables
+        private OverlayDialog mOverlayDialog;
+        private OnLockStatusChangedListener mLockStatusChangedListener;
+
+        // Interface to communicate with owner activity
+        public interface OnLockStatusChangedListener
+        {
+                public void onLockStatusChanged(boolean isLocked);
+        }
+
+        // Reset the variables
+        public LockscreenUtils() {
+                reset();
+        }
+
+        // Display overlay dialog with a view to prevent home button click
+        public void lock(Activity activity) {
+                if (mOverlayDialog == null) {
+                        mOverlayDialog = new OverlayDialog(activity);
+                        mOverlayDialog.show();
+                        mLockStatusChangedListener = (OnLockStatusChangedListener) activity;
+                }
+        }
+
+        // Reset variables
+        public void reset() {
+                if (mOverlayDialog != null) {
+                        mOverlayDialog.dismiss();
+                        mOverlayDialog = null;
+                }
+        }
+
+        // Unlock the home button and give callback to unlock the screen
+        public void unlock() {
+                if (mOverlayDialog != null) {
+                        mOverlayDialog.dismiss();
+                        mOverlayDialog = null;
+                        if(mLockStatusChangedListener!=null)
+                        {
+                                mLockStatusChangedListener.onLockStatusChanged(false);
+                        }
+                }
+        }
+
+        // Create overlay dialog for lockedscreen to disable hardware buttons
+        private static class OverlayDialog extends AlertDialog {
+
+                public OverlayDialog(Activity activity) {
+                        super(activity, R.style.OverlayDialog);
+                        WindowManager.LayoutParams params = getWindow().getAttributes();
+                        params.type = LayoutParams.TYPE_SYSTEM_ERROR;
+                        params.dimAmount = 0.0F;
+                        params.width = 0;
+                        params.height = 0;
+                        params.gravity = Gravity.BOTTOM;
+                        getWindow().setAttributes(params);
+                        getWindow().setFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED | LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                                        0xffffff);
+                        setOwnerActivity(activity);
+                        setCancelable(false);
+                }
+
+                // consume touch events
+                public final boolean dispatchTouchEvent(MotionEvent motionevent) {
+                        return true;
+                }
+
+        }
+}*/
 
 public class QtActivity extends Activity
 {
@@ -896,7 +1080,47 @@ public class QtActivity extends Activity
             startApp(true);
         }
 	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        preventStatusBarExpansion(this);
+        startKioskService();
     }
+    private void startKioskService() { // ... and this method
+        Log.i("TeleDS", "startKiostService");
+      startService(new Intent(this, KioskService.class));
+    }
+    public static void preventStatusBarExpansion(Context context) {
+        WindowManager manager = ((WindowManager) context.getApplicationContext()
+                .getSystemService(Context.WINDOW_SERVICE));
+
+        Activity activity = (Activity)context;
+        WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
+        localLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        localLayoutParams.gravity = Gravity.TOP;
+        localLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|
+
+        // this is to enable the notification to recieve touch events
+        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+
+        // Draws over status bar
+        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+
+        localLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        //http://stackoverflow.com/questions/1016896/get-screen-dimensions-in-pixels
+        int resId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int result = 0;
+        if (resId > 0) {
+            result = activity.getResources().getDimensionPixelSize(resId);
+        }
+
+        localLayoutParams.height = result;
+
+        localLayoutParams.format = PixelFormat.TRANSPARENT;
+
+        customViewGroup view = new customViewGroup(context);
+
+        manager.addView(view, localLayoutParams);
+    }
+
+
     //---------------------------------------------------------------------------
 
     @Override
@@ -1029,6 +1253,10 @@ public class QtActivity extends Activity
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+                Log.i("onKeyDown", "TeleDSHOME Pressed");
+                return true;
+            }
         if (QtApplication.m_delegateObject != null && QtApplication.onKeyDown != null)
             return (Boolean) QtApplication.invokeDelegateMethod(QtApplication.onKeyDown, keyCode, event);
         else
@@ -1161,6 +1389,9 @@ public class QtActivity extends Activity
     @Override
     protected void onPause()
     {
+        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.moveTaskToFront(getTaskId(), 0);
+
         super.onPause();
         QtApplication.invokeDelegate();
     }
@@ -1326,6 +1557,7 @@ public class QtActivity extends Activity
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
+    //    return true;
         if (QtApplication.m_delegateObject != null  && QtApplication.onTouchEvent != null)
             return (Boolean) QtApplication.invokeDelegateMethod(QtApplication.onTouchEvent, event);
         else
@@ -1390,6 +1622,27 @@ public class QtActivity extends Activity
     @Override
     public void onWindowFocusChanged(boolean hasFocus)
     {
+        if(!hasFocus) {
+            Log.d("Focus debug", "Lost focus !");
+
+            Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(closeDialog);
+        }
+        try
+        {
+           if(!hasFocus)
+           {
+                Object service  = getSystemService("statusbar");
+                Class<?> statusbarManager = Class.forName("android.app.StatusBarManager");
+                Method collapse = statusbarManager.getMethod("collapse");
+                collapse.setAccessible(true);
+                collapse.invoke(service);
+           }
+        }
+        catch(Exception ex)
+        {
+        }
+
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 	    if (hasFocus) {
                  Log.d("SCREEN","IMMERSIVE MODE ACTIVE");
@@ -1416,6 +1669,9 @@ public class QtActivity extends Activity
     @Override
     public void onAttachedToWindow()
     {
+        getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         if (!QtApplication.invokeDelegate().invoked)
             super.onAttachedToWindow();
     }

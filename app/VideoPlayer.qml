@@ -119,7 +119,7 @@ Item {
                 if (durationMsecs == 0)
                     nextVideoTimer.interval = getDuration(mp1.duration)
                 else
-                    nextVideoTimer.interval = durationMsecs -900
+                    nextVideoTimer.interval = durationMsecs -500
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
                 {
@@ -163,10 +163,11 @@ Item {
                 //showVideo2.start()
                 videoOut2.opacity = 1.0
                 videoOut1.opacity = 0.0
+                console.log("MP2:OnPlay Duration = " + durationMsecs)
                 if (durationMsecs == 0)
                     nextVideoTimer.interval = getDuration(mp2.duration)
                 else
-                    nextVideoTimer.interval = durationMsecs -900
+                    nextVideoTimer.interval = durationMsecs -500
                 nextVideoTimer.start()
                 if (seekMsecs > 0)
                 {
