@@ -43,7 +43,7 @@ void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
 
 void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
 {
-
+    reply->deleteLater();
 }
 
 void VideoServiceResponseHandler::sendStatisticResultReply(QNetworkReply *reply)

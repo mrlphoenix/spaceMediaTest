@@ -166,6 +166,7 @@ public:
     ~PlatformSpecific();
 
     static QString getFileHash(QString filename);
+    static void setResetWindow(bool enabled);
 
 public slots:
     void generateSystemInfo();

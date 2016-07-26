@@ -62,6 +62,8 @@ Item {
     signal nextItem()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
+    signal setRestoreModeTrue()
+    signal setRestoreModeFalse()
     focus: true
 
     onHeightChanged: {
@@ -366,6 +368,7 @@ Item {
         interval: 10000
         onTriggered: {
             dialogAndroid.close()
+            setRestoreModeTrue();
             if (currentType == "browser")
             {
                 androidBrowser.visible = true
@@ -810,6 +813,7 @@ Item {
                     }
                     onClicked: {
                         dialogAndroid.close()
+                        setRestoreModeTrue()
                         if (currentType == "browser")
                         {
                             androidBrowser.visible = true
@@ -857,6 +861,7 @@ Item {
                         console.log("DIALOG ON RELEASED!!!")
                         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
                             dialogAndroid.close()
+                            setRestoreModeTrue();
                             if (currentType === "browser")
                             {
                                 androidBrowser.visible = true
@@ -882,6 +887,7 @@ Item {
             dialogCloseTimer.start()
             dialogAndroid.open()
             dialogButtonOk.focus = true
+            setRestoreModeFalse()
             if (currentType == "browser")
             {
                 bgLogoBlock.visible = true

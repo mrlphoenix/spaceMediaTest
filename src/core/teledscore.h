@@ -14,6 +14,7 @@
 #include "statisticuploader.h"
 #include "platformspecific.h"
 #include "skinmanager.h"
+#include "qhttpserver.h"
 
 
 class BatteryStatus

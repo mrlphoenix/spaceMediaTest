@@ -113,7 +113,7 @@ import android.app.ActivityManager;
 import java.util.concurrent.TimeUnit;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
+import android.app.PendingIntent;
 import java.util.List;
 
 
@@ -134,150 +134,19 @@ class customViewGroup extends ViewGroup {
     }
 }
 
-/*
-class LockscreenIntentReceiver extends BroadcastReceiver {
-
-        // Handle actions and display Lockscreen
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)
-                                || intent.getAction().equals(Intent.ACTION_SCREEN_ON)
-                                || intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-                        start_lockscreen(context);
-                }
-
-        }
-
-        // Display lock screen
-        private void start_lockscreen(Context context) {
-                Intent mIntent = new Intent(context, LockScreenActivity.class);
-                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(mIntent);
-        }
-
-}
-
-class LockscreenService extends Service {
-
-        private BroadcastReceiver mReceiver;
-
-        @Override
-        public IBinder onBind(Intent intent) {
-                return null;
-        }
-
-        @Override
-        public void onCreate() {
-                super.onCreate();
-        }
-
-        // Register for Lockscreen event intents
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                filter.addAction(Intent.ACTION_SCREEN_OFF);
-                mReceiver = new LockscreenIntentReceiver();
-                registerReceiver(mReceiver, filter);
-                startForeground();
-                return START_STICKY;
-        }
-
-        // Run service in foreground so it is less likely to be killed by system
-        private void startForeground() {
-                Notification notification = new NotificationCompat.Builder(this)
-                 .setContentTitle(getResources().getString(R.string.app_name))
-                 .setTicker(getResources().getString(R.string.app_name))
-                 .setContentText("Running")
-                 .setSmallIcon(R.drawable.ic_launcher)
-                 .setContentIntent(null)
-                 .setOngoing(true)
-                 .build();
-                 startForeground(9999,notification);
-        }
-
-        // Unregister receiver
-        @Override
-        public void onDestroy() {
-                super.onDestroy();
-                unregisterReceiver(mReceiver);MyActivity
-        }
-}
-
-class LockscreenUtils {
-
-        // Member variables
-        private OverlayDialog mOverlayDialog;
-        private OnLockStatusChangedListener mLockStatusChangedListener;
-
-        // Interface to communicate with owner activity
-        public interface OnLockStatusChangedListener
-        {
-                public void onLockStatusChanged(boolean isLocked);
-        }
-
-        // Reset the variables
-        public LockscreenUtils() {
-                reset();
-        }
-
-        // Display overlay dialog with a view to prevent home button click
-        public void lock(Activity activity) {
-                if (mOverlayDialog == null) {
-                        mOverlayDialog = new OverlayDialog(activity);
-                        mOverlayDialog.show();
-                        mLockStatusChangedListener = (OnLockStatusChangedListener) activity;
-                }
-        }
-
-        // Reset variables
-        public void reset() {
-                if (mOverlayDialog != null) {
-                        mOverlayDialog.dismiss();
-                        mOverlayDialog = null;
-                }
-        }
-
-        // Unlock the home button and give callback to unlock the screen
-        public void unlock() {
-                if (mOverlayDialog != null) {
-                        mOverlayDialog.dismiss();
-                        mOverlayDialog = null;
-                        if(mLockStatusChangedListener!=null)
-                        {
-                                mLockStatusChangedListener.onLockStatusChanged(false);
-                        }
-                }
-        }
-
-        // Create overlay dialog for lockedscreen to disable hardware buttons
-        private static class OverlayDialog extends AlertDialog {
-
-                public OverlayDialog(Activity activity) {
-                        super(activity, R.style.OverlayDialog);
-                        WindowManager.LayoutParams params = getWindow().getAttributes();
-                        params.type = LayoutParams.TYPE_SYSTEM_ERROR;
-                        params.dimAmount = 0.0F;
-                        params.width = 0;
-                        params.height = 0;
-                        params.gravity = Gravity.BOTTOM;
-                        getWindow().setAttributes(params);
-                        getWindow().setFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED | LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                                        0xffffff);
-                        setOwnerActivity(activity);
-                        setCancelable(false);
-                }
-
-                // consume touch events
-                public final boolean dispatchTouchEvent(MotionEvent motionevent) {
-                        return true;
-                }
-
-        }
-}*/
-
 public class QtActivity extends Activity
 {
+    private static boolean shouldRestoreWindowOnPause = true;
+
+    public static void setRestoreModeTrue(){
+        Log.i("TeleDS", "java:setRestoreModeTrue");
+        shouldRestoreWindowOnPause = true;
+    }
+    public static void setRestoreModeFalse(){
+        Log.i("TeleDS", "java:setRestoreModeFalse");
+        shouldRestoreWindowOnPause = false;
+    }
+
     private final static int MINISTRO_INSTALL_REQUEST_CODE = 0xf3ee; // request code used to know when Ministro instalation is finished
     private static final int MINISTRO_API_LEVEL = 5; // Ministro api level (check IMinistro.aidl file)
     private static final int NECESSITAS_API_LEVEL = 2; // Necessitas api level used by platform plugin
@@ -1081,7 +950,7 @@ public class QtActivity extends Activity
         }
 	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         preventStatusBarExpansion(this);
-        startKioskService();
+      //  startKioskService();
     }
     private void startKioskService() { // ... and this method
         Log.i("TeleDS", "startKiostService");
@@ -1253,9 +1122,10 @@ public class QtActivity extends Activity
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+                shouldRestoreWindowOnPause = false;
                 Log.i("onKeyDown", "TeleDSHOME Pressed");
-                return true;
+                //return true;
             }
         if (QtApplication.m_delegateObject != null && QtApplication.onKeyDown != null)
             return (Boolean) QtApplication.invokeDelegateMethod(QtApplication.onKeyDown, keyCode, event);
@@ -1391,6 +1261,29 @@ public class QtActivity extends Activity
     {
         ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
         activityManager.moveTaskToFront(getTaskId(), 0);
+
+        if (shouldRestoreWindowOnPause)
+        {
+            Log.i("TeleDS", "Restore Via KEYGUARD");
+            KeyguardManager myKeyManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+            if(!myKeyManager.inKeyguardRestrictedInputMode())
+            {
+
+                Log.d("TeleDS", "====Bringging Application to Front====");
+
+                Intent notificationIntent = new Intent(this, QtActivity.class);
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+                try
+                {
+                    pendingIntent.send();
+                }
+                catch (PendingIntent.CanceledException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         super.onPause();
         QtApplication.invokeDelegate();

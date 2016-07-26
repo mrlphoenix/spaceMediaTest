@@ -298,6 +298,8 @@ void TeleDSPlayer::bindObjects()
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
     QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));
+    QObject::connect(viewRootObject,SIGNAL(setRestoreModeTrue()),this,SLOT(setRestoreModeTrue()));
+    QObject::connect(viewRootObject,SIGNAL(setRestoreModeFalse()),this, SLOT(setRestoreModeFalse()));
 }
 
 void TeleDSPlayer::stopPlaying()
@@ -306,6 +308,18 @@ void TeleDSPlayer::stopPlaying()
     status.isPlaying = false;
     invokeStop();
     invokeNoItemsView("http://teleds.com");
+}
+
+void TeleDSPlayer::setRestoreModeTrue()
+{
+    qDebug() << "TeleDSPlayer::setRestoreModeTrue";
+    Platform::PlatformSpecific::setResetWindow(true);
+}
+
+void TeleDSPlayer::setRestoreModeFalse()
+{
+    qDebug() << "TeleDSPlayer::setRestoreModeFalse";
+    Platform::PlatformSpecific::setResetWindow(false);
 }
 
 void TeleDSPlayer::showVideo()

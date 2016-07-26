@@ -344,7 +344,6 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
             tdsPlayer->invokeRestoreDefaultTheme();
         });
     }
-
 }
 
 void TeleDSCore::getPlaylistTimerSlot()

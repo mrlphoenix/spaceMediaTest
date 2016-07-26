@@ -69,21 +69,6 @@ protected:
     QHash<QString,QDateTime> lastTimeShowed;
 };
 
-class MagicRandomPlaylist : public RandomPlaylist
-{
-    Q_OBJECT
-public:
-    explicit MagicRandomPlaylist(QObject * parent = 0);
-    virtual ~MagicRandomPlaylist(){;}
-    virtual void updatePlaylist(PlaylistAPIResult playlist);
-
-    virtual QString next();
-protected:
-    int allLength;
-    double magic;
-    QDateTime minPlayTime;
-};
-
 class SuperPlaylist : public AbstractPlaylist
 {
     Q_OBJECT

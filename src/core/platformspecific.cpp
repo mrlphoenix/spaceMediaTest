@@ -747,6 +747,16 @@ QString Platform::PlatformSpecific::getFileHash(QString filename)
     return "";
 }
 
+void Platform::PlatformSpecific::setResetWindow(bool enabled)
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    if (enabled)
+        QAndroidJniObject::callStaticMethod<void>("org.qtproject.qt5.android.bindings.QtActivity", "setRestoreModeTrue");
+    else
+        QAndroidJniObject::callStaticMethod<void>("org.qtproject.qt5.android.bindings.QtActivity", "setRestoreModeFalse");
+#endif
+}
+
 void Platform::PlatformSpecific::generateSystemInfo()
 {
     thread->generateSystemInfo();

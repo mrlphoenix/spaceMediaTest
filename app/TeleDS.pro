@@ -22,10 +22,12 @@ contains (KIT, Raspberry){
     INCLUDEPATH += /home/nother/raspi/sysroot/usr/local/include
     LIBS += -L/home/nother/raspi/sysroot/usr/local/lib -lwiringPi
 }
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
 include(../src/core/core.pri)
 include(../src/utils/utils.pri)
 include(../src/widgets/widgets.pri)
+include(../src/httpserver/httpserver.pri)
 
 contains(KIT, Android){
     include(../src/zip/zip.pri)

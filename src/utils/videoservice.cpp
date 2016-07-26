@@ -113,7 +113,6 @@ bool VideoService::processReplyError(const QNetworkReply *reply, QString method)
     return false;
 }
 
-
 void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 {
     processReplyError(reply,"init");
