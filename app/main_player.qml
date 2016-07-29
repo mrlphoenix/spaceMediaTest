@@ -38,6 +38,7 @@ Item {
     property url brand_logoImage:                   "logo.svg"
     property url brand_logoLabel:                   "logo_teleds.png"
     property url brand_audioIcon:                   "audio.svg"
+    property url brand_menu_bg_image:               "menu_background_horizontal.png"
 
 
     //properties for default brand theme
@@ -51,6 +52,7 @@ Item {
     property url brand_default_logoImage:                   "logo.svg"
     property url brand_default_logoLabel:                   "logo_teleds.png"
     property url brand_default_audioIcon:                   "audio.svg"
+    property url brand_default_menu_bg_image:               "menu_background_horizontal.png"
 
     //properties for seamless video player
     property bool preloader: false
@@ -749,6 +751,13 @@ Item {
         onNext: {
             //sideBrowser::next
         }
+    }*/
+//android:excludeFromRecents="true"
+  /*  TeleDSMenu{
+        id: menu
+        color1: brand_backgroundColor
+        color2: brand_foregroundColor
+        logo: brand_logoImage
     }*/
 
     Dialog {

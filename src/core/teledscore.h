@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QProcess>
 #include <QHash>
+#include <QScopedPointer>
 #include "soundwidgetinfo.h"
 #include "videoservice.h"
 #include "videodownloader.h"
@@ -15,6 +16,8 @@
 #include "platformspecific.h"
 #include "skinmanager.h"
 #include "qhttpserver.h"
+#include "qhttprequest.h"
+#include "qhttpresponse.h"
 
 
 class BatteryStatus
@@ -34,9 +37,12 @@ private:
     bool isActive;
 };
 
+
+
 class TeleDSCore : public QObject
 {
     Q_OBJECT
+    friend class HTTPServerDataReceiver;
 public:
     explicit TeleDSCore(QObject *parent = 0);
 
@@ -46,11 +52,17 @@ public slots:
     //slot is called when we should reinit player
     void initPlayer();
 
+
+    void setupHttpServer();
+  //  void runMyserverRequest();
+  //  void myServerResponse(QNetworkReply * reply);
+
     //slot is called after player init backend response
     void initResult(InitRequestResult result);
     //slot is called when hardware info is ready
     void hardwareInfoReady(Platform::HardwareInfo info);
 
+    void handleNewRequest(QHttpRequest * request, QHttpResponse * response);
 
     //slots for automatic shutdown
     void checkForAutomaticShutdown();
@@ -118,6 +130,28 @@ protected:
 
     bool shouldShowPlayer;
 
+
+    QHttpServer * httpserver;
+    QHash<QString, QHash<QString, QByteArray> > storedData;
+    QNetworkAccessManager myServerManager;
+};
+class HTTPServerDataReceiver : public QObject
+{
+    Q_OBJECT
+public:
+    HTTPServerDataReceiver(TeleDSCore * core, QHttpRequest * request, QHttpResponse * response, QString widgetId, QString contentId);
+    ~HTTPServerDataReceiver(){;}
+signals:
+    void ready();
+private slots:
+    void accumulate(const QByteArray &data);
+    void reply();
+private:
+    QScopedPointer<QHttpRequest> req;
+    QHttpResponse * res;
+    QByteArray data;
+    TeleDSCore * core;
+    QString widgetId, contentId;
 };
 
 #endif // TELEDSCORE_H

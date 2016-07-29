@@ -757,6 +757,25 @@ void Platform::PlatformSpecific::setResetWindow(bool enabled)
 #endif
 }
 
+QString Platform::PlatformSpecific::getConnectionName()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    QString result;
+    if (interfaces.count() > 0)
+    {
+        foreach (const QNetworkInterface &interface, interfaces)
+        {
+            if (interface.flags().testFlag(QNetworkInterface::IsUp) && interface.flags().testFlag(QNetworkInterface::IsRunning))
+            {
+                return interface.humanReadableName();
+            }
+        }
+    }
+    return result;
+#endif
+}
+
 void Platform::PlatformSpecific::generateSystemInfo()
 {
     thread->generateSystemInfo();

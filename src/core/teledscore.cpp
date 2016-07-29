@@ -19,6 +19,8 @@
 #include "sslencoder.h"
 #include "platformdefines.h"
 #include "platformspecific.h"
+#include "qhttprequest.h"
+#include "qhttpresponse.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
@@ -113,10 +115,42 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     }
 
     downloader = 0;
+    setupHttpServer();
     qDebug() << "TELEDS initialization done";
 }
 
+void TeleDSCore::setupHttpServer()
+{
+    httpserver = new QHttpServer(this);
+    httpserver->listen(16080);
+    connect(httpserver,SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)),this,SLOT(handleNewRequest(QHttpRequest*,QHttpResponse*)));
+    connect(&myServerManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(myServerResponse(QNetworkReply*)));
+   // QTimer::singleShot(3000,this,SLOT(runMyserverRequest()));
+}
+/*
+void TeleDSCore::runMyserverRequest()
+{
+    static int i = 0;
+    if (i == 0)
+    {
+        myServerManager.put(QNetworkRequest(QUrl("http://localhost:16080/weather/data")), QString("26 10").toLocal8Bit());
+        i = 1;
+        QTimer::singleShot(500,this,SLOT(runMyserverRequest()));
+    }
+    else
+    {
+        myServerManager.get(QNetworkRequest(QUrl("http://localhost:16080/weather/data")));
+    }
+}
 
+void TeleDSCore::myServerResponse(QNetworkReply *reply)
+{
+    if (reply->error())
+        qDebug() << "TeleDSCore::replyError!" << reply->errorString();
+    qDebug() << "TeleDSCore::myServerTest >" << reply->readAll();
+}
+
+*/
 void TeleDSCore::initPlayer()
 {
     qDebug() << "!!! Video service initialization";
@@ -166,6 +200,74 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     QJsonDocument doc(jsonBody);
     QByteArray jsonData = doc.toJson();
     videoService->advancedInit(jsonData);
+}
+
+void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response)
+{
+    QString path = request->path();
+    if (request->method() == QHttpRequest::HTTP_GET)
+    {
+        QStringList tokens = path.split("/");
+        if (tokens.count() == 3)
+        {
+            QString widgetId = tokens[1];
+            QString contentId = tokens[2];
+            if (storedData.contains(widgetId)){
+                if (storedData[widgetId].contains(contentId))
+                {
+                    QByteArray data = storedData[widgetId][contentId];
+
+                    response->writeHead(200);
+                    response->setHeader("Content-Type","text/plain");
+                    response->setHeader("Content-Length", QString::number(data.size()));
+                    response->end(data);
+                    request->deleteLater();
+                }
+            }
+            else
+            {
+                QString notFound = "Not Found";
+                response->writeHead(404);
+                response->setHeader("Content-Type","text/plain");
+                response->setHeader("Content-Length", QString::number(notFound.toLocal8Bit().size()));
+                response->end(notFound.toLocal8Bit());
+            }
+        }
+        else
+        {
+            QString wrongRequest = "Bad Request: cant recognize tokens";
+            response->writeHead(400);
+            response->setHeader("Content-Type","text/plain");
+            response->setHeader("Content-Length", QString::number(wrongRequest.toLocal8Bit().size()));
+            response->end(wrongRequest.toLocal8Bit());
+        }
+    }
+    else if (request->method() == QHttpRequest::HTTP_PUT)
+    {
+        QStringList tokens = path.split("/");
+        if (tokens.count() == 3)
+        {
+            QString widgetId = tokens[1];
+            QString contentId = tokens[2];
+            new HTTPServerDataReceiver(this,request,response,widgetId, contentId);
+        }
+        else
+        {
+            QString wrongRequest = "Bad Request: cant recognize tokens";
+            response->writeHead(400);
+            response->setHeader("Content-Type","text/plain");
+            response->setHeader("Content-Length", QString::number(wrongRequest.toLocal8Bit().size()));
+            response->end(wrongRequest.toLocal8Bit());
+        }
+    }
+    else
+    {
+        QByteArray unsupported = QString("Unsupported method").toLocal8Bit();
+        response->writeHead(405);
+        response->setHeader("Content-Type","text/plain");
+        response->setHeader("Content-Length", QString::number(unsupported.size()));
+        response->end(unsupported);
+    }
 }
 
 void TeleDSCore::checkForAutomaticShutdown()
@@ -530,4 +632,34 @@ bool BatteryStatus::checkIfNeedToShutDown(Platform::BatteryInfo status)
             return true;
     }
     return false;
+}
+
+HTTPServerDataReceiver::HTTPServerDataReceiver(TeleDSCore *core, QHttpRequest *request, QHttpResponse *response, QString widgetId, QString contentId) :
+    req(request),
+    res(response)
+{
+    connect(request, SIGNAL(data(const QByteArray&)), this, SLOT(accumulate(const QByteArray&)));
+    connect(request, SIGNAL(end()), this, SLOT(reply()));
+    connect(res, SIGNAL(done()), this, SLOT(deleteLater()));
+    this->core = core;
+    this->widgetId = widgetId;
+    this->contentId = contentId;
+}
+
+void HTTPServerDataReceiver::accumulate(const QByteArray &data)
+{
+    this->data.append(data);
+}
+
+void HTTPServerDataReceiver::reply()
+{
+    qDebug() << "TeleDSCore::HTTPServerDataReceiver::reply() << " << data;
+    if (!core->storedData.contains(widgetId))
+        core->storedData[widgetId] = QHash<QString, QByteArray>();
+    core->storedData[widgetId][contentId] = data;
+    QByteArray successResponse = QString("Success").toLocal8Bit();
+    res->writeHead(201);
+    res->setHeader("Content-Type","text/plain");
+    res->setHeader("Content-Length", QString::number(successResponse.size()));
+    res->end(successResponse);
 }

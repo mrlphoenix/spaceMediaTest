@@ -13,54 +13,10 @@ void RandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 
 QString RandomPlaylist::next()
 {
-/*    qDebug() << "RandomPlaylist::next";
-    shuffle();
-    bool found = false;
-    QString result;
-
-    //first we need to try to find proper item in fixed | floating types
-    //test item for delay, timeRange, DateRange.
-    //In future: test for GeoTargeting.
-    foreach (const PlaylistAPIResult::PlaylistItem &item, fixedFloatingItems)
-        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
-        {
-            found = true;
-            QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addSecs(item.play_timeout);
-            lastTimeShowed[item.id] = delayPassTime;
-            result = item.id;
-            break;
-        }
-    //if we didnt found item in fixed | floating types - we need to find it in floating | none parts of playlist
-    //note that we dont test item for delay
-    if (!found)
-        foreach (const PlaylistAPIResult::PlaylistItem &item, floatingNoneItems)
-            if (item.checkTimeTargeting() && item.checkDateRange())
-            {
-                QDateTime delayPassTime = QDateTime::currentDateTime();
-                delayPassTime.addSecs(item.play_timeout);
-                lastTimeShowed[item.id] = delayPassTime;
-                result = item.id;
-                break;
-            }
-    return result;*/
-    return "";
 }
 
 void RandomPlaylist::splitItems()
 {
-  /*  fixedFloatingItems.clear();
-    floatingNoneItems.clear();
-    foreach (const PlaylistAPIResult::PlaylistItem &item, playlist.items)
-        if (item.play_type == "fixed")
-            fixedFloatingItems.append(item);
-        else if (item.play_type == "none")
-            floatingNoneItems.append(item);
-        else
-        {
-            fixedFloatingItems.append(item);
-            floatingNoneItems.append(item);
-        }*/
 }
 
 void RandomPlaylist::shuffle()

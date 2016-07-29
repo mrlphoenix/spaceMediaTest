@@ -45,7 +45,8 @@ RESOURCES += \
     qml.qrc
 
 DISTFILES += android/AndroidManifest.xml \
-    android/src/org/qtproject/qt5/android/bindings/KioskService.java
+    android/src/org/qtproject/qt5/android/bindings/KioskService.java \
+    TeleDSMenu.qml
 QML_IMPORT_PATH =
 
 LIBS += -lssl -lcrypto

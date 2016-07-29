@@ -167,6 +167,7 @@ public:
 
     static QString getFileHash(QString filename);
     static void setResetWindow(bool enabled);
+    static QString getConnectionName();
 
 public slots:
     void generateSystemInfo();
