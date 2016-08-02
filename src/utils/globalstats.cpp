@@ -175,3 +175,13 @@ bool GlobalStats::shouldUpdateSunrise()
     }
     return updateValue;
 }
+
+void GlobalStats::setSystemData(QString tag, QByteArray data)
+{
+    systemData[tag] = data;
+}
+
+QByteArray GlobalStats::getSystemData(QString tag)
+{
+    return systemData[tag];
+}

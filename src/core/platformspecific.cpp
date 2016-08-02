@@ -10,6 +10,8 @@
 #include <QDebug>
 #include <QCryptographicHash>
 #include <QDataStream>
+#include <QNetworkConfigurationManager>
+#include <QNetworkSession>
 #include "singleton.h"
 #include "globalstats.h"
 #include "platformspecific.h"
@@ -182,6 +184,7 @@ QString Platform::PlatformSpecificWorker::getUniqueId()
     result = result + QString::number(len);*/
 
     //if platform is Android - get DeviceID using JNI
+    qDebug() << "Platform::PlatformSpecificWorker::getUniqueId()";
     QAndroidJniEnvironment env;
     jclass contextClass = env->FindClass("android/content/Context");
     jfieldID fieldId = env->GetStaticFieldID(contextClass, "TELEPHONY_SERVICE", "Ljava/lang/String;");
@@ -191,8 +194,11 @@ QString Platform::PlatformSpecificWorker::getUniqueId()
     QAndroidJniObject qtActivityObj = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",  "activity", "()Landroid/app/Activity;");
     jobject telephonyManager = env->CallObjectMethod(qtActivityObj.object<jobject>(), methodId, telephonyManagerType);
     methodId = env->GetMethodID(telephonyManagerClass, "getDeviceId", "()Ljava/lang/String;");
+    qDebug() << "before Calling!";
     jstring jstr = (jstring) env->CallObjectMethod(telephonyManager, methodId);
-    jsize len = env->GetStringUTFLength(jstr);
+    jsize len = 0;
+    if (jstr)
+        len = env->GetStringUTFLength(jstr);
     if (len == 0)
         return "";
     qDebug() << "get unique id" << len;
@@ -201,6 +207,7 @@ QString Platform::PlatformSpecificWorker::getUniqueId()
     env->GetStringUTFRegion(jstr, 0, len, buf_devid);
     QString result(buf_devid);
     delete buf_devid;
+    qDebug() << "UID=" << result;
     return result;
 #endif
 
@@ -760,19 +767,11 @@ void Platform::PlatformSpecific::setResetWindow(bool enabled)
 QString Platform::PlatformSpecific::getConnectionName()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    QString result;
-    if (interfaces.count() > 0)
-    {
-        foreach (const QNetworkInterface &interface, interfaces)
-        {
-            if (interface.flags().testFlag(QNetworkInterface::IsUp) && interface.flags().testFlag(QNetworkInterface::IsRunning))
-            {
-                return interface.humanReadableName();
-            }
-        }
-    }
-    return result;
+    QAndroidJniObject status = QAndroidJniObject::callStaticObjectMethod<jstring>("org.qtproject.qt5.android.bindings.QtActivity","getInternetConnectionStatus");
+    return status.toString().replace("\"","");
+#endif
+#ifdef PLATFORM_DEFINE_RPI
+    return "";
 #endif
 }
 

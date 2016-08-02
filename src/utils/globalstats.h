@@ -47,6 +47,9 @@ public:
     bool shouldUpdateSunset();
     bool shouldUpdateSunrise();
 
+    void setSystemData(QString tag, QByteArray data);
+    QByteArray getSystemData(QString tag);
+
     struct Report
     {
         int downloadCount;
@@ -90,6 +93,7 @@ private:
 
     QTime sunrise, sunset;
     QTime measureSunrise, measureSunset;
+    QHash<QString, QByteArray> systemData;
 
 };
 

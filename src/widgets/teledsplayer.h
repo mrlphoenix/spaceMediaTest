@@ -56,15 +56,11 @@ public slots:
     void invokeDownloadingView();
     void invokeEnablePreloading();
     void invokeStop();
-    /*
-     *  "brand_background": "",
-  "brand_logo": "",
-  "brand_color_1": "",
-  "brand_color_2": "",
-  "brand_teleds_copyright": 0
-     * */
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3);
     void invokeRestoreDefaultTheme();
+
+    void invokeSetLicenseData();
+    void invokeSetDeviceInfo();
 
     void next();
     void playNext();

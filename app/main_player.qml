@@ -61,6 +61,14 @@ Item {
     //properties for cross content managing
     property string currentType: "null"
 
+    property string systemDeviceName: ""
+    property string systemConnectionName: ""
+    property string systemEULAText: ""
+    property string systemPrivacyPolicyText: ""
+    property string systemOpensourceText: ""
+    property string systemLegalText: ""
+    property string systemVersion: ""
+
     signal nextItem()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
@@ -71,6 +79,20 @@ Item {
     onHeightChanged: {
         heightP = height
         widthP = width
+    }
+
+    function setLicenseText(eula, privacyPolicy, openSource, legal)
+    {
+        console.log("E.l=" + eula.length)
+        systemEULAText = eula
+        systemPrivacyPolicyText = privacyPolicy
+        systemOpensourceText = openSource
+        systemLegalText = legal
+    }
+    function setDeviceInfo(name, conn)
+    {
+        systemDeviceName = name
+        systemConnectionName = conn
     }
 
     function setTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, brandGRColor)
@@ -245,7 +267,7 @@ Item {
         }
     }
     function setVersion(version){
-        versionText.text = version
+        systemVersion = version
     }
 
     function setNoItemsLogo(link){
@@ -627,7 +649,7 @@ Item {
         id: versionText
         x: parent.width - width
         y: parent.height - height
-        text: ""
+        text: systemVersion
     }
     /*
     Image {
@@ -753,12 +775,43 @@ Item {
         }
     }*/
 //android:excludeFromRecents="true"
-  /*  TeleDSMenu{
+
+    TeleDSMenu{
         id: menu
-        color1: brand_backgroundColor
+        color1: (brand_backgroundColor == brand_default_backgroundColor)? "white" : brand_backgroundColor
         color2: brand_foregroundColor
         logo: brand_logoImage
-    }*/
+        screenWidth: item.width
+        screenHeight: item.height
+        visible: false
+
+        eula: systemEULAText
+        privacyPolicy: systemPrivacyPolicyText
+        openSource: systemOpensourceText
+        legal: systemLegalText
+
+        deviceName: systemDeviceName
+        deviceConnection: systemConnectionName
+        deviceVersion: systemVersion
+
+        onPlayerClicked: {
+            menu.visible = false
+            setRestoreModeTrue()
+        }
+        onExitClicked: {
+            dialogCloseTimer.start()
+            dialogAndroid.open()
+            dialogButtonOk.focus = true
+            setRestoreModeFalse()
+            if (currentType == "browser")
+            {
+                bgLogoBlock.visible = true
+                androidBrowser.visible = false
+                videoPlayer.visible = false
+            }
+            console.log("back key pressed: main")
+        }
+    }
 
     Dialog {
         id: dialogAndroid
@@ -783,8 +836,6 @@ Item {
                     anchors.centerIn: parent
                 }
             }
-
-            // Создаём горизонтальный разделитель с помощью Rectangle</center> <p/> <center
             Rectangle {
                 id: dividerHorizontal
                 color: brand_borderGrayColor
@@ -822,7 +873,6 @@ Item {
                     }
                     onClicked: {
                         dialogAndroid.close()
-                        setRestoreModeTrue()
                         if (currentType == "browser")
                         {
                             androidBrowser.visible = true
@@ -835,6 +885,7 @@ Item {
                         }
 
                         item.focus = true
+                        menu.reinit()
                     }
                 }
 
@@ -893,7 +944,7 @@ Item {
 
     Keys.onReleased:{
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
-            dialogCloseTimer.start()
+            /*dialogCloseTimer.start()
             dialogAndroid.open()
             dialogButtonOk.focus = true
             setRestoreModeFalse()
@@ -906,7 +957,18 @@ Item {
             console.log("item width: " + item.width.toString() + " item height: " + item.height.toString()+ "VIS: " + bgLogoImage.visible.toString() +"/" + bgLogoImageV.visible.toString() )
 
             event.accepted = true
-            console.log("back key pressed: main")
+            console.log("back key pressed: main")*/
+            if (menu.visible == false)
+            {
+                setRestoreModeFalse()
+                menu.restore()
+            }
+            else
+            {
+                menu.visible = false
+                setRestoreModeTrue()
+            }
+            event.accepted = true
         }
     }
 }

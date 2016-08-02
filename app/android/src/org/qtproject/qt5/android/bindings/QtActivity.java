@@ -115,7 +115,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.app.PendingIntent;
 import java.util.List;
-
+import java.net.HttpURLConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiInfo;
+import java.net.URL;
+import java.io.OutputStreamWriter;
+import java.lang.Exception;
 
 class customViewGroup extends ViewGroup {
 
@@ -137,6 +144,8 @@ class customViewGroup extends ViewGroup {
 public class QtActivity extends Activity
 {
     private static boolean shouldRestoreWindowOnPause = true;
+    public static String internetConnectionStatus = "Offline";
+    public static String getInternetConnectionStatus(){return internetConnectionStatus;}
 
     public static void setRestoreModeTrue(){
         Log.i("TeleDS", "java:setRestoreModeTrue");
@@ -151,6 +160,9 @@ public class QtActivity extends Activity
     private static final int MINISTRO_API_LEVEL = 5; // Ministro api level (check IMinistro.aidl file)
     private static final int NECESSITAS_API_LEVEL = 2; // Necessitas api level used by platform plugin
     private static final int QT_VERSION = 0x050100; // This app requires at least Qt version 5.1.0
+    private static boolean sendWifiThreadRunning = true;
+
+    private Thread t = null;
 
     private static final String ERROR_CODE_KEY = "error.code";
     private static final String ERROR_MESSAGE_KEY = "error.message";
@@ -229,6 +241,32 @@ public class QtActivity extends Activity
                                                         // this repository is used to push Qt snapshots.
     private String[] m_qtLibs = null; // required qt libs
     private int m_displayDensity = -1;
+
+    public void sendWifiName()
+    {
+        String ssid = null;
+        ConnectivityManager connManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (networkInfo.isConnected()) {
+            final WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+            final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !(connectionInfo.getSSID().equals(""))) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        else
+        {
+            NetworkInfo networkInfoMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            if (networkInfoMobile.isConnected()){
+                ssid = "Mobile";
+            }
+            else
+                ssid = "Offline";
+        }
+        Log.i("TeleDSC", ssid);
+        internetConnectionStatus = ssid;
+    }
+
 
     public QtActivity()
     {
@@ -951,6 +989,22 @@ public class QtActivity extends Activity
 	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         preventStatusBarExpansion(this);
       //  startKioskService();
+
+      t = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          do {
+            sendWifiName();
+            try {
+              Thread.sleep(TimeUnit.SECONDS.toMillis(15));
+            } catch (InterruptedException e) {
+              Log.i("TeleDS", "Thread interrupted: 'KioskService'");
+            }
+          }while(sendWifiThreadRunning);
+        }
+      });
+
+      t.start();
     }
     private void startKioskService() { // ... and this method
         Log.i("TeleDS", "startKiostService");
@@ -973,7 +1027,6 @@ public class QtActivity extends Activity
         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 
         localLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-        //http://stackoverflow.com/questions/1016896/get-screen-dimensions-in-pixels
         int resId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
         int result = 0;
         if (resId > 0) {
@@ -1123,9 +1176,7 @@ public class QtActivity extends Activity
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-                shouldRestoreWindowOnPause = false;
-                Log.i("onKeyDown", "TeleDSHOME Pressed");
-                //return true;
+                //shouldRestoreWindowOnPause = false;
             }
         if (QtApplication.m_delegateObject != null && QtApplication.onKeyDown != null)
             return (Boolean) QtApplication.invokeDelegateMethod(QtApplication.onKeyDown, keyCode, event);
@@ -1430,8 +1481,10 @@ public class QtActivity extends Activity
     @Override
     protected void onStop()
     {
+        sendWifiThreadRunning = false;
         super.onStop();
         QtApplication.invokeDelegate();
+
     }
     //---------------------------------------------------------------------------
 

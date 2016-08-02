@@ -21,11 +21,14 @@
 #include "platformspecific.h"
 #include "qhttprequest.h"
 #include "qhttpresponse.h"
+#include "statictext.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
     DatabaseInstance;
     PlatformSpecificService;
+    StaticTextService;
+    StaticTextService.init();
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
 
 
@@ -657,6 +660,9 @@ void HTTPServerDataReceiver::reply()
     if (!core->storedData.contains(widgetId))
         core->storedData[widgetId] = QHash<QString, QByteArray>();
     core->storedData[widgetId][contentId] = data;
+    if (widgetId == "system")
+        GlobalStatsInstance.setSystemData(contentId, data);
+    qDebug() << "TeleDSCore::SERVER-> " + widgetId + " " + contentId << data;
     QByteArray successResponse = QString("Success").toLocal8Bit();
     res->writeHead(201);
     res->setHeader("Content-Type","text/plain");

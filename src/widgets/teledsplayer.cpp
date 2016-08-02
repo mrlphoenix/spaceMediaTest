@@ -6,6 +6,7 @@
 #include "globalconfig.h"
 #include "sunposition.h"
 #include "version.h"
+#include "statictext.h"
 
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
@@ -22,6 +23,8 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     QTimer::singleShot(500,this,SLOT(bindObjects()));
     QTimer::singleShot(500,this,SLOT(invokeVersionText()));
+    QTimer::singleShot(500,this,SLOT(invokeSetLicenseData()));
+
 
    // show();
 
@@ -160,6 +163,7 @@ void TeleDSPlayer::invokeDownloadDone()
 {
     qDebug() << "invoking download completed";
     QMetaObject::invokeMethod(viewRootObject,"downloadComplete");
+    invokeSetDeviceInfo();
 }
 
 void TeleDSPlayer::invokeVersionText()
@@ -179,6 +183,7 @@ void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playe
                               Q_ARG(QVariant, urlParam),
                               Q_ARG(QVariant, playerIdParam),
                               Q_ARG(QVariant, updateDelayParam));
+    invokeSetDeviceInfo();
 }
 
 void TeleDSPlayer::invokeNoItemsView(QString url)
@@ -186,6 +191,7 @@ void TeleDSPlayer::invokeNoItemsView(QString url)
     qDebug() << "invokeNoItemsView";
     QVariant urlParam(url);
     QMetaObject::invokeMethod(viewRootObject,"setNoItemsLogo", Q_ARG(QVariant, urlParam));
+    invokeSetDeviceInfo();
 }
 
 void TeleDSPlayer::invokeDownloadingView()
@@ -235,6 +241,33 @@ void TeleDSPlayer::invokeRestoreDefaultTheme()
     qDebug() << "TeleDSPlayer::invokeRestoreDefaultTheme";
     QMetaObject::invokeMethod(viewRootObject, "restoreDefaultTheme");
     this->show();
+}
+
+void TeleDSPlayer::invokeSetLicenseData()
+{
+    qDebug() << "TeleDSPlayer::invokeSetLicenseData";
+    QVariant eulaParam = StaticTextService.getEula();
+    QString eula = StaticTextService.getEula();
+    qDebug() << "TeleDSPlayer::invoke eula(" + QString::number(eula.length()) + ")";
+    QVariant privacyPolicyParam = StaticTextService.getPrivacyPolicy();
+    QVariant opensourceParam = StaticTextService.getOpenSource();
+    QVariant legalParam = StaticTextService.getLegal();
+    QMetaObject::invokeMethod(viewRootObject, "setLicenseText",
+                              Q_ARG(QVariant, eulaParam),
+                              Q_ARG(QVariant, privacyPolicyParam),
+                              Q_ARG(QVariant, opensourceParam),
+                              Q_ARG(QVariant, legalParam));
+}
+
+void TeleDSPlayer::invokeSetDeviceInfo()
+{
+    qDebug() << "TeleDSPlayer::invokeSetDeviceInfo";
+    SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
+    QVariant nameParam = settings.name;
+    QVariant connectionName = PlatformSpecificService.getConnectionName();
+    QMetaObject::invokeMethod(viewRootObject, "setDeviceInfo",
+                              Q_ARG(QVariant, nameParam),
+                              Q_ARG(QVariant, connectionName));
 }
 
 void TeleDSPlayer::next()
