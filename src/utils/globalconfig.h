@@ -9,6 +9,8 @@
 #include <QJsonArray>
 #include <singleton.h>
 
+#include "videoserviceresult.h"
+
 
 //class contains current player config
 //as its signleton you can access it by GlobalConfigInstance
@@ -95,6 +97,8 @@ private:
     int getPlaylistTimerTime;
 
     QJsonObject settings;
+    SettingsRequestResult settingsObject;
+
     QJsonArray virtualScreens, areas;
     QJsonObject playlist;
     int playlistNetworkErrorId;

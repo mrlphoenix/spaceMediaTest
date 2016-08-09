@@ -111,6 +111,7 @@ void GlobalConfig::setReleyEnabled(bool first, bool second)
 void GlobalConfig::setSettings(QJsonObject json)
 {
     settings = json;
+    settingsObject = SettingsRequestResult::fromJson(json);
     save();
 }
 

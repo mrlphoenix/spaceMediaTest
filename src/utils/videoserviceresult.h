@@ -45,8 +45,9 @@ struct SettingsRequestResult
     double gps_lat;
     double gps_long;
     bool autobright;
-    int min_bright;
-    int max_bright;
+    int bright_night;
+    int bright_day;
+
     int stats_interval;
 
     //branding
@@ -57,12 +58,23 @@ struct SettingsRequestResult
     QString brand_logo_hash;
     QString brand_color_1;
     QString brand_color_2;
-    int brand_teleds_copyright;
+    QString brand_menu_color_1;
+    QString brand_menu_color_2;
+    QString brand_menu_background;
+    QString brand_menu_background_hash;
+    QString brand_menu_logo;
+    QString brand_menu_logo_hash;
+
+    bool brand_repeat;
+    bool brand_menu_repeat;
+    bool brand_teleds_copyright;
+    bool brand_menu_teleds_copyright;
 
     //auto off
     int off_power_loss;
     int off_charge_percent;
-    bool autooff_active;
+    bool autooff_by_battery_level_active;
+    bool autooff_by_discharging_time_active;
 };
 
 struct PlaylistAPIResult

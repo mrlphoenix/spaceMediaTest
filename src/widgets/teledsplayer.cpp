@@ -219,7 +219,7 @@ void TeleDSPlayer::invokeStop()
     QMetaObject::invokeMethod(viewRootObject, "stopPlayer");
 }
 
-void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3)
+void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo)
 {
     qDebug() << "TeleDSPlayer::invokeSetTheme";
     QVariant backgroundURLParam = QUrl(backgroundURL);
@@ -227,13 +227,37 @@ void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QStrin
     QVariant color1Param = QColor(color1);
     QVariant color2Param = QColor(color2);
     QVariant color3Param = QColor(color3);
+    QVariant tileModeParam = tileMode;
+    QVariant showTeleDSLogoParam = showTeleDSLogo;
     QMetaObject::invokeMethod(viewRootObject, "setTheme",
                               Q_ARG(QVariant, backgroundURLParam),
                               Q_ARG(QVariant, logoURLParam),
                               Q_ARG(QVariant, color1Param),
                               Q_ARG(QVariant, color2Param),
-                              Q_ARG(QVariant, color3Param));
+                              Q_ARG(QVariant, color3Param),
+                              Q_ARG(QVariant, tileModeParam),
+                              Q_ARG(QVariant, showTeleDSLogoParam));
     this->show();
+}
+
+void TeleDSPlayer::invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo)
+{
+    //setMenuTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, tileMode, showTeleDSLogo)
+    qDebug() << "TeleDSPlayer::invokeSetMenuTheme";
+    QVariant backgroundURLParam = QUrl(backgroundURL);
+    QVariant logoUrlParam = QUrl(logoURL);
+    QVariant color1Param = QColor(color1);
+    QVariant color2Param = QColor(color2);
+    QVariant tileModeParam = tileMode;
+    QVariant showTeleDSLogoParam = showTeleDSLogo;
+
+    QMetaObject::invokeMethod(viewRootObject, "setMenuTheme",
+                              Q_ARG(QVariant, backgroundURLParam),
+                              Q_ARG(QVariant, logoUrlParam),
+                              Q_ARG(QVariant, color1Param),
+                              Q_ARG(QVariant, color2Param),
+                              Q_ARG(QVariant, tileModeParam),
+                              Q_ARG(QVariant, showTeleDSLogoParam));
 }
 
 void TeleDSPlayer::invokeRestoreDefaultTheme()
@@ -304,8 +328,11 @@ void TeleDSPlayer::playNext()
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
         SunsetSystem sunSystem;
+        int minBrightness = std::min(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
+        int maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
         double originalValue = sunSystem.getLinPercent();
-        double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
+        double brightnessValue = sunSystem.getSinPercent() * (maxBrightness - minBrightness) + minBrightness;
+        //double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
         qDebug() <<"Autobrightness is active with value: LINEAR= " + QString::number(originalValue) + " , SIN= " + QString::number(brightnessValue);
         if (brightnessValue/100. < 0.05)
             setBrightness(1.0);

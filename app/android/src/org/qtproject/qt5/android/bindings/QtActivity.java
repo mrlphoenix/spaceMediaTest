@@ -263,7 +263,7 @@ public class QtActivity extends Activity
             else
                 ssid = "Offline";
         }
-        Log.i("TeleDSC", ssid);
+        //Log.i("TeleDSC", ssid);
         internetConnectionStatus = ssid;
     }
 

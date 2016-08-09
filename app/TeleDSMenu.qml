@@ -24,6 +24,7 @@ Item {
     property string deviceConnection: ""
     property string deviceVersion: ""
 
+    property bool showTeleDSLogo: true
 
     signal playerClicked()
     signal exitClicked()
@@ -36,7 +37,7 @@ Item {
         else
         {
             console.log("GBB: " + (Screen.width - 96))
-            return Screen.width * 0.58
+            return Screen.width * 0.55
         }
     }
     function fontSizeSP(coef)
@@ -83,18 +84,53 @@ Item {
         exitTabRect.visible = false
     }
 
+    function setTileMode()
+    {
+        menuBgTiledImage.visible = true
+        menuBgImage.visible = false
+    }
+    function setDefaultMode()
+    {
+        menuBgImage.visible = true
+        menuBgTiledImage.visible = false
+    }
+    function getLogoTextOpacity()
+    {
+        if (showTeleDSLogo)
+            return 1.0
+        else
+            return 0.0
+    }
+    function getMenuTitleText()
+    {
+        if (showTeleDSLogo)
+            return "About TeleDS"
+        else
+            return "About"
+    }
+    function getMenuVersionText()
+    {
+        if (showTeleDSLogo)
+            return "You are running TeleDS Player Version "
+        else
+            return "You are running Player Version "
+    }
+
     Image {
         id: menuBgImage
-        source: brand_menu_bg_image
+        source: brand_menu_background
         fillMode: Image.PreserveAspectCrop
         clip: true
         anchors.fill: parent
     }
-    Rectangle {
-        id: grayRect
+    Image {
+        id: menuBgTiledImage
+        source: brand_menu_background
+        fillMode: Image.Tile
+        horizontalAlignment: Image.AlignLeft
+        verticalAlignment: Image.AlignTop
         anchors.fill: parent
-        color: "#333e47"
-        opacity: 0.92
+        visible: false
     }
 
     Image {
@@ -114,6 +150,7 @@ Item {
         anchors.verticalCenter: menuLogoImage
         anchors.left: menuLogoImage.right
         y: menuLogoImage.y + (menuLogoImage.height-height)/2
+        opacity: getLogoTextOpacity()
     }
 
     RowLayout{
@@ -234,7 +271,7 @@ Item {
         width: menuTitleBlockText.width + 4
         Text{
             id: menuTitleBlockText
-            text: "About TeleDS"
+            text: getMenuTitleText()
             font.family: ubuntuFont.name
             color: color1
             font.pixelSize: fontSizeSP(27.75)
@@ -252,7 +289,7 @@ Item {
 
     Text {
         id: menuTitleBlockVersionText
-        text: "You are running TeleDS Player Version " + deviceVersion
+        text: getMenuVersionText() + deviceVersion
         color: color1
         font.pixelSize: fontSizeSP(14.8)
         font.weight: Font.Light

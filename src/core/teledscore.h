@@ -23,10 +23,10 @@
 class BatteryStatus
 {
 public:
-    BatteryStatus(){minCapacityLevel = 0; maxTimeWithoutPower = -1; inactiveTime = 0; isActive = false;}
+    BatteryStatus(){minCapacityLevel = 0; maxTimeWithoutPower = -1; inactiveTime = 0; autooff_by_battery_level_active = false; autooff_by_discharging_time_active = false;}
     ~BatteryStatus(){;}
     void setConfig(int minCapacityLevel, int maxTimeWithoutPower);
-    void setActive(bool isActive);
+    void setActive(bool autooff_by_battery_level_active, bool autooff_by_discharging_time_active);
     bool checkIfNeedToShutDown(Platform::BatteryInfo status);
 
 private:
@@ -34,7 +34,8 @@ private:
     int minCapacityLevel, maxTimeWithoutPower;
     int inactiveTime;
     QDateTime lastTimeChecked;
-    bool isActive;
+    bool autooff_by_battery_level_active;
+    bool autooff_by_discharging_time_active;
 };
 
 

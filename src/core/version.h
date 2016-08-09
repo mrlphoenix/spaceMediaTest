@@ -9,28 +9,13 @@ namespace TeleDSVersion
 {
     static const int MAJOR = 1;
     static const int MINOR = 0;
-	static const int BUILD = 946;
+	static const int RELEASE = 2;
+	static const int BUILD = 975;
     QString getVersion()
     {
-        return QString::number(MAJOR) + "." + QString::number(MINOR) + "/" + QString::number(BUILD);
+        return QString::number(MAJOR) + "." + QString::number(MINOR) + "." + QString::number(RELEASE) + "/" + QString::number(BUILD);
         //return "TeleDS v" + QString::number(MAJOR) + "." + QString::number(MINOR) + "/" + QString::number(BUILD);
     }
 }
 
 #endif // VERSION_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

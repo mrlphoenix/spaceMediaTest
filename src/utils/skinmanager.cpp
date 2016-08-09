@@ -8,116 +8,160 @@
 #include "skinmanager.h"
 
 
-ThemeDesc::ThemeDesc(QString backgroundURL, QString logoURL, QString backgroundColor, QString foregroundColor)
+ThemeDesc::ThemeDesc(QString backgroundURL, QString logoURL, QString backgroundColor, QString foregroundColor,
+                     QString menuBackgroundURL, QString menuLogoURL, QString menuColor1, QString menuColor2,
+                     bool tileMode, bool showTeleDSPlayer)
 {
     this->backgroundURL = backgroundURL;
     this->logoURL = logoURL;
     this->color1 = backgroundColor;
     this->color2 = foregroundColor;
+    this->menuBackgroundURL = menuBackgroundURL;
+    this->menuLogoURL = menuLogoURL;
+    this->menuColor1 = menuColor1;
+    this->menuColor2 = menuColor2;
     this->isDefault = true;
+    this->tileMode = tileMode;
+    this->showTeleDSPlayer = showTeleDSPlayer;
 }
 
 SkinManager::SkinManager(QObject *parent) : QObject(parent)
 {
     connect(&manager,SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
-    state = IDLE;
 }
 
-void SkinManager::updateSkin(QString backgroundURL, QString logoURL, QString bgHash, QString logoHash, QString color1, QString color2)
+void SkinManager::updateSkin(QString backgroundURL, QString logoURL, QString menuBackgroundURL, QString menuLogoURL, QString bgHash, QString logoHash,
+                             QString menuBgHash, QString menuLogoHash, QString color1, QString color2, QString menuColor1, QString menuColor2,
+                             bool tileMode, bool showTeleDSPlayer, bool menuTileMode, bool menuShowTeleDSPlayer)
 {
     currentSkin.color1 = color1;
     currentSkin.color2 = color2;
     currentSkin.backgroundURL = backgroundURL;
     currentSkin.logoURL = logoURL;
+    currentSkin.menuBackgroundURL = menuBackgroundURL;
+    currentSkin.menuLogoURL = menuLogoURL;
+    currentSkin.menuColor1 = menuColor1;
+    currentSkin.menuColor2 = menuColor2;
+    currentSkin.tileMode = tileMode;
+    currentSkin.showTeleDSPlayer = showTeleDSPlayer;
+    currentSkin.menuTileMode = menuTileMode;
+    currentSkin.menuShowTeleDSPlayer = menuShowTeleDSPlayer;
 
-    currentSkin.isDefault = (backgroundURL == "" && logoURL == "" && color1 == "" && color2 == "");
+    currentSkin.isDefault = (
+                                backgroundURL.isEmpty() && logoURL.isEmpty() && menuBackgroundURL.isEmpty() && menuLogoURL.isEmpty() &&
+                                color1.isEmpty() && color2.isEmpty() && menuColor1.isEmpty() && menuColor2.isEmpty()
+                            );
 
-    bgExt = getFileExt(backgroundURL);
-    logoExt = getFileExt(logoURL);
+    componentsToDownload.clear();
 
-    needToDownloadLogo = (getLogoHash(logoExt) != logoHash);
-    bool needToDownloadBg = getBgHash(bgExt) != bgHash;
+    QString bgExt = getFileExt(backgroundURL),
+            logoExt = getFileExt(logoURL),
+            menuBgExt = getFileExt(menuBackgroundURL),
+            menuLogoExt = getFileExt(menuLogoURL);
 
-    qDebug() << "TeleDSCore::settings " << needToDownloadBg << " " << needToDownloadLogo;
-
-    if (needToDownloadBg)
+    if (getFileHash("bg", bgExt) != bgHash)
     {
-        qDebug() << "TeleDSCore::settings URL: " << backgroundURL;
-        manager.get(QNetworkRequest(QUrl(backgroundURL)));
-        state = BACKGROUND_STATE;
+        SkinComponent bgComponent;
+        bgComponent.type = SkinComponent::BACKGROUND;
+        bgComponent.source = backgroundURL;
+        bgComponent.dest = CONFIG_FOLDER + "bg" + bgExt;
+        componentsToDownload.append(bgComponent);
+    }
+    if (getFileHash("logo", logoExt) != logoHash)
+    {
+        SkinComponent logoComponent;
+        logoComponent.type = SkinComponent::LOGO;
+        logoComponent.source = logoURL;
+        logoComponent.dest = CONFIG_FOLDER + "logo" + logoExt;
+        componentsToDownload.append(logoComponent);
+    }
+    if (getFileHash("menu_bg", menuBgExt) != menuBgHash)
+    {
+        SkinComponent menuBgComponent;
+        menuBgComponent.type = SkinComponent::MENU_BACKGROUND;
+        menuBgComponent.source = menuBackgroundURL;
+        menuBgComponent.dest = CONFIG_FOLDER + "menu_bg" + menuBgExt;
+        componentsToDownload.append(menuBgComponent);
+    }
+    if (getFileHash("menu_logo", menuLogoHash) != menuLogoHash)
+    {
+        SkinComponent menuLogoComponent;
+        menuLogoComponent.type = SkinComponent::MENU_LOGO;
+        menuLogoComponent.source = menuLogoURL;
+        menuLogoComponent.dest = CONFIG_FOLDER + "menu_logo" + menuBgExt;
+        componentsToDownload.append(menuLogoComponent);
+    }
+
+
+    qDebug() << "TeleDSCore::settings|need to download " << componentsToDownload.count() << " items";
+
+    if (componentsToDownload.isEmpty())
+    {
+        currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(CONFIG_FOLDER + "bg" + bgExt);
+        currentSkin.relocatedLogoURL = QUrl::fromLocalFile(CONFIG_FOLDER + "logo" + logoExt);
+        currentSkin.relocatedMenuBackgroundURL = QUrl::fromLocalFile(CONFIG_FOLDER + "menu_bg" + menuBgExt);
+        currentSkin.relocatedMenuLogoURL = QUrl::fromLocalFile(CONFIG_FOLDER + "menu_logo" + menuLogoExt);
+        emit skinReady(currentSkin);
     }
     else
     {
-        QString filepath = CONFIG_FOLDER + "bg" + bgExt;
-        currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(filepath);
+        manager.get(QNetworkRequest(QUrl(componentsToDownload.first().source)));
     }
-    if (!needToDownloadLogo)
-    {
-        QString filepath = CONFIG_FOLDER + "logo" + logoExt;
-        currentSkin.relocatedLogoURL = QUrl::fromLocalFile(filepath);
-    }
-    if (!needToDownloadBg &&  needToDownloadLogo)
-    {
-        qDebug() << "TeleDSCore::settings URL: " << logoURL;
-        manager.get(QNetworkRequest(QUrl(logoURL)));
-        state = LOGO_STATE;
-    }
-    if (!needToDownloadBg && !needToDownloadLogo)
-    {
-        emit skinReady(currentSkin);
-    }
-
 }
 
-bool SkinManager::isSkinReady(QString backgroundURL, QString logoURL, QString bgHash, QString logoHash)
+bool SkinManager::isSkinReady(QString backgroundURL, QString logoURL,
+                              QString menuBackgroundURL, QString menuLogoURL,
+                              QString bgHash, QString logoHash,
+                              QString menuBgHash, QString menuLogoHash)
 {
-    QString bgExtension, logoExtension;
-    bgExtension = getFileExt(backgroundURL);
-    logoExtension = getFileExt(logoURL);
-    bool shouldDownloadLogo = (getLogoHash(logoExtension) != logoHash), shouldDownloadBg = (getBgHash(bgExtension) != bgHash);
-    return !shouldDownloadLogo && !shouldDownloadBg;
+    QString bgExt = getFileExt(backgroundURL),
+            logoExt = getFileExt(logoURL),
+            menuBgExt = getFileExt(menuBackgroundURL),
+            menuLogoExt = getFileExt(menuLogoURL);
+    return  (getFileHash("bg", bgExt) == bgHash) && (getFileHash("logo", logoExt) == logoHash) &&
+            (getFileHash("menu_bg", menuBgExt) == menuBgHash) && (getFileHash("menu_logo",menuLogoExt) == menuLogoHash);
 }
 
 void SkinManager::replyFinished(QNetworkReply *reply)
 {
-    qDebug() << "TeleDSCore::settingsSkinManager::replyfinished";
+    qDebug() << "TeleDSCore::settingsSkinManager::replyFinished";
     if (reply->error())
     {
         qDebug() << "TeleDSCore::settingsSkinManager::replyFinished -> network error: " + reply->errorString();
+        componentsToDownload.clear();
+        emit skinReady(currentSkin);
     }
     else
     {
-        if (state == BACKGROUND_STATE)
+        SkinComponent currentComponent = componentsToDownload.first();
+        writeToFileSync(reply->readAll(),currentComponent.dest);
+        switch (currentComponent.type)
         {
-            qDebug() << "TeleDSCore::settings SkinManager::BGState -> " << CONFIG_FOLDER + "bg" + bgExt;
-            QString filepath = CONFIG_FOLDER + "bg" + bgExt;
-            writeToFileSync(reply->readAll(),filepath);
-            cachedBgHash = "";
-            reply->deleteLater();
-            currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(filepath);
-            if (needToDownloadLogo)
-            {
-                manager.get(QNetworkRequest(QUrl(currentSkin.logoURL)));
-                state = LOGO_STATE;
-            }
-            else
-            {
-                currentSkin.relocatedLogoURL = QUrl::fromLocalFile(CONFIG_FOLDER + "logo" + logoExt);
-                state = IDLE;
-                emit skinReady(currentSkin);
-            }
+        case SkinComponent::BACKGROUND:
+            currentSkin.relocatedBackgroundURL = currentComponent.dest;
+            cachedHashes["bg"] = "";
+            break;
+        case SkinComponent::LOGO:
+            currentSkin.relocatedLogoURL = currentComponent.dest;
+            cachedHashes["logo"] = "";
+            break;
+        case SkinComponent::MENU_BACKGROUND:
+            currentSkin.relocatedMenuBackgroundURL = currentComponent.dest;
+            cachedHashes["menu_bg"] = "";
+            break;
+        case SkinComponent::MENU_LOGO:
+            currentSkin.relocatedMenuLogoURL = currentComponent.dest;
+            cachedHashes["menu_logo"] = "";
+            break;
+        default:
+            break;
         }
-        else if (state == LOGO_STATE)
-        {
-            qDebug() << "TeleDSCore::settings SkinManager::LogoState -> " << CONFIG_FOLDER + "logo" + logoExt;
-            QString filepath = CONFIG_FOLDER + "logo" + logoExt;
-            writeToFileSync(reply->readAll(),filepath);
-            cachedLogoHash = "";
-            reply->deleteLater();
-            currentSkin.relocatedLogoURL = QUrl::fromLocalFile(filepath);
-            state = IDLE;
+        componentsToDownload.removeFirst();
+        reply->deleteLater();
+        if (!componentsToDownload.isEmpty())
+            manager.get(QNetworkRequest(QUrl(componentsToDownload.first().source)));
+        else
             emit skinReady(currentSkin);
-        }
     }
 }
 
@@ -132,19 +176,13 @@ QString SkinManager::getFileExt(QString url)
     return extension;
 }
 
-QString SkinManager::getBgHash(QString ext)
+QString SkinManager::getFileHash(QString name, QString ext)
 {
-    if (cachedBgHash.isEmpty())
-        cachedBgHash = PlatformSpecificService.getFileHash(CONFIG_FOLDER + "bg" + ext);
-    return cachedBgHash;
+    if (!cachedHashes.contains(name) || cachedHashes[name].isEmpty())
+        cachedHashes[name] = PlatformSpecificService.getFileHash(CONFIG_FOLDER + name + ext);
+    return cachedHashes[name];
 }
 
-QString SkinManager::getLogoHash(QString ext)
-{
-    if (cachedLogoHash.isEmpty())
-        cachedLogoHash = PlatformSpecificService.getFileHash(CONFIG_FOLDER + "logo" + ext);
-    return cachedLogoHash;
-}
 
 void SkinManager::writeToFileSync(QByteArray data, QString filename)
 {

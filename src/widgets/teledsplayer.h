@@ -56,7 +56,8 @@ public slots:
     void invokeDownloadingView();
     void invokeEnablePreloading();
     void invokeStop();
-    void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3);
+    void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
+    void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
     void invokeRestoreDefaultTheme();
 
     void invokeSetLicenseData();

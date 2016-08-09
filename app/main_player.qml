@@ -39,6 +39,17 @@ Item {
     property url brand_logoLabel:                   "logo_teleds.png"
     property url brand_audioIcon:                   "audio.svg"
     property url brand_menu_bg_image:               "menu_background_horizontal.png"
+    //properties for menu branding
+    property color brand_menu_backgroundColor:      "#333e47"
+    property color brand_menu_foregroundColor:      "#00cdc1"
+    property url brand_menu_background:             "menu_background_horizontal.png"
+    property url brand_menu_logo:                   "logo.svg"
+
+    //properties for other branding
+    property bool brand_show_teleds_logo:           true
+    property bool brand_menu_show_teleds_logo:      true
+    property bool brand_tile_background:            false
+    property bool brand_menu_tile_background:       false
 
 
     //properties for default brand theme
@@ -53,6 +64,11 @@ Item {
     property url brand_default_logoLabel:                   "logo_teleds.png"
     property url brand_default_audioIcon:                   "audio.svg"
     property url brand_default_menu_bg_image:               "menu_background_horizontal.png"
+
+    property color brand_default_menu_backgroundColor:      "#333e47"
+    property color brand_default_menu_foregroundColor:      "#00cdc1"
+    property url brand_default_menu_background:             "menu_background_horizontal.png"
+    property url brand_default_menu_logo:                   "logo.svg"
 
     //properties for seamless video player
     property bool preloader: false
@@ -74,6 +90,7 @@ Item {
     signal gpsChanged(double lat, double lgt)
     signal setRestoreModeTrue()
     signal setRestoreModeFalse()
+
     focus: true
 
     onHeightChanged: {
@@ -95,7 +112,7 @@ Item {
         systemConnectionName = conn
     }
 
-    function setTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, brandGRColor)
+    function setTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, brandGRColor, tileMode, showTeleDSLogo)
     {
         brand_backgroundColor = brandBGColor
         brand_foregroundColor = brandFGColor
@@ -105,8 +122,29 @@ Item {
         brand_backgroundLogoVertical = brandBGLogo
         brand_logoImage = brandLogo
 
-        bgLogoBlock.setTileMode()
-        teledsLogo.opacity = 0.0
+        if (tileMode)
+            bgLogoBlock.setTileMode()
+        else
+            bgLogoBlock.setDefaultMode()
+
+        if (showTeleDSLogo)
+            teledsLogo.opacity = 1.0
+        else
+            teledsLogo.opacity = 0.0
+    }
+    function setMenuTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, tileMode, showTeleDSLogo)
+    {
+        brand_menu_backgroundColor = brandBGColor
+        brand_menu_foregroundColor = brandFGColor
+
+        brand_menu_background = brandBGLogo
+        brand_menu_logo = brandLogo
+
+        if (tileMode)
+            menu.setTileMode()
+        else
+            menu.setDefaultMode()
+        menu.showTeleDSLogo = showTeleDSLogo
     }
 
     function restoreDefaultTheme()
@@ -119,8 +157,15 @@ Item {
         brand_backgroundLogoVertical = brand_default_backgroundLogoVertical
         brand_logoImage = brand_default_logoImage
 
+        brand_menu_backgroundColor = brand_default_menu_backgroundColor
+        brand_menu_foregroundColor = brand_default_menu_foregroundColor
+        brand_menu_background = brand_default_menu_background
+        brand_menu_logo = brand_default_menu_logo
+
         teledsLogo.opacity = 1.0
         bgLogoBlock.setDefaultMode()
+        menu.setDefaultMode()
+        menu.showTeleDSLogo = true
     }
 
     function stopPlayer()
@@ -778,8 +823,8 @@ Item {
 
     TeleDSMenu{
         id: menu
-        color1: (brand_backgroundColor == brand_default_backgroundColor)? "white" : brand_backgroundColor
-        color2: brand_foregroundColor
+        color1: brand_menu_backgroundColor
+        color2: brand_menu_foregroundColor
         logo: brand_logoImage
         screenWidth: item.width
         screenHeight: item.height

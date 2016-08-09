@@ -93,9 +93,29 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
             QTimer::singleShot(1000, [settings, tdsPlayer]() mutable {
                 tdsPlayer->invokeSetTheme(settings.brand_background, settings.brand_logo, settings.brand_color_1, settings.brand_color_2, "#d7d7d7");
             });*/
+            if (skinManager->isSkinReady(settings.brand_background, settings.brand_logo,
+                                         settings.brand_menu_background, settings.brand_menu_logo,
+                                         settings.brand_background_hash, settings.brand_logo_hash,
+                                         settings.brand_menu_background_hash, settings.brand_menu_logo_hash))
+            {
+                ThemeDesc skin;
+                skin.backgroundURL = settings.brand_background;
+                skin.logoURL = settings.brand_logo;
+                skin.menuBackgroundURL = settings.brand_menu_background;
+                skin.menuLogoURL = settings.brand_menu_logo;
+                skin.color1 = settings.brand_color_1;
+                skin.color2 = settings.brand_color_2;
+                skin.menuColor1 = settings.brand_menu_color_1;
+                skin.menuColor2 = settings.brand_menu_color_2;
+            }
             skinManager->updateSkin(settings.brand_background,settings.brand_logo,
-                                   settings.brand_background_hash, settings.brand_logo_hash,
-                                   settings.brand_color_1,settings.brand_color_2);
+                                    settings.brand_menu_background, settings.brand_menu_logo,
+                                    settings.brand_background_hash, settings.brand_logo_hash,
+                                    settings.brand_menu_background_hash, settings.brand_menu_logo_hash,
+                                    settings.brand_color_1,settings.brand_color_2,
+                                    settings.brand_menu_color_1, settings.brand_menu_color_2,
+                                    settings.brand_repeat,settings.brand_teleds_copyright,
+                                    settings.brand_menu_repeat, settings.brand_menu_teleds_copyright);
 
             QTimer::singleShot(1000,[this](){this->showPlayer();});
         }
@@ -338,8 +358,8 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             //setting up autobrightness setup
             GlobalConfigInstance.setAutoBrightness(result.autobright);
           //  GlobalConfigInstance.setAutoBrightness(true);
-            GlobalConfigInstance.setMinBrightness(result.min_bright);
-            GlobalConfigInstance.setMaxBrightness(result.max_bright);
+            GlobalConfigInstance.setMinBrightness(result.bright_night);
+            GlobalConfigInstance.setMaxBrightness(result.bright_day);
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
 
             //if static gps is given - saving it in stats
@@ -353,8 +373,13 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             {
                 qDebug() << "TeleDSCore::settings brand is active!";
                 skinManager->updateSkin(result.brand_background,result.brand_logo,
-                                       result.brand_background_hash, result.brand_logo_hash,
-                                       result.brand_color_1, result.brand_color_2);
+                                        result.brand_menu_background, result.brand_menu_logo,
+                                        result.brand_background_hash, result.brand_logo_hash,
+                                        result.brand_menu_background_hash, result.brand_menu_logo_hash,
+                                        result.brand_color_1,result.brand_color_2,
+                                        result.brand_menu_color_1, result.brand_menu_color_2,
+                                        result.brand_repeat,result.brand_teleds_copyright,
+                                        result.brand_menu_repeat, result.brand_menu_teleds_copyright);
             }
             else
             {
@@ -362,13 +387,9 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
                 teledsPlayer->invokeRestoreDefaultTheme();
             }
 
-            if (result.autooff_active)
-            {
-                batteryStatus.setActive(true);
+            batteryStatus.setActive(result.autooff_by_battery_level_active, result.autooff_by_discharging_time_active);
+            if (result.autooff_by_battery_level_active || result.autooff_by_discharging_time_active)
                 batteryStatus.setConfig(result.off_charge_percent, result.off_power_loss);
-            }
-            else
-                batteryStatus.setActive(false);
         }
     }
 }
@@ -439,7 +460,11 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
     {
         auto tdsPlayer = teledsPlayer;
         QTimer::singleShot(1000, [desc, tdsPlayer]() mutable {
-            tdsPlayer->invokeSetTheme(desc.relocatedBackgroundURL.toString(), desc.relocatedLogoURL.toString(), desc.color1, desc.color2, QString("#d7d7d7"));
+            tdsPlayer->invokeSetTheme(desc.relocatedBackgroundURL.toString(),
+                                      desc.relocatedLogoURL.toString(),
+                                      desc.color1, desc.color2, QString("#d7d7d7"),
+                                      desc.tileMode, desc.showTeleDSPlayer);
+
         });
     }
     else
@@ -599,10 +624,11 @@ void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)
     this->maxTimeWithoutPower = maxTimeWithoutPower;
 }
 
-void BatteryStatus::setActive(bool isActive)
+void BatteryStatus::setActive(bool autooff_by_battery_level_active, bool autooff_by_discharging_time_active)
 {
-    this->isActive = isActive;
-    if (!isActive)
+    this->autooff_by_battery_level_active = autooff_by_battery_level_active;
+    this->autooff_by_discharging_time_active = autooff_by_discharging_time_active;
+    if (!autooff_by_battery_level_active && !autooff_by_discharging_time_active)
     {
         QDateTime invalidDate;
         lastTimeChecked = invalidDate;
@@ -612,7 +638,7 @@ void BatteryStatus::setActive(bool isActive)
 
 bool BatteryStatus::checkIfNeedToShutDown(Platform::BatteryInfo status)
 {
-    if (!isActive)
+    if (!autooff_by_battery_level_active && !autooff_by_discharging_time_active)
         return false;
     if (!lastTimeChecked.isValid())
     {
@@ -629,9 +655,9 @@ bool BatteryStatus::checkIfNeedToShutDown(Platform::BatteryInfo status)
         else
             inactiveTime+= lastTimeChecked.secsTo(currentTime);
         lastTimeChecked = currentTime;
-        if (status.value < minCapacityLevel && !status.isCharging)
+        if (autooff_by_battery_level_active && status.value < minCapacityLevel && !status.isCharging)
             return true;
-        if (maxTimeWithoutPower != -1 && inactiveTime >= maxTimeWithoutPower)
+        if (autooff_by_discharging_time_active && maxTimeWithoutPower != -1 && inactiveTime >= maxTimeWithoutPower)
             return true;
     }
     return false;

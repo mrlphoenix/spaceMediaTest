@@ -229,8 +229,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.gps_lat = data["gps_lat"].toDouble();
     result.gps_long = data["gps_long"].toDouble();
     result.autobright = data["autobright"].toBool();
-    result.min_bright = data["min_bright"].toInt();
-    result.max_bright = data["max_bright"].toInt();
+    result.bright_night = data["bright_night"].toInt();
+    result.bright_day = data["bright_day"].toInt();
     result.name = data["name"].toString();
 
     result.reley_1_enabled = !data["time_targeting_relay_1"].isNull();
@@ -248,10 +248,23 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.brand_logo_hash = data["brand_logo_hash"].toString();
     result.brand_color_1 = data["brand_color_1"].toString();
     result.brand_color_2 = data["brand_color_2"].toString();
-    result.brand_teleds_copyright = data["brand_teleds_copyright"].toInt();
+
+    result.brand_menu_background = data["brand_background_second_screen"].toString();
+    result.brand_menu_background_hash = data["brand_background_second_screen_hash"].toString();
+    result.brand_menu_logo = data["brand_logo_second_screen"].toString();
+    result.brand_menu_logo_hash = data["brand_logo_second_screen_logo"].toString();
+    result.brand_menu_color_1 = data["brand_color_1_second_screen"].toString();
+    result.brand_menu_color_2 = data["brand_color_2_second_screen"].toString();
+    result.brand_repeat = data["repeat"].toBool();
+    result.brand_menu_repeat = data["repeat_second_screen"].toBool();
+
+    result.brand_teleds_copyright = data["brand_teleds_copyright"].toBool();
+    result.brand_menu_teleds_copyright = data["brand_teleds_copyright_second_screen"].toBool();
+
     result.stats_interval = data["stats_interval"].toInt();
 
-    result.autooff_active = data["autooff_active"].toBool();
+    result.autooff_by_battery_level_active = data["autooff_by_battery_level_active"].toBool();
+    result.autooff_by_discharging_time_active = data["autooff_by_discharging_time_active"].toBool();
     result.off_power_loss = data["off_power_loss"].toInt();
     result.off_charge_percent = data["off_charge_percent"].toInt();
 
