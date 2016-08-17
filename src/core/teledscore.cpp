@@ -464,6 +464,10 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
                                       desc.relocatedLogoURL.toString(),
                                       desc.color1, desc.color2, QString("#d7d7d7"),
                                       desc.tileMode, desc.showTeleDSPlayer);
+            tdsPlayer->invokeSetMenuTheme(desc.relocatedMenuBackgroundURL.toString(),
+                                          desc.relocatedMenuLogoURL.toString(),
+                                          desc.menuColor1, desc.menuColor2,
+                                          desc.menuTileMode, desc.menuShowTeleDSPlayer);
 
         });
     }
@@ -499,7 +503,49 @@ void TeleDSCore::downloaded()
     qDebug() << "TeleDSCore::downloaded | screenCount = " << currentConfig.screens.count();
     if (currentConfig.screens.count())
     {
-        //skip "audio" area - not supported yet
+        PlayerConfig::AreaCompositionType configType = currentConfig.getType();
+
+        switch (configType)
+        {
+        default:
+        case PlayerConfig::AREA_MULTI:
+        case PlayerConfig::AREA_BROKEN:
+            teledsPlayer->invokeNoItemsView("http://teleds.com");
+            break;
+        case PlayerConfig::AREA_FULLSCREEN:
+            teledsPlayer->invokeSetDisplayMode("fullscreen");
+            teledsPlayer->invokeDownloadDone();
+            teledsPlayer->setConfig(currentConfig.getScreenByType("fullscreen"));
+            if (!teledsPlayer->isPlaying())
+            {
+                qDebug() << "TeleDSCore::downloaded -> invoke first time play!";
+                teledsPlayer->play();
+                QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
+            }
+            break;
+        case PlayerConfig::AREA_SPLIT:
+            teledsPlayer->invokeSetDisplayMode("split");
+            teledsPlayer->invokeDownloadDone();
+
+            PlayerConfig::VirtualScreen contentScreen = currentConfig.getScreenByType("content");
+            PlayerConfig::VirtualScreen widgetScreen = currentConfig.getScreenByType("widget");
+
+            teledsPlayer->invokeSetContentPosition(contentScreen.position.left(), contentScreen.position.top(),
+                                                   contentScreen.position.width(), contentScreen.position.height(),
+                                                   widgetScreen.position.left(), widgetScreen.position.top(),
+                                                   widgetScreen.position.width(), widgetScreen.position.height());
+            teledsPlayer->setConfig(contentScreen, widgetScreen);
+            if (!teledsPlayer->isPlaying())
+            {
+                qDebug() << "TeleDSCore::downloaded -> invoke first time play with widget";
+                teledsPlayer->play();
+                QTimer::singleShot(1100, teledsPlayer, SLOT(playNextWidget()));
+                QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
+            }
+            break;
+        }
+
+      /*  //skip "audio" area - not supported yet
         foreach (const PlayerConfig::VirtualScreen &v, currentConfig.screens)
             if (v.type != "audio")
             {
@@ -514,12 +560,14 @@ void TeleDSCore::downloaded()
                         qDebug() << "TeleDSCore::downloaded -> play!";
                         teledsPlayer->play();
                         QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
-                        //QTimer::singleShot(1000, teledsPlayer, SLOT(invokeEnablePreloading()));
                     }
                     break;
                 }
             }
+            */
     }
+    else
+        teledsPlayer->invokeNoItemsView("http://teleds.com");
 }
 
 void TeleDSCore::checkCPUStatus()

@@ -93,7 +93,6 @@ private:
     QHash<int, QList<int> > time_targeting_relay_2;
     bool firstReleyEnabled, secondReleyEnabled;
 
-
     int getPlaylistTimerTime;
 
     QJsonObject settings;

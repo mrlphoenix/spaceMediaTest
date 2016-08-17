@@ -30,13 +30,11 @@ Item {
     signal exitClicked()
 
     function getBoundaryWidth(){
-        console.log("GBB: " + Screen.width + " " + Screen.height)
         if (Screen.width > Screen.height){
             return screenWidth * 0.325;
         }
         else
         {
-            console.log("GBB: " + (Screen.width - 96))
             return Screen.width * 0.55
         }
     }
@@ -318,7 +316,7 @@ Item {
            // font.family:  ubuntuFont.name
             color: color1
             font.pixelSize: fontSizeSP(14.8)
-            x: menuTitleBlockTextRectangle.x + menuTitleBlockTextRectangle.width
+            x: Math.max(menuTitleBlockTextRectangle.x + menuTitleBlockTextRectangle.width, menuInfoDeviceConnectionInfoTitle.x + menuInfoDeviceConnectionInfoTitle.width + leftPercentPixels(0.01))
         }
         Rectangle {
             id: menuInfoDeviceNameBlockLine
@@ -375,7 +373,7 @@ Item {
            // font.family:  ubuntuFont.name
             color: color1
             font.pixelSize: fontSizeSP(14.8)
-            x: menuTitleBlockTextRectangle.x + menuTitleBlockTextRectangle.width
+            x: Math.max(menuTitleBlockTextRectangle.x + menuTitleBlockTextRectangle.width, menuInfoDeviceConnectionInfoTitle.x + menuInfoDeviceConnectionInfoTitle.width + leftPercentPixels(0.01))
             anchors.top: menuInfoDeviceConnectionInfoTitle.top
         }
         Rectangle {
@@ -569,7 +567,7 @@ Item {
                 anchors.topMargin: 10
                 style: ButtonStyle {
                     background: Rectangle {
-                        color: control.pressed ? brand_borderGrayColor : brand_backgroundColor
+                        color: control.pressed ? brand_borderGrayColor : "#333e47"
                         border.width: 1
                         border.color: brand_default_borderGrayColor
                         radius: 10

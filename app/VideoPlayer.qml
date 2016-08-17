@@ -9,7 +9,7 @@ Item {
     property bool firstPlayer: true
     property bool isVideoPlaying: true
     property bool prepareStop: false
-    anchors.fill: parent
+    //anchors.fill: parent
 
     function getDuration(duration){
         if (duration < 1000){

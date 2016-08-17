@@ -100,6 +100,7 @@ void QHttpConnection::updateWriteCount(qint64 count)
     }
 }
 
+
 void QHttpConnection::parseRequest()
 {
     Q_ASSERT(m_parser);

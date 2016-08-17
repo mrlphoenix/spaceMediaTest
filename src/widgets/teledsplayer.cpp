@@ -11,6 +11,7 @@
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
     playlist = 0;
+    widgetPlaylist = 0;
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
     curSurface.setGreenBufferSize(8);
@@ -32,6 +33,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     status.isPlaying = false;
     status.item = "";
     isActive = true;
+    isSplitScreen = false;
   //  QProcess proc;
   //  proc.startDetached("reboot -p");
 }
@@ -67,6 +69,7 @@ void TeleDSPlayer::show()
 #endif
 }
 
+
 void TeleDSPlayer::update(PlayerConfig config)
 {
     foreach (const PlayerConfig::VirtualScreen &screen, config.screens)
@@ -78,16 +81,26 @@ void TeleDSPlayer::setConfig(PlayerConfig::VirtualScreen area)
 {
     qDebug() << "TeleDSPlayer::set config: ";
     config = area.playlist;
-   /* if (playlist == NULL)
-    {
-        playlist = new StandartPlaylist(this);
-    }
-    isPlaylistRandom = false;*/
-if (playlist == NULL)
-    playlist = new SuperPlaylist(this);
+    if (playlist == NULL)
+        playlist = new SuperPlaylist(this);
     isPlaylistRandom = true;
 
     playlist->updatePlaylist(area.playlist);
+}
+
+void TeleDSPlayer::setConfig(PlayerConfig::VirtualScreen contentArea, PlayerConfig::VirtualScreen widgetArea)
+{
+    qDebug() << "TeleDS::setConfig split-screen";
+    config = contentArea.playlist;
+    widgetConfig = widgetArea.playlist;
+    if (playlist == NULL)
+        playlist = new SuperPlaylist(this);
+    if (widgetPlaylist == NULL)
+        widgetPlaylist = new SuperPlaylist(this);
+    isPlaylistRandom = true;
+    playlist->updatePlaylist(contentArea.playlist);
+    widgetPlaylist->updatePlaylist(widgetArea.playlist);
+    qDebug() << "SET CONFIG-> " << contentArea.playlist.items.count() << widgetArea.playlist.items.count();
 }
 
 void TeleDSPlayer::play()
@@ -109,9 +122,13 @@ void TeleDSPlayer::invokeNextVideoMethod(QString name)
     QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
 }
 
-void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
+void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, bool isWidget)
 {
-    PlaylistAPIResult::PlaylistItem item = playlist->findItemById(name);
+    PlaylistAPIResult::PlaylistItem item;
+    if (isWidget)
+        item = widgetPlaylist->findItemById(name);
+    else
+        item = playlist->findItemById(name);
     qDebug() << "invoking next method::advanced -> " << item.name;
     QVariant source;
     if (item.type == "video" || item.type == "audio")
@@ -130,7 +147,8 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name)
     QVariant build = CONFIG_BUILD_NAME;
     QVariant duration = item.duration;
     QVariant skip = item.skipTime;
-    QMetaObject::invokeMethod(viewRootObject,"playFileAdvanced",
+    QString methodName = isWidget ? "playWidget" : "playFileAdvanced";
+    QMetaObject::invokeMethod(viewRootObject, methodName.toStdString().data(),
                               Q_ARG(QVariant,source),
                               Q_ARG(QVariant, type),
                               Q_ARG(QVariant, build),
@@ -294,6 +312,32 @@ void TeleDSPlayer::invokeSetDeviceInfo()
                               Q_ARG(QVariant, connectionName));
 }
 
+void TeleDSPlayer::invokeSetDisplayMode(QString mode)
+{
+    qDebug() << "TeleDSPlayer::invokeSetDisplayMode -> " << mode;
+    QVariant modeParam = mode;
+    if (mode == "fullscreen")
+        invokeSetContentPosition();
+
+    QMetaObject::invokeMethod(viewRootObject, "setDisplayMode",
+                              Q_ARG(QVariant, modeParam));
+}
+
+void TeleDSPlayer::invokeSetContentPosition(float contentLeft, float contentTop, float contentWidth, float contentHeight,
+                                            float widgetLeft, float widgetTop, float widgetWidth, float widgetHeight)
+{
+    qDebug() << "TeleDSPlayer::invokeSetContentPosition";
+    QMetaObject::invokeMethod(viewRootObject, "setContentPosition",
+                              Q_ARG(QVariant, QVariant(contentLeft)),
+                              Q_ARG(QVariant, QVariant(contentTop)),
+                              Q_ARG(QVariant, QVariant(contentWidth)),
+                              Q_ARG(QVariant, QVariant(contentHeight)),
+                              Q_ARG(QVariant, QVariant(widgetLeft)),
+                              Q_ARG(QVariant, QVariant(widgetTop)),
+                              Q_ARG(QVariant, QVariant(widgetWidth)),
+                              Q_ARG(QVariant, QVariant(widgetHeight)));
+}
+
 void TeleDSPlayer::next()
 {
     if (isActive)
@@ -315,16 +359,40 @@ void TeleDSPlayer::next()
     }
 }
 
-void TeleDSPlayer::playNext()
+void TeleDSPlayer::nextWidget()
+{
+    if (isActive)
+    {
+        qDebug() << " next widget method is called";
+        if (delay == 0)
+            playNextWidget();
+        else
+        {
+            QTimer::singleShot(delay,this,SLOT(playNextWidget()));
+            hideVideo();
+            status.isPlaying = false;
+            status.item = "";
+        }
+    }
+    else
+    {
+        qDebug() << "Player is not active, so no next widget";
+    }
+}
+
+void TeleDSPlayer::playNextGeneric(bool isWidget)
 {
     if (!playlist)
     {
         qDebug() << "playlist empty";
         return;
     }
-    QString nextItem = playlist->next();
-    invokeNextVideoMethodAdvanced(nextItem);
-    //invokeNextVideoMethod(nextItem);
+    QString nextItem;
+    if (isWidget && widgetPlaylist)
+        nextItem = widgetPlaylist->next();
+    else
+        nextItem = playlist->next();
+    invokeNextVideoMethodAdvanced(nextItem, isWidget);
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
         SunsetSystem sunSystem;
@@ -332,7 +400,6 @@ void TeleDSPlayer::playNext()
         int maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
         double originalValue = sunSystem.getLinPercent();
         double brightnessValue = sunSystem.getSinPercent() * (maxBrightness - minBrightness) + minBrightness;
-        //double brightnessValue = sunSystem.getSinPercent() * (GlobalConfigInstance.getMaxBrightness() - GlobalConfigInstance.getMinBrightness()) + GlobalConfigInstance.getMinBrightness();
         qDebug() <<"Autobrightness is active with value: LINEAR= " + QString::number(originalValue) + " , SIN= " + QString::number(brightnessValue);
         if (brightnessValue/100. < 0.05)
             setBrightness(1.0);
@@ -355,6 +422,7 @@ void TeleDSPlayer::bindObjects()
     qDebug() << "binding QML and C++";
     connect(&PlatformSpecificService,SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SLOT(systemInfoReady(Platform::SystemInfo)));
     QObject::connect(viewRootObject,SIGNAL(nextItem()),this, SLOT(next()));
+    QObject::connect(viewRootObject,SIGNAL(nextWidget()),this,SLOT(nextWidget()));
     qApp->connect(view.engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(viewRootObject,SIGNAL(refreshId()), this, SIGNAL(refreshNeeded()));
     QObject::connect(viewRootObject,SIGNAL(gpsChanged(double,double)),this,SLOT(gpsUpdate(double,double)));

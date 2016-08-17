@@ -227,10 +227,12 @@ QString SuperPlaylist::next()
         if (!found)
         {
             qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
+            shuffle(false);
             foreach (const PlaylistAPIResult::CampaignItem &campaign, floatingNoneItems)
             {
                 bool freeItemFound = false;
                 int foundItemIndex = 0;
+                qDebug() << "campaign Content Size" << campaign.content.count();
                 foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
                 {
                     if (item.checkTimeTargeting() && item.checkDateRange())
@@ -241,7 +243,9 @@ QString SuperPlaylist::next()
                         currentCampaignId = campaign.id;
                         currentItemIndex = foundItemIndex;
                         itemResult = item.id;
+                        qDebug() << "Item ID " << item.id;
                         freeItemFound = true;
+                        return item.id;
                     }
                     if (freeItemFound)
                         break;
@@ -281,24 +285,30 @@ void SuperPlaylist::splitItems()
     qDebug() << "FF: " << fixedFloatingItems.count() << " FN: " << floatingNoneItems.count();
 }
 
-void SuperPlaylist::shuffle()
+void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
 {
     //this method is called when we need to shuffle our playlist items
     QList<PlaylistAPIResult::CampaignItem> newFixed, newFloating;
-    while (fixedFloatingItems.count() > 0)
+    if (fixedFloating)
     {
-        int currentItemIndex = qrand()%fixedFloatingItems.count();
-        newFixed.append(fixedFloatingItems[currentItemIndex]);
-        fixedFloatingItems.removeAt(currentItemIndex);
+        while (fixedFloatingItems.count() > 0)
+        {
+            int currentItemIndex = qrand()%fixedFloatingItems.count();
+            newFixed.append(fixedFloatingItems[currentItemIndex]);
+            fixedFloatingItems.removeAt(currentItemIndex);
+        }
+        fixedFloatingItems = newFixed;
     }
-    while (floatingNoneItems.count() > 0)
+    if (floatingNone)
     {
-        int currentItemIndex = qrand()%floatingNoneItems.count();
-        newFloating.append(floatingNoneItems[currentItemIndex]);
-        floatingNoneItems.removeAt(currentItemIndex);
+        while (floatingNoneItems.count() > 0)
+        {
+            int currentItemIndex = qrand()%floatingNoneItems.count();
+            newFloating.append(floatingNoneItems[currentItemIndex]);
+            floatingNoneItems.removeAt(currentItemIndex);
+        }
+        floatingNoneItems = newFloating;
     }
-    fixedFloatingItems = newFixed;
-    floatingNoneItems = newFloating;
 }
 
 bool SuperPlaylist::itemDelayPassed(const PlaylistAPIResult::CampaignItem &item)

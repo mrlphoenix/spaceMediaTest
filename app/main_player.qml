@@ -17,6 +17,25 @@ Item {
     property int decreasingTextValue: 0
 
 
+    //properties for split-view
+    property double contentWidthPercent: 100.0
+    property double contentHeightPercent: 100.0
+    property double contentLeftPercent: 0.0
+    property double contentTopPercent: 0.0
+    property double widgetWidthPercent: 0.0
+    property double widgetHeightPercent: 0.0
+    property double widgetLeftPercent: 0.0
+    property double widgetTopPercent: 0.0
+
+    property double contentWidth: contentWidthPercent * item.width / 100
+    property double contentHeight: contentHeightPercent * item.height / 100
+    property double contentLeft: contentLeftPercent * item.width / 100
+    property double contentTop: contentTopPercent * item.height / 100
+    property double widgetWidth: widgetWidthPercent * item.width / 100
+    property double widgetHeight: widgetHeightPercent * item.height / 100
+    property double widgetLeft: widgetLeftPercent * item.width / 100
+    property double widgetTop: widgetTopPercent * item.height / 100
+
     //properties for branding
     //
     property color brand_blackColor:                "#000000"
@@ -40,7 +59,7 @@ Item {
     property url brand_audioIcon:                   "audio.svg"
     property url brand_menu_bg_image:               "menu_background_horizontal.png"
     //properties for menu branding
-    property color brand_menu_backgroundColor:      "#333e47"
+    property color brand_menu_backgroundColor:      "white"
     property color brand_menu_foregroundColor:      "#00cdc1"
     property url brand_menu_background:             "menu_background_horizontal.png"
     property url brand_menu_logo:                   "logo.svg"
@@ -65,7 +84,7 @@ Item {
     property url brand_default_audioIcon:                   "audio.svg"
     property url brand_default_menu_bg_image:               "menu_background_horizontal.png"
 
-    property color brand_default_menu_backgroundColor:      "#333e47"
+    property color brand_default_menu_backgroundColor:      "white"
     property color brand_default_menu_foregroundColor:      "#00cdc1"
     property url brand_default_menu_background:             "menu_background_horizontal.png"
     property url brand_default_menu_logo:                   "logo.svg"
@@ -84,8 +103,10 @@ Item {
     property string systemOpensourceText: ""
     property string systemLegalText: ""
     property string systemVersion: ""
+    property string displayMode: "fullscreen"
 
     signal nextItem()
+    signal nextWidget()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
     signal setRestoreModeTrue()
@@ -96,6 +117,32 @@ Item {
     onHeightChanged: {
         heightP = height
         widthP = width
+    }
+
+    function setDisplayMode(mode)
+    {
+        if (mode === "fullscreen")
+        {
+            sideBrowser.visible = false
+            displayMode = "fullscreen"
+        }
+        else if (mode === "split")
+        {
+            sideBrowser.visible = true
+            displayMode = "split"
+        }
+    }
+    function setContentPosition(cLeft, cTop, cWidth, cHeight, wLeft, wTop, wWidth, wHeight)
+    {
+        contentWidthPercent = cWidth
+        contentHeightPercent = cHeight
+        contentLeftPercent = cLeft
+        contentTopPercent = cTop
+
+        widgetWidthPercent = wWidth
+        widgetHeightPercent = wHeight
+        widgetLeftPercent = wLeft
+        widgetTopPercent = wTop
     }
 
     function setLicenseText(eula, privacyPolicy, openSource, legal)
@@ -176,6 +223,12 @@ Item {
             androidBrowser.visible = false
             androidBrowser.stopBrowser()
         }
+        if (sideBrowser.visible == true)
+        {
+            sideBrowser.visible = false
+            sideBrowser.stopBrowser()
+        }
+
         currentType = null
     }
 
@@ -188,6 +241,18 @@ Item {
     function playFile(filename){
         console.debug("playfile is called " + filename)
         videoPlayer.playItem(filename)
+    }
+
+    function playWidget(filename, type, build, length, skip)
+    {
+        console.debug("playwidget is called " + filename)
+        if (type === "html5_online")
+        {
+            sideBrowser.load(filename, length)
+        }
+        else
+            console.log("playwidget -> wrong type")
+        console.log("playwidget-> rect=" + widgetLeft.toString() + " " + widgetTop.toString() + " " + widgetWidth.toString() + " " + widgetHeight.toString())
     }
 
     function playFileAdvanced(filename, type, build, length, skip)
@@ -335,6 +400,7 @@ Item {
         playerIDItem.visible = false
         waitingBlock.visible = false
     }
+
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
         videoPlayer.opacity = 0
@@ -443,6 +509,8 @@ Item {
                 androidBrowser.visible = true
                 videoPlayer.visible = true
             }
+            if (displayMode == "split")
+                sideBrowser.visible = true
             else if (currentType == "videoPlayer")
             {
                 videoPlayer.visible = true
@@ -721,8 +789,14 @@ Item {
     //video player
     VideoPlayer {
         id: videoPlayer
+
+        width: contentWidth
+        height: contentHeight
+        x: contentLeft
+        y: contentTop
         onNext: {
             console.log("video player:invoking next item")
+            console.log("visible: " + visible + "RECT " + contentWidth.toString() + " " + contentHeight.toString() + " " + contentLeft.toString() + " " + contentTop.toString())
             nextItem()
         }
         onVideoPlayed: {
@@ -758,14 +832,18 @@ Item {
         sourceSize.height: hValue/2
         width: hValue/2
         height: hValue/2
-        x: parent.width/2 - width/2
-        y: parent.height/2 - height/2
+        x: contentWidth/2 - width/2
+        y: contentHeight/2 - height/2
     }
 
 
     AndroidBrowser{
         id: androidBrowser
         visible: false
+        width: contentWidth
+        height: contentHeight
+        x: contentLeft
+        y: contentHeight
         property string nextItemUrl: ""
         property int nextItemTime: 0
         property string nextItemType: ""
@@ -808,24 +886,27 @@ Item {
         }
     }
 
-   /* SideBrowser{
+    SideBrowser{
         id: sideBrowser
         visible: false
-        x: 0//1.6 * Math.min(item.height, item.width)
-        y:
-        width: Math.max(item.height, item.width) - 1.6*Math.min(item.height, item.width)
-        height: item.height
+        x: widgetLeft
+        y: widgetTop
+        width: widgetWidth
+        height: widgetHeight
         onNext: {
-            //sideBrowser::next
+            nextWidget()
         }
-    }*/
-//android:excludeFromRecents="true"
+    }
+
+
+
+    //android:excludeFromRecents="true"
 
     TeleDSMenu{
         id: menu
         color1: brand_menu_backgroundColor
         color2: brand_menu_foregroundColor
-        logo: brand_logoImage
+        logo: brand_menu_logo
         screenWidth: item.width
         screenHeight: item.height
         visible: false
@@ -854,6 +935,8 @@ Item {
                 androidBrowser.visible = false
                 videoPlayer.visible = false
             }
+            if (displayMode == "split")
+                sideBrowser.visible = false
             console.log("back key pressed: main")
         }
     }
@@ -865,14 +948,14 @@ Item {
         contentItem: Rectangle {
             width: 600
             height: 500
-            color: brand_backgroundColor
+            color: "#333e47"
 
             Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.bottom: dividerHorizontal.top
-                color: brand_backgroundColor
+                color: "#333e47"
 
                 Label {
                     id: textLabel
@@ -905,7 +988,7 @@ Item {
 
                     style: ButtonStyle {
                         background: Rectangle {
-                            color: control.pressed ? brand_borderGrayColor : brand_backgroundColor
+                            color: control.pressed ? brand_borderGrayColor : "#333e47"
                             border.width: 0
                         }
 
@@ -918,6 +1001,8 @@ Item {
                     }
                     onClicked: {
                         dialogAndroid.close()
+                        if (displayMode == "split")
+                            sideBrowser.visible = true
                         if (currentType == "browser")
                         {
                             androidBrowser.visible = true
@@ -951,7 +1036,7 @@ Item {
 
                     style: ButtonStyle {
                         background: Rectangle {
-                            color: control.pressed ? brand_borderGrayColor : brand_backgroundColor
+                            color: control.pressed ? brand_borderGrayColor : "#333e47"
                             border.width: 0
                         }
 
@@ -967,6 +1052,8 @@ Item {
                         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
                             dialogAndroid.close()
                             setRestoreModeTrue();
+                            if (displayMode == "split")
+                                sideBrowser.visible = true
                             if (currentType === "browser")
                             {
                                 androidBrowser.visible = true
@@ -989,20 +1076,6 @@ Item {
 
     Keys.onReleased:{
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
-            /*dialogCloseTimer.start()
-            dialogAndroid.open()
-            dialogButtonOk.focus = true
-            setRestoreModeFalse()
-            if (currentType == "browser")
-            {
-                bgLogoBlock.visible = true
-                androidBrowser.visible = false
-                videoPlayer.visible = false
-            }
-            console.log("item width: " + item.width.toString() + " item height: " + item.height.toString()+ "VIS: " + bgLogoImage.visible.toString() +"/" + bgLogoImageV.visible.toString() )
-
-            event.accepted = true
-            console.log("back key pressed: main")*/
             if (menu.visible == false)
             {
                 setRestoreModeFalse()

@@ -7,34 +7,42 @@ import QtQuick.Controls.Styles 1.2
 
 
 Item{
-    anchors.fill: parent
+    //anchors.fill: parent
 
     function load(url, showtime){
         //load first time
         console.log("WebBrowser::load -> reloading page")
-        if (isFirstBrowser == false && webView1.prevUrl === "#none"){
-            webView1.load(url, showtime)
+        if (isFirstBrowser == false && sideBrowser1.prevUrl === "#none"){
+            sideBrowser1.load(url, showtime)
             isFirstBrowser = true
             next()
             return
         }
-        if (isFirstBrowser && webView2.prevUrl === "#none"){
-            webView2.preload(url,showtime)
+        if (isFirstBrowser && sideBrowser2.prevUrl === "#none"){
+            sideBrowser2.preload(url,showtime)
             return
         }
         if (isFirstBrowser){
-            webView2.showPreloaded()
-            webView1.preload(url, showtime)
+            sideBrowser2.showPreloaded()
+            sideBrowser1.preload(url, showtime)
             isFirstBrowser = false
             return
         }
         else
         {
-            webView1.showPreloaded()
-            webView2.preload(url, showtime)
+            sideBrowser1.showPreloaded()
+            sideBrowser2.preload(url, showtime)
             isFirstBrowser = true
             return
         }
+    }
+    function stopBrowser(){
+        sideBrowser1.visible = false
+        sideBrowser2.visible = false
+        sideBrowser1.stop()
+        sideBrowser2.stop()
+        isFirstBrowser = false
+        turnOffTimer.stop()
     }
 
     property bool isFirstBrowser: false
@@ -49,7 +57,7 @@ Item{
     }
 
     WebView {
-        id: webView1
+        id: sideBrowser1
         visible: false
         anchors.fill: parent
         property string prevUrl:"#none"
@@ -67,15 +75,20 @@ Item{
             turnOffTimer.interval = showtime
             turnOffTimer.restart()
             visible = true
-            webView1.visible = false
+            sideBrowser2.visible = false
         }
         function load(_url, _showtime){
             preload(_url, _showtime)
             showPreloaded()
+        }
+        function stop()
+        {
+            prevUrl = "#none"
+            url = ""
         }
     }
     WebView {
-        id: webView2
+        id: sideBrowser2
         visible: false
         anchors.fill: parent
         property string prevUrl:"#none"
@@ -93,11 +106,16 @@ Item{
             turnOffTimer.interval = showtime
             turnOffTimer.restart()
             visible = true
-            webView1.visible = false
+            sideBrowser1.visible = false
         }
         function load(_url, _showtime){
             preload(_url, _showtime)
             showPreloaded()
+        }
+        function stop()
+        {
+            prevUrl = "#none"
+            url = ""
         }
     }
 }

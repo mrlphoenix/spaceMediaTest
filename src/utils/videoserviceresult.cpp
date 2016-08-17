@@ -218,7 +218,7 @@ NonQueryResult NonQueryResult::fromJson(QJsonObject data)
     return result;
 }
 
-SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
+SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool needSave)
 {
     SettingsRequestResult result;
     result.created_at = QDateTime::fromString(data["created_at"].toString(), "yyyy-MM-dd HH:mm:ss");
@@ -252,11 +252,11 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.brand_menu_background = data["brand_background_second_screen"].toString();
     result.brand_menu_background_hash = data["brand_background_second_screen_hash"].toString();
     result.brand_menu_logo = data["brand_logo_second_screen"].toString();
-    result.brand_menu_logo_hash = data["brand_logo_second_screen_logo"].toString();
+    result.brand_menu_logo_hash = data["brand_logo_second_screen_hash"].toString();
     result.brand_menu_color_1 = data["brand_color_1_second_screen"].toString();
     result.brand_menu_color_2 = data["brand_color_2_second_screen"].toString();
-    result.brand_repeat = data["repeat"].toBool();
-    result.brand_menu_repeat = data["repeat_second_screen"].toBool();
+    result.brand_repeat = data["repeat"].toInt();//toBool();
+    result.brand_menu_repeat = data["repeat_second_screen"].toInt();//toBool();
 
     result.brand_teleds_copyright = data["brand_teleds_copyright"].toBool();
     result.brand_menu_teleds_copyright = data["brand_teleds_copyright_second_screen"].toBool();
@@ -268,7 +268,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data)
     result.off_power_loss = data["off_power_loss"].toInt();
     result.off_charge_percent = data["off_charge_percent"].toInt();
 
-    GlobalConfigInstance.setSettings(data);
+    if (needSave)
+        GlobalConfigInstance.setSettings(data);
 
     return result;
 }
@@ -412,6 +413,42 @@ PlayerConfig PlayerConfig::fromJson(QJsonArray data)
     return result;
 }
 
+PlayerConfig::AreaCompositionType PlayerConfig::getType()
+{
+    bool contentFound = false, widgetFound = false, multipleContent = false;
+    foreach (const VirtualScreen &v, screens)
+    {
+        if (v.type == "fullscreen" && v.playlist.items.count())
+            return AREA_FULLSCREEN;
+        else if (v.type == "content" && v.playlist.items.count())
+        {
+            if (contentFound)
+                multipleContent = true;
+            contentFound = true;
+        }
+        else if (v.type == "widget" && v.playlist.items.count())
+            widgetFound = true;
+    }
+    if (widgetFound && contentFound)
+        return AREA_SPLIT;
+    if (multipleContent)
+        return AREA_MULTI;
+    else
+        return AREA_BROKEN;
+}
+
+PlayerConfig::VirtualScreen PlayerConfig::getScreenByType(QString type)
+{
+    VirtualScreen result;
+    foreach (const QString &k, screens.keys())
+    {
+        VirtualScreen currentScreen = screens[k];
+        if (currentScreen.type == type && currentScreen.playlist.items.count())
+            return currentScreen;
+    }
+    return result;
+}
+
 QString PlaylistAPIResult::PlaylistItem::getExtension() const
 {
     QStringList tokens = fileUrl.split(".");
@@ -425,8 +462,14 @@ bool PlaylistAPIResult::PlaylistItem::checkTimeTargeting() const
     QString dayInt = QString::number(QDateTime::currentDateTimeUtc().date().dayOfWeek() + 1);
     int hour = QDateTime::currentDateTimeUtc().time().hour();
     if (time_targeting.contains(dayInt))
-        return time_targeting[dayInt].contains(hour);
-    return time_targeting.count() == 0;
+    {
+        bool result = time_targeting[dayInt].contains(hour);
+        qDebug() << "is Time Targeting Passed for " + this->id + "? :" << result;
+        return result;
+    }
+    bool result = (time_targeting.count() == 0);
+    qDebug() << "is Time Targeting Passed for " + this->id + "? :" << result;
+    return result;
 }
 
 bool PlaylistAPIResult::PlaylistItem::checkDateRange() const
@@ -436,6 +479,7 @@ bool PlaylistAPIResult::PlaylistItem::checkDateRange() const
         sinceCheck = QDateTime::currentDateTimeUtc() > play_starts;
     if (play_ends.isValid())
         untilCheck = QDateTime::currentDateTimeUtc() < play_ends;
+    qDebug() << "checkDateRange for " + id + "? :" << sinceCheck << untilCheck;
     return sinceCheck && untilCheck;
 }
 

@@ -88,7 +88,7 @@ void SkinManager::updateSkin(QString backgroundURL, QString logoURL, QString men
         SkinComponent menuLogoComponent;
         menuLogoComponent.type = SkinComponent::MENU_LOGO;
         menuLogoComponent.source = menuLogoURL;
-        menuLogoComponent.dest = CONFIG_FOLDER + "menu_logo" + menuBgExt;
+        menuLogoComponent.dest = CONFIG_FOLDER + "menu_logo" + menuLogoExt;
         componentsToDownload.append(menuLogoComponent);
     }
 
@@ -138,19 +138,23 @@ void SkinManager::replyFinished(QNetworkReply *reply)
         switch (currentComponent.type)
         {
         case SkinComponent::BACKGROUND:
-            currentSkin.relocatedBackgroundURL = currentComponent.dest;
+            qDebug() << "TeleDS::Downloaded BG-> " << currentComponent.dest << currentComponent.source;
+            currentSkin.relocatedBackgroundURL = QUrl::fromLocalFile(currentComponent.dest);
             cachedHashes["bg"] = "";
             break;
         case SkinComponent::LOGO:
-            currentSkin.relocatedLogoURL = currentComponent.dest;
+            qDebug() << "TeleDS::Downloaded LOGO-> " << currentComponent.dest << currentComponent.source;
+            currentSkin.relocatedLogoURL = QUrl::fromLocalFile(currentComponent.dest);
             cachedHashes["logo"] = "";
             break;
         case SkinComponent::MENU_BACKGROUND:
-            currentSkin.relocatedMenuBackgroundURL = currentComponent.dest;
+            qDebug() << "TeleDS::Downloaded MENUBG-> " << currentComponent.dest << currentComponent.source;
+            currentSkin.relocatedMenuBackgroundURL = QUrl::fromLocalFile(currentComponent.dest);
             cachedHashes["menu_bg"] = "";
             break;
         case SkinComponent::MENU_LOGO:
-            currentSkin.relocatedMenuLogoURL = currentComponent.dest;
+            qDebug() << "TeleDS::Downloaded MENULOGO-> " << currentComponent.dest << currentComponent.source;
+            currentSkin.relocatedMenuLogoURL = QUrl::fromLocalFile(currentComponent.dest);
             cachedHashes["menu_logo"] = "";
             break;
         default:

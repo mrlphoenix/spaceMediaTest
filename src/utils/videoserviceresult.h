@@ -28,7 +28,7 @@ struct NonQueryResult
 
 struct SettingsRequestResult
 {
-    static SettingsRequestResult fromJson(QJsonObject data);
+    static SettingsRequestResult fromJson(QJsonObject data, bool needSave = true);
 
     int error_id;
     QString name;
@@ -133,6 +133,8 @@ struct PlaylistAPIResult
 struct PlayerConfig
 {
     static PlayerConfig fromJson(QJsonArray data);
+    enum AreaCompositionType {AREA_BROKEN, AREA_FULLSCREEN, AREA_SPLIT, AREA_MULTI};
+    AreaCompositionType getType();
     int error_id;
     QString error;
     struct VirtualScreen
@@ -148,6 +150,7 @@ struct PlayerConfig
         int screen_priority;
         PlaylistAPIResult playlist;
     };
+    VirtualScreen getScreenByType(QString type);
     QHash<QString, VirtualScreen> screens;
 };
 

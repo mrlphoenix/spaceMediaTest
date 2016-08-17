@@ -81,7 +81,7 @@ public:
     virtual QString getType() {return "random";}
 protected:
     void splitItems();
-    void shuffle();
+    void shuffle(bool fixedFloating = true, bool floatingNone = true);
     bool itemDelayPassed(const PlaylistAPIResult::CampaignItem &item);
 
 

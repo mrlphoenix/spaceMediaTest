@@ -27,6 +27,7 @@ public:
     void show();
     void update(PlayerConfig config);
     void setConfig(PlayerConfig::VirtualScreen area);
+    void setConfig(PlayerConfig::VirtualScreen contentArea, PlayerConfig::VirtualScreen widgetArea);
     void play();
     void stop();
 
@@ -44,7 +45,7 @@ signals:
     void refreshNeeded();
 public slots:
     void invokeNextVideoMethod(QString name);
-    void invokeNextVideoMethodAdvanced(QString name);
+    void invokeNextVideoMethodAdvanced(QString name, bool isWidget = false);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);
@@ -63,8 +64,16 @@ public slots:
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
 
+    ///mode = ["fullscreen", "split"]
+    void invokeSetDisplayMode(QString mode);
+    void invokeSetContentPosition(float contentLeft = 0.f, float contentTop = 0.f, float contentWidth = 100.f, float contentHeight = 100.f,
+                                  float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);
+
     void next();
-    void playNext();
+    void nextWidget();
+    void playNext() {playNextGeneric(false);}
+    void playNextWidget() {playNextGeneric(true);}
+    void playNextGeneric(bool isWidget);
     void bindObjects();
     void stopPlaying();
 
@@ -82,14 +91,16 @@ protected:
 
     QQuickView view;
     AbstractPlaylist * playlist;
+    AbstractPlaylist * widgetPlaylist;
     bool isPlaylistRandom;
-    PlaylistAPIResult config;
+    PlaylistAPIResult config, widgetConfig;
     QObject * viewRootObject;
     QQueue<QString> playedIds;
 
     CurrentItemStatus status;
     int delay;
     bool isActive;
+    bool isSplitScreen;
 };
 
 
