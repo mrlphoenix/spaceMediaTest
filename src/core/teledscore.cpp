@@ -322,7 +322,6 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             return;
         }
     }
-
     //if backend responsed with 401 - it means player need to be reactivated
     if (result.error_id == 401)
     {
@@ -340,6 +339,13 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             teledsPlayer->stopPlaying();
         qDebug() << "403: player is not configurated - requesting initialization";
         initPlayer();
+    }
+    else if (result.error_id == 402)
+    {
+        if (teledsPlayer->isPlaying())
+            teledsPlayer->stopPlaying();
+        qDebug() << "403: player is not configurated - requesting initialization";
+        //invoke played is not activated
     }
     else
     {
@@ -544,27 +550,6 @@ void TeleDSCore::downloaded()
             }
             break;
         }
-
-      /*  //skip "audio" area - not supported yet
-        foreach (const PlayerConfig::VirtualScreen &v, currentConfig.screens)
-            if (v.type != "audio")
-            {
-                if (v.playlist.items.count() == 0)
-                    teledsPlayer->invokeNoItemsView("http://teleds.com");
-                else
-                {
-                    teledsPlayer->invokeDownloadDone();
-                    teledsPlayer->setConfig(v);
-                    if (!teledsPlayer->isPlaying())
-                    {
-                        qDebug() << "TeleDSCore::downloaded -> play!";
-                        teledsPlayer->play();
-                        QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
-                    }
-                    break;
-                }
-            }
-            */
     }
     else
         teledsPlayer->invokeNoItemsView("http://teleds.com");

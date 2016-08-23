@@ -145,7 +145,7 @@ Item {
         font.pixelSize: fontSizeSP(33.3)
         text: "<b>TeleDS</b>"
         color: color1
-        anchors.verticalCenter: menuLogoImage
+        anchors.verticalCenter: menuLogoImage.Center
         anchors.left: menuLogoImage.right
         y: menuLogoImage.y + (menuLogoImage.height-height)/2
         opacity: getLogoTextOpacity()

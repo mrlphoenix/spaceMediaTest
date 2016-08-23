@@ -12,6 +12,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
     playlist = 0;
     widgetPlaylist = 0;
+
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
     curSurface.setGreenBufferSize(8);
@@ -34,8 +35,6 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     status.item = "";
     isActive = true;
     isSplitScreen = false;
-  //  QProcess proc;
-  //  proc.startDetached("reboot -p");
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -298,7 +297,7 @@ void TeleDSPlayer::invokeSetLicenseData()
                               Q_ARG(QVariant, eulaParam),
                               Q_ARG(QVariant, privacyPolicyParam),
                               Q_ARG(QVariant, opensourceParam),
-                              Q_ARG(QVariant, legalParam));
+                              Q_ARG(QVariant, legalParam))  ;
 }
 
 void TeleDSPlayer::invokeSetDeviceInfo()

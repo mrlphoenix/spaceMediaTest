@@ -67,9 +67,7 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 HEADERS +=
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
-    ANDROID_EXTRA_LIBS = \
-        /home/nother/openssl101t/libssl.so \
-        $$PWD/../../openssl101t/libcrypto.so
+    ANDROID_EXTRA_LIBS = /home/nother/openssl101t/libssl.so /home/nother/TeleDS/app/../../openssl101t/libcrypto.so
 }
 
 

@@ -128,7 +128,8 @@ Item {
         }
         else if (mode === "split")
         {
-            sideBrowser.visible = true
+            if (menu.visible == false)
+                sideBrowser.visible = true
             displayMode = "split"
         }
     }
@@ -923,6 +924,8 @@ Item {
         onPlayerClicked: {
             menu.visible = false
             setRestoreModeTrue()
+            if (displayMode == "split")
+                sideBrowser.visible = true
         }
         onExitClicked: {
             dialogCloseTimer.start()
@@ -1001,8 +1004,8 @@ Item {
                     }
                     onClicked: {
                         dialogAndroid.close()
-                        if (displayMode == "split")
-                            sideBrowser.visible = true
+                       // if (displayMode == "split")
+                       //     sideBrowser.visible = true
                         if (currentType == "browser")
                         {
                             androidBrowser.visible = true
@@ -1074,15 +1077,31 @@ Item {
         }
     }
 
+    function setMenuView(secondScreen){
+        if (secondScreen === true)
+        {
+            if (androidBrowser.visible === true)
+                androidBrowser.visible = false
+            if (sideBrowser.visible === true)
+                sideBrowser.visible = false
+        }
+        else {
+            if (sideBrowser.visible === false && displayMode == "split")
+                sideBrowser.visible = true
+        }
+    }
+
     Keys.onReleased:{
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             if (menu.visible == false)
             {
+                setMenuView(true)
                 setRestoreModeFalse()
                 menu.restore()
             }
             else
             {
+                setMenuView(false)
                 menu.visible = false
                 setRestoreModeTrue()
             }

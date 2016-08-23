@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtMultimedia 5.0
+import QtMultimedia 5.5
 
 Item {
     signal next()
@@ -112,24 +112,17 @@ Item {
                     audioPlayed()
                 }
             }
-            if (fakePlay == false)
+            videoOut1.opacity = 1
+            showVideo1.start()
+            if (durationMsecs == 0)
+                nextVideoTimer.interval = getDuration(mp1.duration)
+            else
+                nextVideoTimer.interval = durationMsecs -500
+            nextVideoTimer.start()
+            if (seekMsecs > 0)
             {
-                videoOut1.opacity = 1
-                showVideo1.start()
-                if (durationMsecs == 0)
-                    nextVideoTimer.interval = getDuration(mp1.duration)
-                else
-                    nextVideoTimer.interval = durationMsecs -500
-                nextVideoTimer.start()
-                if (seekMsecs > 0)
-                {
-                    console.log("MP1:seek " + seekMsecs)
-                    seek(seekMsecs)
-                }
-            }
-            else{
-                console.log("MP1:Fake play called")
-                fakePlay = false
+                console.log("MP1:seek " + seekMsecs)
+                seek(seekMsecs)
             }
         }
     }
@@ -157,27 +150,18 @@ Item {
                     audioPlayed()
                 }
             }
-
-            if (fakePlay == false)
+            videoOut2.opacity = 1.0
+            videoOut1.opacity = 0.0
+            console.log("MP2:OnPlay Duration = " + durationMsecs)
+            if (durationMsecs == 0)
+                nextVideoTimer.interval = getDuration(mp2.duration)
+            else
+                nextVideoTimer.interval = durationMsecs -500
+            nextVideoTimer.start()
+            if (seekMsecs > 0)
             {
-                //showVideo2.start()
-                videoOut2.opacity = 1.0
-                videoOut1.opacity = 0.0
-                console.log("MP2:OnPlay Duration = " + durationMsecs)
-                if (durationMsecs == 0)
-                    nextVideoTimer.interval = getDuration(mp2.duration)
-                else
-                    nextVideoTimer.interval = durationMsecs -500
-                nextVideoTimer.start()
-                if (seekMsecs > 0)
-                {
-                    console.log("MP2:seek " + seekMsecs)
-                    seek(seekMsecs)
-                }
-            }
-            else{
-                console.log("MP2:Fake play called")
-                fakePlay = false
+                console.log("MP2:seek " + seekMsecs)
+                seek(seekMsecs)
             }
         }
     }
