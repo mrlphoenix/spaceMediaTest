@@ -268,6 +268,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.off_power_loss = data["off_power_loss"].toInt();
     result.off_charge_percent = data["off_charge_percent"].toInt();
 
+    result.is_paid = data["is_paid"].toBool();
+
     if (needSave)
         GlobalConfigInstance.setSettings(data);
 
@@ -380,8 +382,17 @@ QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json
         PlaylistAPIResult item = PlaylistAPIResult::fromJson(playlistObject);
         item.id = areaDescObject["area_id"].toString();
         item.type = playlistObject["type"].toString();
-        for (int i = 0; i< item.items.count(); i++)
+
+        for (int cmpIndex = 0; cmpIndex< item.items.count(); ++cmpIndex)
+            for (int itemIndex = 0; itemIndex <  item.items[cmpIndex].content.count(); ++itemIndex)
+                item.items[cmpIndex].content[itemIndex].virtualScreenId = GlobalConfigInstance.getVirtualScreenId(item.id);
+
+        for (int i = 0; i< item.items.count(); ++i)
+        {
             item.items[i].areaId = item.id;
+            for (int j = 0; j < item.items[i].content.count(); ++j)
+                item.items[i].content[j].areaId = item.id;
+        }
         result[item.id] = item;
     }
     return result;
@@ -399,6 +410,7 @@ PlayerConfig PlayerConfig::fromJson(QJsonArray data)
         screen.virtual_screen_id = virtualScreenObject["virtual_screen_id"].toString();
         GlobalConfigInstance.setVirtualScreenId(screen.virtual_screen_id);
         screen.id = virtualScreenObject["id"].toString();
+        GlobalConfigInstance.setAreaToVirtualScreen(screen.id, screen.virtual_screen_id);
         screen.display_type = virtualScreenObject["display_type"].toString();
         screen.type = virtualScreenObject["type"].toString();
         screen.audio_priority = virtualScreenObject["audio_priority"].toInt();
@@ -456,6 +468,7 @@ QString PlaylistAPIResult::PlaylistItem::getExtension() const
         return "";
     return "." + tokens.last();
 }
+
 
 bool PlaylistAPIResult::PlaylistItem::checkTimeTargeting() const
 {

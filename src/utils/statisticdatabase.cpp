@@ -301,7 +301,7 @@ void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, Pl
     QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) " +
                   QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15)")).arg(
                     QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
-                    GlobalConfigInstance.getVirtualScreenId(),
+                    item.virtualScreenId,
                     item.areaId,
                     item.id,
                     item.campaignId).arg(

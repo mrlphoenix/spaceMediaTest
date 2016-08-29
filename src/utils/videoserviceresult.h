@@ -75,6 +75,7 @@ struct SettingsRequestResult
     int off_charge_percent;
     bool autooff_by_battery_level_active;
     bool autooff_by_discharging_time_active;
+    bool is_paid;
 };
 
 struct PlaylistAPIResult
@@ -93,6 +94,7 @@ struct PlaylistAPIResult
         QString fileHash;
         QString campaignId;
         QString areaId;
+        QString virtualScreenId;
         int videoWidth;
         int videoHeight;
         int duration;

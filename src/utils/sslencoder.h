@@ -1,6 +1,7 @@
 #ifndef SSLENCODER_H
 #define SSLENCODER_H
 
+#ifdef USE_SSL_EXTERNAL
 #include <QObject>
 #include <QByteArray>
 #include <openssl/aes.h>
@@ -40,6 +41,6 @@ protected:
     static int decryptAES256(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext);
     static int encryptAES256(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext);
 };
-
+#endif
 #endif // SSLENCODER_H
 

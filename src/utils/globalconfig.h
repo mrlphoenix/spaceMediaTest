@@ -50,6 +50,9 @@ public:
     void setPlaylistNetworkError(int error_id);
     int getPlaylistNetworkError(){return playlistNetworkErrorId;}
 
+    void setAreaToVirtualScreen(QString areaId, QString virtualScreenId);
+    QString getVirtualScreenId(QString areaId);
+
 
     int getStatsInterval(){return statsInterval;}
     bool isAutoBrightnessActive(){return autobright;}
@@ -91,6 +94,7 @@ private:
 
     QHash<int, QList<int> > time_targeting_relay_1;
     QHash<int, QList<int> > time_targeting_relay_2;
+    QHash<QString, QString> areaToVirtualScreen;
     bool firstReleyEnabled, secondReleyEnabled;
 
     int getPlaylistTimerTime;

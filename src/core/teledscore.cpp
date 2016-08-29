@@ -45,7 +45,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     shutdownTimer->start(60000);
 
     videoService = new VideoService("http://api.teleds.com");
-    QDir().mkpath("/sdcard/download/teleds");
+    //QDir().mkpath("/sdcard/download/teleds");
 
     uploader = new StatisticUploader(videoService,this);
     teledsPlayer = new TeleDSPlayer(this);
@@ -54,7 +54,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     shouldShowPlayer = true;
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    statsTimer->start(60000);
+    statsTimer->start(120000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
@@ -147,7 +147,6 @@ void TeleDSCore::setupHttpServer()
     httpserver = new QHttpServer(this);
     httpserver->listen(16080);
     connect(httpserver,SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)),this,SLOT(handleNewRequest(QHttpRequest*,QHttpResponse*)));
-    connect(&myServerManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(myServerResponse(QNetworkReply*)));
    // QTimer::singleShot(3000,this,SLOT(runMyserverRequest()));
 }
 /*
@@ -183,6 +182,7 @@ void TeleDSCore::initPlayer()
 
 void TeleDSCore::initResult(InitRequestResult result)
 {
+    qDebug() << "TeleDSCore::initResult" << result.code << result.token;
     emit playerIdUpdate(result.code);
     //save init params
     playerInitParams = result;
@@ -205,7 +205,9 @@ void TeleDSCore::initResult(InitRequestResult result)
 
 void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
 {
+    qDebug() << "HARDWARE INFO Ready";
     QJsonObject jsonBody;
+    qDebug() << "Before grabbing Info";
     jsonBody["timestamp"] = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss");
     jsonBody["timezone"] = QString(QTimeZone::systemTimeZoneId());
     jsonBody["uniqid"] = info.uid;
@@ -217,6 +219,8 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     jsonBody["os"] = info.osName;
     jsonBody["os_version"] = info.osVersion;
 
+    qDebug() << "After grabbing info";
+
     jsonBody["gps_lat"] = GlobalStatsInstance.getLatitude();
     jsonBody["gps_long"] = GlobalStatsInstance.getLongitude();
 
@@ -227,6 +231,25 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
 
 void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response)
 {
+    /*
+        localhost:16080/system
+
+        /version
+        =>
+        1.0.10/1099
+
+        /gps
+        =>
+        {"lat":58.55555,"lng":47.5555}
+
+        /name
+        =>
+        rpi1
+
+        /info
+        =>
+
+     * */
     QString path = request->path();
     if (request->method() == QHttpRequest::HTTP_GET)
     {
@@ -372,8 +395,8 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
             qDebug() << "STATS INTERVAL: " << result.stats_interval;
-            if (result.stats_interval >= 60000)
-                statsTimer->start(result.stats_interval);
+          //  if (result.stats_interval >= 60000)
+           //     statsTimer->start(result.stats_interval);
 
             if (result.brand_active)
             {
@@ -501,7 +524,7 @@ void TeleDSCore::downloaded()
     qDebug() << "TeleDSCore::downloaded";
 
     //after we download items - update playlists every 30 secs
-    GlobalConfigInstance.setGetPlaylistTimerTime(30000);
+    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
     //initialization of teledsPlayer

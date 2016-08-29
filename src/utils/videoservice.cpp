@@ -87,15 +87,21 @@ void VideoService::sendEvents(QString data)
 
 void VideoService::advancedInit(QByteArray data)
 {
+    qDebug() << "VideoService::advancedInit";
     executeRequest(VideoServiceRequestFabric::advancedInitRequest(data));
 }
 
 void VideoService::executeRequest(VideoServiceRequest request)
 {
+    qDebug() << "executeRequest";
     if (currentRequestExists)
+    {
+        qDebug() << "enqueuing request";
         requests.enqueue(request);
+    }
     else
     {
+        qDebug() << "performing request";
         currentRequest = request;
         performRequest(request);
         currentRequestExists = true;
@@ -115,6 +121,7 @@ bool VideoService::processReplyError(const QNetworkReply *reply, QString method)
 
 void VideoService::initVideoRequestFinishedSlot(QNetworkReply *reply)
 {
+    qDebug() << "initVideoRequestFinishedSlot";
     processReplyError(reply,"init");
     emit initVideoRequestFinished(reply);
     nextRequest();
@@ -173,6 +180,7 @@ void VideoService::getVirtualScreenPlaylistRequestFinishedSlot(QNetworkReply *re
 
 void VideoService::performRequest(VideoServiceRequest request)
 {
+    qDebug() << "VideoService::performRequest" << request.name;
     QUrl url(serverURL);
     QUrlQuery query;
     QByteArray data;
@@ -202,7 +210,10 @@ void VideoService::performRequest(VideoServiceRequest request)
     manager->disconnect();
 
     if (request.name == "init")
+    {
+        qDebug() << "Connecting manager to init";
         connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(initVideoRequestFinishedSlot(QNetworkReply*)));
+    }
     else if (request.name == "getPlaylist")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlaylistRequestFinishedSlot(QNetworkReply*)));
 
@@ -223,6 +234,7 @@ void VideoService::performRequest(VideoServiceRequest request)
         qDebug() << "ERROR: undefined method: " << request.name;
     }
 
+    qDebug() << data;
     if (request.method == "GET")
         manager->get(networkRequest);
     else

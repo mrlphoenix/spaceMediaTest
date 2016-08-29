@@ -25,7 +25,6 @@ void StaticText::setLang(QString lang)
 
 QString StaticText::getEula()
 {
-    qDebug() << eula << privacyPolicy << openSource << legal;
     if (eula.contains(lang))
         return eula[lang];
     else

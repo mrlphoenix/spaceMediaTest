@@ -102,8 +102,5 @@ protected:
     bool isActive;
     bool isSplitScreen;
 };
-
-
-
 #endif // RPIVIDEOPLAYER_H
 

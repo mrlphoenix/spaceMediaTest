@@ -49,7 +49,6 @@ DISTFILES += android/AndroidManifest.xml \
     TeleDSMenu.qml
 QML_IMPORT_PATH =
 
-LIBS += -lssl -lcrypto
 
 contains (KIT, Android) {
     include(deployment.pri)
@@ -59,6 +58,7 @@ contains (KIT, Android) {
 android: {
     INCLUDEPATH += /home/nother/openssl101t/include
     LIBS += -L/home/nother/openssl101t/
+    LIBS += -lssl -lcrypto
 }
 ANDROID_PERMISSIONS = android.permission.READ_PHONE_STATE
 

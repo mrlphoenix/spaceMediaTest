@@ -47,6 +47,7 @@ void StatisticUploader::playsReady(QList<StatisticDatabase::Play> plays)
     QString strToSend = doc.toJson();
     videoService->sendPlays(strToSend);
 }
+
 void StatisticUploader::systemInfoReady(QList<Platform::SystemInfo> data)
 {
     if (data.count() == 0)

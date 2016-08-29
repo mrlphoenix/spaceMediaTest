@@ -1,3 +1,5 @@
+#ifdef USE_SSL_EXTERNAL
+
 #include <QUrl>
 #include <QDebug>
 #include <QDataStream>
@@ -319,3 +321,4 @@ int SSLEncoder::decryptAES256(unsigned char *ciphertext, int ciphertext_len, uns
 
     return plaintext_len;
 }
+#endif

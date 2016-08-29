@@ -257,12 +257,28 @@ int64_t Platform::PlatformSpecificWorker::getTrafficIn()
     jlong value = 0;
     QAndroidJniEnvironment env;
     jclass clazz = env->FindClass("android/net/TrafficStats");
+    if (env->ExceptionCheck())
+    {
+        env->DeleteLocalRef(clazz);
+        return 0;
+    }
     if (clazz)
     {
         jmethodID mid = env->GetStaticMethodID(clazz,"getTotalRxBytes","()J");
+        if (env->ExceptionCheck())
+        {
+            env->DeleteLocalRef(clazz);
+            return 0;
+        }
         if (mid)
             value = env->CallStaticLongMethod(clazz,mid);
+        if (env->ExceptionCheck())
+        {
+            env->DeleteLocalRef(clazz);
+            return 0;
+        }
     }
+    env->DeleteLocalRef(clazz);
     return value;
 #endif
 
@@ -705,6 +721,7 @@ void Platform::PlatformSpecificThread::writeToFile(QByteArray data, QString file
 
 void Platform::PlatformSpecificThread::run()
 {
+    qDebug() << "Platform::PlatformSpecificThread::run()";
     worker = new PlatformSpecificWorker();
     connect (worker,SIGNAL(systemInfoReady(Platform::SystemInfo)),this,SIGNAL(systemInfoReady(Platform::SystemInfo)));
     connect (worker,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)), this, SIGNAL(hardwareInfoReady(Platform::HardwareInfo)));

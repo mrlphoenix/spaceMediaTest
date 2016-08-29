@@ -159,6 +159,19 @@ void GlobalConfig::setPlaylistNetworkError(int error_id)
     save();
 }
 
+void GlobalConfig::setAreaToVirtualScreen(QString areaId, QString virtualScreenId)
+{
+    areaToVirtualScreen[areaId] = virtualScreenId;
+}
+
+QString GlobalConfig::getVirtualScreenId(QString areaId)
+{
+    if (areaToVirtualScreen.contains(areaId))
+        return areaToVirtualScreen[areaId];
+    else
+        return "";
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";

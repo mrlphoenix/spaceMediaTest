@@ -132,6 +132,7 @@ Item {
                 sideBrowser.visible = true
             displayMode = "split"
         }
+
     }
     function setContentPosition(cLeft, cTop, cWidth, cHeight, wLeft, wTop, wWidth, wHeight)
     {
@@ -837,14 +838,17 @@ Item {
         y: contentHeight/2 - height/2
     }
 
-
     AndroidBrowser{
         id: androidBrowser
         visible: false
+
         width: contentWidth
         height: contentHeight
         x: contentLeft
-        y: contentHeight
+        y: contentTop
+
+        //width: parent.width
+        //height: parent.height * 0.5
         property string nextItemUrl: ""
         property int nextItemTime: 0
         property string nextItemType: ""
@@ -1002,6 +1006,7 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
+
                     onClicked: {
                         dialogAndroid.close()
                        // if (displayMode == "split")
