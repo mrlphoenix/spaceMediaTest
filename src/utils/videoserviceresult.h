@@ -76,6 +76,7 @@ struct SettingsRequestResult
     bool autooff_by_battery_level_active;
     bool autooff_by_discharging_time_active;
     bool is_paid;
+    int volume;
 };
 
 struct PlaylistAPIResult
@@ -132,6 +133,78 @@ struct PlaylistAPIResult
     QVector<CampaignItem> items;
 };
 
+struct PlayerConfigAPI
+{
+    static PlayerConfigAPI fromJson(QJsonObject json);
+    static QDateTime timeFromJson(QJsonValue v);
+    QDateTime last_modified;
+    int error_id;
+    QString error_text;
+    QString error;
+    struct Campaign
+    {
+        static PlayerConfigAPI::Campaign fromJson(QJsonObject json);
+        int play_order;
+        QString campaign_id;
+        int duration;
+        QDateTime start_timestamp;
+        QDateTime end_timestamp;
+        int screen_width;
+        int screen_height;
+
+        struct Area {
+            static PlayerConfigAPI::Campaign::Area fromJson(QJsonObject json);
+            QString area_id;
+            QString type;
+            int x;
+            int y;
+            int width;
+            int height;
+            int screen_width;
+            int screen_height;
+            int z_index;
+            double opacity;
+            bool sound_enabled;
+
+            struct Content{
+
+                static PlayerConfigAPI::Campaign::Area::Content fromJson(QJsonObject json);
+
+                QString content_id;
+                QString area_id;
+                QString campaign_id;
+                int play_order;
+                QString payment_type;
+                QString play_type;
+                int play_timeout;
+                QDateTime start_timestamp;
+                QDateTime end_timestamp;
+                QString name;
+                QString type;
+                int rotate;
+                int duration;
+                int play_start;
+                QString file_url;
+                QString file_hash;
+                struct gps
+                {
+                    double latitude, longitude;
+                };
+                QHash<QString, QVector<int> > time_targeting;
+                QVector<QVector<gps> > geo_targeting;
+                QVector<QPolygonF> polygons;
+
+                bool checkTimeTargeting() const;
+                bool checkDateRange() const;
+                bool checkGeoTargeting(QPointF gps) const;
+            };
+            QVector<Content> content;
+        };
+        QVector<Area> areas;
+    };
+    QVector<Campaign> campaigns;
+};
+
 struct PlayerConfig
 {
     static PlayerConfig fromJson(QJsonArray data);
@@ -164,23 +237,15 @@ public:
 
 signals:
     void initResult(InitRequestResult result);
-    void getPlaylistResult(PlayerConfig result);
-    void sendStatisticResult(NonQueryResult result);
+    void getPlaylistResult(PlayerConfigAPI result);
     void sendStatisticEventsResult(NonQueryResult result);
-    void sendStatisticPlaysResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
-    void getPlayerAreasResult(PlayerConfig result);
-    void getVirtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
-    void sendStatisticResultReply(QNetworkReply * reply);
     void sendStatisticEventsResultReply(QNetworkReply * reply);
-    void sendStatisticPlaysResultReply(QNetworkReply * reply);
     void getPlayerSettingsReply(QNetworkReply * reply);
-    void getPlayerAreasReply(QNetworkReply * reply);
-    void getVirtualScreenPlaylist(QNetworkReply * reply);
 private:
 };
 

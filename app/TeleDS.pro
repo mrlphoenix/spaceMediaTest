@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 PKGCONFIG += openssl
 
-KIT = Android
+KIT = Raspberry
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 
@@ -46,7 +46,8 @@ RESOURCES += \
 
 DISTFILES += android/AndroidManifest.xml \
     android/src/org/qtproject/qt5/android/bindings/KioskService.java \
-    TeleDSMenu.qml
+    TeleDSMenu.qml \
+    PlayerView.qml
 QML_IMPORT_PATH =
 
 

@@ -123,6 +123,12 @@ void TeleDSPlayer::invokeNextVideoMethod(QString name)
 
 void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, bool isWidget)
 {
+    if (name == "")
+    {
+        if (!isWidget)
+            invokeStopMainPlayer();
+        return;
+    }
     PlaylistAPIResult::PlaylistItem item;
     if (isWidget)
         item = widgetPlaylist->findItemById(name);
@@ -131,7 +137,10 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, bool isWidget)
     qDebug() << "invoking next method::advanced -> " << item.name;
     QVariant source;
     if (item.type == "video" || item.type == "audio")
+    {
         source = QUrl(getFullPath(name));
+        invokeSetPlayerVolume(GlobalConfigInstance.getVolume());
+    }
     else if (item.type == "html5_online")
         source = item.fileUrl;
     else if (item.type == "html5_zip")
@@ -236,6 +245,13 @@ void TeleDSPlayer::invokeStop()
     QMetaObject::invokeMethod(viewRootObject, "stopPlayer");
 }
 
+void TeleDSPlayer::invokeStopMainPlayer()
+{
+    qDebug() << "TeleDSPlayer::invokeStopMainPlayer";
+    QMetaObject::invokeMethod(viewRootObject, "stopMainPlayer");
+    QTimer::singleShot(10000,this,SLOT(runAfterStop()));
+}
+
 void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo)
 {
     qDebug() << "TeleDSPlayer::invokeSetTheme";
@@ -284,6 +300,12 @@ void TeleDSPlayer::invokeRestoreDefaultTheme()
     this->show();
 }
 
+void TeleDSPlayer::invokeSetPlayerVolume(int value)
+{
+    qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";
+    QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value)));
+}
+
 void TeleDSPlayer::invokeSetLicenseData()
 {
     qDebug() << "TeleDSPlayer::invokeSetLicenseData";
@@ -297,7 +319,7 @@ void TeleDSPlayer::invokeSetLicenseData()
                               Q_ARG(QVariant, eulaParam),
                               Q_ARG(QVariant, privacyPolicyParam),
                               Q_ARG(QVariant, opensourceParam),
-                              Q_ARG(QVariant, legalParam))  ;
+                              Q_ARG(QVariant, legalParam));
 }
 
 void TeleDSPlayer::invokeSetDeviceInfo()
@@ -335,6 +357,18 @@ void TeleDSPlayer::invokeSetContentPosition(float contentLeft, float contentTop,
                               Q_ARG(QVariant, QVariant(widgetTop)),
                               Q_ARG(QVariant, QVariant(widgetWidth)),
                               Q_ARG(QVariant, QVariant(widgetHeight)));
+}
+
+void TeleDSPlayer::runAfterStop()
+{
+    qDebug() << "TeleDSPlayer::runAfterStop";
+    bool haveNext = playlist->haveNext();
+    next();
+    if (haveNext)
+    {
+        qDebug() << "TeleDSPlayer::runAfterStop -> we have next item";
+        QTimer::singleShot(1000,this,SLOT(next()));
+    }
 }
 
 void TeleDSPlayer::next()

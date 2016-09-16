@@ -25,6 +25,7 @@ public:
     virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid)=0;
 public slots:
     virtual QString next()=0;
+    virtual bool haveNext()=0;
 protected:
     PlaylistAPIResult playlist;
 };
@@ -39,34 +40,9 @@ public:
     virtual QString getType() {return "list";}
 public slots:
     virtual QString next();
+    virtual bool haveNext(){return true;}
 private:
     int currentItemIndex;
-};
-
-
-
-class RandomPlaylist : public AbstractPlaylist
-{
-    Q_OBJECT
-public:
-    explicit RandomPlaylist(QObject *parent = 0);
-    virtual ~RandomPlaylist(){;}
-    virtual void updatePlaylist(PlaylistAPIResult playlist);
-
-    virtual QString getType() {return "random";}
-signals:
-
-public slots:
-    virtual QString next();
-protected:
-
-    void splitItems();
-    void shuffle();
-    bool itemDelayPassed(const PlaylistAPIResult::PlaylistItem &item);
-
-    QList<PlaylistAPIResult::PlaylistItem> fixedFloatingItems;
-    QList<PlaylistAPIResult::PlaylistItem> floatingNoneItems;
-    QHash<QString,QDateTime> lastTimeShowed;
 };
 
 class SuperPlaylist : public AbstractPlaylist
@@ -77,6 +53,7 @@ public:
     virtual ~SuperPlaylist(){;}
     virtual void updatePlaylist(PlaylistAPIResult playlist);
     virtual QString next();
+    virtual bool haveNext();
     virtual PlaylistAPIResult::PlaylistItem findItemById(QString iid);
     virtual QString getType() {return "random";}
 protected:
@@ -90,6 +67,7 @@ protected:
     QDateTime minPlayTime;
     QString currentCampaignId;
     int currentItemIndex;
+    QString storedNextItem;
 
     QList<PlaylistAPIResult::CampaignItem> fixedFloatingItems;
     QList<PlaylistAPIResult::CampaignItem> floatingNoneItems;

@@ -55,7 +55,6 @@ void DatabaseWorker::slotExecutePrepared(const QString &queryId, const QString &
     executePrepared(queryId, resultId);
 }
 
-
 void DatabaseWorker::executeOneTime(const QString& queryId, const QString& sql)
 {
     // use previously defined db connection
@@ -349,7 +348,6 @@ void StatisticDatabase::createSystemInfo(Platform::SystemInfo info)
 
     queryThread->execute("createSystemInfo", sql);
 }
-
 
 void StatisticDatabase::findSystemInfoToSend()
 {

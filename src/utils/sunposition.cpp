@@ -27,7 +27,6 @@ double SunsetSystem::calcSunsetGMT(int julDay, double latitude, double longitude
     double gamma_sunset = CalcGamma2(julDay, setTimeGMT/60);
     eqTime = CalcEqofTime(gamma_sunset);
 
-
     solarDec = CalcSolarDec(gamma_sunset);
 
     hourAngle = CalcHourAngle(latitude, solarDec, false);

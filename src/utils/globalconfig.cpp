@@ -172,6 +172,12 @@ QString GlobalConfig::getVirtualScreenId(QString areaId)
         return "";
 }
 
+void GlobalConfig::setVolume(int value)
+{
+    this->volume = value;
+    save();
+}
+
 void GlobalConfig::loadFromJson()
 {
     qDebug() << "loading from config.dat";
@@ -191,6 +197,7 @@ void GlobalConfig::loadFromJson()
     this->playlist = root["playlist"].toObject();
     this->areas = root["areas"].toArray();
     this->playlistNetworkErrorId = root["playlistNetworkErrorId"].toInt();
+    this->volume = root["volume"].toInt();
 
     qDebug() << "currentConfig: " << token;
     configFile.close();
@@ -207,6 +214,7 @@ void GlobalConfig::save()
     root["playlist"] = playlist;
     root["areas"] = areas;
     root["playlistNetworkErrorId"] = playlistNetworkErrorId;
+    root["volume"] = volume;
 
     QJsonDocument doc(root);
     QFile file (CONFIG_FOLDER + "config.dat");

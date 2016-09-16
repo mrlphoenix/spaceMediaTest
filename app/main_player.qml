@@ -92,6 +92,7 @@ Item {
     //properties for seamless video player
     property bool preloader: false
     property bool useSecondPlayer: false
+    property bool askNextItemOnStop: true
 
     //properties for cross content managing
     property string currentType: "null"
@@ -117,6 +118,10 @@ Item {
     onHeightChanged: {
         heightP = height
         widthP = width
+    }
+    function setPlayerVolume(value)
+    {
+        videoPlayer.setVolume(value)
     }
 
     function setDisplayMode(mode)
@@ -216,7 +221,12 @@ Item {
         menu.setDefaultMode()
         menu.showTeleDSLogo = true
     }
-
+    function stopMainPlayer()
+    {
+        askNextItemOnStop = false
+        videoPlayer.prepareStop = true
+        currentType = "null"
+    }
     function stopPlayer()
     {
         videoPlayer.stopPlayer();
@@ -231,7 +241,7 @@ Item {
             sideBrowser.stopBrowser()
         }
 
-        currentType = null
+        currentType = "null"
     }
 
     function enablePreloading(filename)
@@ -325,7 +335,6 @@ Item {
             }
         }
     }
-
     function downloadComplete(){
         console.debug("download complete. Hiding Progress Bars, Showing Video Player");
         filesProgressBar.visible = false
@@ -814,15 +823,21 @@ Item {
         onVideoStopped: {
             console.log("video player:video stopped")
 
-
             videoPlayer.stopPlayer()
 
-            showBrowserTimer.browserVisible = true
-            showBrowserTimer.start()
-            androidBrowser.startShow()
             audioIcon.visible = false
+            if (askNextItemOnStop)
+            {
+                showBrowserTimer.browserVisible = true
+                showBrowserTimer.start()
+                androidBrowser.startShow()
 
-            nextItem()
+                nextItem()
+            }
+            else
+            {
+                askNextItemOnStop = true
+            }
         }
     }
     //image for audio playback
@@ -902,8 +917,6 @@ Item {
             nextWidget()
         }
     }
-
-
 
     //android:excludeFromRecents="true"
 

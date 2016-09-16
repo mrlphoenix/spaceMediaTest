@@ -71,10 +71,9 @@ public slots:
 
     //slot is called when backed returned player settings
     void playerSettingsResult(SettingsRequestResult result);
-    //slot is called after we load virtual screens
-    void virtualScreensResult(PlayerConfig result);
     //slot is called after we get response from loading virtual screens playlists
     void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
+    void playlistResult(PlayerConfigAPI result);
 
     void onThemeReady(ThemeDesc desc);
 

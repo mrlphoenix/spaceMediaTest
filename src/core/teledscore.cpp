@@ -30,8 +30,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     StaticTextService;
     StaticTextService.init();
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
-
-
+    qDebug() << "Working in " << QDir().currentPath();
 
     qDebug() << "SSL" << QSslSocket::supportsSsl();
     //GPIO Releys
@@ -45,7 +44,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     shutdownTimer->start(60000);
 
     videoService = new VideoService("http://api.teleds.com");
-    //QDir().mkpath("/sdcard/download/teleds");
+
+    PlatformSpecificService.install();
 
     uploader = new StatisticUploader(videoService,this);
     teledsPlayer = new TeleDSPlayer(this);
@@ -58,8 +58,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
-    connect(videoService,SIGNAL(getVirtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)),this,SLOT(virtualScreenPlaylistResult(QHash<QString,PlaylistAPIResult>)));
-    connect(videoService,SIGNAL(getPlayerAreasResult(PlayerConfig)),this,SLOT(virtualScreensResult(PlayerConfig)));
+    connect(videoService,SIGNAL(getPlaylistResult(PlayerConfigAPI)),this,SLOT(playlistResult(PlayerConfigAPI)));
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (teledsPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
@@ -67,7 +66,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect (&PlatformSpecificService,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)),this,SLOT(hardwareInfoReady(Platform::HardwareInfo)));
     connect (&PlatformSpecificService,SIGNAL(batteryInfoReady(Platform::BatteryInfo)),this,SLOT(automaticShutdownBatteryInfoReady(Platform::BatteryInfo)));
 
-    connect (skinManager, SIGNAL(skinReady(ThemeDesc)), this, SLOT(onThemeReady(ThemeDesc)));
+    //connect (skinManager, SIGNAL(skinReady(ThemeDesc)), this, SLOT(onThemeReady(ThemeDesc)));
     GlobalConfigInstance.setGetPlaylistTimerTime(10000);
 
     qDebug() << "Loading config from " << CONFIG_FOLDER;
@@ -86,13 +85,9 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         //if settings is stored in config and if brand is active
         SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
 
-        if (settings.brand_active)
+      /*  if (settings.brand_active)
         {
             qDebug() << "TeleDSCore::init brand is active and stored in config file. loading";
-           /* auto tdsPlayer = this->teledsPlayer;
-            QTimer::singleShot(1000, [settings, tdsPlayer]() mutable {
-                tdsPlayer->invokeSetTheme(settings.brand_background, settings.brand_logo, settings.brand_color_1, settings.brand_color_2, "#d7d7d7");
-            });*/
             if (skinManager->isSkinReady(settings.brand_background, settings.brand_logo,
                                          settings.brand_menu_background, settings.brand_menu_logo,
                                          settings.brand_background_hash, settings.brand_logo_hash,
@@ -120,10 +115,10 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
             QTimer::singleShot(1000,[this](){this->showPlayer();});
         }
         else
-        {
+        {*/
             qDebug() << "TeleDSCore::init brand is NOT active";
             teledsPlayer->show();
-        }
+       // }
 
         //until we load actual playlist - update timer every 10 sec
         GlobalConfigInstance.setGetPlaylistTimerTime(10000);
@@ -147,32 +142,8 @@ void TeleDSCore::setupHttpServer()
     httpserver = new QHttpServer(this);
     httpserver->listen(16080);
     connect(httpserver,SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)),this,SLOT(handleNewRequest(QHttpRequest*,QHttpResponse*)));
-   // QTimer::singleShot(3000,this,SLOT(runMyserverRequest()));
-}
-/*
-void TeleDSCore::runMyserverRequest()
-{
-    static int i = 0;
-    if (i == 0)
-    {
-        myServerManager.put(QNetworkRequest(QUrl("http://localhost:16080/weather/data")), QString("26 10").toLocal8Bit());
-        i = 1;
-        QTimer::singleShot(500,this,SLOT(runMyserverRequest()));
-    }
-    else
-    {
-        myServerManager.get(QNetworkRequest(QUrl("http://localhost:16080/weather/data")));
-    }
 }
 
-void TeleDSCore::myServerResponse(QNetworkReply *reply)
-{
-    if (reply->error())
-        qDebug() << "TeleDSCore::replyError!" << reply->errorString();
-    qDebug() << "TeleDSCore::myServerTest >" << reply->readAll();
-}
-
-*/
 void TeleDSCore::initPlayer()
 {
     qDebug() << "!!! Video service initialization";
@@ -231,25 +202,6 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
 
 void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response)
 {
-    /*
-        localhost:16080/system
-
-        /version
-        =>
-        1.0.10/1099
-
-        /gps
-        =>
-        {"lat":58.55555,"lng":47.5555}
-
-        /name
-        =>
-        rpi1
-
-        /info
-        =>
-
-     * */
     QString path = request->path();
     if (request->method() == QHttpRequest::HTTP_GET)
     {
@@ -258,6 +210,26 @@ void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response
         {
             QString widgetId = tokens[1];
             QString contentId = tokens[2];
+            if (widgetId == "system" && contentId == "list")
+            {
+                qDebug() << "SYSTEM::LIST";
+                QString dataStr;
+                foreach (const QString &key, storedData.keys())
+                {
+                    dataStr+=key + ":";
+                    foreach (const QString &cKey, storedData[key].keys())
+                    {
+                        dataStr+=cKey + ",";
+                    }
+                    dataStr += "\n";
+                }
+                QByteArray data = dataStr.toLocal8Bit();
+                response->writeHead(200);
+                response->setHeader("Content-Type","text/plain");
+                response->setHeader("Content-Length", QString::number(data.size()));
+                response->end(data);
+                request->deleteLater();
+            }
             if (storedData.contains(widgetId)){
                 if (storedData[widgetId].contains(contentId))
                 {
@@ -376,8 +348,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         if (result.error_id == 0)
         {
             //load all player areas information
-            videoService->getPlayerAreas();
-
+            videoService->getPlaylist();
             GlobalConfigInstance.setVideoQuality(result.video_quality);
 
             //saving time targeting reley config
@@ -390,6 +361,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setMinBrightness(result.bright_night);
             GlobalConfigInstance.setMaxBrightness(result.bright_day);
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
+            GlobalConfigInstance.setVolume(result.volume);
 
             //if static gps is given - saving it in stats
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
@@ -398,7 +370,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
           //  if (result.stats_interval >= 60000)
            //     statsTimer->start(result.stats_interval);
 
-            if (result.brand_active)
+           /* if (result.brand_active)
             {
                 qDebug() << "TeleDSCore::settings brand is active!";
                 skinManager->updateSkin(result.brand_background,result.brand_logo,
@@ -414,7 +386,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             {
                 qDebug() << "TeleDSCore::settings brand is NOT!!! active!";
                 teledsPlayer->invokeRestoreDefaultTheme();
-            }
+            //}*/
 
             batteryStatus.setActive(result.autooff_by_battery_level_active, result.autooff_by_discharging_time_active);
             if (result.autooff_by_battery_level_active || result.autooff_by_discharging_time_active)
@@ -422,7 +394,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         }
     }
 }
-
+/*
 void TeleDSCore::virtualScreensResult(PlayerConfig result)
 {
     //after we load virtual screens list - load playlists for every screen
@@ -441,7 +413,7 @@ void TeleDSCore::virtualScreensResult(PlayerConfig result)
     qDebug() <<"Core: virtual screens " << result.screens.count() << " errorid = " << result.error_id;
     currentConfig = result;
     videoService->getPlaylist();
-}
+}*/
 
 void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
 {
@@ -480,6 +452,11 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
     }
     //prepare downloader
     setupDownloader(this->currentConfig);
+}
+
+void TeleDSCore::playlistResult(PlayerConfigAPI result)
+{
+
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)

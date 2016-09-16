@@ -1,64 +1,5 @@
 #include "playlist.h"
 
-RandomPlaylist::RandomPlaylist(QObject *parent) : AbstractPlaylist(parent)
-{
-
-}
-
-void RandomPlaylist::updatePlaylist(PlaylistAPIResult playlist)
-{
-    this->playlist = playlist;
-    splitItems();
-}
-
-QString RandomPlaylist::next()
-{
-}
-
-void RandomPlaylist::splitItems()
-{
-}
-
-void RandomPlaylist::shuffle()
-{
-    //this method is called when we need to shuffle our playlist items
-    QList<PlaylistAPIResult::PlaylistItem> newFixed, newFloating;
-    while (fixedFloatingItems.count() > 0)
-    {
-        int currentItemIndex = qrand()%fixedFloatingItems.count();
-        newFixed.append(fixedFloatingItems[currentItemIndex]);
-        fixedFloatingItems.removeAt(currentItemIndex);
-    }
-    while (floatingNoneItems.count() > 0)
-    {
-        int currentItemIndex = qrand()%floatingNoneItems.count();
-        newFloating.append(floatingNoneItems[currentItemIndex]);
-        floatingNoneItems.removeAt(currentItemIndex);
-    }
-    fixedFloatingItems = newFixed;
-    floatingNoneItems = newFloating;
-}
-
-bool RandomPlaylist::itemDelayPassed(const PlaylistAPIResult::PlaylistItem &item)
-{
-    if (lastTimeShowed.contains(item.id))
-    {
-        if (QDateTime::currentDateTime() > lastTimeShowed[item.id])
-        {
-            qDebug() << "RANDOM PL: Item Delay Passed!>>" << item.id << " [" << item.name << "]" <<
-                        QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.id].time().toString();
-            return true;
-        }
-        else
-        {
-            qDebug() << "RANDOM PL: Item Delay is Not Passed. Skipping item.>>" << item.id << " [" << item.name << "]";
-            return false;
-        }
-    }
-    else
-        return true;
-}
-
 AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 {
 
@@ -135,7 +76,6 @@ void SuperPlaylist::updatePlaylist(PlaylistAPIResult playlist)
 QString SuperPlaylist::next()
 {
     qDebug() << "SuperPlaylist::next";
-
     /*
      * 1. Перемешиваем массив
     2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
@@ -149,6 +89,12 @@ QString SuperPlaylist::next()
         2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // `Timeout (если ==)
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
+    if (storedNextItem != "")
+    {
+        QString result = storedNextItem;
+        storedNextItem = "";
+        return result;
+    }
 
     currentItemIndex++;
     bool nextCampaign = false;
@@ -255,6 +201,12 @@ QString SuperPlaylist::next()
         }
     }
     return itemResult;
+}
+
+bool SuperPlaylist::haveNext()
+{
+    storedNextItem = next();
+    return storedNextItem != "";
 }
 
 PlaylistAPIResult::PlaylistItem SuperPlaylist::findItemById(QString iid)

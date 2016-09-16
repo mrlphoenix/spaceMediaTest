@@ -148,11 +148,9 @@ public class QtActivity extends Activity
     public static String getInternetConnectionStatus(){return internetConnectionStatus;}
 
     public static void setRestoreModeTrue(){
-        Log.i("TeleDS", "java:setRestoreModeTrue");
         shouldRestoreWindowOnPause = true;
     }
     public static void setRestoreModeFalse(){
-        Log.i("TeleDS", "java:setRestoreModeFalse");
         shouldRestoreWindowOnPause = false;
     }
 

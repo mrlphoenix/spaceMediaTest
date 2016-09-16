@@ -53,6 +53,9 @@ public:
     void setAreaToVirtualScreen(QString areaId, QString virtualScreenId);
     QString getVirtualScreenId(QString areaId);
 
+    void setVolume(int value);
+    int getVolume(){return volume;}
+
 
     int getStatsInterval(){return statsInterval;}
     bool isAutoBrightnessActive(){return autobright;}
@@ -105,6 +108,7 @@ private:
     QJsonArray virtualScreens, areas;
     QJsonObject playlist;
     int playlistNetworkErrorId;
+    int volume;
 };
 
 #endif // GLOBALCONFIG_H

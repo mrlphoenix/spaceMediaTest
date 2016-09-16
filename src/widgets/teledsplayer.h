@@ -57,9 +57,12 @@ public slots:
     void invokeDownloadingView();
     void invokeEnablePreloading();
     void invokeStop();
+    void invokeStopMainPlayer();
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
     void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
     void invokeRestoreDefaultTheme();
+
+    void invokeSetPlayerVolume(int value);
 
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
@@ -69,10 +72,11 @@ public slots:
     void invokeSetContentPosition(float contentLeft = 0.f, float contentTop = 0.f, float contentWidth = 100.f, float contentHeight = 100.f,
                                   float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);
 
+    void runAfterStop();
     void next();
     void nextWidget();
-    void playNext() {playNextGeneric(false);}
-    void playNextWidget() {playNextGeneric(true);}
+    void playNext() {return playNextGeneric(false);}
+    void playNextWidget() {return playNextGeneric(true);}
     void playNextGeneric(bool isWidget);
     void bindObjects();
     void stopPlaying();

@@ -12,6 +12,7 @@
 #include <QDataStream>
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
+#include <QDir>
 #include "singleton.h"
 #include "globalstats.h"
 #include "platformspecific.h"
@@ -48,6 +49,30 @@
 #define ANDROID_OS_BUILD_TAGS                "ro.build.tags"                     // Comma-separated tags describing the build, like "unsigned,debug".
 
 #define ANDROID_OS_BUILD_FINGERPRINT         "ro.build.fingerprint"              // A string that uniquely identifies this build. 'BRAND/PRODUCT/DEVICE:RELEASE/ID/VERSION.INCREMENTAL:TYPE/TAGS'
+/*
+    QString result = "666";
+    char model_id[PROP_VALUE_MAX];
+    int len = 0;
+    len = __system_property_get(ANDROID_OS_BUILD_BOARD, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_BRAND, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_CPU_ABI, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_DEVICE, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_ID, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_MANUFACTURER, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_MODEL, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_PRODUCT, model_id);
+    result = result + QString::number(len);
+    len = __system_property_get(ANDROID_OS_BUILD_HARDWARE, model_id);
+    result = result + QString::number(len);*/
+
+
 
 #endif
 
@@ -160,29 +185,6 @@ void Platform::PlatformSpecificWorker::generateSystemInfo()
 QString Platform::PlatformSpecificWorker::getUniqueId()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
-/*
-    QString result = "666";
-    char model_id[PROP_VALUE_MAX];
-    int len = 0;
-    len = __system_property_get(ANDROID_OS_BUILD_BOARD, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_BRAND, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_CPU_ABI, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_DEVICE, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_ID, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_MANUFACTURER, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_MODEL, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_PRODUCT, model_id);
-    result = result + QString::number(len);
-    len = __system_property_get(ANDROID_OS_BUILD_HARDWARE, model_id);
-    result = result + QString::number(len);*/
-
     //if platform is Android - get DeviceID using JNI
     qDebug() << "Platform::PlatformSpecificWorker::getUniqueId()";
     QAndroidJniEnvironment env;
@@ -790,6 +792,13 @@ QString Platform::PlatformSpecific::getConnectionName()
 #ifdef PLATFORM_DEFINE_RPI
     return "";
 #endif
+}
+
+void Platform::PlatformSpecific::install()
+{
+    QDir().mkpath(CONFIG_FOLDER);
+    QDir().mkpath(VIDEO_FOLDER);
+    QDir().mkpath(DATABASE_FOLDER);
 }
 
 void Platform::PlatformSpecific::generateSystemInfo()

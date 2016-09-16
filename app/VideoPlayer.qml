@@ -31,6 +31,10 @@ Item {
         isVideoPlaying = true
         firstPlayer = true
     }
+    function setVolume(volumeValue){
+        mp1.volume = 0.01 * volumeValue
+        mp2.volume = 0.01 * volumeValue
+    }
 
     Timer{
         id: nextVideoTimer
