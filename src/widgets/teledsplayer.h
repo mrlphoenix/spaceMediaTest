@@ -21,15 +21,14 @@ class TeleDSPlayer : public QObject
 public:
     explicit TeleDSPlayer(QObject * parent);
     ~TeleDSPlayer();
-    QString getFullPath(QString fileName);
+    QString getFullPath(QString fileName, AbstractPlaylist *playlist);
     QString getFullPathZip(QString path);
 
     void show();
-    void update(PlayerConfig config);
-    void setConfig(PlayerConfig::VirtualScreen area);
-    void setConfig(PlayerConfig::VirtualScreen contentArea, PlayerConfig::VirtualScreen widgetArea);
+    void updateConfig(PlayerConfigAPI &playerConfig);
     void play();
     void stop();
+    PlayerConfigAPI::Campaign::Area getAreaById(QString id);
 
     struct CurrentItemStatus
     {
@@ -44,8 +43,7 @@ public:
 signals:
     void refreshNeeded();
 public slots:
-    void invokeNextVideoMethod(QString name);
-    void invokeNextVideoMethodAdvanced(QString name, bool isWidget = false);
+    void invokeNextVideoMethodAdvanced(QString name, QString area_id);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);
@@ -55,7 +53,6 @@ public slots:
     void invokePlayerActivationRequiredView(QString url, QString playerId);
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
-    void invokeEnablePreloading();
     void invokeStop();
     void invokeStopMainPlayer();
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
@@ -73,11 +70,8 @@ public slots:
                                   float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);
 
     void runAfterStop();
-    void next();
-    void nextWidget();
-    void playNext() {return playNextGeneric(false);}
-    void playNextWidget() {return playNextGeneric(true);}
-    void playNextGeneric(bool isWidget);
+    void next(QString area_id);
+    void playNextGeneric(QString area_id);
     void bindObjects();
     void stopPlaying();
 
@@ -94,10 +88,10 @@ protected:
     void invokeShowVideo(bool isVisible);
 
     QQuickView view;
-    AbstractPlaylist * playlist;
-    AbstractPlaylist * widgetPlaylist;
+    QHash<QString, AbstractPlaylist*> playlists;
     bool isPlaylistRandom;
-    PlaylistAPIResult config, widgetConfig;
+
+    PlayerConfigAPI config;
     QObject * viewRootObject;
     QQueue<QString> playedIds;
 

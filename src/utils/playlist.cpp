@@ -5,29 +5,6 @@ AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 
 }
 
-StandartPlaylist::StandartPlaylist(QObject *parent) : AbstractPlaylist(parent)
-{
-    currentItemIndex = 0;
-}
-
-void StandartPlaylist::updatePlaylist(PlaylistAPIResult playlist)
-{
-    this->playlist = playlist;
-}
-
-QString StandartPlaylist::next()
-{
-    //in standart playlist next() method is simple - we just play items one by one
-    int itemsCount = playlist.items.count();
-    if (currentItemIndex >= itemsCount)
-        currentItemIndex = itemsCount-1;
-    qDebug() << currentItemIndex;
-    qDebug() << playlist.items.count();
-    QString item = playlist.items[currentItemIndex].content.at(0).id;
-    currentItemIndex = (currentItemIndex + 1)%itemsCount;
-    return item;
-}
-
 SuperPlaylist::SuperPlaylist(QObject *parent) : AbstractPlaylist(parent)
 {
     allLength = 0;
@@ -35,7 +12,7 @@ SuperPlaylist::SuperPlaylist(QObject *parent) : AbstractPlaylist(parent)
     currentItemIndex = -1;
 }
 
-void SuperPlaylist::updatePlaylist(PlaylistAPIResult playlist)
+void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playlist)
 {
     this->playlist = playlist;
     splitItems();
@@ -46,31 +23,25 @@ void SuperPlaylist::updatePlaylist(PlaylistAPIResult playlist)
     //setuping campaing list
     qDebug() << "SuperPlaylist::campaigns clear";
     campaigns.clear();
-    foreach (const PlaylistAPIResult::CampaignItem &campaign, playlist.items)
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
     {
-        int campaignDuration = 0;
-        foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-            campaignDuration += item.duration;
-        allLength += campaignDuration;
-        campaigns[campaign.id] = campaign;
+        allLength += item.duration;
+        campaigns[item.content_id] = item;
     }
     qDebug() << "SuperPlaylist::campaigns restored";
-    minPlayTime = minPlayTime.addSecs(-allLength);
+    minPlayTime = minPlayTime.addMSecs(-allLength);
     int tempTime = 0;
-    foreach (const PlaylistAPIResult::CampaignItem &campaign, playlist.items)
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
     {
-        int campaignDuration = 0;
-        foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-            campaignDuration += item.duration;
-        if (!lastTimeShowed.contains(campaign.id))
+        if (!lastTimeShowed.contains(item.content_id))
         {
-            QDateTime campaignFakePlayTime = minPlayTime;
-            campaignFakePlayTime = campaignFakePlayTime.addSecs(tempTime);
-            lastTimeShowed[campaign.id] = campaignFakePlayTime;
-            tempTime += campaignDuration;
+            QDateTime itemFakePlayTime = minPlayTime;
+            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime);
+            lastTimeShowed[item.content_id] = itemFakePlayTime;
+            tempTime += item.duration;
         }
     }
-    magic = qRound(double(allLength) / double(playlist.items.count()) * MAGIC_PLAYLIST_VALUE);
+    magic = qRound(double(allLength) / double(playlist.content.count()) * MAGIC_PLAYLIST_VALUE);
 }
 
 QString SuperPlaylist::next()
@@ -89,118 +60,44 @@ QString SuperPlaylist::next()
         2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // `Timeout (если ==)
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
-    if (storedNextItem != "")
+    qDebug() << "SuperPlaylist::need to choose campaign";
+    currentItemIndex = 0;
+    shuffle();
+    std::sort(fixedFloatingItems.begin(), fixedFloatingItems.end(),
+              [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
+              {
+                  int aLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[a.content_id]) / magic);
+                  int bLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[b.content_id]) / magic);
+                  if (aLastPlayed == bLastPlayed)
+                      return a.play_timeout < b.play_timeout;
+                  else
+                      return aLastPlayed < bLastPlayed;
+              });
+    for (int i = 0; i < MAGIC_PLAYLIST_VALUE + 1 && i < fixedFloatingItems.count(); ++i)
     {
-        QString result = storedNextItem;
-        storedNextItem = "";
-        return result;
-    }
-
-    currentItemIndex++;
-    bool nextCampaign = false;
-    bool resetCampaign = !campaigns.contains(currentCampaignId);
-    if (!resetCampaign)
-        nextCampaign = currentItemIndex >= campaigns[currentCampaignId].content.count();
-    else
-    {
-        qDebug() << "SuperPlaylist::resetCampaignReason-> " << campaigns.count() << " " << currentCampaignId;
-    }
-
-    if (resetCampaign)
-        currentCampaignId = "";
-    qDebug() << "SuperPlaylist::should reset campaign = " << resetCampaign << " &should set next campaign = " << nextCampaign;
-
-    QString itemResult;
-    if (!resetCampaign && !nextCampaign)
-    {
-        qDebug() << "SuperPlaylist::no need to choose next campaign -> going next item with index = " << currentItemIndex;
-        PlaylistAPIResult::CampaignItem currentCampaign = campaigns[currentCampaignId];
-        while (currentItemIndex < currentCampaign.content.count())
+        PlayerConfigAPI::Campaign::Area::Content item = fixedFloatingItems.at(i);
+        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
-            PlaylistAPIResult::PlaylistItem currentItem = currentCampaign.content[currentItemIndex];
-            if (currentItem.checkTimeTargeting() && currentItem.checkDateRange())
-            {
-                itemResult = currentItem.id;
-                break;
-            }
-            currentItemIndex++;
-        }
-        if (currentItemIndex >= currentCampaign.content.count())
-            nextCampaign = true;
-    }
-
-    if (resetCampaign || nextCampaign)
-    {
-        qDebug() << "SuperPlaylist::need to choose campaign";
-        currentItemIndex = 0;
-        shuffle();
-        bool found = false;
-        std::sort(fixedFloatingItems.begin(), fixedFloatingItems.end(),
-                  [&, this](const PlaylistAPIResult::CampaignItem &a, const PlaylistAPIResult::CampaignItem &b)
-                  {
-                      int aLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[a.id]) / magic);
-                      int bLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[b.id]) / magic);
-                      if (aLastPlayed == bLastPlayed)
-                          return a.play_timeout < b.play_timeout;
-                      else
-                          return aLastPlayed < bLastPlayed;
-                  });
-        for (int i = 0; i < MAGIC_PLAYLIST_VALUE + 1 && i < fixedFloatingItems.count(); ++i)
-        {
-            PlaylistAPIResult::CampaignItem campaign = fixedFloatingItems.at(i);
-            if (itemDelayPassed(campaign))
-            {
-                int foundItemIndex = 0;
-                foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-                {
-                    if (item.checkTimeTargeting() && item.checkDateRange())
-                    {
-                        QDateTime delayPassTime = QDateTime::currentDateTime();
-                        delayPassTime = delayPassTime.addSecs(campaign.play_timeout);
-                        lastTimeShowed[campaign.id] = delayPassTime;
-                        currentCampaignId = campaign.id;
-                        itemResult = item.id;
-                        currentItemIndex = foundItemIndex;
-                        found = true;
-                        break;
-                    }
-                    foundItemIndex++;
-                }
-                if (found)
-                    break;
-            }
-        }
-        if (!found)
-        {
-            qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
-            shuffle(false);
-            foreach (const PlaylistAPIResult::CampaignItem &campaign, floatingNoneItems)
-            {
-                bool freeItemFound = false;
-                int foundItemIndex = 0;
-                qDebug() << "campaign Content Size" << campaign.content.count();
-                foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-                {
-                    if (item.checkTimeTargeting() && item.checkDateRange())
-                    {
-                        QDateTime delayPassTime = QDateTime::currentDateTime();
-                        delayPassTime = delayPassTime.addSecs(campaign.play_timeout);
-                        lastTimeShowed[campaign.id] = delayPassTime;
-                        currentCampaignId = campaign.id;
-                        currentItemIndex = foundItemIndex;
-                        itemResult = item.id;
-                        qDebug() << "Item ID " << item.id;
-                        freeItemFound = true;
-                        return item.id;
-                    }
-                    if (freeItemFound)
-                        break;
-                    foundItemIndex++;
-                }
-            }
+            QDateTime delayPassTime = QDateTime::currentDateTime();
+            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
+            lastTimeShowed[item.content_id] = delayPassTime;
+            return item.content_id;
         }
     }
-    return itemResult;
+
+    qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
+    shuffle(false);
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, floatingNoneItems)
+    {
+        if (item.checkTimeTargeting() && item.checkDateRange())
+        {
+            QDateTime delayPassTime = QDateTime::currentDateTime();
+            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
+            lastTimeShowed[item.content_id] = delayPassTime;
+            return item.content_id;
+        }
+    }
+    return "";
 }
 
 bool SuperPlaylist::haveNext()
@@ -209,13 +106,12 @@ bool SuperPlaylist::haveNext()
     return storedNextItem != "";
 }
 
-PlaylistAPIResult::PlaylistItem SuperPlaylist::findItemById(QString iid)
+PlayerConfigAPI::Campaign::Area::Content SuperPlaylist::findItemById(QString id)
 {
-    foreach (const PlaylistAPIResult::CampaignItem &campaign, campaigns)
-        foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-            if (item.id == iid)
-                return item;
-    PlaylistAPIResult::PlaylistItem emptyItem;
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &content, campaigns)
+        if (content.content_id == id)
+            return content;
+    PlayerConfigAPI::Campaign::Area::Content emptyItem;
     return emptyItem;
 }
 
@@ -224,7 +120,7 @@ void SuperPlaylist::splitItems()
     qDebug() << "SuperPlaylist::splitItems";
     fixedFloatingItems.clear();
     floatingNoneItems.clear();
-    foreach (const PlaylistAPIResult::CampaignItem &item, playlist.items)
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
         if (item.play_type == "normal")
             fixedFloatingItems.append(item);
         else if (item.play_type == "free")
@@ -240,7 +136,7 @@ void SuperPlaylist::splitItems()
 void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
 {
     //this method is called when we need to shuffle our playlist items
-    QList<PlaylistAPIResult::CampaignItem> newFixed, newFloating;
+    QList<PlayerConfigAPI::Campaign::Area::Content> newFixed, newFloating;
     if (fixedFloating)
     {
         while (fixedFloatingItems.count() > 0)
@@ -263,19 +159,19 @@ void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
     }
 }
 
-bool SuperPlaylist::itemDelayPassed(const PlaylistAPIResult::CampaignItem &item)
+bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item)
 {
-    if (lastTimeShowed.contains(item.id))
+    if (lastTimeShowed.contains(item.content_id))
     {
-        if (QDateTime::currentDateTime() > lastTimeShowed[item.id])
+        if (QDateTime::currentDateTime() > lastTimeShowed[item.content_id])
         {
-            qDebug() << "SUPER PL: Item Delay Passed!>>" << item.id
-                     << QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.id].time().toString();
+            qDebug() << "SUPER PL: Item Delay Passed!>>" << item.content_id
+                     << QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.content_id].time().toString();
             return true;
         }
         else
         {
-            qDebug() << "SUPER PL: Item Delay is Not Passed. Skipping item.>>" << item.id;
+            qDebug() << "SUPER PL: Item Delay is Not Passed. Skipping item.>>" << item.content_id;
             return false;
         }
     }

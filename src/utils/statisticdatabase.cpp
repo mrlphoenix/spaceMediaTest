@@ -275,24 +275,9 @@ void StatisticDatabase::resourceCount()
 {
     QString sql = "select count(*) cnt from resource";
     queryThread->execute("resourceCount",sql);
-}
 
-void StatisticDatabase::playResource(PlaylistAPIResult::PlaylistItem item)
-{
-    //create table play (play_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT)
-    QString sql = QString("insert into play(time, screen, area, content, campaign) VALUES ('%1', '%2', '%3', '%4', '%5')").arg(
-                    QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
-                    GlobalConfigInstance.getVirtualScreenId(),
-                    item.areaId,
-                    item.id,
-                    item.campaignId
-                );
-    queryThread->execute("playResource", sql);
-    sql = QString("update Resource set lastTimePlayed = '%1' where iid = '%2'").arg(serializeDate(QDateTime::currentDateTime()), item.id);
-    queryThread->execute("playResource",sql);
 }
-
-void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, Platform::SystemInfo info)
+void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content item, Platform::SystemInfo info)
 {
     //		create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT,
     //                          cpu REAL, latitude REAL, longitude REAL, battery REAL,
@@ -300,10 +285,10 @@ void StatisticDatabase::createPlayEvent(PlaylistAPIResult::PlaylistItem item, Pl
     QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) " +
                   QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15)")).arg(
                     QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
-                    item.virtualScreenId,
-                    item.areaId,
-                    item.id,
-                    item.campaignId).arg(
+                    item.payment_type,
+                    item.area_id,
+                    item.content_id,
+                    item.campaign_id).arg(
                     QString::number(info.cpu),
                     QString::number(info.latitude), QString::number(info.longitude),
                     QString::number(info.battery), QString::number(info.traffic),
@@ -326,27 +311,6 @@ void StatisticDatabase::findPlaysToSend()
 {
     QString sql = "select * from play";
     queryThread->execute("findPlaysToSend",sql);
-}
-
-void StatisticDatabase::createSystemInfo(Platform::SystemInfo info)
-{
-    QString sql = QString(QString("insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) ") +
-                  QString("VALUES ('%1', %2, %3, %4, %5, %6, %6, %7, '%8', %9, %10, %11)")).arg(
-                    info.time.toString("yyyy-MM-dd HH:mm:ss"),
-                    QString::number(info.cpu),
-                    QString::number(info.latitude), QString::number(info.longitude),
-                    QString::number(info.battery), QString::number(info.traffic),
-                    QString::number(info.free_memory), info.wifi_mac,
-                    QString::number(info.hdmi_cec)).arg(
-                    QString::number(info.hdmi_gpio),
-                    QString::number(info.free_space));
-
-    //qDebug() << "SQL>>" + sql;
-
-    //insert into SystemInfo (time, cpu, latitude, longitude, battery, traffic_in, traffic_out, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space)
-    //VALUES ('YYYY-04-20 09:42:00', 11.85, 0, 0, 99, 0, 0, 42188800, '00:00:00:00:00:00', 1, 1, 7950688, %12)"
-
-    queryThread->execute("createSystemInfo", sql);
 }
 
 void StatisticDatabase::findSystemInfoToSend()

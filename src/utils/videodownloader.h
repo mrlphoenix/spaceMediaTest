@@ -43,7 +43,7 @@ class VideoDownloaderWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit VideoDownloaderWorker(PlayerConfig config, QObject *parent = 0);
+    explicit VideoDownloaderWorker(PlayerConfigAPI config, QObject *parent = 0);
     ~VideoDownloaderWorker();
 
 
@@ -64,7 +64,7 @@ signals:
     void downloadProgressSingle(double p, QString name);
     void checkDownloadItemsTodownloadResult(int c);
 public slots:
-    void updateConfig(PlayerConfig config);
+    void updateConfig(PlayerConfigAPI config);
     int itemsToDownloadCount(){return itemsToDownload.count();}
     void prepareDownload();
     void start();
@@ -83,13 +83,12 @@ private slots:
     void runDownloadNew();
     static void writeToFileJob(QFile* f, QNetworkReply * r);
 private:
-    bool isFileUpdated(PlaylistAPIResult::PlaylistItem item);
 
     QNetworkAccessManager * manager;
     QNetworkReply * reply;
-    PlayerConfig config;
+    PlayerConfigAPI config;
     QFile * file;
-    QVector<PlaylistAPIResult::PlaylistItem> itemsToDownload;
+    QVector<PlayerConfigAPI::Campaign::Area::Content> itemsToDownload;
     QList<StatisticDatabase::Resource> resources;
     FileSwapper swapper;
     QTimer * restarter;
@@ -102,7 +101,7 @@ class VideoDownloader : public QThread
 {
     Q_OBJECT
 public:
-    VideoDownloader(PlayerConfig config, QObject *parent);
+    VideoDownloader(PlayerConfigAPI config, QObject *parent);
     ~VideoDownloader();
 
 
@@ -113,7 +112,7 @@ public slots:
     void checkDownload(){worker->checkDownload();}
     void startDownload(){worker->start();}
     int itemsToDownloadCount() {return worker->itemsToDownloadCount();}
-    void updateConfig(PlayerConfig config){worker->updateConfig(config);}
+    void updateConfig(PlayerConfigAPI config){worker->updateConfig(config);}
 signals:
     void done();
     void downloadProgressSingle(double p, QString name);

@@ -72,7 +72,7 @@ public slots:
     //slot is called when backed returned player settings
     void playerSettingsResult(SettingsRequestResult result);
     //slot is called after we get response from loading virtual screens playlists
-    void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
+    //void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
     void playlistResult(PlayerConfigAPI result);
 
     void onThemeReady(ThemeDesc desc);
@@ -111,7 +111,7 @@ public slots:
 
 
 protected:
-    void setupDownloader(PlayerConfig& newConfig);
+    void setupDownloader();
     QVector<QObject*> widgets;
     TeleDSPlayer * teledsPlayer;
 
@@ -124,7 +124,7 @@ protected:
     QString encryptedSessionKey;
     TeleDSSheduler sheduler;
 
-    PlayerConfig currentConfig;
+    PlayerConfigAPI currentConfig;
     BatteryStatus batteryStatus;
     SkinManager * skinManager;
 
@@ -135,6 +135,8 @@ protected:
     QHash<QString, QHash<QString, QByteArray> > storedData;
     QNetworkAccessManager myServerManager;
 };
+
+
 class HTTPServerDataReceiver : public QObject
 {
     Q_OBJECT

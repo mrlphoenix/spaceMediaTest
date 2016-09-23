@@ -228,218 +228,6 @@ QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString cont
     return result;
 }
 
-PlaylistAPIResult PlaylistAPIResult::fromJson(QJsonObject json)
-{
-    PlaylistAPIResult result;
-    result.type = json["type"].toString();
-    QJsonArray campaigns = json["campaigns"].toArray();
-    foreach (const QJsonValue &jsonCampaign, campaigns)
-    {
-        QJsonObject campaignObject = jsonCampaign.toObject();
-        PlaylistAPIResult::CampaignItem campaign;
-        campaign.play_order = campaignObject["play_order"].toInt();
-        campaign.play_timeout = campaignObject["play_timeout"].toInt();
-        campaign.play_type = campaignObject["play_type"].toString();
-        QJsonArray campaignContent = campaignObject["content"].toArray();
-        foreach (const QJsonValue &jsonContent, campaignContent)
-        {
-            QJsonObject contentObject = jsonContent.toObject();
-            PlaylistAPIResult::PlaylistItem item;
-            item.id = contentObject["content_id"].toString();
-            item.campaignId = contentObject["campaign_id"].toString();
-            campaign.id = item.campaignId;
-            item.name = contentObject["name"].toString();
-            item.fileUrl = contentObject["fileUrl"].toString();
-            item.fileHash = contentObject["fileHash"].toString();
-            item.duration = contentObject["duration"].toInt();
-            item.type = contentObject["type"].toString();
-
-            QDateTime nullDateTime;
-            if (contentObject["play_starts"].isNull())
-                item.play_starts = nullDateTime;
-            else
-                item.play_starts = QDateTime::fromString(contentObject["play_starts"].toString(), "yyyy-MM-dd HH:mm:ss");
-
-            if (contentObject["play_ends"].isNull())
-                item.play_ends = nullDateTime;
-            else
-                item.play_ends = QDateTime::fromString(contentObject["play_ends"].toString(), "yyyy-MM-dd HH:mm:ss");
-
-            QJsonObject timeTargeting = contentObject["time_targeting"].toObject();
-            foreach (const QString &key, timeTargeting.keys())
-            {
-                QJsonArray timeTargetingItems = timeTargeting[key].toArray();
-                QVector<int> timeTargetingVectorItems;
-                foreach (const QJsonValue &v, timeTargetingItems)
-                    timeTargetingVectorItems.append(v.toInt());
-                item.time_targeting[key] = timeTargetingVectorItems;
-            }
-
-            QJsonArray geoTargeting = contentObject["geo_targeting"].toArray();
-            QVector<QVector<PlaylistAPIResult::PlaylistItem::gps> > geoTargetingVector;
-            foreach (const QJsonValue &v, geoTargeting)
-            {
-                QVector <PlaylistAPIResult::PlaylistItem::gps> geoTargetingAreaVector;
-                QJsonArray geoTargetingArea = v.toArray();
-                QPolygonF currentPolygon;
-                foreach (const QJsonValue &areaValue, geoTargetingArea)
-                {
-                    QJsonObject gpsObject = areaValue.toObject();
-                    PlaylistAPIResult::PlaylistItem::gps gps;
-                    gps.latitude = gpsObject["latitude"].toDouble();
-                    gps.longitude = gpsObject["longitude"].toDouble();
-                    geoTargetingAreaVector.append(gps);
-                    currentPolygon.append(QPointF(gps.latitude, gps.longitude));
-                }
-                geoTargetingVector.append(geoTargetingAreaVector);
-                item.polygons.append(currentPolygon);
-            }
-            item.geo_targeting = geoTargetingVector;
-            item.updated_at = QDateTime::fromString(contentObject["updated_at"].toString(), "yyyy-MM-dd HH:mm:ss");
-            campaign.content.append(item);
-        }
-        result.items.append(campaign);
-    }
-    GlobalConfigInstance.setPlaylist(json);
-    return result;
-}
-
-QHash<QString, PlaylistAPIResult> PlaylistAPIResult::getAllItems(QJsonArray json)
-{
-    QHash <QString, PlaylistAPIResult> result;
-    foreach (const QJsonValue &v, json)
-    {
-        QJsonObject areaDescObject = v.toObject();
-        QJsonObject playlistObject = areaDescObject["playlist"].toObject();
-        PlaylistAPIResult item = PlaylistAPIResult::fromJson(playlistObject);
-        item.id = areaDescObject["area_id"].toString();
-        item.type = playlistObject["type"].toString();
-
-        for (int cmpIndex = 0; cmpIndex< item.items.count(); ++cmpIndex)
-            for (int itemIndex = 0; itemIndex <  item.items[cmpIndex].content.count(); ++itemIndex)
-                item.items[cmpIndex].content[itemIndex].virtualScreenId = GlobalConfigInstance.getVirtualScreenId(item.id);
-
-        for (int i = 0; i< item.items.count(); ++i)
-        {
-            item.items[i].areaId = item.id;
-            for (int j = 0; j < item.items[i].content.count(); ++j)
-                item.items[i].content[j].areaId = item.id;
-        }
-        result[item.id] = item;
-    }
-    return result;
-}
-
-PlayerConfig PlayerConfig::fromJson(QJsonArray data)
-{
-    PlayerConfig result;
-    result.error_id = 0;
-
-    foreach (const QJsonValue &v, data)
-    {
-        QJsonObject virtualScreenObject = v.toObject();
-        PlayerConfig::VirtualScreen screen;
-        screen.virtual_screen_id = virtualScreenObject["virtual_screen_id"].toString();
-        GlobalConfigInstance.setVirtualScreenId(screen.virtual_screen_id);
-        screen.id = virtualScreenObject["id"].toString();
-        GlobalConfigInstance.setAreaToVirtualScreen(screen.id, screen.virtual_screen_id);
-        screen.display_type = virtualScreenObject["display_type"].toString();
-        screen.type = virtualScreenObject["type"].toString();
-        screen.audio_priority = virtualScreenObject["audio_priority"].toInt();
-        screen.screen_priority = virtualScreenObject["screen_priority"].toInt();
-        screen.position.setTopLeft(QPoint(virtualScreenObject["start_x"].toInt(),
-                                          virtualScreenObject["start_y"].toInt()));
-        screen.position.setBottomRight(QPoint(virtualScreenObject["end_x"].toInt(),
-                                              virtualScreenObject["end_y"].toInt()));
-        screen.resfreshTime = virtualScreenObject["refresh_at"].toInt();
-        result.screens[screen.id] = screen;
-    }
-    return result;
-}
-
-PlayerConfig::AreaCompositionType PlayerConfig::getType()
-{
-    bool contentFound = false, widgetFound = false, multipleContent = false;
-    foreach (const VirtualScreen &v, screens)
-    {
-        if (v.type == "fullscreen" && v.playlist.items.count())
-            return AREA_FULLSCREEN;
-        else if (v.type == "content" && v.playlist.items.count())
-        {
-            if (contentFound)
-                multipleContent = true;
-            contentFound = true;
-        }
-        else if (v.type == "widget" && v.playlist.items.count())
-            widgetFound = true;
-    }
-    if (widgetFound && contentFound)
-        return AREA_SPLIT;
-    if (multipleContent)
-        return AREA_MULTI;
-    else
-        return AREA_BROKEN;
-}
-
-PlayerConfig::VirtualScreen PlayerConfig::getScreenByType(QString type)
-{
-    VirtualScreen result;
-    foreach (const QString &k, screens.keys())
-    {
-        VirtualScreen currentScreen = screens[k];
-        if (currentScreen.type == type && currentScreen.playlist.items.count())
-            return currentScreen;
-    }
-    return result;
-}
-
-QString PlaylistAPIResult::PlaylistItem::getExtension() const
-{
-    QStringList tokens = fileUrl.split(".");
-    if (tokens.count() < 2)
-        return "";
-    return "." + tokens.last();
-}
-
-
-bool PlaylistAPIResult::PlaylistItem::checkTimeTargeting() const
-{
-    QString dayInt = QString::number(QDateTime::currentDateTimeUtc().date().dayOfWeek() + 1);
-    int hour = QDateTime::currentDateTimeUtc().time().hour();
-    if (time_targeting.contains(dayInt))
-    {
-        bool result = time_targeting[dayInt].contains(hour);
-        qDebug() << "is Time Targeting Passed for " + this->id + "? :" << result;
-        return result;
-    }
-    bool result = (time_targeting.count() == 0);
-    qDebug() << "is Time Targeting Passed for " + this->id + "? :" << result;
-    return result;
-}
-
-bool PlaylistAPIResult::PlaylistItem::checkDateRange() const
-{
-    bool sinceCheck = true, untilCheck = true;
-    if (play_starts.isValid())
-        sinceCheck = QDateTime::currentDateTimeUtc() > play_starts;
-    if (play_ends.isValid())
-        untilCheck = QDateTime::currentDateTimeUtc() < play_ends;
-    qDebug() << "checkDateRange for " + id + "? :" << sinceCheck << untilCheck;
-    return sinceCheck && untilCheck;
-}
-
-bool PlaylistAPIResult::PlaylistItem::checkGeoTargeting(QPointF gps) const
-{
-    if (polygons.count())
-    {
-        foreach (const QPolygonF &p, polygons)
-            if (p.containsPoint(gps,Qt::OddEvenFill))
-                return true;
-        return false;
-    }
-    else return true;
-}
-
 PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
 {
     PlayerConfigAPI result;
@@ -459,6 +247,25 @@ QDateTime PlayerConfigAPI::timeFromJson(QJsonValue v)
         return QDateTime::fromString(v.toString(), "yyyy-MM-dd HH:mm:ss");
 }
 
+int PlayerConfigAPI::count()
+{
+    int result = 0;
+    foreach (const PlayerConfigAPI::Campaign &cmp, campaigns)
+        foreach (const PlayerConfigAPI::Campaign::Area &area, cmp.areas)
+            result+= area.content.count();
+    return result;
+}
+
+QVector<PlayerConfigAPI::Campaign::Area::Content> PlayerConfigAPI::items()
+{
+    QVector<PlayerConfigAPI::Campaign::Area::Content> result;
+    foreach (const PlayerConfigAPI::Campaign &cmp, campaigns)
+        foreach (const PlayerConfigAPI::Campaign::Area &area, cmp.areas)
+            foreach (const PlayerConfigAPI::Campaign::Area::Content &cnt, area.content)
+                result.append(cnt);
+    return result;
+}
+
 PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
 {
     PlayerConfigAPI::Campaign result;
@@ -472,26 +279,6 @@ PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
         result.areas.append(PlayerConfigAPI::Campaign::Area::fromJson(aValue.toObject()));
     return result;
 }
-/*
- *     foreach (const QJsonValue &v, geoTargeting)
-{
-    QVector <PlayerConfigAPI::Campaign::Area::Content::gps> geoTargetingAreaVector;
-    QJsonArray geoTargetingArea = v.toArray();
-    QPolygonF currentPolygon;
-    foreach (const QJsonValue &areaValue, geoTargetingArea)
-    {
-        QJsonObject gpsObject = areaValue.toObject();
-        PlayerConfigAPI::Campaign::Area::Content::gps gps;
-        gps.latitude = gpsObject["latitude"].toDouble();
-        gps.longitude = gpsObject["longitude"].toDouble();
-        geoTargetingAreaVector.append(gps);
-        currentPolygon.append(QPointF(gps.latitude, gps.longitude));
-    }
-    geoTargetingVector.append(geoTargetingAreaVector);
-    result.polygons.append(currentPolygon);
-}
-item.geo_targeting = geoTargetingVector;
- * */
 
 PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonObject json)
 {
@@ -510,11 +297,13 @@ PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonO
     QJsonArray content = json["content"].toArray();
     foreach (const QJsonValue &cValue, content)
         result.content.append(PlayerConfigAPI::Campaign::Area::Content::fromJson(cValue.toObject()));
+    return result;
 }
 
 PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Content::fromJson(QJsonObject json)
 {
     PlayerConfigAPI::Campaign::Area::Content result;
+    //
     result.campaign_id = json["campaign_id"].toString();
     result.area_id = json["area_id"].toString();
     result.content_id = json["content_id"].toString();
@@ -561,5 +350,53 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
         geoTargetingVector.append(geoTargetingAreaVector);
         result.polygons.append(currentPolygon);
     }
+
     result.geo_targeting = geoTargetingVector;
+    return result;
+}
+
+QString PlayerConfigAPI::Campaign::Area::Content::getExtension() const
+{
+    QStringList tokens = file_url.split(".");
+    if (tokens.count() < 2)
+        return "";
+    return "." + tokens.last();
+}
+
+bool PlayerConfigAPI::Campaign::Area::Content::checkTimeTargeting() const
+{
+    QString dayInt = QString::number(QDateTime::currentDateTimeUtc().date().dayOfWeek() + 1);
+    int hour = QDateTime::currentDateTimeUtc().time().hour();
+    if (time_targeting.contains(dayInt))
+    {
+        bool result = time_targeting[dayInt].contains(hour);
+        qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
+        return result;
+    }
+    bool result = (time_targeting.count() == 0);
+    qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
+    return result;
+}
+
+bool PlayerConfigAPI::Campaign::Area::Content::checkDateRange() const
+{
+    bool sinceCheck = true, untilCheck = true;
+    if (start_timestamp.isValid())
+        sinceCheck = QDateTime::currentDateTimeUtc() > start_timestamp;
+    if (end_timestamp.isValid())
+        untilCheck = QDateTime::currentDateTimeUtc() < end_timestamp;
+    qDebug() << "checkDateRange for " + content_id + "? :" << sinceCheck << untilCheck;
+    return sinceCheck && untilCheck;
+}
+
+bool PlayerConfigAPI::Campaign::Area::Content::checkGeoTargeting(QPointF gps) const
+{
+    if (polygons.count())
+    {
+        foreach (const QPolygonF &p, polygons)
+            if (p.containsPoint(gps,Qt::OddEvenFill))
+                return true;
+        return false;
+    }
+    else return true;
 }

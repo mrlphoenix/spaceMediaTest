@@ -24,7 +24,7 @@
 #include "statictext.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
-{
+  {
     DatabaseInstance;
     PlatformSpecificService;
     StaticTextService;
@@ -415,7 +415,7 @@ void TeleDSCore::virtualScreensResult(PlayerConfig result)
     videoService->getPlaylist();
 }*/
 
-void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
+/*void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
 {
     if (GlobalConfigInstance.getPlaylistNetworkError() == -1)
     {
@@ -438,8 +438,7 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
         return;
     }
     //counting items in every playlist
-    foreach (const QString & k, result.keys())
-    {
+    foreach (const QString & k, result.keys()){
         count+= result[k].items.count();
     }
      qDebug() << "Core: Playlist " << count;
@@ -453,10 +452,36 @@ void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> r
     //prepare downloader
     setupDownloader(this->currentConfig);
 }
+*/
 
 void TeleDSCore::playlistResult(PlayerConfigAPI result)
 {
-
+    //this method is called when we got playlist
+    //!a | a*b = !a +b
+    //when we should update playlist
+    if (!currentConfig.last_modified.isValid() || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid()))
+    {
+        if (result.error_id == -1)
+        {
+            qDebug() << "seems like server is offline so we load from config";
+            PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlayerConfig());
+            if (storedResult.last_modified.isValid())
+            {
+                qDebug() << "config is Valid";
+                currentConfig = storedResult;
+            }
+        }
+        else
+        {
+            currentConfig = result;
+        }
+    }
+    if (currentConfig.count() == 0)
+    {
+        teledsPlayer->invokeNoItemsView("http://teleds.com");
+        return;
+    }
+    //prepare downloader
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)
@@ -506,8 +531,8 @@ void TeleDSCore::downloaded()
 
     //initialization of teledsPlayer
     //currently only one area is supported, so we display first one
-    qDebug() << "TeleDSCore::downloaded | screenCount = " << currentConfig.screens.count();
-    if (currentConfig.screens.count())
+  //  qDebug() << "TeleDSCore::downloaded | screenCount = " << currentConfig.screens.count();
+   /* if (currentConfig.campaigns.count())
     {
         PlayerConfig::AreaCompositionType configType = currentConfig.getType();
 
@@ -552,7 +577,7 @@ void TeleDSCore::downloaded()
         }
     }
     else
-        teledsPlayer->invokeNoItemsView("http://teleds.com");
+        teledsPlayer->invokeNoItemsView("http://teleds.com");*/
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -627,28 +652,43 @@ void TeleDSCore::showPlayer()
     }
 }
 
-void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
+
+
+void TeleDSCore::setupDownloader()
 {
-    qDebug() <<"Core: setup Downloader";
-    //if downloader already initializated - update items
-    //else resetup it
+    qDebug() << "Core::setupDownloader";
     if (downloader)
-        downloader->updateConfig(newConfig);
+        downloader->updateConfig(currentConfig);
     else
     {
-        downloader = new VideoDownloader(newConfig, this);
-
-        //this start() method is from QThread - must be called once to prepare Downloader Worker.
+        downloader = new VideoDownloader(currentConfig,this);
         downloader->start();
-        connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
-        connect(downloader,SIGNAL(done()),teledsPlayer,SLOT(invokeDownloadDone()));
-        connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),teledsPlayer,SLOT(invokeSimpleProgress(double,QString)));
-        connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
+        connect(downloader, SIGNAL(done()), this, SLOT(downloaded()));
     }
-    currentConfig = newConfig;
-    //starting downloading and stop getPlaylist timer
-    sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
-    downloader->runDownloadNew();
+
+    /*void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
+    {
+        qDebug() <<"Core: setup Downloader";
+        //if downloader already initializated - update items
+        //else resetup it
+        if (downloader)
+            downloader->updateConfig(newConfig);
+        else
+        {
+            downloader = new VideoDownloader(newConfig, this);
+
+            //this start() method is from QThread - must be called once to prepare Downloader Worker.
+            downloader->start();
+            connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
+            connect(downloader,SIGNAL(done()),teledsPlayer,SLOT(invokeDownloadDone()));
+            connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),teledsPlayer,SLOT(invokeSimpleProgress(double,QString)));
+            connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
+        }
+        currentConfig = newConfig;
+        //starting downloading and stop getPlaylist timer
+        sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
+        downloader->runDownloadNew();
+    }*/
 }
 
 void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)

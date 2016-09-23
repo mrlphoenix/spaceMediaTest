@@ -26,7 +26,6 @@ void CPUStat::getInfo()
     thread->loadInfo();
 }
 
-
 CPUStatWorker::CPUStatWorker(QObject *parent) : QObject(parent)
 {
     state = GET_UID;

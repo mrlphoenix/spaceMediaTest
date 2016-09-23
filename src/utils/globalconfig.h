@@ -20,7 +20,6 @@ class GlobalConfig : public QObject
     Q_OBJECT
 public:
     explicit GlobalConfig(QObject *parent = 0);
-    void setPlayerConfig(QString playerConfig);
     void setToken(QString token);
     void setActivationCode(QString code);
     void setVideoQuality(QString quality);
@@ -41,14 +40,19 @@ public:
 
     void setSettings(QJsonObject json);
     QJsonObject getSettings();
-    void setVirtualScreens(QJsonArray json);
-    QJsonArray getVirtualScreens();
     void setPlaylist(QJsonObject json);
     QJsonObject getPlaylist();
     void setAreas(QJsonArray json);
     QJsonArray getAreas();
     void setPlaylistNetworkError(int error_id);
     int getPlaylistNetworkError(){return playlistNetworkErrorId;}
+    
+    void setPlayerConfig(QJsonObject result);
+    QJsonObject getPlayerConfig();
+
+    void addContentPlaying(QString contentId);
+    void removeContentPlaying(QString contentId);
+    bool isContentInPlay(QString contentId);
 
     void setAreaToVirtualScreen(QString areaId, QString virtualScreenId);
     QString getVirtualScreenId(QString areaId);
@@ -63,10 +67,8 @@ public:
     int getMaxBrightness(){return max_bright;}
 
     bool isConfigured(){return configured;}
-    bool isPlaylistActivated(){return playerConfig != "";}
 
     QString getDevice(){return device;}
-    QString getPlayerConfig(){return playerConfig;}
     QString getToken(){return token;}
     QString getVideoQuality(){return quality;}
     QString getActivationCode(){return activationCode;}
@@ -82,7 +84,6 @@ private:
     void save();
     void checkConfiguration();
     QString device;
-    QString playerConfig;
     bool configured;
     QString token;
     QString quality;
@@ -105,10 +106,11 @@ private:
     QJsonObject settings;
     SettingsRequestResult settingsObject;
 
-    QJsonArray virtualScreens, areas;
-    QJsonObject playlist;
+    QJsonArray areas;
+    QJsonObject playlist, playerConfigAPI;
     int playlistNetworkErrorId;
     int volume;
+    QList<QString> contentInPlay;
 };
 
 #endif // GLOBALCONFIG_H

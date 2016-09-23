@@ -31,11 +31,6 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
         loadFromJson();
 }
 
-void GlobalConfig::setPlayerConfig(QString playerConfig)
-{
-    this->playerConfig = playerConfig;
-    save();
-}
 
 void GlobalConfig::setToken(QString token)
 {
@@ -120,17 +115,6 @@ QJsonObject GlobalConfig::getSettings()
     return settings;
 }
 
-void GlobalConfig::setVirtualScreens(QJsonArray json)
-{
-    virtualScreens = json;
-    save();
-}
-
-QJsonArray GlobalConfig::getVirtualScreens()
-{
-    return virtualScreens;
-}
-
 void GlobalConfig::setPlaylist(QJsonObject json)
 {
     playlist = json;
@@ -157,6 +141,34 @@ void GlobalConfig::setPlaylistNetworkError(int error_id)
 {
     playlistNetworkErrorId = error_id;
     save();
+}
+
+void GlobalConfig::setPlayerConfig(QJsonObject result)
+{
+    playerConfigAPI = result;
+    save();
+}
+
+QJsonObject GlobalConfig::getPlayerConfig()
+{
+    return playerConfigAPI;
+}
+
+void GlobalConfig::addContentPlaying(QString contentId)
+{
+    if (!contentInPlay.contains(contentId))
+        contentInPlay.append(contentId);
+}
+
+void GlobalConfig::removeContentPlaying(QString contentId)
+{
+    if (contentInPlay.contains(contentId))
+        contentInPlay.removeOne(contentId);
+}
+
+bool GlobalConfig::isContentInPlay(QString contentId)
+{
+    return contentInPlay.contains(contentId);
 }
 
 void GlobalConfig::setAreaToVirtualScreen(QString areaId, QString virtualScreenId)
@@ -193,7 +205,7 @@ void GlobalConfig::loadFromJson()
     this->device = root["device"].toString();
     this->token = root["token"].toString();
     this->settings = root["settings"].toObject();
-    this->virtualScreens = root["virtualScreens"].toArray();
+    this->playerConfigAPI = root["playerConfigAPI"].toObject();
     this->playlist = root["playlist"].toObject();
     this->areas = root["areas"].toArray();
     this->playlistNetworkErrorId = root["playlistNetworkErrorId"].toInt();
@@ -210,7 +222,7 @@ void GlobalConfig::save()
     root["device"] = device;
     root["token"] = token;
     root["settings"] = settings;
-    root["virtualScreens"] = virtualScreens;
+    root["playerConfigAPI"] = playerConfigAPI;
     root["playlist"] = playlist;
     root["areas"] = areas;
     root["playlistNetworkErrorId"] = playlistNetworkErrorId;

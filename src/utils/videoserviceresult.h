@@ -78,65 +78,13 @@ struct SettingsRequestResult
     bool is_paid;
     int volume;
 };
-
-struct PlaylistAPIResult
-{
-    static PlaylistAPIResult fromJson(QJsonObject json);
-    static QHash<QString, PlaylistAPIResult> getAllItems(QJsonArray json);
-    QString id;
-    QString type;
-
-    struct PlaylistItem
-    {
-        QString getExtension() const;
-        QString id;
-        QString name;
-        QString fileUrl;
-        QString fileHash;
-        QString campaignId;
-        QString areaId;
-        QString virtualScreenId;
-        int videoWidth;
-        int videoHeight;
-        int duration;
-        int skipTime;
-        QString type;
-        int play_order;
-        QDateTime play_starts;
-        QDateTime play_ends;
-        QDateTime updated_at;
-
-        QHash<QString, QVector<int> > time_targeting;
-        struct gps
-        {
-            double latitude, longitude;
-        };
-
-        QVector<QVector<gps> > geo_targeting;
-        QVector<QPolygonF> polygons;
-
-        bool checkTimeTargeting() const;
-        bool checkDateRange() const;
-        bool checkGeoTargeting(QPointF gps) const;
-    };
-
-    struct CampaignItem
-    {
-        QString id;
-        int play_order;
-        int play_timeout;
-        QString play_type;
-        QString areaId;
-        QVector<PlaylistItem> content;
-    };
-
-    QVector<CampaignItem> items;
-};
-
 struct PlayerConfigAPI
 {
     static PlayerConfigAPI fromJson(QJsonObject json);
     static QDateTime timeFromJson(QJsonValue v);
+    int count();
+
+    
     QDateTime last_modified;
     int error_id;
     QString error_text;
@@ -169,6 +117,7 @@ struct PlayerConfigAPI
             struct Content{
 
                 static PlayerConfigAPI::Campaign::Area::Content fromJson(QJsonObject json);
+                QString getExtension() const;
 
                 QString content_id;
                 QString area_id;
@@ -203,30 +152,9 @@ struct PlayerConfigAPI
         QVector<Area> areas;
     };
     QVector<Campaign> campaigns;
-};
 
-struct PlayerConfig
-{
-    static PlayerConfig fromJson(QJsonArray data);
-    enum AreaCompositionType {AREA_BROKEN, AREA_FULLSCREEN, AREA_SPLIT, AREA_MULTI};
-    AreaCompositionType getType();
-    int error_id;
-    QString error;
-    struct VirtualScreen
-    {
-        QString virtual_screen_id;
-        QString id;
-        QString type;
-        QRect position;
-        QString display_type;
-        QDateTime play_until;
-        int resfreshTime;
-        int audio_priority;
-        int screen_priority;
-        PlaylistAPIResult playlist;
-    };
-    VirtualScreen getScreenByType(QString type);
-    QHash<QString, VirtualScreen> screens;
+    //--------------
+     QVector<PlayerConfigAPI::Campaign::Area::Content> items();
 };
 
 class VideoServiceResponseHandler : public QObject

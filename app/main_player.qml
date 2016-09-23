@@ -964,7 +964,6 @@ Item {
     Dialog {
         id: dialogAndroid
 
-        // Создаём содержимое диалогового окна
         contentItem: Rectangle {
             width: 600
             height: 500

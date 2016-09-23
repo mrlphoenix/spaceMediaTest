@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.teleds.com.player" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0.16" android:versionCode="1147" android:installLocation="auto">
+<manifest package="org.teleds.com.player" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0.36" android:versionCode="1187" android:installLocation="auto">
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="TeleDS" android:icon="@drawable/icon">
 
         <service android:name="org.qtproject.qt5.android.bindings.KioskService"/>

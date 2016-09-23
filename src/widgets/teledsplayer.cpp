@@ -10,9 +10,6 @@
 
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
-    playlist = 0;
-    widgetPlaylist = 0;
-
     QSurfaceFormat curSurface = view.format();
     curSurface.setRedBufferSize(8);
     curSurface.setGreenBufferSize(8);
@@ -39,11 +36,10 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 
 TeleDSPlayer::~TeleDSPlayer()
 {
-    if (playlist)
-        delete playlist;
+
 }
 
-QString TeleDSPlayer::getFullPath(QString fileName)
+QString TeleDSPlayer::getFullPath(QString fileName, AbstractPlaylist * playlist)
 {
     QString nextFile = VIDEO_FOLDER + fileName + playlist->findItemById(fileName).getExtension();
     QFileInfo fileInfo(nextFile);
@@ -68,38 +64,21 @@ void TeleDSPlayer::show()
 #endif
 }
 
-
-void TeleDSPlayer::update(PlayerConfig config)
+void TeleDSPlayer::updateConfig(PlayerConfigAPI &playerConfig)
 {
-    foreach (const PlayerConfig::VirtualScreen &screen, config.screens)
-        if (screen.id == this->config.id)
-            setConfig(screen);
-}
-
-void TeleDSPlayer::setConfig(PlayerConfig::VirtualScreen area)
-{
-    qDebug() << "TeleDSPlayer::set config: ";
-    config = area.playlist;
-    if (playlist == NULL)
-        playlist = new SuperPlaylist(this);
-    isPlaylistRandom = true;
-
-    playlist->updatePlaylist(area.playlist);
-}
-
-void TeleDSPlayer::setConfig(PlayerConfig::VirtualScreen contentArea, PlayerConfig::VirtualScreen widgetArea)
-{
-    qDebug() << "TeleDS::setConfig split-screen";
-    config = contentArea.playlist;
-    widgetConfig = widgetArea.playlist;
-    if (playlist == NULL)
-        playlist = new SuperPlaylist(this);
-    if (widgetPlaylist == NULL)
-        widgetPlaylist = new SuperPlaylist(this);
-    isPlaylistRandom = true;
-    playlist->updatePlaylist(contentArea.playlist);
-    widgetPlaylist->updatePlaylist(widgetArea.playlist);
-    qDebug() << "SET CONFIG-> " << contentArea.playlist.items.count() << widgetArea.playlist.items.count();
+    config = playerConfig;
+    foreach (const QString &key, playlists.keys())
+        playlists[key]->deleteLater();
+    playlists.clear();
+    foreach (const PlayerConfigAPI::Campaign &campaign, playerConfig.campaigns)
+    {
+        foreach (const PlayerConfigAPI::Campaign::Area area, campaign.areas)
+        {
+            AbstractPlaylist* playlist = new SuperPlaylist(this);
+            playlist->updatePlaylist(area);
+            playlists[area.area_id] = playlist;
+        }
+    }
 }
 
 void TeleDSPlayer::play()
@@ -108,58 +87,53 @@ void TeleDSPlayer::play()
     QTimer::singleShot(1000,this,SLOT(next()));
 }
 
+PlayerConfigAPI::Campaign::Area TeleDSPlayer::getAreaById(QString id)
+{
+    PlayerConfigAPI::Campaign::Area result;
+    foreach (const PlayerConfigAPI::Campaign &cmp, config.campaigns)
+        foreach (const PlayerConfigAPI::Campaign::Area &area, cmp.areas)
+            if (area.area_id == id)
+                result = area;
+    return result;
+}
+
 bool TeleDSPlayer::isFileCurrentlyPlaying(QString name)
 {
     return status.item == name;
 }
 
-void TeleDSPlayer::invokeNextVideoMethod(QString name)
+void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, QString area_id)
 {
-    qDebug() << "invoking next";
-    QVariant source = QUrl(getFullPath(name));
-    qDebug() << source;
-    QMetaObject::invokeMethod(viewRootObject,"playFile",Q_ARG(QVariant,source));
-}
-
-void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, bool isWidget)
-{
-    if (name == "")
+    if (name == "" || area_id == "" || !playlists.contains(area_id))
     {
-        if (!isWidget)
-            invokeStopMainPlayer();
+        invokeStopMainPlayer();
         return;
     }
-    PlaylistAPIResult::PlaylistItem item;
-    if (isWidget)
-        item = widgetPlaylist->findItemById(name);
-    else
-        item = playlist->findItemById(name);
-    qDebug() << "invoking next method::advanced -> " << item.name;
+    PlayerConfigAPI::Campaign::Area::Content item = playlists[area_id]->findItemById(name);
+
     QVariant source;
     if (item.type == "video" || item.type == "audio")
     {
-        source = QUrl(getFullPath(name));
+        source = QUrl(getFullPath(name,playlists[area_id]));
         invokeSetPlayerVolume(GlobalConfigInstance.getVolume());
     }
     else if (item.type == "html5_online")
-        source = item.fileUrl;
+        source = item.file_url;
     else if (item.type == "html5_zip")
-        source = getFullPathZip(VIDEO_FOLDER + item.id + "/index.html");
+        source = getFullPathZip(VIDEO_FOLDER + item.content_id + "/index.html");
 
     QVariant type;
     if (item.type == "html5_zip")
         type = "html5_online";
     else
         type = item.type;
-
-    QVariant build = CONFIG_BUILD_NAME;
     QVariant duration = item.duration;
-    QVariant skip = item.skipTime;
-    QString methodName = isWidget ? "playWidget" : "playFileAdvanced";
-    QMetaObject::invokeMethod(viewRootObject, methodName.toStdString().data(),
-                              Q_ARG(QVariant,source),
+    QVariant skip = item.play_start;
+
+    QMetaObject::invokeMethod(viewRootObject, "playNextItem",
+                              Q_ARG(QVariant, area_id),
+                              Q_ARG(QVariant, source),
                               Q_ARG(QVariant, type),
-                              Q_ARG(QVariant, build),
                               Q_ARG(QVariant, duration),
                               Q_ARG(QVariant, skip));
 }
@@ -224,19 +198,6 @@ void TeleDSPlayer::invokeDownloadingView()
 {
     qDebug() << "invokeDownloading View";
     QMetaObject::invokeMethod(viewRootObject,"setDownloadLogo");
-}
-
-void TeleDSPlayer::invokeEnablePreloading()
-{
-    static bool invokedOnce = false;
-    if (invokedOnce)
-        return;
-    QString nextItem = playlist->next();
-//    DatabaseInstance.playResource(playlist->findItemById(nextItem));
-
-    QVariant nextItemParam = QUrl(getFullPath(nextItem));
-    QMetaObject::invokeMethod(viewRootObject, "enablePreloading", Q_ARG(QVariant, nextItemParam));
-    invokedOnce = true;
 }
 
 void TeleDSPlayer::invokeStop()
@@ -361,26 +322,26 @@ void TeleDSPlayer::invokeSetContentPosition(float contentLeft, float contentTop,
 
 void TeleDSPlayer::runAfterStop()
 {
-    qDebug() << "TeleDSPlayer::runAfterStop";
+   /* qDebug() << "TeleDSPlayer::runAfterStop";
     bool haveNext = playlist->haveNext();
     next();
     if (haveNext)
     {
         qDebug() << "TeleDSPlayer::runAfterStop -> we have next item";
         QTimer::singleShot(1000,this,SLOT(next()));
-    }
+    }*/
 }
 
-void TeleDSPlayer::next()
+void TeleDSPlayer::next(QString area_id)
 {
     if (isActive)
     {
         qDebug() << "next method is called";
         if (delay == 0)
-            playNext();
+            playNextGeneric(area_id);
         else
         {
-            QTimer::singleShot(delay,this,SLOT(playNext()));
+            QTimer::singleShot(1000, [this, area_id]() { playNextGeneric(area_id); } );
             hideVideo();
             status.isPlaying = false;
             status.item = "";
@@ -392,40 +353,16 @@ void TeleDSPlayer::next()
     }
 }
 
-void TeleDSPlayer::nextWidget()
+void TeleDSPlayer::playNextGeneric(QString area_id)
 {
-    if (isActive)
+    if (!playlists.contains(area_id))
     {
-        qDebug() << " next widget method is called";
-        if (delay == 0)
-            playNextWidget();
-        else
-        {
-            QTimer::singleShot(delay,this,SLOT(playNextWidget()));
-            hideVideo();
-            status.isPlaying = false;
-            status.item = "";
-        }
-    }
-    else
-    {
-        qDebug() << "Player is not active, so no next widget";
-    }
-}
-
-void TeleDSPlayer::playNextGeneric(bool isWidget)
-{
-    if (!playlist)
-    {
-        qDebug() << "playlist empty";
+        qDebug() << "playlist " << area_id << " not found";
         return;
     }
-    QString nextItem;
-    if (isWidget && widgetPlaylist)
-        nextItem = widgetPlaylist->next();
-    else
-        nextItem = playlist->next();
-    invokeNextVideoMethodAdvanced(nextItem, isWidget);
+
+    QString nextItem = playlists[area_id]->next();
+    invokeNextVideoMethodAdvanced(nextItem,area_id);
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
         SunsetSystem sunSystem;
@@ -508,7 +445,15 @@ void TeleDSPlayer::gpsUpdate(double lat, double lgt)
 void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
 {
     qDebug() << "systemInfoReady";
-    DatabaseInstance.createPlayEvent(playlist->findItemById(playedIds.dequeue()), info);
+    foreach (const QString &areaId, playlists.keys())
+    {
+        auto item = playlists[areaId]->findItemById(playedIds.dequeue());
+        if (item.content_id != "")
+        {
+            DatabaseInstance.createPlayEvent(item, info);
+            break;
+        }
+    }
 }
 
 void TeleDSPlayer::invokeShowVideo(bool isVisible)

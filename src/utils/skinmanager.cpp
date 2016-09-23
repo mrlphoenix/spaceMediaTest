@@ -92,7 +92,6 @@ void SkinManager::updateSkin(QString backgroundURL, QString logoURL, QString men
         componentsToDownload.append(menuLogoComponent);
     }
 
-
     qDebug() << "TeleDSCore::settings|need to download " << componentsToDownload.count() << " items";
 
     if (componentsToDownload.isEmpty())

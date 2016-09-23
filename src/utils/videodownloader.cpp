@@ -14,7 +14,7 @@
 #include "JlCompress.h"
 #endif
 
-VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfig config, QObject *parent) : QObject(parent)
+VideoDownloaderWorker::VideoDownloaderWorker(PlayerConfigAPI config, QObject *parent) : QObject(parent)
 {
     this->config = config;
     file = 0;
@@ -41,29 +41,24 @@ void VideoDownloaderWorker::checkDownload()
 {
     int itemCount = 0;
     itemsToDownload.clear();
-    foreach (const QString &area, config.screens.keys())
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, itemsToDownload)
     {
-        PlaylistAPIResult playlist = config.screens[area].playlist;
-        foreach (const PlaylistAPIResult::CampaignItem &campaign, playlist.items)
-            foreach (const PlaylistAPIResult::PlaylistItem &item, campaign.content)
-            {
-                //no need to download online resource
-                if (item.type == "html5_online")
-                    continue;
-                QString filename = VIDEO_FOLDER + item.id + item.getExtension();
-                QString filehash;
-                if (!QFile::exists(filename))
-                {
-                    qDebug() << "checkDownload:: file does not exists " << item.id << " and need to be downloaded";
-                    itemsToDownload.append(item);
-                }
-                else if ((filehash = getCacheFileHash(filename)) != item.fileHash)
-                {
-                    qDebug() << "different hashes " << filehash << " vs " << item.fileHash;
-                    itemsToDownload.append(item);
-                }
-                itemCount++;
-            }
+        //no need to download online resource
+        if (item.type == "html5_online")
+            continue;
+        QString filename = VIDEO_FOLDER + item.content_id + item.getExtension();
+        QString filehash;
+        if (!QFile::exists(filename))
+        {
+            qDebug() << "checkDownload:: file does not exists " << item.content_id << " and need to be downloaded";
+            itemsToDownload.append(item);
+        }
+        else if ((filehash = getCacheFileHash(filename)) != item.file_hash)
+        {
+            qDebug() << "different hashes " << filehash << " vs " << item.file_hash;
+            itemsToDownload.append(item);
+        }
+        itemCount++;
     }
     GlobalStatsInstance.setContentPlay(itemCount);
     qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
@@ -96,13 +91,13 @@ void VideoDownloaderWorker::download()
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
         emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
 
-        QStringList currentItemUrlTokens = itemsToDownload[currentItemIndex].fileUrl.split(".");
+        QStringList currentItemUrlTokens = itemsToDownload[currentItemIndex].file_url.split(".");
         QString extension;
         if (currentItemUrlTokens.count() < 2)
             extension = "";
         else
             extension = "." + currentItemUrlTokens.last();
-        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].id + extension + "_";
+        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id + extension + "_";
 
         if (QFile::exists(tempFileName))
         {
@@ -110,7 +105,7 @@ void VideoDownloaderWorker::download()
             QFileInfo info(tempFileName);
             file = new QFile(tempFileName);
             file->open(QFile::Append);
-            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].fileUrl));
+            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].file_url));
 
             QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(info.size()) + "-";
             request.setRawHeader("Range",rangeHeaderValue);
@@ -122,7 +117,7 @@ void VideoDownloaderWorker::download()
             file = new QFile(tempFileName);
             file->open(QFile::WriteOnly);
 
-            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].fileUrl));
+            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].file_url));
 
             reply = manager->get(request);
             QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSslError(QList<QSslError>)));
@@ -133,9 +128,9 @@ void VideoDownloaderWorker::download()
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(connectError(QNetworkReply::NetworkError)));
         GlobalStatsInstance.registryDownload();
 
-        DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].id,
+        DatabaseInstance.registryResource(itemsToDownload[currentItemIndex].content_id,
                                           itemsToDownload[currentItemIndex].name,
-                                          itemsToDownload[currentItemIndex].updated_at,
+                                          QDateTime::currentDateTimeUtc(),
                                           0);
     }
     else
@@ -182,19 +177,6 @@ void VideoDownloaderWorker::writeToFileJob(QFile *f, QNetworkReply *r)
 {
     f->write(r->readAll());
     f->flush();
-}
-
-bool VideoDownloaderWorker::isFileUpdated(PlaylistAPIResult::PlaylistItem item)
-{
-    foreach (const StatisticDatabase::Resource &resource, resources)
-        if (item.id == resource.iid)
-        {
-            if (item.updated_at > resource.lastupdated)
-                return true;
-            else
-                return false;
-        }
-    return true;
 }
 
 QString VideoDownloaderWorker::getFileHash(QString fileName)
@@ -253,10 +235,9 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
         }
         return "";
     }
-
 }
 
-void VideoDownloaderWorker::updateConfig(PlayerConfig config)
+void VideoDownloaderWorker::updateConfig(PlayerConfigAPI config)
 {
     this->config = config;
     currentItemIndex = 0;
@@ -274,7 +255,6 @@ void VideoDownloaderWorker::getDatabaseInfo()
 
 void VideoDownloaderWorker::httpFinished()
 {
-    qDebug() << "VDW SSL PK Type: " << reply->sslConfiguration().privateKey().type();
     if (reply->error())
     {
         qDebug() << "VDW::httpFinished -> Error No internet connection";
@@ -294,8 +274,8 @@ void VideoDownloaderWorker::httpFinished()
     }
     qDebug()<<"File downloading Finished. Registering in database.";
     qDebug()<<"C="<<itemsToDownload.count() << " I=" << currentItemIndex;
-    PlaylistAPIResult::PlaylistItem currentItem = itemsToDownload[currentItemIndex];
-    QString currentItemId = currentItem.id;
+    PlayerConfigAPI::Campaign::Area::Content currentItem = itemsToDownload[currentItemIndex];
+    QString currentItemId = currentItem.content_id;
     currentItemIndex++;
     file->flush();
     file->close();
@@ -307,17 +287,6 @@ void VideoDownloaderWorker::httpFinished()
     if (currentItem.type == "html5_zip")
     {
         PlatformSpecificService.extractFile(currentItemId + currentItem.getExtension(), currentItemId);
-     /*   QDir dir(VIDEO_FOLDER + currentItemId);
-        dir.removeRecursively();
-        QDir().mkdir(VIDEO_FOLDER + currentItemId);
-        QFile::rename(VIDEO_FOLDER + currentItemId + currentItem.extension() + "_", VIDEO_FOLDER + currentItemId + currentItem.extension());
-#ifdef PLATFORM_DEFINE_ANDROID
-        QFile * zipContentFile = new QFile(VIDEO_FOLDER + currentItemId + currentItem.extension());
-        zipContentFile->open(QFile::ReadOnly);
-        JlCompress::extractDir(zipContentFile,VIDEO_FOLDER + currentItemId + "/");
-        zipContentFile->close();
-        delete zipContentFile;
-#endif*/
     }
     else
         swapper.add(VIDEO_FOLDER + currentItemId + currentItem.getExtension(), VIDEO_FOLDER + currentItemId + currentItem.getExtension() + "_");
@@ -338,7 +307,8 @@ void VideoDownloaderWorker::httpReadyRead()
         file->write(reply->readAll());
         file->flush();
         if (v % 10 == 0)
-            qDebug() << QDateTime::currentDateTime().time().toString("HH:mm:ss ") << "updating file status: " << itemsToDownload[currentItemIndex].id << " [ " << file->size() << " ] bytes";
+            qDebug() << QDateTime::currentDateTime().time().toString("HH:mm:ss ") << "updating file status: "
+                     << itemsToDownload[currentItemIndex].content_id << " [ " << file->size() << " ] bytes";
     }
 }
 
@@ -406,8 +376,7 @@ void FileSwapper::runSwapCycle()
     }
 }
 
-
-VideoDownloader::VideoDownloader(PlayerConfig config, QObject *parent) : QThread(parent)
+VideoDownloader::VideoDownloader(PlayerConfigAPI config, QObject *parent) : QThread(parent)
 {
     worker = new VideoDownloaderWorker(config,this);
     connect(worker,SIGNAL(done()),this, SIGNAL(done()));
@@ -436,5 +405,4 @@ void VideoDownloader::runDownloadNew()
 
 void VideoDownloader::run()
 {
-
 }

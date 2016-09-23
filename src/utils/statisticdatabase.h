@@ -107,12 +107,8 @@ public:
     void getResources();
     void resourceCount();
 
-    //oudated methods - use createPlayEvent instead
-    void playResource(PlaylistAPIResult::PlaylistItem item);
-    void createSystemInfo(Platform::SystemInfo info);
-
     //store in DB information about item was played and current state
-    void createPlayEvent(PlaylistAPIResult::PlaylistItem item, Platform::SystemInfo info);
+    void createPlayEvent(PlayerConfigAPI::Campaign::Area::Content item, Platform::SystemInfo info);
 
     void removeResource(QString itemId);
 
