@@ -10,7 +10,7 @@ namespace TeleDSVersion
     static const int MAJOR = 1;
     static const int MINOR = 0;
     static const int RELEASE = 20;
-	static const int BUILD = 1229;
+	static const int BUILD = 1265;
     QString getVersion()
     {
         return QString::number(MAJOR) + "." + QString::number(MINOR) + "." + QString::number(RELEASE) + "/" + QString::number(BUILD);

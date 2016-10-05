@@ -226,7 +226,7 @@ Item {
             autoPlay: false
             source: ""
             onPlaying: {
-                
+
             }
         }
 

@@ -108,7 +108,6 @@ void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
     processReplyError(reply,"settings");
     emit getPlayerSettingsRequestFinished(reply);
     nextRequest();
-
 }
 
 void VideoService::performRequest(VideoServiceRequest request)
@@ -138,7 +137,6 @@ void VideoService::performRequest(VideoServiceRequest request)
         networkRequest.setHeader(key,request.knownHeaders[key]);
     foreach (const QString &key, request.headers.keys())
         networkRequest.setRawHeader(key.toLocal8Bit(), request.headers[key].toLocal8Bit());
-
 
     manager->disconnect();
 
@@ -186,7 +184,7 @@ VideoServiceRequest VideoServiceRequestFabric::sendEventsRequest(QString data)
     result.body = data.toLocal8Bit();
     result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
     result.headers["Authorization"] = GlobalConfigInstance.getToken();
-    result.methodAPI = "event";
+    result.methodAPI = "player/event";
     result.method = "POST";
     result.name = "statistics:events";
     return result;

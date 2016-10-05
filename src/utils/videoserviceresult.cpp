@@ -204,7 +204,6 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
 
     if (needSave)
         GlobalConfigInstance.setSettings(data);
-
     return result;
 }
 
@@ -235,6 +234,7 @@ PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
     QJsonArray campaigns = json["campaigns"].toArray();
     foreach (const QJsonValue &cValue, campaigns)
         result.campaigns.append(PlayerConfigAPI::Campaign::fromJson(cValue.toObject()));
+    result.currentCampaignId = 0;
     return result;
 }
 
@@ -251,9 +251,22 @@ int PlayerConfigAPI::count()
 {
     int result = 0;
     foreach (const PlayerConfigAPI::Campaign &cmp, campaigns)
-        foreach (const PlayerConfigAPI::Campaign::Area &area, cmp.areas)
-            result+= area.content.count();
+        result += cmp.itemCount();
     return result;
+}
+
+int PlayerConfigAPI::currentAreaCount()
+{
+    return campaigns[currentCampaignId].areas.count();
+}
+
+int PlayerConfigAPI::nextCampaign()
+{
+    int duration = campaigns[currentCampaignId].duration;
+    currentCampaignId++;
+    if (currentCampaignId >= campaigns.count())
+        currentCampaignId = 0;
+    return duration;
 }
 
 QVector<PlayerConfigAPI::Campaign::Area::Content> PlayerConfigAPI::items()
@@ -277,6 +290,14 @@ PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
     QJsonArray areas = json["areas"].toArray();
     foreach (const QJsonValue &aValue, areas)
         result.areas.append(PlayerConfigAPI::Campaign::Area::fromJson(aValue.toObject()));
+    return result;
+}
+
+int PlayerConfigAPI::Campaign::itemCount() const
+{
+    int result = 0;
+    foreach (const PlayerConfigAPI::Campaign::Area &area, areas)
+        result += area.content.count();
     return result;
 }
 

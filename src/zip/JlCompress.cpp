@@ -221,7 +221,6 @@ bool JlCompress::compressFile(QString fileCompressed, QString file) {
         QFile::remove(fileCompressed);
         return false;
     }
-
     return true;
 }
 

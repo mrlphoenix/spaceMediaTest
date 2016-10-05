@@ -28,6 +28,7 @@ public:
     void updateConfig(PlayerConfigAPI &playerConfig);
     void play();
     void stop();
+    int getCurrentCampaignIndex() { return config.currentCampaignId; }
     PlayerConfigAPI::Campaign::Area getAreaById(QString id);
 
     struct CurrentItemStatus
@@ -58,6 +59,12 @@ public slots:
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
     void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
     void invokeRestoreDefaultTheme();
+
+
+    //new methods
+    void invokeSetAreaCount(int areaCount);
+    void invokePlayCampaign(int campaignIndex);
+    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h);
 
     void invokeSetPlayerVolume(int value);
 

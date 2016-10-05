@@ -112,6 +112,7 @@ public slots:
 
 protected:
     void setupDownloader();
+    void setupCampaignAreas(const PlayerConfigAPI::Campaign &c);
     QVector<QObject*> widgets;
     TeleDSPlayer * teledsPlayer;
 

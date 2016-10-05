@@ -351,6 +351,7 @@ QDateTime StatisticDatabase::deserializeDate(QString date)
     QLocale locale(QLocale::English);
     return locale.toDateTime(date.replace(" +0000",""),"ddd, dd MMM yyyy HH:mm:ss");
 }
+
 void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString)
 {
   //  qDebug() << "slot result is called " << queryId;
@@ -467,7 +468,7 @@ QJsonObject StatisticDatabase::PlayEvent::serialize() const
 {
     QJsonObject result;
     result["timestamp"] = qint64(QDateTime::fromString(this->time,"yyyy-MM-dd HH:mm:ss").toTime_t());
-    result["virtual_screen_area_id"] = area;
+    result["campaign_area_id"] = area;
     result["content_id"] = content;
     result["campaign_id"] = campaign;
     QJsonObject gpsObject;

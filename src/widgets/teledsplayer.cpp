@@ -261,6 +261,34 @@ void TeleDSPlayer::invokeRestoreDefaultTheme()
     this->show();
 }
 
+void TeleDSPlayer::invokeSetAreaCount(int areaCount)
+{
+    qDebug() << "TeleDSPlayer::invokeSetAreaCount";
+    QMetaObject::invokeMethod(viewRootObject, "setAreaCount", Q_ARG(QVariant, QVariant(areaCount)));
+}
+
+void TeleDSPlayer::invokePlayCampaign(int campaignIndex)
+{
+    //for each of area in campaign - ask next Item and play it via next(areaID);
+    config.currentCampaignId = campaignIndex;
+    PlayerConfigAPI::Campaign currentCampaign = config.campaigns[campaignIndex];
+    foreach (const PlayerConfigAPI::Campaign::Area &area, currentCampaign.areas)
+        next(area.area_id);
+}
+
+void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h)
+{
+    qDebug() << "TeleDSPlayer::invokeInitArea";
+    QMetaObject::invokeMethod(viewRootObject, "prepareArea",
+                              Q_ARG(QVariant, QVariant(name)),
+                              Q_ARG(QVariant, QVariant(campaignWidth)),
+                              Q_ARG(QVariant, QVariant(campaignHeight)),
+                              Q_ARG(QVariant, QVariant(x)),
+                              Q_ARG(QVariant, QVariant(y)),
+                              Q_ARG(QVariant, QVariant(w)),
+                              Q_ARG(QVariant, QVariant(h)));
+}
+
 void TeleDSPlayer::invokeSetPlayerVolume(int value)
 {
     qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";

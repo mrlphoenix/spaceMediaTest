@@ -1033,7 +1033,6 @@ Item {
                         {
                             bgLogoBlock.visible = false
                         }
-
                         item.focus = true
                         menu.reinit()
                     }
@@ -1046,7 +1045,6 @@ Item {
                     anchors.bottom: parent.bottom
                     color: brand_borderGrayColor
                 }
-
 
                 Button {
                     id: dialogButtonOk

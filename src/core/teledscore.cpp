@@ -24,7 +24,7 @@
 #include "statictext.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
-  {
+{
     DatabaseInstance;
     PlatformSpecificService;
     StaticTextService;
@@ -131,6 +131,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         QTimer::singleShot(1000,this,SLOT(initPlayer()));
         teledsPlayer->show();
     }
+
 
     downloader = 0;
     setupHttpServer();
@@ -481,7 +482,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         teledsPlayer->invokeNoItemsView("http://teleds.com");
         return;
     }
-    //prepare downloader
+    setupDownloader();
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)
@@ -529,8 +530,33 @@ void TeleDSCore::downloaded()
     GlobalConfigInstance.setGetPlaylistTimerTime(60000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
+    //Выбрать текущую компанию.
+    //Узнать количество Area, нужного для текущей кампании, передать в плеер
+    //Передать в плеер текущую кампанию
+    //заставить играть
+    int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
+    if (currentCampaignIndex >= currentConfig.campaigns.count())
+        currentCampaignIndex = 0;
+
+    currentConfig.currentCampaignId = currentCampaignIndex;
+    int areaCount = currentConfig.currentAreaCount();
+    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[currentConfig.nextCampaign()];
+
+    //останавливаем плеер
+    teledsPlayer->invokeStop();
+    //загружаем туда новые параметры
+    teledsPlayer->updateConfig(currentConfig);
+    //сворачиваем вьюху с загрузкой (если та была)
+    teledsPlayer->invokeDownloadDone();
+    //реинициализируем все области
+    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
+                                     area.x, area.y, area.width, area.height);
+    //заставляем плеер играть
+    teledsPlayer->play();
+
+
     //initialization of teledsPlayer
-    //currently only one area is supported, so we display first one
   //  qDebug() << "TeleDSCore::downloaded | screenCount = " << currentConfig.screens.count();
    /* if (currentConfig.campaigns.count())
     {
@@ -652,8 +678,6 @@ void TeleDSCore::showPlayer()
     }
 }
 
-
-
 void TeleDSCore::setupDownloader()
 {
     qDebug() << "Core::setupDownloader";
@@ -664,8 +688,10 @@ void TeleDSCore::setupDownloader()
         downloader = new VideoDownloader(currentConfig,this);
         downloader->start();
         connect(downloader, SIGNAL(done()), this, SLOT(downloaded()));
+        connect(downloader,SIGNAL(downloadProgressSingle(double,QString)), teledsPlayer, SLOT(invokeSimpleProgress(double,QString)));
     }
-
+    sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
+    downloader->runDownloadNew();
     /*void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
     {
         qDebug() <<"Core: setup Downloader";
@@ -689,6 +715,14 @@ void TeleDSCore::setupDownloader()
         sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
         downloader->runDownloadNew();
     }*/
+}
+
+void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
+{
+    foreach (const PlayerConfigAPI::Campaign::Area &area, c.areas)
+        teledsPlayer->invokeInitArea(area.area_id,
+                                     c.screen_width, c.screen_height,
+                                     area.x, area.y, area.width, area.height);
 }
 
 void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)

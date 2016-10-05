@@ -83,15 +83,19 @@ struct PlayerConfigAPI
     static PlayerConfigAPI fromJson(QJsonObject json);
     static QDateTime timeFromJson(QJsonValue v);
     int count();
+    int currentAreaCount();
+    int nextCampaign();     //returns current Campaign total time
 
     
     QDateTime last_modified;
     int error_id;
     QString error_text;
     QString error;
+    int currentCampaignId;
     struct Campaign
     {
         static PlayerConfigAPI::Campaign fromJson(QJsonObject json);
+        int itemCount() const;
         int play_order;
         QString campaign_id;
         int duration;
@@ -154,7 +158,7 @@ struct PlayerConfigAPI
     QVector<Campaign> campaigns;
 
     //--------------
-     QVector<PlayerConfigAPI::Campaign::Area::Content> items();
+    QVector<PlayerConfigAPI::Campaign::Area::Content> items();
 };
 
 class VideoServiceResponseHandler : public QObject

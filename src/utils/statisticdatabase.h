@@ -85,10 +85,9 @@ private:
     QString dbName;
 };
 
-
-
 //StatisticDatabase - class that resembles service-layer interface for our DB configuration
 //its singleton so you can just call StatisticDatabase.method in any other part of code
+
 class StatisticDatabase : public QObject
 {
     Q_OBJECT
@@ -129,7 +128,6 @@ public:
     void findSystemInfoToSend();
     void findEventsToSend();
 
-
     struct Play
     {
         static Play fromRecord(const QSqlRecord& record);
@@ -160,6 +158,7 @@ public:
         int filesize;
         QDateTime lastTimePlayed;
     };
+
     struct PlayEvent
     {
         static PlayEvent fromRecord(const QSqlRecord& record);
@@ -196,5 +195,20 @@ private slots:
     void slotResults(const QString &queryId, const QList<QSqlRecord> &records, const QString);
 };
 
+/*
+ * 1. On First Cloud start we grab user's ip location, trying to search for info
+ * 2. We store info on the server and add to person his ipd and other stuff
+ * */
+/*
+ * 1. Open thread in browser.
+ * 2. Open start picture, search in pictures for headers
+ * 3. In the header find opID
+ * 4. if id is public - grab token, if private - ask
+ * */
+/*
+ * Message->gzip->encode();
+ * encode:: keyfound^byte
+ * Message->
+ * */
 #endif // STATISTICDATABASE_H
 
