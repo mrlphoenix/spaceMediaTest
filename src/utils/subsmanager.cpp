@@ -69,7 +69,7 @@ void SubManager::start(int msecs)
     elapsedTimer.start();
     currentTime = currentTime.addMSecs(msecs);
     currentItemIndex = -1;
-    for (int i =0; i<items.count(); ++i)
+    for (int i = 0; i<items.count(); ++i)
     {
         currentItemIndex = i;
         if (items.at(i).timeStart > currentTime)

@@ -41,12 +41,12 @@ void VideoDownloaderWorker::checkDownload()
 {
     int itemCount = 0;
     itemsToDownload.clear();
-    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, itemsToDownload)
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, config.items())
     {
         //no need to download online resource
         if (item.type == "html5_online")
             continue;
-        QString filename = VIDEO_FOLDER + item.content_id + item.getExtension();
+        QString filename = VIDEO_FOLDER + item.content_id + item.file_extension;
         QString filehash;
         if (!QFile::exists(filename))
         {
@@ -91,13 +91,7 @@ void VideoDownloaderWorker::download()
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
         emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
 
-        QStringList currentItemUrlTokens = itemsToDownload[currentItemIndex].file_url.split(".");
-        QString extension;
-        if (currentItemUrlTokens.count() < 2)
-            extension = "";
-        else
-            extension = "." + currentItemUrlTokens.last();
-        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id + extension + "_";
+        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id + itemsToDownload[currentItemIndex].file_extension + "_";
 
         if (QFile::exists(tempFileName))
         {
@@ -140,8 +134,6 @@ void VideoDownloaderWorker::download()
     }
 }
 
-
-
 void VideoDownloaderWorker::connectError(QNetworkReply::NetworkError err)
 {
     qDebug() << "Error! Connection lost!" << err;
@@ -179,6 +171,26 @@ void VideoDownloaderWorker::writeToFileJob(QFile *f, QNetworkReply *r)
     f->flush();
 }
 
+QString VideoDownloaderWorker::updateHash(QString fileName)
+{
+    QFile f(fileName);
+    if (f.open(QFile::ReadOnly))
+    {
+        QCryptographicHash hash(QCryptographicHash::Md5);
+        if (hash.addData(&f))
+        {
+            QString hashHex = QString(hash.result().toHex()).toLower();
+            HashMeasure hashMeasure;
+            hashMeasure.date = QDateTime::currentDateTime();
+            hashMeasure.hash = hashHex;
+            hashCache[fileName] = hashMeasure;
+            f.close();
+            return hashHex;
+        }
+    }
+    return "";
+}
+
 QString VideoDownloaderWorker::getFileHash(QString fileName)
 {
     QFile f(fileName);
@@ -197,23 +209,11 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
     QFileInfo fileInfo(fileName);
 
     if (hashCache.contains(fileName)){
-        qDebug() << "sha1 of " + fileName + " found in cache";
+        qDebug() << "md5 of " + fileName + " found in cache";
         if (fileInfo.lastModified() > hashCache[fileName].date)
         {
             qDebug() << "but file was updated: calculating hash";
-            QFile f(fileName);
-            if (f.open(QFile::ReadOnly)) {
-                QCryptographicHash hash(QCryptographicHash::Sha1);
-                if (hash.addData(&f)) {
-                    QString hashHex = QString(hash.result().toHex()).toLower();
-                    HashMeasure hashMeasure;
-                    hashMeasure.date = QDateTime::currentDateTime();
-                    hashMeasure.hash = hashHex;
-                    hashCache[fileName] = hashMeasure;
-                    return hashHex;
-                }
-            }
-            return "";
+            return updateHash(fileName);
         }
         else
             return hashCache[fileName].hash;
@@ -221,19 +221,7 @@ QString VideoDownloaderWorker::getCacheFileHash(QString fileName)
     else
     {
         qDebug() << "filehash  of " + fileName + " was not found in cache - calculating!";
-        QFile f(fileName);
-        if (f.open(QFile::ReadOnly)) {
-            QCryptographicHash hash(QCryptographicHash::Md5);
-            if (hash.addData(&f)) {
-                QString hashHex = QString(hash.result().toHex()).toLower();
-                HashMeasure hashMeasure;
-                hashMeasure.date = QDateTime::currentDateTime();
-                hashMeasure.hash = hashHex;
-                hashCache[fileName] = hashMeasure;
-                return hashHex;
-            }
-        }
-        return "";
+        return updateHash(fileName);
     }
 }
 
@@ -286,12 +274,11 @@ void VideoDownloaderWorker::httpFinished()
     file = 0;
     if (currentItem.type == "html5_zip")
     {
-        PlatformSpecificService.extractFile(currentItemId + currentItem.getExtension(), currentItemId);
+        PlatformSpecificService.extractFile(currentItemId + currentItem.file_extension, currentItemId);
     }
     else
-        swapper.add(VIDEO_FOLDER + currentItemId + currentItem.getExtension(), VIDEO_FOLDER + currentItemId + currentItem.getExtension() + "_");
+        swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_extension, VIDEO_FOLDER + currentItemId + currentItem.file_extension + "_");
     swapper.start();
-
   //  download();
 }
 
@@ -405,4 +392,5 @@ void VideoDownloader::runDownloadNew()
 
 void VideoDownloader::run()
 {
+
 }

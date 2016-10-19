@@ -48,7 +48,6 @@ void YandexWeatherWidget::updateInfo()
         ui->horizontalLayout->addWidget(widget);
         dayWidgets.append(widget);
     }
-
 }
 
 YandexWeatherWidget::~YandexWeatherWidget()

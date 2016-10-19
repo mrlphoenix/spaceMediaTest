@@ -26,7 +26,7 @@ public:
 
     void show();
     void updateConfig(PlayerConfigAPI &playerConfig);
-    void play();
+    void play(int delay = 1000);
     void stop();
     int getCurrentCampaignIndex() { return config.currentCampaignId; }
     PlayerConfigAPI::Campaign::Area getAreaById(QString id);

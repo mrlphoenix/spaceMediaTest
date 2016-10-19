@@ -191,6 +191,7 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     jsonBody["os"] = info.osName;
     jsonBody["os_version"] = info.osVersion;
 
+
     qDebug() << "After grabbing info";
 
     jsonBody["gps_lat"] = GlobalStatsInstance.getLatitude();
@@ -395,75 +396,20 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         }
     }
 }
-/*
-void TeleDSCore::virtualScreensResult(PlayerConfig result)
-{
-    //after we load virtual screens list - load playlists for every screen
-    if (result.error_id == -1)
-    {
-        qDebug() << "TeleDSCore::virtualScreensResult -> network error; loading from config";
-        PlayerConfig storedPlayerConfig = PlayerConfig::fromJson(GlobalConfigInstance.getAreas());
-        if (storedPlayerConfig.error_id == 0)
-        {
-            qDebug() << "TeleDSCore::virtualScreensResult -> config found";
-            currentConfig = storedPlayerConfig;
-            videoService->getPlaylist();
-            return;
-        }
-    }
-    qDebug() <<"Core: virtual screens " << result.screens.count() << " errorid = " << result.error_id;
-    currentConfig = result;
-    videoService->getPlaylist();
-}*/
-
-/*void TeleDSCore::virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result)
-{
-    if (GlobalConfigInstance.getPlaylistNetworkError() == -1)
-    {
-        qDebug() << "TeleDSCore::virtualScreenPlaylistResult -> network error";
-        QHash<QString, PlaylistAPIResult> storedResult = PlaylistAPIResult::getAllItems(GlobalConfigInstance.getVirtualScreens());
-        if (storedResult.count() > 0)
-        {
-            qDebug() << "TeleDSCore::virtualScreenPlaylistReulst -> loading playlist found in config";
-            GlobalConfigInstance.setPlaylistNetworkError(0);
-            virtualScreenPlaylistResult(storedResult);
-            return;
-        }
-    }
-    //this method is called after we get playlists for virtual screens
-    int count = 0;
-    //if no items in playlist - show "nothing to play activity"
-    if (result.count() == 0)
-    {
-        teledsPlayer->invokeNoItemsView("http://teleds.com");
-        return;
-    }
-    //counting items in every playlist
-    foreach (const QString & k, result.keys()){
-        count+= result[k].items.count();
-    }
-     qDebug() << "Core: Playlist " << count;
-
-     //setting up playlist for every virtual screen0
-    foreach (const QString &s, result.keys())
-    {
-        if (currentConfig.screens.contains(s))
-            currentConfig.screens[s].playlist = result[s];
-    }
-    //prepare downloader
-    setupDownloader(this->currentConfig);
-}
-*/
 
 void TeleDSCore::playlistResult(PlayerConfigAPI result)
 {
     //this method is called when we got playlist
     //!a | a*b = !a +b
     //when we should update playlist
+
+    qDebug() << "TeleDSCore::playlistResult";
     if (!currentConfig.last_modified.isValid() || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid()))
     {
+        qDebug() << "TeleDSCore::playlistResult <> need to update";
         if (result.error_id == -1)
         {
+            qDebug() << "TeleDSCore::playlistResult <> loading from config";
             qDebug() << "seems like server is offline so we load from config";
             PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlayerConfig());
             if (storedResult.last_modified.isValid())
@@ -476,13 +422,18 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         {
             currentConfig = result;
         }
+        setupDownloader();
+    }
+    else
+    {
+        qDebug() << "TeleDSCore::no updates";
     }
     if (currentConfig.count() == 0)
     {
         teledsPlayer->invokeNoItemsView("http://teleds.com");
         return;
     }
-    setupDownloader();
+
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)
@@ -503,6 +454,7 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
 
         });
     }
+
     else
     {
         auto tdsPlayer = teledsPlayer;
@@ -530,29 +482,21 @@ void TeleDSCore::downloaded()
     GlobalConfigInstance.setGetPlaylistTimerTime(60000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
-    //Выбрать текущую компанию.
-    //Узнать количество Area, нужного для текущей кампании, передать в плеер
-    //Передать в плеер текущую кампанию
-    //заставить играть
     int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
     if (currentCampaignIndex >= currentConfig.campaigns.count())
         currentCampaignIndex = 0;
 
+    qDebug() << "choosing campaign";
     currentConfig.currentCampaignId = currentCampaignIndex;
-    int areaCount = currentConfig.currentAreaCount();
-    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[currentConfig.nextCampaign()];
+    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[0];
 
-    //останавливаем плеер
+    qDebug() << "stopping player";
     teledsPlayer->invokeStop();
-    //загружаем туда новые параметры
     teledsPlayer->updateConfig(currentConfig);
-    //сворачиваем вьюху с загрузкой (если та была)
     teledsPlayer->invokeDownloadDone();
-    //реинициализируем все области
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
                                      area.x, area.y, area.width, area.height);
-    //заставляем плеер играть
     teledsPlayer->play();
 
 
@@ -681,6 +625,7 @@ void TeleDSCore::showPlayer()
 void TeleDSCore::setupDownloader()
 {
     qDebug() << "Core::setupDownloader";
+
     if (downloader)
         downloader->updateConfig(currentConfig);
     else
@@ -689,9 +634,11 @@ void TeleDSCore::setupDownloader()
         downloader->start();
         connect(downloader, SIGNAL(done()), this, SLOT(downloaded()));
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)), teledsPlayer, SLOT(invokeSimpleProgress(double,QString)));
+        connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
     }
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();
+
     /*void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
     {
         qDebug() <<"Core: setup Downloader";
@@ -781,6 +728,7 @@ HTTPServerDataReceiver::HTTPServerDataReceiver(TeleDSCore *core, QHttpRequest *r
     this->widgetId = widgetId;
     this->contentId = contentId;
 }
+
 
 void HTTPServerDataReceiver::accumulate(const QByteArray &data)
 {

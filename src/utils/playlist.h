@@ -38,6 +38,7 @@ public:
     virtual ~SuperPlaylist(){;}
     virtual void updatePlaylist(const PlayerConfigAPI::Campaign::Area &playlist);
     virtual QString next();
+
     virtual bool haveNext();
     virtual PlayerConfigAPI::Campaign::Area::Content findItemById(QString id);
     virtual QString getType() {return "random";}
@@ -45,6 +46,7 @@ protected:
     void splitItems();
     void shuffle(bool fixedFloating = true, bool floatingNone = true);
     bool itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item);
+    QString nextFreeItem();
 
 
     int allLength;
@@ -58,6 +60,7 @@ protected:
     QList<PlayerConfigAPI::Campaign::Area::Content> floatingNoneItems;
     QHash<QString,PlayerConfigAPI::Campaign::Area::Content> campaigns;
     QHash<QString,QDateTime> lastTimeShowed;
+    QString lastPlayed; int lastFreeFloatingItemPlayedIndex;
 };
 
 #endif // RANDOMPLAYLIST_H

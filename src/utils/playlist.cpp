@@ -10,6 +10,7 @@ SuperPlaylist::SuperPlaylist(QObject *parent) : AbstractPlaylist(parent)
     allLength = 0;
     magic = 1;
     currentItemIndex = -1;
+    lastFreeFloatingItemPlayedIndex = -1;
 }
 
 void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playlist)
@@ -62,7 +63,7 @@ QString SuperPlaylist::next()
      * */
     qDebug() << "SuperPlaylist::need to choose campaign";
     currentItemIndex = 0;
-    shuffle();
+    shuffle(true, false);
     std::sort(fixedFloatingItems.begin(), fixedFloatingItems.end(),
               [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
               {
@@ -81,23 +82,22 @@ QString SuperPlaylist::next()
             QDateTime delayPassTime = QDateTime::currentDateTime();
             delayPassTime = delayPassTime.addMSecs(item.play_timeout);
             lastTimeShowed[item.content_id] = delayPassTime;
+            lastPlayed = item.content_id;
             return item.content_id;
         }
     }
 
     qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
-    shuffle(false);
-    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, floatingNoneItems)
+
+
+    QString freeItemResult = nextFreeItem();
+    if (freeItemResult.isEmpty())
     {
-        if (item.checkTimeTargeting() && item.checkDateRange())
-        {
-            QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
-            lastTimeShowed[item.content_id] = delayPassTime;
-            return item.content_id;
-        }
+        lastPlayed = "";
+        return "";
     }
-    return "";
+    else
+        return freeItemResult;
 }
 
 bool SuperPlaylist::haveNext()
@@ -177,4 +177,33 @@ bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Conte
     }
     else
         return true;
+}
+
+QString SuperPlaylist::nextFreeItem()
+{
+    lastFreeFloatingItemPlayedIndex++;
+    if (lastFreeFloatingItemPlayedIndex >= floatingNoneItems.count())
+        lastFreeFloatingItemPlayedIndex = 0;
+
+    qDebug() << "SuperPlaylist::nextFreeItem <> currentIndex = " << lastFreeFloatingItemPlayedIndex;
+    bool indexReseted = false;
+    for (int i = lastFreeFloatingItemPlayedIndex; i< floatingNoneItems.count(); i++)
+    {
+        auto item = floatingNoneItems[i];
+        if (item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id))
+        {
+            QDateTime delayPassTime = QDateTime::currentDateTime();
+            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
+            lastTimeShowed[item.content_id] = delayPassTime;
+            lastPlayed = item.content_id;
+            lastFreeFloatingItemPlayedIndex = i;
+            return item.content_id;
+        }
+        if (i == floatingNoneItems.count() - 1 && !indexReseted)
+        {
+            i = -1;
+            indexReseted = true;
+        }
+    }
+    return "";
 }

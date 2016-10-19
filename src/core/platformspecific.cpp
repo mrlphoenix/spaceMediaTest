@@ -291,6 +291,8 @@ int64_t Platform::PlatformSpecificWorker::getTrafficIn()
     QString result = cpuUsageProcess.readAll();
     qDebug() << result;
     QStringList tokens = result.split(" ");
+    if (tokens.count() < 5)
+        qDebug() << "ERROR CPUBASH=>" << result;
     qlonglong trafficIn = tokens[2].toLongLong();
     qlonglong trafficOut = tokens[3].toLongLong();
     GlobalStatsInstance.setTraffic(trafficIn, trafficOut);

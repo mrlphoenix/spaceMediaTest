@@ -57,6 +57,7 @@ Item {
                 prepareStop = false
                 videoStopped()
             }
+            videoStopped()
         }
     }
 

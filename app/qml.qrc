@@ -16,5 +16,6 @@
         <file>SideBrowser.qml</file>
         <file>TeleDSMenu.qml</file>
         <file>menu_background_horizontal.png</file>
+        <file>PlayerView.qml</file>
     </qresource>
 </RCC>

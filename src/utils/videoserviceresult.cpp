@@ -266,7 +266,7 @@ int PlayerConfigAPI::nextCampaign()
     currentCampaignId++;
     if (currentCampaignId >= campaigns.count())
         currentCampaignId = 0;
-    return duration;
+    return std::max(duration, 10000);
 }
 
 QVector<PlayerConfigAPI::Campaign::Area::Content> PlayerConfigAPI::items()
@@ -287,9 +287,12 @@ PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
     result.start_timestamp = timeFromJson(json["start_timestamp"]);
     result.end_timestamp = timeFromJson(json["end_timestamp"]);
     result.play_order = json["play_order"].toInt();
+    result.screen_width = json["width"].toInt();
+    result.screen_height = json["height"].toInt();
     QJsonArray areas = json["areas"].toArray();
     foreach (const QJsonValue &aValue, areas)
         result.areas.append(PlayerConfigAPI::Campaign::Area::fromJson(aValue.toObject()));
+
     return result;
 }
 
@@ -341,6 +344,7 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
     result.play_start = json["play_start"].toInt();
     result.file_url = json["file_url"].toString();
     result.file_hash = json["file_hash"].toString();
+    result.file_extension = json["file_extension"].toString();
 
     QJsonObject timeTargeting = json["time_targeting"].toObject();
     foreach (const QString &key, timeTargeting.keys())
@@ -371,7 +375,6 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
         geoTargetingVector.append(geoTargetingAreaVector);
         result.polygons.append(currentPolygon);
     }
-
     result.geo_targeting = geoTargetingVector;
     return result;
 }

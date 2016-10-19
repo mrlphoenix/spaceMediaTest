@@ -37,6 +37,7 @@ OTHER_FILES += VideoPlayer.qml \
                main_player.qml \
                AndroidBrowser.qml \
                SideBrowser.qml \
+               PlayerView.qml \
                android/src/org/qtproject/qt5/android/bindings/QtActivity.java
 
 SOURCES += main.cpp

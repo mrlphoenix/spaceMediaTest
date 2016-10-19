@@ -189,6 +189,7 @@ VideoServiceRequest VideoServiceRequestFabric::sendEventsRequest(QString data)
     result.name = "statistics:events";
     return result;
 }
+
 VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest(QByteArray bodyData)
 {
     VideoServiceRequest result;

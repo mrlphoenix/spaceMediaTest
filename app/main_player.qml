@@ -106,7 +106,7 @@ Item {
     property string systemVersion: ""
     property string displayMode: "fullscreen"
 
-    signal nextItem()
+    signal nextItem(string areaID)
     signal nextWidget()
     signal refreshId()
     signal gpsChanged(double lat, double lgt)
@@ -119,6 +119,29 @@ Item {
         heightP = height
         widthP = width
     }
+
+    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h)
+    {
+        console.log("prepareArea " + campaignWidth + " " + campaignHeight + " " + w + " " + h)
+        fullscreenView.areaID = name
+        fullscreenView.x = width * x / campaignWidth;
+        fullscreenView.y = height * y / campaignHeight;
+        fullscreenView.width = width * w / campaignWidth;
+        fullscreenView.height = height * h / campaignHeight;
+    }
+
+    function playNextItem(areaId, source, type, duration, skipTime)
+    {
+        fullscreenView.play(source, duration, type, skipTime)
+    }
+
+  /*  QMetaObject::invokeMethod(viewRootObject, "playNextItem",
+                              Q_ARG(QVariant, area_id),
+                              Q_ARG(QVariant, source),
+                              Q_ARG(QVariant, type),
+                              Q_ARG(QVariant, duration),
+                              Q_ARG(QVariant, skip));*/
+
     function setPlayerVolume(value)
     {
         videoPlayer.setVolume(value)
@@ -840,6 +863,16 @@ Item {
             }
         }
     }
+
+    PlayerView {
+        id: fullscreenView
+        visible: true
+        onAskNext: {
+            nextItem(areaId)
+        }
+    }
+
+
     //image for audio playback
     Image {
         id: audioIcon

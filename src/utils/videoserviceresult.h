@@ -139,6 +139,8 @@ struct PlayerConfigAPI
                 int play_start;
                 QString file_url;
                 QString file_hash;
+                QString file_extension;
+
                 struct gps
                 {
                     double latitude, longitude;

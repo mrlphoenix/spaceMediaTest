@@ -83,7 +83,7 @@ private slots:
     void runDownloadNew();
     static void writeToFileJob(QFile* f, QNetworkReply * r);
 private:
-
+    QString updateHash(QString fileName);
     QNetworkAccessManager * manager;
     QNetworkReply * reply;
     PlayerConfigAPI config;
