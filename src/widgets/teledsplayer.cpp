@@ -83,6 +83,7 @@ void TeleDSPlayer::updateConfig(PlayerConfigAPI &playerConfig)
 
 void TeleDSPlayer::play(int delay)
 {
+    qDebug() << "qml! TeleDSPlayer::play!";
     isActive = true;
     int duration = 10000; //default for the case when its a backend bug and campaign doesnt have duration set;
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
@@ -93,10 +94,12 @@ void TeleDSPlayer::play(int delay)
         duration = config.nextCampaign();
     }
 
-    QTimer::singleShot(duration, [this](){
-        this->invokeStop();
-        this->play(0);
-    });
+    if (config.campaigns.count() > 1) {
+        QTimer::singleShot(duration, [this](){
+            this->invokeStop();
+            this->play(0);
+        });
+    }
 }
 
 PlayerConfigAPI::Campaign::Area TeleDSPlayer::getAreaById(QString id)
@@ -326,6 +329,7 @@ void TeleDSPlayer::invokeSetLicenseData()
 
 void TeleDSPlayer::invokeSetDeviceInfo()
 {
+
     qDebug() << "TeleDSPlayer::invokeSetDeviceInfo";
     SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
     QVariant nameParam = settings.name;
@@ -408,6 +412,7 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
     if (GlobalConfigInstance.isAutoBrightnessActive())
     {
         SunsetSystem sunSystem;
+
         int minBrightness = std::min(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
         int maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
         double originalValue = sunSystem.getLinPercent();
@@ -451,13 +456,11 @@ void TeleDSPlayer::stopPlaying()
 
 void TeleDSPlayer::setRestoreModeTrue()
 {
-    qDebug() << "TeleDSPlayer::setRestoreModeTrue";
     Platform::PlatformSpecific::setResetWindow(true);
 }
 
 void TeleDSPlayer::setRestoreModeFalse()
 {
-    qDebug() << "TeleDSPlayer::setRestoreModeFalse";
     Platform::PlatformSpecific::setResetWindow(false);
 }
 

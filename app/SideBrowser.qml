@@ -87,6 +87,7 @@ Item{
             url = ""
         }
     }
+
     WebView {
         id: sideBrowser2
         visible: false

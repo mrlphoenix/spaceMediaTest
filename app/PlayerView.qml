@@ -32,6 +32,7 @@ Item {
                 //in this case we need to load video into videoplayer
                 videoPlayer.play(contentId, length, skip)
                 currentType = "video"
+                console.log("askNext play::video::null")
                 askNext(areaID)
             }
             else if (currentType === "video")
@@ -42,6 +43,7 @@ Item {
             }
             else if (currentType === "browser")
             {
+                console.log("play::t:browser")
                 nextItemType = "video"
                 videoPlayer.preloadItem(contentId, length, skip)
             }
@@ -50,18 +52,22 @@ Item {
         {
             if (currentType === "null")
             {
+                console.log("play::t:null")
                 browser.load(contentId, length)
                 currentType = "browser"
+
+                console.log("askNext play::html5::null")
                 askNext(areaID)
             }
             else if (currentType === "video")
             {
+                console.log("play::t:video")
                 nextItemType = "browser"
                 browser.preload(contentId, length)
-                videoPlayer.prepareReset()
             }
             else if (currentType === "browser")
             {
+                console.log("play::t:browser")
                 nextItemType = "browser"
                 browser.load(contentId, length)
             }
@@ -70,11 +76,6 @@ Item {
     function stop()
     {
         //stop and hide everything
-    }
-
-    function getCurrentType()
-    {
-
     }
 
     Rectangle
@@ -116,7 +117,7 @@ Item {
         height: parent.height
         x: parent.x
         y: parent.y
-        //opacity: brightness
+        opacity: brightness
         signal onStop()
 
         property bool isVideo: true
@@ -128,9 +129,37 @@ Item {
         Timer {
             id: videoPlayerTimer
             repeat: false
+            /*
+                Таймер вызывается, когда показ видео должен прекратиться и мы должны выбрать что играть дальше
+                1. Проверяем nextItemType.
+                    Если video - тогда мы полагаем, что оно уже подгружено во второй плеер и мы показываем второй плеер.
+                    Если browser, тогда мы полагаем, что страница уже подгружена в браузер, мы показываем браузер с контентом
+                    При этом мы должны резетнуть плеер и запросить следующий итем
+              */
             onTriggered: {
                 console.log("VPT::onTriggered")
-                if (videoPlayer.prepareResetP)
+                if (nextItemType === "video"){
+                    console.log("VPT:video")
+                    if (videoPlayer.firstPlayer){
+                        videoPlayer.firstPlayer = false
+                        mp2.play()
+                    }
+                    else {
+                        videoPlayer.firstPlayer = true
+                        mp1.play()
+                    }
+                }
+                else if (nextItemType === "browser"){
+                    console.log("VPT:browser")
+                    browser.showPreloaded()
+                    currentType = "browser"
+                    videoPlayer.reset()
+                }
+
+                console.log("askNext play::VPT")
+                askNext(areaID)
+
+           /*     if (videoPlayer.prepareResetP)
                 {
                     videoPlayer.reset();
                     videoPlayer.prepareResetP = false;
@@ -150,7 +179,7 @@ Item {
                 else if (nextItemType === "browser"){
                     browser.showPreloaded()
                     videoPlayer.reset()
-                }
+                }*/
             }
         }
 
@@ -201,6 +230,7 @@ Item {
         }
         function preloadItem(_url, length, skip)
         {
+            console.log("preload item to mp1")
             mp1.source = _url
             mp1.durationMsecs = length
             mp1.seekMsecs = skip
@@ -283,7 +313,6 @@ Item {
     }
 
 
-
     Item{
         id: browser
         visible: true
@@ -291,7 +320,7 @@ Item {
         height: parent.height
         x: parent.x
         y: parent.y
-       // opacity: brightness
+        opacity: brightness
         property bool prepareStop: false
 
         function preload(url, showtime)
@@ -351,7 +380,9 @@ Item {
             id: turnOffTimer
             repeat: false
             onTriggered: {
+                console.log("browser::onStop")
                 if (nextItemType === "browser"){
+                    console.log("next item is browser")
                     if (sideBrowser1.visible){
                         sideBrowser1.visible = false
                         sideBrowser2.showPreloaded();
@@ -362,9 +393,12 @@ Item {
                     }
                 }
                 else if (nextItemType === "video"){
+                    console.log("next item is video")
                     browser.stopBrowser()
                     videoPlayer.playPreloaded()
+                    currentType = "video"
                 }
+
                 askNext(areaID)
             }
         }
@@ -432,7 +466,5 @@ Item {
             }
         }
     }
-
-
 }
 

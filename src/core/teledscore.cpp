@@ -400,7 +400,6 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 void TeleDSCore::playlistResult(PlayerConfigAPI result)
 {
     //this method is called when we got playlist
-    //!a | a*b = !a +b
     //when we should update playlist
 
     qDebug() << "TeleDSCore::playlistResult";
