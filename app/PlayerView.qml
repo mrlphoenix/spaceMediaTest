@@ -76,6 +76,8 @@ Item {
     function stop()
     {
         //stop and hide everything
+        videoPlayer.reset()
+        browser.stopBrowser()
     }
 
     Rectangle
@@ -112,7 +114,7 @@ Item {
 
     Item{
         id: videoPlayer
-        visible: true
+        visible: currentType != "browser"
         width: parent.width
         height: parent.height
         x: parent.x
@@ -136,6 +138,7 @@ Item {
                     Если browser, тогда мы полагаем, что страница уже подгружена в браузер, мы показываем браузер с контентом
                     При этом мы должны резетнуть плеер и запросить следующий итем
               */
+
             onTriggered: {
                 console.log("VPT::onTriggered")
                 if (nextItemType === "video"){
@@ -158,28 +161,6 @@ Item {
 
                 console.log("askNext play::VPT")
                 askNext(areaID)
-
-           /*     if (videoPlayer.prepareResetP)
-                {
-                    videoPlayer.reset();
-                    videoPlayer.prepareResetP = false;
-                }
-                console.log(nextItemType)
-                if (nextItemType === "video"){
-                    if (videoPlayer.firstPlayer){
-                        videoPlayer.firstPlayer = false
-                        mp2.play()
-                    }
-                    else {
-                        videoPlayer.firstPlayer = true
-                        mp1.play()
-                    }
-                    askNext(areaID)
-                }
-                else if (nextItemType === "browser"){
-                    browser.showPreloaded()
-                    videoPlayer.reset()
-                }*/
             }
         }
 
@@ -260,6 +241,7 @@ Item {
                 //ask for new item or smth
             }
         }
+
         VideoOutput{
             id: videoOutput1
             x: parent.x

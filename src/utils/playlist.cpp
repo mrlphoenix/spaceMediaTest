@@ -80,7 +80,7 @@ QString SuperPlaylist::next()
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
+            delayPassTime = delayPassTime.addSecs(item.play_timeout);
             lastTimeShowed[item.content_id] = delayPassTime;
             lastPlayed = item.content_id;
             return item.content_id;

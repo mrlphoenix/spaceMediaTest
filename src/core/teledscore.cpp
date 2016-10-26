@@ -421,6 +421,12 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         {
             currentConfig = result;
         }
+        if (currentConfig.count() == 0)
+        {
+            qDebug() << "NO ITEMS!";
+            teledsPlayer->invokeNoItemsView("http://teleds.com");
+            return;
+        }
         setupDownloader();
     }
     else
@@ -432,7 +438,6 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         teledsPlayer->invokeNoItemsView("http://teleds.com");
         return;
     }
-
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)
@@ -477,7 +482,7 @@ void TeleDSCore::downloaded()
     //this slot is called when all items got downloaded
     qDebug() << "TeleDSCore::downloaded";
 
-    //after we download items - update playlists every 30 secs
+    //after we download items - update playlists every 60 secs
     GlobalConfigInstance.setGetPlaylistTimerTime(60000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
@@ -497,56 +502,6 @@ void TeleDSCore::downloaded()
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
                                      area.x, area.y, area.width, area.height);
     teledsPlayer->play();
-
-
-    //initialization of teledsPlayer
-  //  qDebug() << "TeleDSCore::downloaded | screenCount = " << currentConfig.screens.count();
-   /* if (currentConfig.campaigns.count())
-    {
-        PlayerConfig::AreaCompositionType configType = currentConfig.getType();
-
-        switch (configType)
-        {
-        default:
-        case PlayerConfig::AREA_MULTI:
-        case PlayerConfig::AREA_BROKEN:
-            teledsPlayer->invokeNoItemsView("http://teleds.com");
-            break;
-        case PlayerConfig::AREA_FULLSCREEN:
-            teledsPlayer->invokeSetDisplayMode("fullscreen");
-            teledsPlayer->invokeDownloadDone();
-            teledsPlayer->setConfig(currentConfig.getScreenByType("fullscreen"));
-            if (!teledsPlayer->isPlaying())
-            {
-                qDebug() << "TeleDSCore::downloaded -> invoke first time play!";
-                teledsPlayer->play();
-                QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
-            }
-            break;
-        case PlayerConfig::AREA_SPLIT:
-            teledsPlayer->invokeSetDisplayMode("split");
-            teledsPlayer->invokeDownloadDone();
-
-            PlayerConfig::VirtualScreen contentScreen = currentConfig.getScreenByType("content");
-            PlayerConfig::VirtualScreen widgetScreen = currentConfig.getScreenByType("widget");
-
-            teledsPlayer->invokeSetContentPosition(contentScreen.position.left(), contentScreen.position.top(),
-                                                   contentScreen.position.width(), contentScreen.position.height(),
-                                                   widgetScreen.position.left(), widgetScreen.position.top(),
-                                                   widgetScreen.position.width(), widgetScreen.position.height());
-            teledsPlayer->setConfig(contentScreen, widgetScreen);
-            if (!teledsPlayer->isPlaying())
-            {
-                qDebug() << "TeleDSCore::downloaded -> invoke first time play with widget";
-                teledsPlayer->play();
-                QTimer::singleShot(1100, teledsPlayer, SLOT(playNextWidget()));
-                QTimer::singleShot(2000, teledsPlayer, SLOT(playNext()));
-            }
-            break;
-        }
-    }
-    else
-        teledsPlayer->invokeNoItemsView("http://teleds.com");*/
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -624,7 +579,6 @@ void TeleDSCore::showPlayer()
 void TeleDSCore::setupDownloader()
 {
     qDebug() << "Core::setupDownloader";
-
     if (downloader)
         downloader->updateConfig(currentConfig);
     else
@@ -637,30 +591,6 @@ void TeleDSCore::setupDownloader()
     }
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();
-
-    /*void TeleDSCore::setupDownloader(PlayerConfig &newConfig)
-    {
-        qDebug() <<"Core: setup Downloader";
-        //if downloader already initializated - update items
-        //else resetup it
-        if (downloader)
-            downloader->updateConfig(newConfig);
-        else
-        {
-            downloader = new VideoDownloader(newConfig, this);
-
-            //this start() method is from QThread - must be called once to prepare Downloader Worker.
-            downloader->start();
-            connect(downloader,SIGNAL(done()),this,SLOT(downloaded()));
-            connect(downloader,SIGNAL(done()),teledsPlayer,SLOT(invokeDownloadDone()));
-            connect(downloader,SIGNAL(downloadProgressSingle(double,QString)),teledsPlayer,SLOT(invokeSimpleProgress(double,QString)));
-            connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
-        }
-        currentConfig = newConfig;
-        //starting downloading and stop getPlaylist timer
-        sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
-        downloader->runDownloadNew();
-    }*/
 }
 
 void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)

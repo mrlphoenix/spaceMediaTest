@@ -16,6 +16,33 @@ namespace TeleDSVersion
         return QString::number(MAJOR) + "." + QString::number(MINOR) + "." + QString::number(RELEASE) + "/" + QString::number(BUILD);
         //return "TeleDS v" + QString::number(MAJOR) + "." + QString::number(MINOR) + "/" + QString::number(BUILD);
     }
+
+    int compareVersion(int srcMajor, int srcMinor, int srcRelease, int srcBuild)
+    {
+        if (srcMajor > MAJOR)
+            return 1;
+
+        if (srcMajor == MAJOR)
+        {
+            if (srcMinor > MINOR)
+                return 1;
+
+            if (srcMinor == MINOR)
+            {
+                if (srcRelease > RELEASE)
+                    return 1;
+
+                if (srcRelease == RELEASE)
+                {
+                    if (srcBuild > BUILD)
+                        return 1;
+                    if (srcBuild == BUILD)
+                        return 0;
+                }
+            }
+        }
+        return -1;
+    }
 }
 
 #endif // VERSION_H

@@ -252,6 +252,9 @@ Item {
     }
     function stopPlayer()
     {
+        fullscreenView.stop()
+
+
         videoPlayer.stopPlayer();
         videoPlayer.visible = false;
         if (androidBrowser.visible == true){
@@ -265,6 +268,7 @@ Item {
         }
 
         currentType = "null"
+
     }
 
     function enablePreloading(filename)
