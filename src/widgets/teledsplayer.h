@@ -60,6 +60,8 @@ public slots:
     void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
     void invokeRestoreDefaultTheme();
 
+    void invokeUpdateState();
+
 
     //new methods
     void invokeSetAreaCount(int areaCount);

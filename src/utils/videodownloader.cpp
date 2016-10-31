@@ -366,11 +366,15 @@ void FileSwapper::runSwapCycle()
 VideoDownloader::VideoDownloader(PlayerConfigAPI config, QObject *parent) : QThread(parent)
 {
     worker = new VideoDownloaderWorker(config,this);
+    updateWorker = new UpdateDownloaderWorker(this);
     connect(worker,SIGNAL(done()),this, SIGNAL(done()));
     connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
     connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
     connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
     connect(this, SIGNAL(runDownloadSignalNew()),worker,SLOT(runDownloadNew()));
+    //
+    connect(updateWorker,SIGNAL(ready(QString)),this, SIGNAL(updateReady(QString)));
+    connect(this,SIGNAL(startTask(QString,QString,QString)),updateWorker, SLOT(setTask(QString,QString,QString)));
 }
 
 VideoDownloader::~VideoDownloader()
@@ -390,7 +394,91 @@ void VideoDownloader::runDownloadNew()
     emit runDownloadSignalNew();
 }
 
+void VideoDownloader::startUpdateTask(QString url, QString hash, QString filename)
+{
+    qDebug() << "VIDEO DOWNLOADER::startUpdateTask";
+    emit startTask(url, hash, filename);
+}
+
 void VideoDownloader::run()
 {
 
+}
+
+UpdateDownloaderWorker::UpdateDownloaderWorker(QObject *parent) : QObject(parent)
+{
+    manager = new QNetworkAccessManager(this);
+    reply = 0;
+    file = 0;
+}
+
+UpdateDownloaderWorker::~UpdateDownloaderWorker()
+{
+    if (file)
+        file->deleteLater();
+}
+
+void UpdateDownloaderWorker::setTask(QString url, QString hash, QString filename)
+{
+    qDebug() << "UpdateDownloaderWorker::setTask " + url + " / " + hash + " / " + filename;
+    this->url = url;
+    this->hash = hash;
+    this->fileName = filename;
+
+    if (QFile::exists(fileName))
+    {
+        qDebug() << "UpdateDownloaderWorker::setTask temp file found! Trying to resume";
+        QFileInfo info(filename);
+        file = new QFile(filename);
+        file->open(QFile::Append);
+        QNetworkRequest request(url);
+        QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(info.size()) + "-";
+        request.setRawHeader("Range", rangeHeaderValue);
+        reply = manager->get(request);
+    }
+    else
+    {
+        file = new QFile(filename);
+        file->open(QFile::WriteOnly);
+        QNetworkRequest request(url);
+        reply = manager->get(request);
+    }
+
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
+    QObject::connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
+
+}
+
+void UpdateDownloaderWorker::httpReadyRead()
+{
+    if (file)
+    {
+        file->write(reply->readAll());
+        file->flush();
+    }
+}
+
+void UpdateDownloaderWorker::httpFinished()
+{
+    if (reply->error())
+    {
+        qDebug() << "UpdateDownloaderWorker::httpFinished -> Error No internet connection/error!";
+        reply->disconnect();
+
+        if (manager)
+        {
+            manager->disconnect();
+            manager->deleteLater();
+        }
+        manager = new QNetworkAccessManager(this);
+        return;
+    }
+    file->flush();
+    file->close();
+
+    delete reply;
+    reply = 0;
+    delete file;
+    file = 0;
+    emit ready(fileName);
 }

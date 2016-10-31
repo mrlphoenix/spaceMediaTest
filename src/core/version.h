@@ -5,19 +5,20 @@
 //this header is for automatic version builder
 //number BUILD is incremented every time we build prject using versionbuild tool
 //you can extend this as you want but string with build should be the same
-namespace TeleDSVersion
+class TeleDSVersion
 {
+public:
     static const int MAJOR = 1;
     static const int MINOR = 0;
     static const int RELEASE = 20;
-	static const int BUILD = 1330;
-    QString getVersion()
+	static const int BUILD = 1359;
+    static QString getVersion()
     {
         return QString::number(MAJOR) + "." + QString::number(MINOR) + "." + QString::number(RELEASE) + "/" + QString::number(BUILD);
         //return "TeleDS v" + QString::number(MAJOR) + "." + QString::number(MINOR) + "/" + QString::number(BUILD);
     }
 
-    int compareVersion(int srcMajor, int srcMinor, int srcRelease, int srcBuild)
+    static int compareVersion(int srcMajor, int srcMinor, int srcRelease, int srcBuild)
     {
         if (srcMajor > MAJOR)
             return 1;
@@ -43,6 +44,6 @@ namespace TeleDSVersion
         }
         return -1;
     }
-}
+};
 
 #endif // VERSION_H

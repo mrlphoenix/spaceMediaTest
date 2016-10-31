@@ -207,6 +207,7 @@ void TeleDSPlayer::invokeNoItemsView(QString url)
     QVariant urlParam(url);
     QMetaObject::invokeMethod(viewRootObject,"setNoItemsLogo", Q_ARG(QVariant, urlParam));
     invokeSetDeviceInfo();
+
 }
 
 void TeleDSPlayer::invokeDownloadingView()
@@ -274,6 +275,12 @@ void TeleDSPlayer::invokeRestoreDefaultTheme()
     qDebug() << "TeleDSPlayer::invokeRestoreDefaultTheme";
     QMetaObject::invokeMethod(viewRootObject, "restoreDefaultTheme");
     this->show();
+}
+
+void TeleDSPlayer::invokeUpdateState()
+{
+    qDebug() << "TeleDSPlayer::invokeUpdateState";
+    QMetaObject::invokeMethod(viewRootObject, "setUpdateState", Q_ARG(QVariant, QVariant(TeleDSVersion::getVersion())));
 }
 
 void TeleDSPlayer::invokeSetAreaCount(int areaCount)

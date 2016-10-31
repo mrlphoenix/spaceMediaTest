@@ -75,6 +75,10 @@ public slots:
     //void virtualScreenPlaylistResult(QHash<QString, PlaylistAPIResult> result);
     void playlistResult(PlayerConfigAPI result);
 
+    void checkUpdate();
+    void updateInfoReady(UpdateInfoResult result);
+    void updateReady(QString filename);
+
     void onThemeReady(ThemeDesc desc);
 
     //slot is called when we need to update playlist
@@ -120,6 +124,7 @@ protected:
     StatisticUploader * uploader;
     VideoDownloader * downloader;
     QTimer * statsTimer;
+    QTimer * updateTimer;
 
     InitRequestResult playerInitParams;
     QString encryptedSessionKey;

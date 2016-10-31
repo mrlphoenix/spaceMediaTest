@@ -1,12 +1,22 @@
 #ifndef NOTHERFILESYSTEM_H
 #define NOTHERFILESYSTEM_H
 
+
+#include <QByteArray>
 #include <QStringList>
 #include <QList>
 #include <QString>
 #include <QDataStream>
-
 #define NFS_MAGIC 0x54445355
+
+namespace LFSR{
+
+class Encoder{
+public:
+    static void encode(QByteArray &data, QString pass);
+};
+
+}
 
 struct FileDescriptor
 {

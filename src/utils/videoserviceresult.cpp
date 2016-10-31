@@ -125,6 +125,34 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
     reply->deleteLater();
 }
 
+void VideoServiceResponseHandler::getUpdatesReply(QNetworkReply *reply)
+{
+    UpdateInfoResult result;
+    if (reply->error())
+    {
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
+
+        qDebug() << "VideoServiceResponseHandler::Settings -> network eror." << result.error_id;
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result.error_text = root["error"].toString();
+    }
+    else
+    {
+        QByteArray replyData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        QJsonObject root = doc.object();
+        result = UpdateInfoResult::fromJson(root);
+    }
+    emit getUpdatesResult(result);
+    reply->deleteLater();
+}
+
 InitRequestResult InitRequestResult::fromJson(QJsonObject data)
 {
     InitRequestResult result;
@@ -423,4 +451,18 @@ bool PlayerConfigAPI::Campaign::Area::Content::checkGeoTargeting(QPointF gps) co
         return false;
     }
     else return true;
+}
+
+UpdateInfoResult UpdateInfoResult::fromJson(QJsonObject data)
+{
+    UpdateInfoResult result;
+    result.file_hash = data["file_hash"].toString();
+    result.file_size = data["file_size"].toInt();
+    result.file_url = data["file_url"].toString();
+    result.version_build = data["version_build"].toInt();
+    result.version_major = data["version_major"].toInt();
+    result.version_minor = data["version_minor"].toInt();
+    result.version_release = data["version_release"].toInt();
+    result.error_id = 0;
+    return result;
 }

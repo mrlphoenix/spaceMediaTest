@@ -232,7 +232,6 @@ struct http_parser {
   void *data; /* A pointer to get hook to the "connection" or "socket" object */
 };
 
-
 struct http_parser_settings {
   http_cb      on_message_begin;
   http_data_cb on_url;

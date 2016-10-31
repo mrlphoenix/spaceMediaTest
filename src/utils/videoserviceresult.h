@@ -26,6 +26,21 @@ struct NonQueryResult
     QString source;
 };
 
+struct UpdateInfoResult
+{
+    static UpdateInfoResult fromJson(QJsonObject data);
+    int version_major;
+    int version_minor;
+    int version_release;
+    int version_build;
+    QString file_url;
+    QString file_hash;
+    int file_size;
+
+    int error_id;
+    QString error_text;
+};
+
 struct SettingsRequestResult
 {
     static SettingsRequestResult fromJson(QJsonObject data, bool needSave = true);
@@ -174,12 +189,14 @@ signals:
     void getPlaylistResult(PlayerConfigAPI result);
     void sendStatisticEventsResult(NonQueryResult result);
     void getPlayerSettingsResult(SettingsRequestResult result);
+    void getUpdatesResult(UpdateInfoResult result);
 
 public slots:
     void initRequestResultReply(QNetworkReply * reply);
     void getPlaylistResultReply(QNetworkReply * reply);
     void sendStatisticEventsResultReply(QNetworkReply * reply);
     void getPlayerSettingsReply(QNetworkReply * reply);
+    void getUpdatesReply(QNetworkReply * reply);
 private:
 };
 

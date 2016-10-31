@@ -44,6 +44,7 @@ public:
     static VideoServiceRequest advancedInitRequest(QByteArray bodyData);
     static VideoServiceRequest getPlaylistRequest();
     static VideoServiceRequest getSettingsRequest();
+    static VideoServiceRequest getUpdateVersion(QString platform);
 };
 //---------------------------------------------------------------------
 class VideoService : public QObject
@@ -55,10 +56,11 @@ public:
     void advancedInit(QByteArray data);
     void getPlayerSettings();
     void getPlaylist();
-
     void sendEvents(QString data);
-    void executeRequest(VideoServiceRequest request);
+    void getUpdates(QString platform);
 
+
+    void executeRequest(VideoServiceRequest request);
     bool processReplyError(const QNetworkReply * reply, QString method);
 
 signals:
@@ -66,17 +68,20 @@ signals:
     void getPlaylistResult(PlayerConfigAPI result);
     void sendStatisticEventsResult(NonQueryResult result);
     void getPlayerSettings(SettingsRequestResult result);
+    void getUpdatesResult(UpdateInfoResult result);
 
     void initVideoRequestFinished(QNetworkReply * reply);
     void getPlaylistRequestFinished(QNetworkReply * reply);
     void sendStatisticEventsRequestFinished(QNetworkReply * reply);
     void getPlayerSettingsRequestFinished(QNetworkReply * reply);
+    void getUpdatesRequestFinished(QNetworkReply * reply);
 
 public slots:
     void initVideoRequestFinishedSlot(QNetworkReply * reply);
     void getPlaylistRequestFinishedSlot(QNetworkReply * reply);
     void sendStatisticEventsRequestFinishedSlot(QNetworkReply * reply);
     void getPlayerSettingsRequestFinishedSlot(QNetworkReply * reply);
+    void getUpdatesRequestFinishedSlot(QNetworkReply * reply);
 
 private:
 

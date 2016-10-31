@@ -22,9 +22,12 @@
 #include "qhttprequest.h"
 #include "qhttpresponse.h"
 #include "statictext.h"
+#include "notherfilesystem.h"
+#include "version.h"
 
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
+    qDebug() << "TELEDS v" <<TeleDSVersion::getVersion();
     DatabaseInstance;
     PlatformSpecificService;
     StaticTextService;
@@ -52,13 +55,20 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     skinManager = new SkinManager(this);
     //teledsPlayer->show();               //
     shouldShowPlayer = true;
+
+
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
     statsTimer->start(120000);
 
+    updateTimer = new QTimer();
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
+    updateTimer->start(14000);
+
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
     connect(videoService,SIGNAL(getPlaylistResult(PlayerConfigAPI)),this,SLOT(playlistResult(PlayerConfigAPI)));
+    connect(videoService,SIGNAL(getUpdatesResult(UpdateInfoResult)),this,SLOT(updateInfoReady(UpdateInfoResult)));
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (teledsPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
@@ -440,6 +450,70 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     }
 }
 
+void TeleDSCore::checkUpdate()
+{
+    updateTimer->stop();
+    videoService->getUpdates("raspberry");
+}
+
+void TeleDSCore::updateInfoReady(UpdateInfoResult result)
+{
+    qDebug() << "TeleDSCore::updateInfoReady " + QString::number(result.error_id) + "/" + result.error_text;
+    if (result.error_id == 0)
+    {
+        if (TeleDSVersion::compareVersion(result.version_major,
+                                          result.version_minor,
+                                          result.version_release,
+                                          result.version_build) == 1)
+        {
+            qDebug() << "NEW Version Found! Trying to download!";
+            QString genName =   "TDSU_" +
+                                QString::number(result.version_major) + "." +
+                                QString::number(result.version_minor) + "." +
+                                QString::number(result.version_release) + "." +
+                                QString::number(result.version_build) + ".dat";
+
+            downloader->startUpdateTask(result.file_url, result.file_hash, genName);
+        }
+        else{
+            qDebug() << "You have the newest version of player";
+            updateTimer->start(30000);
+        }
+    }
+}
+
+void TeleDSCore::updateReady(QString filename)
+{
+    qDebug() << "TeleDSCore::updateReady";
+    NotherFileSystem nfs;
+    nfs.load(filename);
+    if (nfs.fileExists("system::updater"))
+    {
+        QByteArray updaterData = nfs.getFile("system::updater");
+        QFile f("updater");
+        if (f.open(QFile::WriteOnly))
+        {
+            f.write(updaterData);
+            f.flush();
+            f.setPermissions(QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther | QFile::ExeUser |
+                             QFile::ReadOwner| QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup |
+                             QFile::WriteGroup | QFile::WriteOwner | QFile::WriteOther | QFile::WriteUser);
+            f.close();
+        }
+    }
+    teledsPlayer->invokeUpdateState();
+
+    QTimer::singleShot(1000, [this, filename]() mutable{
+        QProcess updaterProcess;
+        QStringList args;
+        args.append(filename);
+        updaterProcess.startDetached("bash updater.sh " + filename);
+        updaterProcess.waitForFinished();
+        qDebug() << "update process!!! " << filename << updaterProcess.readAllStandardError() << updaterProcess.readAllStandardOutput();
+        updateTimer->start(30000);
+    });
+}
+
 void TeleDSCore::onThemeReady(ThemeDesc desc)
 {
     qDebug() << "ThemeReady!";
@@ -588,6 +662,7 @@ void TeleDSCore::setupDownloader()
         connect(downloader, SIGNAL(done()), this, SLOT(downloaded()));
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)), teledsPlayer, SLOT(invokeSimpleProgress(double,QString)));
         connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
+        connect(downloader, SIGNAL(updateReady(QString)), this, SLOT(updateReady(QString)));
     }
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();

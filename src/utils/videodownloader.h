@@ -96,6 +96,30 @@ private:
     QHash<QString, HashMeasure> hashCache;
 };
 
+class UpdateDownloaderWorker : public QObject
+{
+    Q_OBJECT
+public:
+    explicit UpdateDownloaderWorker(QObject * parent);
+    ~UpdateDownloaderWorker();
+
+signals:
+    void ready(QString filename);
+
+public slots:
+    void setTask(QString url, QString hash, QString filename);
+    void httpReadyRead();
+    void httpFinished();
+
+private:
+    QFile * file;
+    QNetworkAccessManager * manager;
+    QNetworkReply * reply;
+    QString fileName;
+    QString hash;
+    QString url;
+};
+
 
 class VideoDownloader : public QThread
 {
@@ -113,6 +137,8 @@ public slots:
     void startDownload(){worker->start();}
     int itemsToDownloadCount() {return worker->itemsToDownloadCount();}
     void updateConfig(PlayerConfigAPI config){worker->updateConfig(config);}
+
+    void startUpdateTask(QString url, QString hash, QString filename);
 signals:
     void done();
     void downloadProgressSingle(double p, QString name);
@@ -120,10 +146,14 @@ signals:
     void runDownloadSignal();
     void runDownloadSignalNew();
 
+    void startTask(QString url, QString hash, QString filename);
+    void updateReady(QString filename);
+
 protected:
     void run();
 private:
     VideoDownloaderWorker * worker;
+    UpdateDownloaderWorker * updateWorker;
 };
 
 

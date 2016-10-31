@@ -22,11 +22,13 @@ VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
     connect(this,SIGNAL(getPlaylistRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlaylistResultReply(QNetworkReply*)));
     connect(this,SIGNAL(sendStatisticEventsRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(sendStatisticEventsResultReply(QNetworkReply*)));
     connect(this,SIGNAL(getPlayerSettingsRequestFinished(QNetworkReply*)),&resultProcessor,SLOT(getPlayerSettingsReply(QNetworkReply*)));
+    connect(this,SIGNAL(getUpdatesRequestFinished(QNetworkReply*)), &resultProcessor, SLOT(getUpdatesReply(QNetworkReply*)));
 
     connect(&resultProcessor,SIGNAL(initResult(InitRequestResult)),this,SIGNAL(initResult(InitRequestResult)));
     connect(&resultProcessor,SIGNAL(getPlaylistResult(PlayerConfigAPI)),this,SIGNAL(getPlaylistResult(PlayerConfigAPI)));
     connect(&resultProcessor,SIGNAL(sendStatisticEventsResult(NonQueryResult)),this,SIGNAL(sendStatisticEventsResult(NonQueryResult)));
     connect(&resultProcessor,SIGNAL(getPlayerSettingsResult(SettingsRequestResult)),this,SIGNAL(getPlayerSettings(SettingsRequestResult)));
+    connect(&resultProcessor,SIGNAL(getUpdatesResult(UpdateInfoResult)), this, SIGNAL(getUpdatesResult(UpdateInfoResult)));
 
     currentRequestExists = false;
 }
@@ -44,6 +46,11 @@ void VideoService::getPlaylist()
 void VideoService::sendEvents(QString data)
 {
     executeRequest(VideoServiceRequestFabric::sendEventsRequest(data));
+}
+
+void VideoService::getUpdates(QString platform)
+{
+    executeRequest(VideoServiceRequestFabric::getUpdateVersion(platform));
 }
 
 void VideoService::advancedInit(QByteArray data)
@@ -110,6 +117,13 @@ void VideoService::getPlayerSettingsRequestFinishedSlot(QNetworkReply *reply)
     nextRequest();
 }
 
+void VideoService::getUpdatesRequestFinishedSlot(QNetworkReply *reply)
+{
+    processReplyError(reply, "update");
+    emit getUpdatesRequestFinished(reply);
+    nextRequest();
+}
+
 void VideoService::performRequest(VideoServiceRequest request)
 {
     qDebug() << "VideoService::performRequest" << request.name;
@@ -148,6 +162,8 @@ void VideoService::performRequest(VideoServiceRequest request)
         connect(manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(getPlayerSettingsRequestFinishedSlot(QNetworkReply*)));
     else if (request.name == "statistics:events")
         connect (manager, SIGNAL(finished(QNetworkReply*)),this,SLOT(sendStatisticEventsRequestFinishedSlot(QNetworkReply*)));
+    else if (request.name == "update")
+        connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(getUpdatesRequestFinishedSlot(QNetworkReply*)));
     else
     {
         qDebug() << "ERROR: undefined method: " << request.name;
@@ -219,6 +235,16 @@ VideoServiceRequest VideoServiceRequestFabric::getSettingsRequest()
     result.headers["Authorization"] = GlobalConfigInstance.getToken();
     result.methodAPI = "player/settings";
     result.name = "settings";
+    result.method = "GET";
+    return result;
+}
+
+VideoServiceRequest VideoServiceRequestFabric::getUpdateVersion(QString platform)
+{
+    VideoServiceRequest result;
+    result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.methodAPI = "app/" + platform;
+    result.name = "update";
     result.method = "GET";
     return result;
 }

@@ -428,7 +428,22 @@ Item {
         waitingBlock.visible = false
 
         bgLogoBlock.visible = true
+        fullscreenView.visible = false
     }
+
+    function setUpdateState(tx)
+    {
+        logoColumn.visible = true
+        videoPlayer.opacity = 0
+        titleText.text = "Updating..."
+        progressText.text = "v. " + tx
+        logoDownloadProgressBar.visible = false
+        playerIDItem.visible = false
+        waitingBlock.visible = false
+        bgLogoBlock.visible = true
+        fullscreenView.visible = false
+    }
+
     function setDownloadLogo(){
         logoColumn.visible = true
         videoPlayer.opacity = 0
@@ -438,6 +453,7 @@ Item {
         playerIDItem.visible = false
         waitingBlock.visible = false
     }
+
 
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
