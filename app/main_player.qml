@@ -4,6 +4,7 @@ import QtMultimedia 5.0
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
+import QtWebKit 3.0
 
 
 Item {
@@ -120,7 +121,7 @@ Item {
         widthP = width
     }
 
-    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h)
+    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation)
     {
         console.log("prepareArea " + campaignWidth + " " + campaignHeight + " " + w + " " + h)
         fullscreenView.areaID = name
@@ -128,40 +129,36 @@ Item {
         fullscreenView.y = height * y / campaignHeight;
         fullscreenView.width = width * w / campaignWidth;
         fullscreenView.height = height * h / campaignHeight;
+        fullscreenView.setRotation(_rotation)
+
+      /*  fullscreenView.areaID = name
+        fullscreenView.x = 0
+        fullscreenView.y = 0
+        fullscreenView.height = item.height
+        fullscreenView.width = item.width*/
+       // moveTimer.start()
+    }
+    Timer {
+        id: moveTimer
+        repeat: true
+        interval: 50
+        onTriggered: {
+            fullscreenView.x = fullscreenView.x + 1
+        }
     }
 
-    function playNextItem(areaId, source, type, duration, skipTime)
+    function playNextItem(areaId, source, type, duration, skipTime, fillMode)
     {
-        fullscreenView.play(source, duration, type, skipTime)
+        if (fullscreenView.visible == false)
+            fullscreenView.visible = true
+        fullscreenView.play(source, duration, type, skipTime, fillMode)
     }
-
-  /*  QMetaObject::invokeMethod(viewRootObject, "playNextItem",
-                              Q_ARG(QVariant, area_id),
-                              Q_ARG(QVariant, source),
-                              Q_ARG(QVariant, type),
-                              Q_ARG(QVariant, duration),
-                              Q_ARG(QVariant, skip));*/
 
     function setPlayerVolume(value)
     {
-        videoPlayer.setVolume(value)
+        //fullscreenView.volumeValue = value
     }
 
-    function setDisplayMode(mode)
-    {
-        if (mode === "fullscreen")
-        {
-            sideBrowser.visible = false
-            displayMode = "fullscreen"
-        }
-        else if (mode === "split")
-        {
-            if (menu.visible == false)
-                sideBrowser.visible = true
-            displayMode = "split"
-        }
-
-    }
     function setContentPosition(cLeft, cTop, cWidth, cHeight, wLeft, wTop, wWidth, wHeight)
     {
         contentWidthPercent = cWidth
@@ -244,133 +241,20 @@ Item {
         menu.setDefaultMode()
         menu.showTeleDSLogo = true
     }
-    function stopMainPlayer()
-    {
-        askNextItemOnStop = false
-        videoPlayer.prepareStop = true
-        currentType = "null"
-    }
+
     function stopPlayer()
     {
         fullscreenView.stop()
-
-
-        videoPlayer.stopPlayer();
-        videoPlayer.visible = false;
-        if (androidBrowser.visible == true){
-            androidBrowser.visible = false
-            androidBrowser.stopBrowser()
-        }
-        if (sideBrowser.visible == true)
-        {
-            sideBrowser.visible = false
-            sideBrowser.stopBrowser()
-        }
-
         currentType = "null"
-
     }
 
-    function enablePreloading(filename)
-    {
-        console.log("Preloading: MP2->: " +filename)
-        videoPlayer.playItem(filename)
-    }
-
-    function playFile(filename){
-        console.debug("playfile is called " + filename)
-        videoPlayer.playItem(filename)
-    }
-
-    function playWidget(filename, type, build, length, skip)
-    {
-        console.debug("playwidget is called " + filename)
-        if (type === "html5_online")
-        {
-            sideBrowser.load(filename, length)
-        }
-        else
-            console.log("playwidget -> wrong type")
-        console.log("playwidget-> rect=" + widgetLeft.toString() + " " + widgetTop.toString() + " " + widgetWidth.toString() + " " + widgetHeight.toString())
-    }
-
-    function playFileAdvanced(filename, type, build, length, skip)
-    {
-        console.debug("playfile is called " + filename)
-        console.log("Platform: " + Qt.platform.os)
-        if (type === "video")
-        {
-            //browser just started to play, nextItem returned video - we need to preload video
-            //on browser show end -> we should play this video
-            //
-            if (currentType === "browser")
-            {
-                console.log("playFileAdv::video/browser -> preloading video")
-
-                videoPlayer.preloadItem(filename, type, length, skip)
-                androidBrowser.setNextItem(filename, length, "video", skip)
-            }
-            else
-            {
-                console.log("playFileAdv::video/video -> loading next video | assuming its preloaded")
-                videoPlayer.playItemAdv(filename, length, skip)
-                currentType = "videoPlayer"
-            }
-            return
-        }
-        else if (type === "audio")
-        {
-            if (currentType === "browser")
-            {
-                console.log("playFileAdv::audio/browser -> preloading audio")
-                videoPlayer.preloadItem(filename, "audio", length, skip)
-                androidBrowser.setNextItem(filename, length, "audio", skip)
-            }
-            else
-            {
-                console.log("playFileAdv::audio/multi -> loading next audio | assuming its preloaded")
-                videoPlayer.playAudioItemAdv(filename, length, skip)
-                currentType = "videoPlayer"
-            }
-        }
-        else if (type === "html5_online")
-        {
-            if (currentType === "null")
-            {
-                console.log("playFileAdv::browser/null -> loading and showing browser")
-                androidBrowser.load(filename)
-                androidBrowser.setShowTime(length)
-                showBrowserTimer.browserVisible = true
-                showBrowserTimer.start()
-                //androidBrowser.visible = true
-                androidBrowser.startShow()
-                currentType = "browser"
-                nextItem()
-            }
-            else if (currentType === "videoPlayer")
-            {
-                //prepare for Browser
-                console.log("playfileAdvanced::html5")
-                videoPlayer.prepareStop = true
-                currentType = "browser"
-                androidBrowser.load(filename)
-                androidBrowser.setShowTime(length)
-            }
-            else if (currentType === "browser"){
-                console.log("playFileAdv::browser/browser -> filling nextItem with new browser item")
-                androidBrowser.setNextItem(filename, length, "browser", 0)
-            }
-        }
-    }
     function downloadComplete(){
         console.debug("download complete. Hiding Progress Bars, Showing Video Player");
         filesProgressBar.visible = false
         downloadProgressBar.visible = false
-        videoPlayer.visible = true
         playerName.visible = false
         bgLogoBlock.visible = false
         logoColumn.visible = false
-        videoPlayer.opacity = videoOutBrightness
     }
     function setPlayerName(playerId){
         playerName.text = playerId
@@ -383,44 +267,20 @@ Item {
         downloadProgressBar.value = p
     }
     function showVideo(isVisible){
-        if (videoPlayer.isVideoPlaying){
-            videoPlayer.visible = isVisible
-            logoColumn.visible = false
-            if (!isVisible)
-            {
-                overlayBgRect.color = brand_backgroundColor
-            }
-            else if (videoOutBrightness > 1.0)
-            {
-                overlayBgRect.color = brand_whiteColor
-            }
-            else if (videoOutBrightness < 0.99){
-                overlayBgRect.color = brand_blackColor
-            }
-            else{
-                overlayBgRect.color = brand_blackColor
-            }
-        }
+        logoColumn.visible = false
     }
 
     function setBrightness(value){
         videoOutBrightness = value
-        if (value > 1.0) {
-            overlayBgRect.color = brand_whiteColor
-            videoPlayer.opacity = 2.0 - value
-        }
-        else {
-            overlayBgRect.color = brand_blackColor
-            videoPlayer.opacity = value
-        }
+        fullscreenView.brightness = value
     }
     function setVersion(version){
         systemVersion = version
     }
 
+
     function setNoItemsLogo(link){
         logoColumn.visible = true
-        videoPlayer.opacity = 0
         titleText.text = brand_nothingToPlayText
         progressText.text = "Go to <a href=\"" + link + "\">" + brand_nothingToPlayLinkText +"</a></html>"
         logoDownloadProgressBar.visible = false
@@ -429,12 +289,12 @@ Item {
 
         bgLogoBlock.visible = true
         fullscreenView.visible = false
+        fullscreenView.stop()
     }
 
     function setUpdateState(tx)
     {
         logoColumn.visible = true
-        videoPlayer.opacity = 0
         titleText.text = "Updating..."
         progressText.text = "v. " + tx
         logoDownloadProgressBar.visible = false
@@ -446,7 +306,6 @@ Item {
 
     function setDownloadLogo(){
         logoColumn.visible = true
-        videoPlayer.opacity = 0
         titleText.text = brand_downloadingText
         progressText.text = brand_pleaseWaitText
         logoDownloadProgressBar.visible = true
@@ -457,7 +316,6 @@ Item {
 
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
-        videoPlayer.opacity = 0
         titleText.text = brand_setupText
         progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
         logoDownloadProgressBar.visible = false
@@ -507,6 +365,7 @@ Item {
     {
         logoDownloadProgressBar.value = value
     }
+
     function getTopValue(h)
     {
         var result = h * 0.248148148 - Math.max(waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h,0)*1.5
@@ -515,6 +374,7 @@ Item {
         else
             return result
     }
+
     PositionSource {
         id: src
         updateInterval: 1000
@@ -526,31 +386,6 @@ Item {
             gpsChanged(coord.latitude, coord.longitude)
         }
     }
-    Timer{
-        property var object: ({})
-        id: hideVideoDelayTimer
-        interval: 50
-        repeat: false
-        onTriggered: {
-            object.visible = false
-        }
-    }
-    Timer {
-        property int updateDelay: 10
-        id: refreshTimeTimer
-        interval: 1000
-        repeat: true
-        running: true
-        onTriggered:{
-            updateDelay = updateDelay-1;
-            if (updateDelay == -1)
-                updateDelay = 10;
-            if (updateDelay != 0)
-                waitingRefreshInText.text = "Refresh in " + updateDelay + "s"
-            else
-                waitingRefreshInText.text = "Refreshing..."
-        }
-    }
     Timer {
         id: dialogCloseTimer
         repeat: false
@@ -558,17 +393,6 @@ Item {
         onTriggered: {
             dialogAndroid.close()
             setRestoreModeTrue();
-            if (currentType == "browser")
-            {
-                androidBrowser.visible = true
-                videoPlayer.visible = true
-            }
-            if (displayMode == "split")
-                sideBrowser.visible = true
-            else if (currentType == "videoPlayer")
-            {
-                videoPlayer.visible = true
-            }
             item.focus = true
         }
     }
@@ -762,7 +586,7 @@ Item {
             }
         }
     }
-    //
+
     //
 
     Column
@@ -818,71 +642,6 @@ Item {
         y: parent.height - height
         text: systemVersion
     }
-    /*
-    Image {
-        id: audioFG
-        width: item.width; height: item.height
-        fillMode: Image.Tile
-        horizontalAlignment: Image.AlignLeft
-        verticalAlignment: Image.AlignTop
-        source: "audio.svg"
-    }
-*/
-
-    Timer {
-        id: showBrowserTimer
-        interval: 200
-        repeat: false
-        property bool browserVisible: true
-        onTriggered: {
-            androidBrowser.visible = browserVisible
-        }
-    }
-
-    //content types
-    //video player
-    VideoPlayer {
-        id: videoPlayer
-
-        width: contentWidth
-        height: contentHeight
-        x: contentLeft
-        y: contentTop
-        onNext: {
-            console.log("video player:invoking next item")
-            console.log("visible: " + visible + "RECT " + contentWidth.toString() + " " + contentHeight.toString() + " " + contentLeft.toString() + " " + contentTop.toString())
-            nextItem()
-        }
-        onVideoPlayed: {
-            console.log("video player:video played")
-            videoPlayer.visible = true
-            audioIcon.visible = false
-        }
-        onAudioPlayed: {
-            console.log("videoplayer:audio played")
-            videoPlayer.visible = false
-            audioIcon.visible = true
-        }
-        onVideoStopped: {
-            console.log("video player:video stopped")
-
-            videoPlayer.stopPlayer()
-
-            audioIcon.visible = false
-            if (askNextItemOnStop)
-            {
-                showBrowserTimer.browserVisible = true
-                showBrowserTimer.start()
-                androidBrowser.startShow()
-
-                nextItem()
-            }
-            else
-            {
-                askNextItemOnStop = true
-            }
-        }
-    }
 
     PlayerView {
         id: fullscreenView
@@ -893,87 +652,47 @@ Item {
     }
 
 
-    //image for audio playback
-    Image {
-        id: audioIcon
-        visible: false
-        source: brand_audioIcon
-        sourceSize.width: hValue/2
-        sourceSize.height: hValue/2
-        width: hValue/2
-        height: hValue/2
-        x: contentWidth/2 - width/2
-        y: contentHeight/2 - height/2
-    }
-
-    AndroidBrowser{
-        id: androidBrowser
-        visible: false
-
-        width: contentWidth
-        height: contentHeight
-        x: contentLeft
-        y: contentTop
-
-        //width: parent.width
-        //height: parent.height * 0.5
-        property string nextItemUrl: ""
-        property int nextItemTime: 0
-        property string nextItemType: ""
-        property int nextItemSkipTime: 0
-
-        function setNextItem(item, length, type, skip)
-        {
-            nextItemUrl = item
-            nextItemTime = length
-            nextItemType = type
-            nextItemSkipTime = skip
-        }
-
-        onLoadFinished: {
-        }
-        onEndShow: {
-            if (nextItemUrl == ""){
-            console.log("browser end show, no next Item!")
-            }
-            else
-            {
-                if (nextItemType === "browser")
-                {
-                    console.log("browser end show but there is next BROWSER Item ahead")
-                    androidBrowser.load(nextItemUrl)
-                    androidBrowser.setShowTime(nextItemTime)
-                    androidBrowser.startShow()
-                }
-                else if (nextItemType === "video" || nextItemType === "audio")
-                {
-                    console.log("browser end show but there is next MULTIMEDIA item ahead")
-                    showBrowserTimer.browserVisible = false
-                    showBrowserTimer.start()
-                    currentType = "videoPlayer"
-                    videoPlayer.playPreloaded()
-                }
-                nextItemUrl = ""
-            }
-            nextItem()
+    //code for testing rotations!
+   /* Rectangle {
+        id: normalRect
+        x: 100
+        y: 100
+        width: item.width/2
+        height: item.height/2
+        color: "#ff0000"
+        opacity: 0.7
+    }*/
+/*
+   Rectangle {
+        id: rotatedRect
+        x: 100 + (item.width/2 - item.height/2)/2          //parent.x + (item.width/2 - item.height/2)/2
+        y: 100 - (item.width/2 - item.height/2)/2
+        width: item.height/2
+        height: item.width/2
+        color: "#00FFFF"
+        opacity: 0.3
+        rotation: 90
+        WebView {
+            url: "https://youtube.com"
+            width: parent.width
+            height: parent.height
         }
     }
+    WebView{
+        id: ttw
+        url: "https://yandex.ru"
+        x: 400 + (item.width/2 - item.height/2)/2
+        y: 300 - (item.width/2 - item.height/2)/2
+        width: item.height/2
+        height: item.width/2
+        opacity: 0.5
+        rotation: -60
+    }*/
 
-    SideBrowser{
-        id: sideBrowser
-        visible: false
-        x: widgetLeft
-        y: widgetTop
-        width: widgetWidth
-        height: widgetHeight
-        onNext: {
-            nextWidget()
-        }
-    }
 
     //android:excludeFromRecents="true"
 
-    TeleDSMenu{
+    TeleDSMenu {
         id: menu
         color1: brand_menu_backgroundColor
         color2: brand_menu_foregroundColor

@@ -11,6 +11,7 @@
 #include <QTimeZone>
 #include <QScreen>
 #include <QSslSocket>
+#include <QTcpSocket>
 
 #include "teledscore.h"
 #include "globalconfig.h"
@@ -93,7 +94,12 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         playerInitParams = result;
 
         //if settings is stored in config and if brand is active
-        SettingsRequestResult settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
+
+
+       // SettingsRequestResult _settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
+       // PlayerConfigAPI _playlist = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist());
+       // playerSettingsResult(_settings);
+       // playlistResult(_playlist);
 
       /*  if (settings.brand_active)
         {
@@ -146,6 +152,14 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     downloader = 0;
     setupHttpServer();
     qDebug() << "TELEDS initialization done";
+
+
+    qDebug() << "Init gps Receiver";
+    gpsSocket = new QTcpSocket(this);
+    connect(gpsSocket,SIGNAL(readyRead()), this, SLOT(gpsRead()));
+    connect(gpsSocket, &QTcpSocket::disconnected, []() {qDebug() << "GPS CLOSED!!!!";});
+    gpsSocket->connectToHost("127.0.0.1", 2947);
+
 }
 
 void TeleDSCore::setupHttpServer()
@@ -322,7 +336,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 
     if (result.error_id == -1)
     {
-        SettingsRequestResult storedSettings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
+        SettingsRequestResult storedSettings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings(), false);
         if (storedSettings.error_id == 0)
         {
             playerSettingsResult(storedSettings);
@@ -420,7 +434,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         {
             qDebug() << "TeleDSCore::playlistResult <> loading from config";
             qDebug() << "seems like server is offline so we load from config";
-            PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlayerConfig());
+            PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist());
             if (storedResult.last_modified.isValid())
             {
                 qDebug() << "config is Valid";
@@ -472,8 +486,8 @@ void TeleDSCore::updateInfoReady(UpdateInfoResult result)
                                 QString::number(result.version_minor) + "." +
                                 QString::number(result.version_release) + "." +
                                 QString::number(result.version_build) + ".dat";
-
-            downloader->startUpdateTask(result.file_url, result.file_hash, genName);
+            if (downloader)
+                downloader->startUpdateTask(result.file_url, result.file_hash, genName);
         }
         else{
             qDebug() << "You have the newest version of player";
@@ -540,6 +554,7 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
             tdsPlayer->invokeRestoreDefaultTheme();
         });
     }
+
 }
 
 void TeleDSCore::getPlaylistTimerSlot()
@@ -564,18 +579,27 @@ void TeleDSCore::downloaded()
     if (currentCampaignIndex >= currentConfig.campaigns.count())
         currentCampaignIndex = 0;
 
-    qDebug() << "choosing campaign";
+    qDebug() << "choosing campaign" << currentCampaignIndex;
     currentConfig.currentCampaignId = currentCampaignIndex;
     PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[0];
-
+    qDebug() << campaign.campaign_id;
     qDebug() << "stopping player";
     teledsPlayer->invokeStop();
     teledsPlayer->updateConfig(currentConfig);
     teledsPlayer->invokeDownloadDone();
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height);
+                                     area.x, area.y, area.width, area.height, campaign.rotation);
+
     teledsPlayer->play();
+/*
+    if (currentConfig.campaigns.count() > 1)
+    {
+        QTimer::singleShot(campaign.duration, this, [this](){
+            qDebug() << "nextCAMPAIGN!";
+            nextCampaign();
+        });
+    }*/
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -650,6 +674,54 @@ void TeleDSCore::showPlayer()
     }
 }
 
+void TeleDSCore::gpsRead()
+{
+    static int i = 0;
+    qDebug() << "gpsRead";
+    if (i == 0){
+        //gpsSocket->write(QString("?POLL;").toLocal8Bit());
+        //i = 1;
+        gpsSocket->write(QString("?WATCH={\"enable\":true,\"json\":true}").toLocal8Bit());
+        i = 1;
+        return;
+    }
+
+    QByteArray jsonData = gpsSocket->readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    if (doc.isObject())
+    {
+        QJsonObject root = doc.object();
+        if (root["class"].toString() == "TPV")
+        {
+            double lat = root["lat"].toDouble();
+            double lon = root["lon"].toDouble();
+            GlobalStatsInstance.setGps(lat, lon);
+        }
+    }
+}
+
+void TeleDSCore::nextCampaign()
+{
+    teledsPlayer->invokeStop();
+    int duration = teledsPlayer->nextCampaign();
+
+    int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
+    if (currentCampaignIndex >= currentConfig.campaigns.count())
+        currentCampaignIndex = 0;
+
+    qDebug() << "choosing campaign";
+    currentConfig.currentCampaignId = currentCampaignIndex;
+    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[0];
+    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
+                                     area.x, area.y, area.width, area.height, campaign.rotation);
+    teledsPlayer->play();
+
+    QTimer::singleShot(duration, this, [this](){
+        nextCampaign();
+    });
+}
+
 void TeleDSCore::setupDownloader()
 {
     qDebug() << "Core::setupDownloader";
@@ -673,7 +745,7 @@ void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
     foreach (const PlayerConfigAPI::Campaign::Area &area, c.areas)
         teledsPlayer->invokeInitArea(area.area_id,
                                      c.screen_width, c.screen_height,
-                                     area.x, area.y, area.width, area.height);
+                                     area.x, area.y, area.width, area.height, c.rotation);
 }
 
 void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)

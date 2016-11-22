@@ -46,7 +46,7 @@ void VideoDownloaderWorker::checkDownload()
         //no need to download online resource
         if (item.type == "html5_online")
             continue;
-        QString filename = VIDEO_FOLDER + item.content_id + item.file_extension;
+        QString filename = VIDEO_FOLDER + item.content_id + item.file_hash + item.file_extension;
         QString filehash;
         if (!QFile::exists(filename))
         {
@@ -91,7 +91,8 @@ void VideoDownloaderWorker::download()
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
         emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
 
-        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id + itemsToDownload[currentItemIndex].file_extension + "_";
+        QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id +
+                itemsToDownload[currentItemIndex].file_hash + itemsToDownload[currentItemIndex].file_extension + "_";
 
         if (QFile::exists(tempFileName))
         {
@@ -248,10 +249,6 @@ void VideoDownloaderWorker::httpFinished()
         qDebug() << "VDW::httpFinished -> Error No internet connection";
         reply->disconnect();
         QTimer::singleShot(10000,this,SLOT(download()));
-    //    delete reply;
-    //    reply = 0;
-    //    delete file;
-    //    file = 0;
         if (manager)
         {
             manager->disconnect();
@@ -274,10 +271,11 @@ void VideoDownloaderWorker::httpFinished()
     file = 0;
     if (currentItem.type == "html5_zip")
     {
-        PlatformSpecificService.extractFile(currentItemId + currentItem.file_extension, currentItemId);
+        PlatformSpecificService.extractFile(currentItemId + currentItem.file_hash + currentItem.file_extension, currentItemId);
     }
     else
-        swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_extension, VIDEO_FOLDER + currentItemId + currentItem.file_extension + "_");
+        swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension,
+                    VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension + "_");
     swapper.start();
   //  download();
 }
@@ -295,7 +293,7 @@ void VideoDownloaderWorker::httpReadyRead()
         file->flush();
         if (v % 10 == 0)
             qDebug() << QDateTime::currentDateTime().time().toString("HH:mm:ss ") << "updating file status: "
-                     << itemsToDownload[currentItemIndex].content_id << " [ " << file->size() << " ] bytes";
+                     << itemsToDownload[currentItemIndex].name << " [ " << file->size() << " ] bytes";
     }
 }
 
@@ -365,6 +363,7 @@ void FileSwapper::runSwapCycle()
 
 VideoDownloader::VideoDownloader(PlayerConfigAPI config, QObject *parent) : QThread(parent)
 {
+    qDebug() << "VIDEODOWNLOADER INIT";
     worker = new VideoDownloaderWorker(config,this);
     updateWorker = new UpdateDownloaderWorker(this);
     connect(worker,SIGNAL(done()),this, SIGNAL(done()));

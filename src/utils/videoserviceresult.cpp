@@ -191,6 +191,10 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.bright_night = data["bright_night"].toInt();
     result.bright_day = data["bright_day"].toInt();
     result.name = data["name"].toString();
+    if (data["screen_flip"].toBool())
+        result.base_rotation = 180;
+    else
+        result.base_rotation = 0;
 
     result.reley_1_enabled = !data["time_targeting_relay_1"].isNull();
     result.reley_2_enabled = !data["time_targeting_relay_2"].isNull();
@@ -257,6 +261,7 @@ QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString cont
 
 PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
 {
+    GlobalConfigInstance.setPlaylist(json);
     PlayerConfigAPI result;
     result.last_modified = timeFromJson(json["last_modified"]);
     QJsonArray campaigns = json["campaigns"].toArray();
@@ -317,10 +322,15 @@ PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
     result.play_order = json["play_order"].toInt();
     result.screen_width = json["width"].toInt();
     result.screen_height = json["height"].toInt();
+
+    if (json["orientation"].toString() == "landscape")
+        result.rotation = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings()).base_rotation;
+    else
+        result.rotation = -90 + SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings()).base_rotation;
+
     QJsonArray areas = json["areas"].toArray();
     foreach (const QJsonValue &aValue, areas)
         result.areas.append(PlayerConfigAPI::Campaign::Area::fromJson(aValue.toObject()));
-
     return result;
 }
 
@@ -373,6 +383,7 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
     result.file_url = json["file_url"].toString();
     result.file_hash = json["file_hash"].toString();
     result.file_extension = json["file_extension"].toString();
+    result.fill_mode = json["fill_mode"].toString();
 
     QJsonObject timeTargeting = json["time_targeting"].toObject();
     foreach (const QString &key, timeTargeting.keys())

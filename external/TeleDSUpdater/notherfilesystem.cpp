@@ -123,7 +123,6 @@ QStringList NotherFileSystem::files()
     return result;
 }
 
-
 FileDescriptor FileDescriptor::load(QDataStream &s)
 {
     FileDescriptor result;

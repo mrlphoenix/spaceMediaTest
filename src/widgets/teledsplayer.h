@@ -28,6 +28,7 @@ public:
     void updateConfig(PlayerConfigAPI &playerConfig);
     void play(int delay = 1000);
     void stop();
+    int nextCampaign() { return config.nextCampaign(); }
     int getCurrentCampaignIndex() { return config.currentCampaignId; }
     PlayerConfigAPI::Campaign::Area getAreaById(QString id);
 
@@ -62,18 +63,15 @@ public slots:
 
     void invokeUpdateState();
 
-
     //new methods
     void invokeSetAreaCount(int areaCount);
     void invokePlayCampaign(int campaignIndex);
-    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h);
+    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation);
 
     void invokeSetPlayerVolume(int value);
 
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
-
-    ///mode = ["fullscreen", "split"]
     void invokeSetDisplayMode(QString mode);
     void invokeSetContentPosition(float contentLeft = 0.f, float contentTop = 0.f, float contentWidth = 100.f, float contentHeight = 100.f,
                                   float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);

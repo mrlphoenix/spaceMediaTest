@@ -61,7 +61,6 @@ void VideoService::advancedInit(QByteArray data)
 
 void VideoService::executeRequest(VideoServiceRequest request)
 {
-    qDebug() << "executeRequest";
     if (currentRequestExists)
     {
         qDebug() << "enqueuing request";

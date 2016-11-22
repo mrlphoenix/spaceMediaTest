@@ -2,7 +2,6 @@
 
 AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
 {
-
 }
 
 SuperPlaylist::SuperPlaylist(QObject *parent) : AbstractPlaylist(parent)
@@ -61,26 +60,25 @@ QString SuperPlaylist::next()
         2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // `Timeout (если ==)
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
-    qDebug() << "SuperPlaylist::need to choose campaign";
     currentItemIndex = 0;
     shuffle(true, false);
     std::sort(fixedFloatingItems.begin(), fixedFloatingItems.end(),
               [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
               {
-                  int aLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[a.content_id]) / magic);
-                  int bLastPlayed = std::ceil(minPlayTime.secsTo(lastTimeShowed[b.content_id]) / magic);
+                  int aLastPlayed = std::ceil(minPlayTime.msecsTo(lastTimeShowed[a.content_id]) / magic);
+                  int bLastPlayed = std::ceil(minPlayTime.msecsTo(lastTimeShowed[b.content_id]) / magic);
                   if (aLastPlayed == bLastPlayed)
-                      return a.play_timeout < b.play_timeout;
+                      return a.play_timeout > b.play_timeout;
                   else
-                      return aLastPlayed < bLastPlayed;
+                      return aLastPlayed > bLastPlayed;
               });
-    for (int i = 0; i < MAGIC_PLAYLIST_VALUE + 1 && i < fixedFloatingItems.count(); ++i)
+    for (int i = 0; /*i < MAGIC_PLAYLIST_VALUE + 1 && */i < fixedFloatingItems.count(); ++i)
     {
         PlayerConfigAPI::Campaign::Area::Content item = fixedFloatingItems.at(i);
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
         {
             QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addSecs(item.play_timeout);
+            delayPassTime = delayPassTime.addSecs(item.play_timeout - 7);
             lastTimeShowed[item.content_id] = delayPassTime;
             lastPlayed = item.content_id;
             return item.content_id;
@@ -171,7 +169,8 @@ bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Conte
         }
         else
         {
-            qDebug() << "SUPER PL: Item Delay is Not Passed. Skipping item.>>" << item.content_id;
+            qDebug() << "SUPER PL: Item Delay is Not Passed. Skipping item.>>" << item.content_id
+                     << QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.content_id].time().toString();
             return false;
         }
     }

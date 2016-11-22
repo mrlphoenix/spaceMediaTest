@@ -794,6 +794,7 @@ QString Platform::PlatformSpecific::getConnectionName()
 #ifdef PLATFORM_DEFINE_RPI
     return "";
 #endif
+    return "";
 }
 
 void Platform::PlatformSpecific::install()

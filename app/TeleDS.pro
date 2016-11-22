@@ -17,7 +17,7 @@ TEMPLATE = app
 
 contains (KIT, Raspberry){
     TARGET = SpaceMediaTest
-    target.path = /home/pi/
+    target.path = /home/pi/teleds
     INSTALLS += target
     INCLUDEPATH += /home/nother/raspi/sysroot/usr/local/include
     LIBS += -L/home/nother/raspi/sysroot/usr/local/lib -lwiringPi

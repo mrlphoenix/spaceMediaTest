@@ -112,6 +112,9 @@ public slots:
     void checkReleyTime();
 
     void showPlayer();
+    void gpsRead();
+
+    void nextCampaign();
 
 
 protected:
@@ -140,6 +143,8 @@ protected:
     QHttpServer * httpserver;
     QHash<QString, QHash<QString, QByteArray> > storedData;
     QNetworkAccessManager myServerManager;
+
+    QTcpSocket * gpsSocket;
 };
 
 

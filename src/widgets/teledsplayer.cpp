@@ -41,7 +41,9 @@ TeleDSPlayer::~TeleDSPlayer()
 
 QString TeleDSPlayer::getFullPath(QString fileName, AbstractPlaylist * playlist)
 {
-    QString nextFile = VIDEO_FOLDER + fileName + playlist->findItemById(fileName).file_extension;
+    QString nextFile =  VIDEO_FOLDER + fileName +
+                        playlist->findItemById(fileName).file_hash +
+                        playlist->findItemById(fileName).file_extension;
     QFileInfo fileInfo(nextFile);
     return QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
 }
@@ -86,6 +88,7 @@ void TeleDSPlayer::play(int delay)
     qDebug() << "qml! TeleDSPlayer::play!";
     isActive = true;
     int duration = 10000; //default for the case when its a backend bug and campaign doesnt have duration set;
+    qDebug() << "currentCampaignId = " << config.currentCampaignId;
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
     {
         QTimer::singleShot(delay, [this, a]() {
@@ -127,7 +130,7 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, QString area_id)
     PlayerConfigAPI::Campaign::Area::Content item = playlists[area_id]->findItemById(name);
 
     QVariant source;
-    if (item.type == "video" || item.type == "audio")
+    if (item.type == "video" || item.type == "audio" || item.type == "image")
     {
         source = QUrl(getFullPath(name,playlists[area_id]));
         invokeSetPlayerVolume(GlobalConfigInstance.getVolume());
@@ -144,13 +147,15 @@ void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, QString area_id)
         type = item.type;
     QVariant duration = item.duration;
     QVariant skip = item.play_start;
+    QVariant fillMode = item.fill_mode;
 
     QMetaObject::invokeMethod(viewRootObject, "playNextItem",
                               Q_ARG(QVariant, area_id),
                               Q_ARG(QVariant, source),
                               Q_ARG(QVariant, type),
                               Q_ARG(QVariant, duration),
-                              Q_ARG(QVariant, skip));
+                              Q_ARG(QVariant, skip),
+                              Q_ARG(QVariant, fillMode));
 }
 
 void TeleDSPlayer::invokeFileProgress(double p, QString name)
@@ -298,7 +303,7 @@ void TeleDSPlayer::invokePlayCampaign(int campaignIndex)
         next(area.area_id);
 }
 
-void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h)
+void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation)
 {
     qDebug() << "TeleDSPlayer::invokeInitArea";
     QMetaObject::invokeMethod(viewRootObject, "prepareArea",
@@ -308,14 +313,16 @@ void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double cam
                               Q_ARG(QVariant, QVariant(x)),
                               Q_ARG(QVariant, QVariant(y)),
                               Q_ARG(QVariant, QVariant(w)),
-                              Q_ARG(QVariant, QVariant(h)));
+                              Q_ARG(QVariant, QVariant(h)),
+                              Q_ARG(QVariant, QVariant(rotation)));
 
 }
 
 void TeleDSPlayer::invokeSetPlayerVolume(int value)
 {
     qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";
-    QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value)));
+    qDebug() << "nothing should happen";
+    //  QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value/1.0)));
 }
 
 void TeleDSPlayer::invokeSetLicenseData()
@@ -422,9 +429,7 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
 
         int minBrightness = std::min(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
         int maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
-        double originalValue = sunSystem.getLinPercent();
         double brightnessValue = sunSystem.getSinPercent() * (maxBrightness - minBrightness) + minBrightness;
-        qDebug() <<"Autobrightness is active with value: LINEAR= " + QString::number(originalValue) + " , SIN= " + QString::number(brightnessValue);
         if (brightnessValue/100. < 0)
             setBrightness(1.0);
         else
@@ -498,11 +503,21 @@ void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
     qDebug() << "systemInfoReady";
     foreach (const QString &areaId, playlists.keys())
     {
-        auto item = playlists[areaId]->findItemById(playedIds.dequeue());
-        if (item.content_id != "")
-        {
-            DatabaseInstance.createPlayEvent(item, info);
-            break;
+        qDebug() << "iterating...";
+        auto playlist = playlists[areaId];
+        qDebug() << playlist;
+        if (playlist){
+            if (!playedIds.isEmpty())
+            {
+                auto item = playlists[areaId]->findItemById(playedIds.head());
+                qDebug() << "item found" << item.content_id;
+                if (item.content_id != "")
+                {
+                    DatabaseInstance.createPlayEvent(item, info);
+                    playedIds.dequeue();
+                    break;
+                }
+            }
         }
     }
 }

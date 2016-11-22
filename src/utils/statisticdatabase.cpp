@@ -297,7 +297,7 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space)
                 );
-   // qDebug() << "create play event sql = " + sql;
+    qDebug() << "create play event sql = " + sql;
     queryThread->execute("playResource", sql);
 }
 

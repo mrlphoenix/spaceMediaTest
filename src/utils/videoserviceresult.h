@@ -64,6 +64,7 @@ struct SettingsRequestResult
     int bright_day;
 
     int stats_interval;
+    int base_rotation;
 
     //branding
     bool brand_active;
@@ -118,6 +119,7 @@ struct PlayerConfigAPI
         QDateTime end_timestamp;
         int screen_width;
         int screen_height;
+        int rotation;
 
         struct Area {
             static PlayerConfigAPI::Campaign::Area fromJson(QJsonObject json);
@@ -155,6 +157,7 @@ struct PlayerConfigAPI
                 QString file_url;
                 QString file_hash;
                 QString file_extension;
+                QString fill_mode;
 
                 struct gps
                 {

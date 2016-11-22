@@ -328,35 +328,6 @@ Item {
             anchors.topMargin: 12
         }
 
-  /*      Text {
-            id: menuInfoDeviceActivationKeyTitle
-            text: "Activation Key"
-         //   font.family:  ubuntuFont.name
-            color: color1
-            font.pixelSize: fontSizeSP(14.8)
-            font.weight: Font.Light
-            anchors.top: menuInfoDeviceNameBlockLine.bottom
-            anchors.topMargin: 12
-        }
-        Text {
-            id: menuInfoDeviceActivationKeyData
-            text: "1234-5678"
-           // font.family:  ubuntuFont.name
-            color: color1
-            font.pixelSize: fontSizeSP(14.8)
-            x: menuTitleBlockTextRectangle.x + menuTitleBlockTextRectangle.width
-            anchors.top: menuInfoDeviceActivationKeyTitle.top
-        }
-        Rectangle {
-            id: menuInfoDeviceActivationKeyLine
-            color: "white"
-            opacity: 0.4
-            width: fontBrakeLength()
-            height: 1
-            anchors.top: menuInfoDeviceActivationKeyTitle.bottom
-            anchors.topMargin: 12
-        }*/
-
         Text {
             id: menuInfoDeviceConnectionInfoTitle
             text: "Connection status"

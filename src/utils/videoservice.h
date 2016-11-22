@@ -59,7 +59,6 @@ public:
     void sendEvents(QString data);
     void getUpdates(QString platform);
 
-
     void executeRequest(VideoServiceRequest request);
     bool processReplyError(const QNetworkReply * reply, QString method);
 
