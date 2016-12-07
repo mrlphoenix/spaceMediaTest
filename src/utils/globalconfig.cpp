@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include "globalconfig.h"
+#include "globalstats.h"
 #include "platformdefines.h"
 #include "platformspecific.h"
 
@@ -82,16 +83,17 @@ void GlobalConfig::setReleyConfig(QHash<int, QList<int> > &reley_1, QHash<int, Q
 
 bool GlobalConfig::getFirstReleyStatus()
 {
-    QDateTime currentTime = QDateTime::currentDateTime();
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    qDebug() << currentTime;
     int dayOfWeek = currentTime.date().dayOfWeek() - 1;
     int hour = currentTime.time().hour();
-    qDebug() << "dayOfWeek: " << dayOfWeek << " hour: " << hour;
+    qDebug() << "dayOfWeek: " << dayOfWeek << " hour: " << hour << "rl: " << time_targeting_relay_1;
     return time_targeting_relay_1[dayOfWeek].contains(hour);
 }
 
 bool GlobalConfig::getSecondReleyStatus()
 {
-    QDateTime currentTime = QDateTime::currentDateTime();
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     int dayOfWeek = currentTime.date().dayOfWeek()-1;
     int hour = currentTime.time().hour();
     return time_targeting_relay_2[dayOfWeek].contains(hour);
@@ -113,6 +115,11 @@ void GlobalConfig::setSettings(QJsonObject json)
 QJsonObject GlobalConfig::getSettings()
 {
     return settings;
+}
+
+SettingsRequestResult &GlobalConfig::getSettingsObject()
+{
+    return settingsObject;
 }
 
 void GlobalConfig::setPlaylist(QJsonObject json)
@@ -188,6 +195,18 @@ void GlobalConfig::setVolume(int value)
 {
     this->volume = value;
     save();
+}
+
+void GlobalConfig::setMetaProperty(QString key, QString value)
+{
+    metaProperties[key] = value;
+}
+
+QString GlobalConfig::getMetaProperty(QString key)
+{
+    if (metaProperties.contains(key))
+        return metaProperties[key];
+    return QString();
 }
 
 void GlobalConfig::loadFromJson()

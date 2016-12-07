@@ -142,6 +142,7 @@ Platform::PlatformSpecificWorker::PlatformSpecificWorker()
 Platform::PlatformSpecificWorker::PlatformSpecificWorker(QObject *parent) : QObject(parent)
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
+    qDebug() << "PINMODE SETUP";
     wiringPiSetup();
     pinMode(RPI_WIRINGPI_GPIO_PIN_1, OUTPUT);
     pinMode(RPI_WIRINGPI_GPIO_PIN_2, OUTPUT);

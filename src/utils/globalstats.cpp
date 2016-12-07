@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <QFile>
+#include <QTimeZone>
 #include "globalstats.h"
 
 GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
@@ -19,6 +21,31 @@ GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
 
     connectionDropped = false;
     latitude = longitude = 0.0;
+
+    QFile f("/usr/share/zoneinfo/zone.tab");
+    f.open(QFile::ReadOnly);
+    QStringList lines = QString(f.readAll()).split("\n");
+    foreach (const QString &s, lines)
+    {
+        if (s.simplified() == "" || s[0] == QChar('#'))
+            continue;
+        QStringList tokens = s.split("\t");
+        if (tokens.count() > 2)
+        {
+            TimeZoneEntry newItem;
+            newItem.shortName = tokens[0];
+            QString coordsString = tokens[1];
+            coordsString = coordsString.replace("+", " +").replace("-", " -");
+            coordsString = coordsString.mid(1, coordsString.length()-1);
+            QString latStr = coordsString.split(" ")[0];
+            QString lonStr = coordsString.split(" ")[1];
+            newItem.lat = latStr.toDouble()/(latStr.length() > 6 ? 10000. : 100.);
+            newItem.lon = lonStr.toDouble()/(lonStr.length() > 6 ? 10000. : 100.);
+            newItem.longName = tokens[2];
+            tzDatabase.append(newItem);
+        }
+    }
+    f.close();
 }
 
 void GlobalStats::registryDownload()
@@ -99,6 +126,36 @@ void GlobalStats::setBalance(double balance)
     this->balance = balance;
 }
 
+int GlobalStats::getUTCOffset()
+{
+    int foundIndex = 0;
+    double distance = 10000000.;
+    double lat = latitude;
+    double lon = longitude;
+    if (lat == 0.0 && lon == 0.0)
+        return 0;
+
+    int currentIndex = 0;
+    foreach (const TimeZoneEntry &tz, tzDatabase)
+    {
+        double theta = lon - tz.lon;
+        double cdistance = sin(lat/180.*M_PI) * sin(tz.lat/180.*M_PI) + cos(lat/180.*M_PI)*cos(tz.lat/180.*M_PI) * cos(theta/180.*M_PI);
+        cdistance = acos(cdistance);
+        cdistance = fabs(cdistance/M_PI*180.0);
+        if (distance > cdistance)
+        {
+            foundIndex = currentIndex;
+            distance = cdistance;
+        }
+        currentIndex++;
+    }
+    QTimeZone tz(tzDatabase[foundIndex].longName.toLocal8Bit());
+    if (tz.isValid())
+        return tz.offsetFromUtc(QDateTime::currentDateTime());
+    else
+        return 0;
+}
+
 void GlobalStats::setSunset(QTime sunset)
 {
     this->sunset = sunset;
@@ -174,6 +231,39 @@ bool GlobalStats::shouldUpdateSunrise()
             return true;
     }
     return updateValue;
+}
+
+void GlobalStats::itemPlayed(QString areaId, QString contentId, QDateTime date)
+{
+    qDebug() << "GlobalStats::itemPlayed" << contentId << " " << date;
+    if (!lastTimePlayed.contains(areaId))
+        lastTimePlayed[areaId] = QHash<QString, QDateTime>();
+    lastTimePlayed[areaId][contentId] = date;
+}
+
+bool GlobalStats::checkDelayPass(QString areaId, QString contentId)
+{
+    qDebug() << "GlobalStats::checkDelayPass";
+    if (!lastTimePlayed.contains(areaId))
+    {
+        qDebug() << "no such area -> return true";
+        return true;
+    }
+    if (!lastTimePlayed[areaId].contains(contentId))
+    {
+        qDebug() << "item was never played -> return true";
+        return true;
+    }
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getUTCOffset());
+    qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].time();
+    return currentTime > lastTimePlayed[areaId][contentId];
+}
+
+bool GlobalStats::itemWasPlayed(QString areaId, QString contentId)
+{
+    if (!lastTimePlayed.contains(areaId))
+        return false;
+    return lastTimePlayed[areaId].contains(contentId);
 }
 
 void GlobalStats::setSystemData(QString tag, QByteArray data)

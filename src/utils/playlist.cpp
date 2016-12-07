@@ -1,3 +1,5 @@
+#include "globalstats.h"
+#include "singleton.h"
 #include "playlist.h"
 
 AbstractPlaylist::AbstractPlaylist(QObject *parent) : QObject(parent)
@@ -18,7 +20,7 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
     splitItems();
     allLength = 0;
     //pretend we just played all items
-    minPlayTime = QDateTime::currentDateTimeUtc();
+    minPlayTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     //calculating total play time
     //setuping campaing list
     qDebug() << "SuperPlaylist::campaigns clear";
@@ -28,20 +30,34 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
         allLength += item.duration;
         campaigns[item.content_id] = item;
     }
-    qDebug() << "SuperPlaylist::campaigns restored";
     minPlayTime = minPlayTime.addMSecs(-allLength);
     int tempTime = 0;
-    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
+    auto playlistCopy = playlist.content;
+    QList<PlayerConfigAPI::Campaign::Area::Content> shuffledPlaylist;
+    while (!playlistCopy.isEmpty())
     {
-        if (!lastTimeShowed.contains(item.content_id))
+        int index = qrand()%playlistCopy.count();
+        shuffledPlaylist.append(playlistCopy[index]);
+        playlistCopy.removeAt(index);
+    }
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, shuffledPlaylist)
+    {
+        if (!GlobalStatsInstance.itemWasPlayed(item.area_id, item.content_id))
+        {
+            QDateTime itemFakePlayTime = minPlayTime;
+            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime).addSecs(item.play_timeout);
+            GlobalStatsInstance.itemPlayed(item.area_id,item.content_id,itemFakePlayTime);
+            tempTime += item.duration;
+        }
+       /* if (!lastTimeShowed.contains(item.content_id))
         {
             QDateTime itemFakePlayTime = minPlayTime;
             itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime);
             lastTimeShowed[item.content_id] = itemFakePlayTime;
             tempTime += item.duration;
-        }
+        }*/
     }
-    magic = qRound(double(allLength) / double(playlist.content.count()) * MAGIC_PLAYLIST_VALUE);
+    magic = qRound(double(allLength/1000) / double(playlist.content.count()) * MAGIC_PLAYLIST_VALUE);
 }
 
 QString SuperPlaylist::next()
@@ -72,14 +88,15 @@ QString SuperPlaylist::next()
                   else
                       return aLastPlayed > bLastPlayed;
               });
-    for (int i = 0; /*i < MAGIC_PLAYLIST_VALUE + 1 && */i < fixedFloatingItems.count(); ++i)
+    for (int i = 0; i < fixedFloatingItems.count(); ++i)
     {
         PlayerConfigAPI::Campaign::Area::Content item = fixedFloatingItems.at(i);
-        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange())
+        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange() &&
+            item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
         {
-            QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addSecs(item.play_timeout - 7);
-            lastTimeShowed[item.content_id] = delayPassTime;
+            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(item.play_timeout + GlobalStatsInstance.getUTCOffset() - 7);
+            GlobalStatsInstance.itemPlayed(playlist.area_id,item.content_id,delayPassTime);
+            //lastTimeShowed[item.content_id] = delayPassTime;
             lastPlayed = item.content_id;
             return item.content_id;
         }
@@ -135,6 +152,7 @@ void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
 {
     //this method is called when we need to shuffle our playlist items
     QList<PlayerConfigAPI::Campaign::Area::Content> newFixed, newFloating;
+
     if (fixedFloating)
     {
         while (fixedFloatingItems.count() > 0)
@@ -145,6 +163,7 @@ void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
         }
         fixedFloatingItems = newFixed;
     }
+
     if (floatingNone)
     {
         while (floatingNoneItems.count() > 0)
@@ -159,23 +178,7 @@ void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
 
 bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item)
 {
-    if (lastTimeShowed.contains(item.content_id))
-    {
-        if (QDateTime::currentDateTime() > lastTimeShowed[item.content_id])
-        {
-            qDebug() << "SUPER PL: Item Delay Passed!>>" << item.content_id
-                     << QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.content_id].time().toString();
-            return true;
-        }
-        else
-        {
-            qDebug() << "SUPER PL: Item Delay is Not Passed. Skipping item.>>" << item.content_id
-                     << QDateTime::currentDateTime().time().toString() << " /// " << lastTimeShowed[item.content_id].time().toString();
-            return false;
-        }
-    }
-    else
-        return true;
+    return GlobalStatsInstance.checkDelayPass(playlist.area_id, item.content_id);
 }
 
 QString SuperPlaylist::nextFreeItem()
@@ -189,11 +192,15 @@ QString SuperPlaylist::nextFreeItem()
     for (int i = lastFreeFloatingItemPlayedIndex; i< floatingNoneItems.count(); i++)
     {
         auto item = floatingNoneItems[i];
-        if (item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id))
+        if (item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id) &&
+            item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
         {
-            QDateTime delayPassTime = QDateTime::currentDateTime();
-            delayPassTime = delayPassTime.addMSecs(item.play_timeout);
-            lastTimeShowed[item.content_id] = delayPassTime;
+            //QDateTime delayPassTime = QDateTime::currentDateTime();
+            //delayPassTime = delayPassTime.addMSecs(item.play_timeout);
+            //lastTimeShowed[item.content_id] = delayPassTime;
+            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(item.play_timeout + GlobalStatsInstance.getUTCOffset() - 7);
+            GlobalStatsInstance.itemPlayed(playlist.area_id,item.content_id,delayPassTime);
+
             lastPlayed = item.content_id;
             lastFreeFloatingItemPlayedIndex = i;
             return item.content_id;

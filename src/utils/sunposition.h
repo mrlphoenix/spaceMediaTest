@@ -66,6 +66,8 @@ private:
 
     bool IsInteger(double value);
 
+    QTime getSunState(double dLat, double dLon, int iJulianDay, bool isSunrise);
+
     double lat, lon;
 };
 

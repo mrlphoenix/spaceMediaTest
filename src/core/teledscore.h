@@ -139,12 +139,12 @@ protected:
 
     bool shouldShowPlayer;
 
-
     QHttpServer * httpserver;
     QHash<QString, QHash<QString, QByteArray> > storedData;
     QNetworkAccessManager myServerManager;
 
     QTcpSocket * gpsSocket;
+    bool updateGps;
 };
 
 

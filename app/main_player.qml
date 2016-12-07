@@ -1,6 +1,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
-import QtMultimedia 5.0
+import QtMultimedia 5.5
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
@@ -138,6 +138,12 @@ Item {
         fullscreenView.width = item.width*/
        // moveTimer.start()
     }
+
+    function prepareStop()
+    {
+        fullscreenView.prepareStop()
+    }
+
     Timer {
         id: moveTimer
         repeat: true
@@ -180,6 +186,7 @@ Item {
         systemOpensourceText = openSource
         systemLegalText = legal
     }
+
     function setDeviceInfo(name, conn)
     {
         systemDeviceName = name
@@ -271,6 +278,7 @@ Item {
     }
 
     function setBrightness(value){
+        //fullscreenView.opacity = value
         videoOutBrightness = value
         fullscreenView.brightness = value
     }
@@ -643,13 +651,23 @@ Item {
         text: systemVersion
     }
 
-    PlayerView {
-        id: fullscreenView
-        visible: true
-        onAskNext: {
-            nextItem(areaId)
+ /*   Item {
+        anchors.fill: parent
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+        }*/
+
+        PlayerView {
+            id: fullscreenView
+            visible: true
+            onAskNext: {
+                console.log("askNext?")
+                nextItem(areaId)
+            }
         }
-    }
+  //  }
+
 
 
     //code for testing rotations!
@@ -877,6 +895,7 @@ Item {
                 sideBrowser.visible = true
         }
     }
+
 
     Keys.onReleased:{
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {

@@ -3,10 +3,17 @@
 
 #include <QObject>
 #include <QTime>
+#include <QList>
+#include <QDebug>
 
 #define GlobalStatsInstance Singleton<GlobalStats>::instance()
 
-
+struct TimeZoneEntry{
+    QString shortName;
+    double lat;
+    double lon;
+    QString longName;
+};
 
 //this class is for storing current device stats
 //unlike globalconfig it does not store info in file
@@ -38,6 +45,9 @@ public:
     void setGps(double lat, double lgt) {latitude = lat; longitude = lgt;}
     double getLatitude(){return latitude;}
     double getLongitude(){return longitude;}
+    int getUTCOffset();
+
+
 
 
     void setSunset(QTime sunset);
@@ -46,6 +56,11 @@ public:
     QTime getSunrise(){return sunrise;}
     bool shouldUpdateSunset();
     bool shouldUpdateSunrise();
+
+
+    void itemPlayed(QString areaId, QString contentId, QDateTime date);
+    bool checkDelayPass(QString areaId, QString contentId);
+    bool itemWasPlayed(QString areaId, QString contentId);
 
     void setSystemData(QString tag, QByteArray data);
     QByteArray getSystemData(QString tag);
@@ -94,6 +109,8 @@ private:
     QTime sunrise, sunset;
     QTime measureSunrise, measureSunset;
     QHash<QString, QByteArray> systemData;
+    QList<TimeZoneEntry> tzDatabase;
+    QHash<QString, QHash<QString, QDateTime> > lastTimePlayed;
 
 };
 

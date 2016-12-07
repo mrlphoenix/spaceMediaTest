@@ -26,6 +26,7 @@ public:
 public slots:
     virtual QString next()=0;
     virtual bool haveNext()=0;
+    virtual QString getStoredItem()=0;
 protected:
     PlayerConfigAPI::Campaign::Area playlist;
 };
@@ -42,6 +43,9 @@ public:
     virtual bool haveNext();
     virtual PlayerConfigAPI::Campaign::Area::Content findItemById(QString id);
     virtual QString getType() {return "random";}
+    virtual QString getStoredItem() {return storedNextItem;}
+    void resetCurrentItemIndex(){currentItemIndex = 0;}
+
 protected:
     void splitItems();
     void shuffle(bool fixedFloating = true, bool floatingNone = true);

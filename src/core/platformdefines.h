@@ -6,7 +6,7 @@
 
 //Enable this if you want to enable GPIO
 //Disable for debugging in QtCreator
-//#define PLATFORM_RPI_ENABLE_GPIO
+#define PLATFORM_RPI_ENABLE_GPIO
 
 //enable this if you want to encode config file so users couldnt read
 //#define PLATFORM_ENCODE_CONFIG

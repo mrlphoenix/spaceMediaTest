@@ -40,6 +40,7 @@ public:
 
     void setSettings(QJsonObject json);
     QJsonObject getSettings();
+    SettingsRequestResult& getSettingsObject();
     void setPlaylist(QJsonObject json);
     QJsonObject getPlaylist();
     void setAreas(QJsonArray json);
@@ -76,6 +77,9 @@ public:
 
     int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
 
+    void setMetaProperty(QString key, QString value);
+    QString getMetaProperty(QString key);
+
 signals:
 
 public slots:
@@ -111,6 +115,7 @@ private:
     int playlistNetworkErrorId;
     int volume;
     QList<QString> contentInPlay;
+    QHash<QString, QString> metaProperties;
 };
 
 #endif // GLOBALCONFIG_H

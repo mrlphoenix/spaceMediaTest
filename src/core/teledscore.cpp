@@ -12,6 +12,7 @@
 #include <QScreen>
 #include <QSslSocket>
 #include <QTcpSocket>
+#include <QAudioDeviceInfo>
 
 #include "teledscore.h"
 #include "globalconfig.h"
@@ -29,6 +30,7 @@
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
     qDebug() << "TELEDS v" <<TeleDSVersion::getVersion();
+    qsrand((uint)QTime::currentTime().msec());
     DatabaseInstance;
     PlatformSpecificService;
     StaticTextService;
@@ -36,8 +38,11 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
     qDebug() << "Working in " << QDir().currentPath();
 
-    qDebug() << "SSL" << QSslSocket::supportsSsl();
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+    qDebug() << "deviceName " << info.deviceName();
+    qDebug() << " supportedCodecs" << info.supportedCodecs();
     //GPIO Releys
+    qDebug() << "RELAYTM";
     QTimer * releyTimer = new QTimer();
     connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));
     releyTimer->start(60000);
@@ -54,9 +59,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     uploader = new StatisticUploader(videoService,this);
     teledsPlayer = new TeleDSPlayer(this);
     skinManager = new SkinManager(this);
-    //teledsPlayer->show();               //
+    //teledsPlayer->show();
     shouldShowPlayer = true;
-
 
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
@@ -64,7 +68,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     updateTimer = new QTimer();
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
-    updateTimer->start(14000);
+    updateTimer->start(60000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
@@ -90,16 +94,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         InitRequestResult result;
         result.token = GlobalConfigInstance.getToken();
         result.status = "success";
-        qDebug()<< "loading: token = " << result.token;
+        qDebug() << "loading: token = " << result.token;
         playerInitParams = result;
-
-        //if settings is stored in config and if brand is active
-
-
-       // SettingsRequestResult _settings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings());
-       // PlayerConfigAPI _playlist = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist());
-       // playerSettingsResult(_settings);
-       // playlistResult(_playlist);
 
       /*  if (settings.brand_active)
         {
@@ -153,13 +149,12 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     setupHttpServer();
     qDebug() << "TELEDS initialization done";
 
-
     qDebug() << "Init gps Receiver";
     gpsSocket = new QTcpSocket(this);
     connect(gpsSocket,SIGNAL(readyRead()), this, SLOT(gpsRead()));
     connect(gpsSocket, &QTcpSocket::disconnected, []() {qDebug() << "GPS CLOSED!!!!";});
     gpsSocket->connectToHost("127.0.0.1", 2947);
-
+    updateGps = true;
 }
 
 void TeleDSCore::setupHttpServer()
@@ -214,7 +209,6 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     jsonBody["cpumodel"] = info.cpuName;
     jsonBody["os"] = info.osName;
     jsonBody["os_version"] = info.osVersion;
-
 
     qDebug() << "After grabbing info";
 
@@ -312,6 +306,7 @@ void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response
         response->setHeader("Content-Length", QString::number(unsupported.size()));
         response->end(unsupported);
     }
+
 }
 
 void TeleDSCore::checkForAutomaticShutdown()
@@ -337,6 +332,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
     if (result.error_id == -1)
     {
         SettingsRequestResult storedSettings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings(), false);
+
         if (storedSettings.error_id == 0)
         {
             playerSettingsResult(storedSettings);
@@ -383,7 +379,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 
             //setting up autobrightness setup
             GlobalConfigInstance.setAutoBrightness(result.autobright);
-          //  GlobalConfigInstance.setAutoBrightness(true);
+            //GlobalConfigInstance.setAutoBrightness(true);
             GlobalConfigInstance.setMinBrightness(result.bright_night);
             GlobalConfigInstance.setMaxBrightness(result.bright_day);
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
@@ -391,7 +387,10 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 
             //if static gps is given - saving it in stats
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
+            {
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
+            }
+            updateGps = result.updateGps;
             qDebug() << "STATS INTERVAL: " << result.stats_interval;
           //  if (result.stats_interval >= 60000)
            //     statsTimer->start(result.stats_interval);
@@ -418,6 +417,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             if (result.autooff_by_battery_level_active || result.autooff_by_discharging_time_active)
                 batteryStatus.setConfig(result.off_charge_percent, result.off_power_loss);
         }
+        qDebug() << "Offset by GPS=" << GlobalStatsInstance.getUTCOffset();
     }
 }
 
@@ -425,9 +425,11 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
 {
     //this method is called when we got playlist
     //when we should update playlist
-
+    static int prevScreenRotation = 0;
     qDebug() << "TeleDSCore::playlistResult";
-    if (!currentConfig.last_modified.isValid() || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid()))
+    if (!currentConfig.last_modified.isValid()
+       || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid())
+       || prevScreenRotation != GlobalConfigInstance.getSettingsObject().base_rotation)
     {
         qDebug() << "TeleDSCore::playlistResult <> need to update";
         if (result.error_id == -1)
@@ -448,18 +450,23 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         if (currentConfig.count() == 0)
         {
             qDebug() << "NO ITEMS!";
-            teledsPlayer->invokeNoItemsView("http://teleds.com");
+            teledsPlayer->invokeStop();
+            teledsPlayer->invokeNoItemsView("https://teleds.com");
+            prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
             return;
         }
+        prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
         setupDownloader();
     }
     else
     {
         qDebug() << "TeleDSCore::no updates";
+        prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
     }
     if (currentConfig.count() == 0)
     {
-        teledsPlayer->invokeNoItemsView("http://teleds.com");
+        teledsPlayer->invokeNoItemsView("https://teleds.com");
+        prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
         return;
     }
 }
@@ -491,9 +498,9 @@ void TeleDSCore::updateInfoReady(UpdateInfoResult result)
         }
         else{
             qDebug() << "You have the newest version of player";
-            updateTimer->start(30000);
         }
     }
+    updateTimer->start(30000);
 }
 
 void TeleDSCore::updateReady(QString filename)
@@ -554,7 +561,6 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
             tdsPlayer->invokeRestoreDefaultTheme();
         });
     }
-
 }
 
 void TeleDSCore::getPlaylistTimerSlot()
@@ -592,14 +598,6 @@ void TeleDSCore::downloaded()
                                      area.x, area.y, area.width, area.height, campaign.rotation);
 
     teledsPlayer->play();
-/*
-    if (currentConfig.campaigns.count() > 1)
-    {
-        QTimer::singleShot(campaign.duration, this, [this](){
-            qDebug() << "nextCAMPAIGN!";
-            nextCampaign();
-        });
-    }*/
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -685,17 +683,19 @@ void TeleDSCore::gpsRead()
         i = 1;
         return;
     }
-
-    QByteArray jsonData = gpsSocket->readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-    if (doc.isObject())
+    if (updateGps)
     {
-        QJsonObject root = doc.object();
-        if (root["class"].toString() == "TPV")
+        QByteArray jsonData = gpsSocket->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+        if (doc.isObject())
         {
-            double lat = root["lat"].toDouble();
-            double lon = root["lon"].toDouble();
-            GlobalStatsInstance.setGps(lat, lon);
+            QJsonObject root = doc.object();
+            if (root["class"].toString() == "TPV")
+            {
+                double lat = root["lat"].toDouble();
+                double lon = root["lon"].toDouble();
+                GlobalStatsInstance.setGps(lat, lon);
+            }
         }
     }
 }
@@ -711,7 +711,7 @@ void TeleDSCore::nextCampaign()
 
     qDebug() << "choosing campaign";
     currentConfig.currentCampaignId = currentCampaignIndex;
-    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[0];
+    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[currentCampaignIndex];
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
                                      area.x, area.y, area.width, area.height, campaign.rotation);
@@ -804,7 +804,6 @@ HTTPServerDataReceiver::HTTPServerDataReceiver(TeleDSCore *core, QHttpRequest *r
     this->widgetId = widgetId;
     this->contentId = contentId;
 }
-
 
 void HTTPServerDataReceiver::accumulate(const QByteArray &data)
 {

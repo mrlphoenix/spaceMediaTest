@@ -442,10 +442,8 @@ void UpdateDownloaderWorker::setTask(QString url, QString hash, QString filename
         QNetworkRequest request(url);
         reply = manager->get(request);
     }
-
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
     QObject::connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
-
 }
 
 void UpdateDownloaderWorker::httpReadyRead()

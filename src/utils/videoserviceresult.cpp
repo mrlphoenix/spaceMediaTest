@@ -13,6 +13,7 @@
 
 #include "videoserviceresult.h"
 #include "globalconfig.h"
+#include "globalstats.h"
 #include "sslencoder.h"
 
 
@@ -187,6 +188,10 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.video_quality = data["video_quality"].toString();
     result.gps_lat = data["gps_lat"].toDouble();
     result.gps_long = data["gps_long"].toDouble();
+    if (data["gps_type"] == "mobile")
+        result.updateGps = true;
+    else
+        result.updateGps = false;
     result.autobright = data["autobright"].toBool();
     result.bright_night = data["bright_night"].toInt();
     result.bright_day = data["bright_day"].toInt();
@@ -198,6 +203,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
 
     result.reley_1_enabled = !data["time_targeting_relay_1"].isNull();
     result.reley_2_enabled = !data["time_targeting_relay_2"].isNull();
+
+    qDebug() << "relay enabled: " << result.reley_1_enabled << " " << result.reley_2_enabled;
 
     if (result.reley_1_enabled)
         result.time_targeting_relay_1 = generateHashByString(data["time_targeting_relay_1"].toObject()["content"].toString());
@@ -235,7 +242,9 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.volume = data["volume"].toInt();
 
     if (needSave)
+    {
         GlobalConfigInstance.setSettings(data);
+    }
     return result;
 }
 
@@ -257,6 +266,17 @@ QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString cont
         currentDay++;
     }
     return result;
+}
+
+bool SettingsRequestResult::getForcePlaylistUpdate()
+{
+    if (forcePlaylistUpdate)
+    {
+        forcePlaylistUpdate = false;
+        return true;
+    }
+    else
+        return false;
 }
 
 PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
@@ -284,7 +304,7 @@ int PlayerConfigAPI::count()
 {
     int result = 0;
     foreach (const PlayerConfigAPI::Campaign &cmp, campaigns)
-        result += cmp.itemCount();
+        result += cmp.itemCount() * cmp.checkDateRange();
     return result;
 }
 
@@ -295,10 +315,18 @@ int PlayerConfigAPI::currentAreaCount()
 
 int PlayerConfigAPI::nextCampaign()
 {
+    int prevCurrentCampaignId = currentCampaignId;
     int duration = campaigns[currentCampaignId].duration;
-    currentCampaignId++;
-    if (currentCampaignId >= campaigns.count())
-        currentCampaignId = 0;
+
+    do
+    {
+        currentCampaignId++;
+        if (currentCampaignId >= campaigns.count())
+            currentCampaignId = 0;
+    }
+    while (campaigns[currentCampaignId].checkDateRange() == 0 &&
+           currentCampaignId != prevCurrentCampaignId);
+
     return std::max(duration, 10000);
 }
 
@@ -340,6 +368,17 @@ int PlayerConfigAPI::Campaign::itemCount() const
     foreach (const PlayerConfigAPI::Campaign::Area &area, areas)
         result += area.content.count();
     return result;
+}
+
+int PlayerConfigAPI::Campaign::checkDateRange() const
+{
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    bool sinceCheck = true, untilCheck = true;
+    if (start_timestamp.isValid())
+        sinceCheck = currentTime > start_timestamp;
+    if (end_timestamp.isValid())
+        untilCheck = currentTime < end_timestamp;
+    return sinceCheck && untilCheck;
 }
 
 PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonObject json)
@@ -401,16 +440,17 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
     {
         QVector <PlayerConfigAPI::Campaign::Area::Content::gps> geoTargetingAreaVector;
         QJsonArray geoTargetingArea = v.toArray();
-        QPolygonF currentPolygon;
+        QPolygon currentPolygon;
         foreach (const QJsonValue &areaValue, geoTargetingArea)
         {
             QJsonObject gpsObject = areaValue.toObject();
             PlayerConfigAPI::Campaign::Area::Content::gps gps;
-            gps.latitude = gpsObject["latitude"].toDouble();
-            gps.longitude = gpsObject["longitude"].toDouble();
+            gps.latitude = int(gpsObject["latitude"].toDouble()*100000);
+            gps.longitude = int(gpsObject["longitude"].toDouble()*100000);
             geoTargetingAreaVector.append(gps);
-            currentPolygon.append(QPointF(gps.latitude, gps.longitude));
+            currentPolygon.append(QPoint(gps.latitude, gps.longitude));
         }
+        currentPolygon.append(currentPolygon.at(0));
         geoTargetingVector.append(geoTargetingAreaVector);
         result.polygons.append(currentPolygon);
     }
@@ -428,40 +468,52 @@ QString PlayerConfigAPI::Campaign::Area::Content::getExtension() const
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkTimeTargeting() const
 {
-    QString dayInt = QString::number(QDateTime::currentDateTimeUtc().date().dayOfWeek() + 1);
-    int hour = QDateTime::currentDateTimeUtc().time().hour();
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    QString dayInt = QString::number(currentTime.date().dayOfWeek() + 1);
+    int hour = currentTime.time().hour();
     if (time_targeting.contains(dayInt))
     {
         bool result = time_targeting[dayInt].contains(hour);
-        qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
+       // qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
         return result;
     }
     bool result = (time_targeting.count() == 0);
-    qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
+   // qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
     return result;
 }
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkDateRange() const
 {
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     bool sinceCheck = true, untilCheck = true;
     if (start_timestamp.isValid())
-        sinceCheck = QDateTime::currentDateTimeUtc() > start_timestamp;
+        sinceCheck = currentTime > start_timestamp;
     if (end_timestamp.isValid())
-        untilCheck = QDateTime::currentDateTimeUtc() < end_timestamp;
-    qDebug() << "checkDateRange for " + content_id + "? :" << sinceCheck << untilCheck;
+        untilCheck = currentTime < end_timestamp;
+//    qDebug() << "checkDateRange for " + content_id + "? :" << sinceCheck << untilCheck;
     return sinceCheck && untilCheck;
 }
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkGeoTargeting(QPointF gps) const
 {
+   // qDebug() << "checkGeoTargeting";
     if (polygons.count())
     {
-        foreach (const QPolygonF &p, polygons)
-            if (p.containsPoint(gps,Qt::OddEvenFill))
+        foreach (const QPolygon &p, polygons){
+
+            if (p.containsPoint(QPoint(gps.x()*100000, gps.y()*100000),Qt::OddEvenFill)){
+     //           qDebug() << "GEOTARGETING: passed!";
                 return true;
+            }
+        }
+      //  qDebug() << "GEOTARGETING: failed!";
         return false;
     }
-    else return true;
+    else
+    {
+        //qDebug() << "no gotargeting set; return true";
+        return true;
+    }
 }
 
 UpdateInfoResult UpdateInfoResult::fromJson(QJsonObject data)

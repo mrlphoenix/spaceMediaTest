@@ -5,7 +5,7 @@
 #include <QNetworkReply>
 #include <QJsonObject>
 #include <QDateTime>
-#include <QPolygonF>
+#include <QPolygon>
 
 struct InitRequestResult
 {
@@ -59,12 +59,16 @@ struct SettingsRequestResult
 
     double gps_lat;
     double gps_long;
+    bool updateGps;
     bool autobright;
     int bright_night;
     int bright_day;
 
     int stats_interval;
     int base_rotation;
+
+    bool getForcePlaylistUpdate();
+    bool forcePlaylistUpdate;
 
     //branding
     bool brand_active;
@@ -94,6 +98,7 @@ struct SettingsRequestResult
     bool is_paid;
     int volume;
 };
+
 struct PlayerConfigAPI
 {
     static PlayerConfigAPI fromJson(QJsonObject json);
@@ -112,6 +117,7 @@ struct PlayerConfigAPI
     {
         static PlayerConfigAPI::Campaign fromJson(QJsonObject json);
         int itemCount() const;
+        int checkDateRange() const;
         int play_order;
         QString campaign_id;
         int duration;
@@ -161,11 +167,11 @@ struct PlayerConfigAPI
 
                 struct gps
                 {
-                    double latitude, longitude;
+                    float latitude, longitude;
                 };
                 QHash<QString, QVector<int> > time_targeting;
                 QVector<QVector<gps> > geo_targeting;
-                QVector<QPolygonF> polygons;
+                QVector<QPolygon> polygons;
 
                 bool checkTimeTargeting() const;
                 bool checkDateRange() const;

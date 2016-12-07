@@ -56,6 +56,7 @@ public slots:
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
     void invokeStop();
+    void invokePrepareStop();
     void invokeStopMainPlayer();
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
     void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
@@ -91,6 +92,9 @@ public slots:
     void gpsUpdate(double lat, double lgt);
 
     void systemInfoReady(Platform::SystemInfo info);
+
+    void nextCampaignEvent();
+    void nextItemEvent();
 protected:
     void invokeShowVideo(bool isVisible);
 
@@ -106,6 +110,8 @@ protected:
     int delay;
     bool isActive;
     bool isSplitScreen;
+    QTimer * nextCampaignTimer;
+    QTimer * checkNextVideoAfterStopTimer;
 };
 #endif // RPIVIDEOPLAYER_H
 

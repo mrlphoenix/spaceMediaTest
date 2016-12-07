@@ -32,6 +32,12 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     status.item = "";
     isActive = true;
     isSplitScreen = false;
+    nextCampaignTimer = new QTimer(this);
+    connect(nextCampaignTimer,SIGNAL(timeout()),this, SLOT(nextCampaignEvent()));
+    checkNextVideoAfterStopTimer = new QTimer(this);
+    connect(checkNextVideoAfterStopTimer, SIGNAL(timeout()), this, SLOT(nextItemEvent()));
+    checkNextVideoAfterStopTimer->setProperty("activated", false);
+    checkNextVideoAfterStopTimer->start(5000);
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -87,21 +93,34 @@ void TeleDSPlayer::play(int delay)
 {
     qDebug() << "qml! TeleDSPlayer::play!";
     isActive = true;
-    int duration = 10000; //default for the case when its a backend bug and campaign doesnt have duration set;
-    qDebug() << "currentCampaignId = " << config.currentCampaignId;
-    foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
+    int currentCampaignId = config.currentCampaignId;
+    qDebug() << "currentCampaignId = " << currentCampaignId;
+    int duration = config.nextCampaign()*101/100;
+
+    foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[currentCampaignId].areas)
     {
+        invokeInitArea(a.area_id,
+                       config.campaigns[currentCampaignId].screen_width,
+                       config.campaigns[currentCampaignId].screen_height,
+                       a.x, a.y, a.width, a.height, config.campaigns[currentCampaignId].rotation);
         QTimer::singleShot(delay, [this, a]() {
             next(a.area_id);
         });
-        duration = config.nextCampaign();
+    }
+
+    foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
+    {
+        ((SuperPlaylist*)playlists[a.area_id])->resetCurrentItemIndex();
     }
 
     if (config.campaigns.count() > 1) {
+        nextCampaignTimer->setInterval(duration);
+        nextCampaignTimer->start();
+        /*
         QTimer::singleShot(duration, [this](){
             this->invokeStop();
-            this->play(0);
-        });
+            this->play(100);
+        });*/
     }
 }
 
@@ -212,7 +231,6 @@ void TeleDSPlayer::invokeNoItemsView(QString url)
     QVariant urlParam(url);
     QMetaObject::invokeMethod(viewRootObject,"setNoItemsLogo", Q_ARG(QVariant, urlParam));
     invokeSetDeviceInfo();
-
 }
 
 void TeleDSPlayer::invokeDownloadingView()
@@ -224,7 +242,14 @@ void TeleDSPlayer::invokeDownloadingView()
 void TeleDSPlayer::invokeStop()
 {
     qDebug() << "TeleDSPlayer::invokeStop";
+    nextCampaignTimer->stop();
     QMetaObject::invokeMethod(viewRootObject, "stopPlayer");
+}
+
+void TeleDSPlayer::invokePrepareStop()
+{
+    qDebug() << "TeleDSPlayer::invokePrepareStop";
+    QMetaObject::invokeMethod(viewRootObject, "prepareStop");
 }
 
 void TeleDSPlayer::invokeStopMainPlayer()
@@ -320,8 +345,8 @@ void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double cam
 
 void TeleDSPlayer::invokeSetPlayerVolume(int value)
 {
-    qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";
-    qDebug() << "nothing should happen";
+    // qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";
+    //  qDebug() << "nothing should happen";
     //  QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value/1.0)));
 }
 
@@ -394,6 +419,7 @@ void TeleDSPlayer::runAfterStop()
 
 void TeleDSPlayer::next(QString area_id)
 {
+    qDebug() << "TeleDSPlayer::next(" << area_id;
     if (isActive)
     {
         qDebug() << "next method is called";
@@ -415,35 +441,55 @@ void TeleDSPlayer::next(QString area_id)
 
 void TeleDSPlayer::playNextGeneric(QString area_id)
 {
+    qDebug() << "playNextGeneric!";
     if (!playlists.contains(area_id))
     {
         qDebug() << "playlist " << area_id << " not found";
         return;
     }
-
-    QString nextItem = playlists[area_id]->next();
-    invokeNextVideoMethodAdvanced(nextItem,area_id);
-    if (GlobalConfigInstance.isAutoBrightnessActive())
+    //call haveNext instead
+    //if haveNext has none then dont play anything
+    if (playlists[area_id]->haveNext())
     {
-        SunsetSystem sunSystem;
+        QString nextItem = playlists[area_id]->getStoredItem();
+        invokeNextVideoMethodAdvanced(nextItem,area_id);
+        if (GlobalConfigInstance.isAutoBrightnessActive())
+        {
+            SunsetSystem sunSystem;
 
-        int minBrightness = std::min(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
-        int maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
-        double brightnessValue = sunSystem.getSinPercent() * (maxBrightness - minBrightness) + minBrightness;
-        if (brightnessValue/100. < 0)
-            setBrightness(1.0);
+            double minBrightness = std::min(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
+            double maxBrightness = std::max(GlobalConfigInstance.getMinBrightness(), GlobalConfigInstance.getMaxBrightness());
+            double brightnessValue = sunSystem.getSinPercent() * (maxBrightness - minBrightness) + minBrightness;
+            brightnessValue = std::max(std::min(brightnessValue, maxBrightness), minBrightness);
+            qDebug() << "BRIGHTNESS = " << brightnessValue;
+            if (brightnessValue/100. < 0)
+                setBrightness(1.0);
+            else
+                setBrightness(brightnessValue/100.);
+        }
         else
-            setBrightness(brightnessValue/100.);
+            setBrightness(1.0);
+        qDebug() << "inserting into database PLAY";
+        playedIds.enqueue(nextItem);
+        PlatformSpecificService.generateSystemInfo();
+
+        status.isPlaying = true;
+        status.item = nextItem;
+        GlobalStatsInstance.setCurrentItem(nextItem);
+
+        showVideo();
     }
-    qDebug() << "inserting into database PLAY";
-    playedIds.enqueue(nextItem);
-    PlatformSpecificService.generateSystemInfo();
+    else
+    {
+        qDebug() << "Playlist doesnt have next item: stopping!";
+        invokePrepareStop();
 
-    status.isPlaying = true;
-    status.item = nextItem;
-    GlobalStatsInstance.setCurrentItem(nextItem);
-
-    showVideo();
+        //this->playNextGeneric(area_id);
+         checkNextVideoAfterStopTimer->setProperty("area_id", area_id);
+         checkNextVideoAfterStopTimer->setProperty("activated", true);
+        //we need to stop playback after last item end
+        //invoke prepare stop
+    }
 }
 
 void TeleDSPlayer::bindObjects()
@@ -503,14 +549,11 @@ void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
     qDebug() << "systemInfoReady";
     foreach (const QString &areaId, playlists.keys())
     {
-        qDebug() << "iterating...";
         auto playlist = playlists[areaId];
-        qDebug() << playlist;
         if (playlist){
             if (!playedIds.isEmpty())
             {
                 auto item = playlists[areaId]->findItemById(playedIds.head());
-                qDebug() << "item found" << item.content_id;
                 if (item.content_id != "")
                 {
                     DatabaseInstance.createPlayEvent(item, info);
@@ -519,6 +562,25 @@ void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
                 }
             }
         }
+    }
+}
+
+void TeleDSPlayer::nextCampaignEvent()
+{
+    qDebug() << "nextCampaignEvent";
+    this->invokeStop();
+    checkNextVideoAfterStopTimer->stop();
+    this->play(100);
+}
+
+void TeleDSPlayer::nextItemEvent()
+{
+  //  qDebug() << "TeleDSPlayer::checkNextItemEvent";
+  //  qDebug() << "checkNextItemEvent activated" << checkNextVideoAfterStopTimer->property("activated").toBool();
+    if (checkNextVideoAfterStopTimer->property("activated").toBool())
+    {
+        checkNextVideoAfterStopTimer->setProperty("activated", false);
+        this->playNextGeneric(checkNextVideoAfterStopTimer->property("area_id").toString());
     }
 }
 

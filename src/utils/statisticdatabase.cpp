@@ -297,7 +297,6 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space)
                 );
-    qDebug() << "create play event sql = " + sql;
     queryThread->execute("playResource", sql);
 }
 
@@ -385,7 +384,7 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
     }
     else if (queryId == "findEventsToSend")
     {
-        qDebug() << "events found in DB: " << records.count();
+       // qDebug() << "events found in DB: " << records.count();
         QList<PlayEvent> events;
         foreach (const QSqlRecord &record, records)
             events.append(PlayEvent::fromRecord(record));
