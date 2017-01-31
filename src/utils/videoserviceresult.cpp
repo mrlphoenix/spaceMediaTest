@@ -204,8 +204,6 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.reley_1_enabled = !data["time_targeting_relay_1"].isNull();
     result.reley_2_enabled = !data["time_targeting_relay_2"].isNull();
 
-    qDebug() << "relay enabled: " << result.reley_1_enabled << " " << result.reley_2_enabled;
-
     if (result.reley_1_enabled)
         result.time_targeting_relay_1 = generateHashByString(data["time_targeting_relay_1"].toObject()["content"].toString());
     if (result.reley_2_enabled)
@@ -240,6 +238,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
 
     result.is_paid = data["is_paid"].toBool();
     result.volume = data["volume"].toInt();
+
+    result.player_id = data["player_id"].toString();
 
     if (needSave)
     {
@@ -281,12 +281,17 @@ bool SettingsRequestResult::getForcePlaylistUpdate()
 
 PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
 {
+    //
     GlobalConfigInstance.setPlaylist(json);
     PlayerConfigAPI result;
     result.last_modified = timeFromJson(json["last_modified"]);
+    result.hash = json["hash"].toString();
     QJsonArray campaigns = json["campaigns"].toArray();
-    foreach (const QJsonValue &cValue, campaigns)
-        result.campaigns.append(PlayerConfigAPI::Campaign::fromJson(cValue.toObject()));
+    foreach (const QJsonValue &cValue, campaigns){
+        auto campaign = PlayerConfigAPI::Campaign::fromJson(cValue.toObject());
+        if (campaign.checkDateRange())
+            result.campaigns.append(campaign);
+    }
     result.currentCampaignId = 0;
     return result;
 }
@@ -484,7 +489,7 @@ bool PlayerConfigAPI::Campaign::Area::Content::checkTimeTargeting() const
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkDateRange() const
 {
-    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    QDateTime currentTime = QDateTime::currentDateTimeUtc();
     bool sinceCheck = true, untilCheck = true;
     if (start_timestamp.isValid())
         sinceCheck = currentTime > start_timestamp;

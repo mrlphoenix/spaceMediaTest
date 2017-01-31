@@ -17,6 +17,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
+#include <QInputDialog>
 
 #include "lfsrencoder.h"
 #include "notherfilesystem.h"
@@ -309,7 +310,8 @@ void MainWindow::on_addFileButton_clicked()
         QFileInfo fInfo(fileName);
         fileName = fInfo.absoluteFilePath();
         QString relativePath = fileName;
-        relativePath.replace(ui->project_location->text()+"/","");
+        if (ui->project_location->text() != "")
+            relativePath.replace(ui->project_location->text()+"/","");
         if (!fileName.isEmpty())
         {
             ui->file_list->addItem(fileName + "||" + relativePath);
@@ -424,11 +426,20 @@ void MainWindow::on_deploy_clicked()
 
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply
-
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
     if (!ui->version_path->text().isEmpty())
         processVersionHeader(ui->version_path->text());
+}
+
+void MainWindow::on_file_list_itemDoubleClicked(QListWidgetItem *item)
+{
+    QStringList tokens = item->text().split("||");
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Set custom path"),
+                                             tr("custom path: "), QLineEdit::Normal,tokens[1], &ok);
+    if (ok)
+    item->setText(tokens[0] + "||" + text);
 }

@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QList>
 #include <QDebug>
+#include <QDateTime>
 
 #define GlobalStatsInstance Singleton<GlobalStats>::instance()
 
@@ -32,8 +33,8 @@ public:
     void setCpu(double cpu);
     void setMemory(double memory);
     void setTraffic(qlonglong in, qlonglong out);
-    double getTrafficIn(){return trafficIn;}
-    double getTrafficOut(){return trafficOut;}
+    double getTrafficIn();
+    double getTrafficOut();
     double getMemory(){return memory;}
     double getCpu(){return cpu;}
     void setMonitorActive(bool isActive);
@@ -60,10 +61,27 @@ public:
 
     void itemPlayed(QString areaId, QString contentId, QDateTime date);
     bool checkDelayPass(QString areaId, QString contentId);
+    QDateTime getItemLastPlayDate(QString areaId, QString contentId);
     bool itemWasPlayed(QString areaId, QString contentId);
+
+    void setItemPlayTimeout(QString contentId, int timeout);
+    int getItemPlayTimeout(QString contentId);
+    bool wasAnyItemPlayed(QString areaId);
 
     void setSystemData(QString tag, QByteArray data);
     QByteArray getSystemData(QString tag);
+
+    void setCampaignEndDate(QDateTime date) {campaignEndDate = date;}
+    QDateTime getCampaignEndDate() {return campaignEndDate;}
+
+    void setCRC32Hex(QString v) { crc32Hex = v; }
+    QString getCRC32Hex() { return crc32Hex; }
+
+    void setHDMI_CEC(QString value) { hdmiCEC = value; }
+    QString getHDMI_CEC() {qDebug() << "HDMICEC = " << hdmiCEC; return hdmiCEC; }
+
+    void setHDMI_GPIO(bool value) { hdmiGPIO = value; }
+    bool getHDMI_GPIO() {qDebug() << "HDMIGPIO = " << hdmiGPIO; return hdmiGPIO; }
 
     struct Report
     {
@@ -97,10 +115,11 @@ private:
 
     //system info vars
     double cpu, memory;
-    qlonglong trafficIn, trafficOut, trafficTotalIn, trafficTotalOut;
+    qlonglong trafficIn, trafficOut, prevTrafficIn, prevTrafficOut;
     bool monitorActive, connectionActive;
     double balance;
     QString currentItem;
+    QString crc32Hex;
 
     //additional
     bool connectionDropped;
@@ -109,8 +128,16 @@ private:
     QTime sunrise, sunset;
     QTime measureSunrise, measureSunset;
     QHash<QString, QByteArray> systemData;
+
     QList<TimeZoneEntry> tzDatabase;
+    QDateTime lastTzCheck;
+    int cachedTzValue;
     QHash<QString, QHash<QString, QDateTime> > lastTimePlayed;
+    QHash<QString, int> itemTimeout;
+
+    QDateTime campaignEndDate;
+    QString hdmiCEC;
+    bool hdmiGPIO;
 
 };
 

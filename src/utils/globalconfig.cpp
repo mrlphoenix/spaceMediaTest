@@ -84,10 +84,10 @@ void GlobalConfig::setReleyConfig(QHash<int, QList<int> > &reley_1, QHash<int, Q
 bool GlobalConfig::getFirstReleyStatus()
 {
     QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
-    qDebug() << currentTime;
+    //qDebug() << currentTime;
     int dayOfWeek = currentTime.date().dayOfWeek() - 1;
     int hour = currentTime.time().hour();
-    qDebug() << "dayOfWeek: " << dayOfWeek << " hour: " << hour << "rl: " << time_targeting_relay_1;
+    //qDebug() << "dayOfWeek: " << dayOfWeek << " hour: " << hour << "rl: " << time_targeting_relay_1;
     return time_targeting_relay_1[dayOfWeek].contains(hour);
 }
 

@@ -130,6 +130,7 @@ Item {
         fullscreenView.width = width * w / campaignWidth;
         fullscreenView.height = height * h / campaignHeight;
         fullscreenView.setRotation(_rotation)
+        item.focus = true
 
       /*  fullscreenView.areaID = name
         fullscreenView.x = 0
@@ -153,6 +154,25 @@ Item {
         }
     }
 
+    function setCRC(crc)
+    {
+        crcText.text = crc
+    }
+    function toggleVisibility(status)
+    {
+        if (status === 0)
+        {
+            hideRect.visible = true
+            fullscreenView.setMuted(true)
+        }
+        else
+        {
+            hideRect.visible = false
+            fullscreenView.setMuted(false)
+        }
+        item.focus = true
+    }
+
     function playNextItem(areaId, source, type, duration, skipTime, fillMode)
     {
         if (fullscreenView.visible == false)
@@ -162,7 +182,28 @@ Item {
 
     function setPlayerVolume(value)
     {
+        console.log("player volume " + value)
         //fullscreenView.volumeValue = value
+        changeVolumeTimer.destValue = value
+        changeVolumeTimer.restart()
+    }
+    Timer {
+        id: changeVolumeTimer
+        repeat: true
+        interval: 100
+        //property bool forward: true
+        property double destValue: 1.0
+        onTriggered: {
+            if (fullscreenView.volumeValue < destValue)
+            {
+                fullscreenView.volumeValue = fullscreenView.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView.volumeValue = fullscreenView.volumeValue - fullscreenView.volumeValue;
+            else if (fullscreenView.volumeValue > destValue) {
+                fullscreenView.volumeValue = fullscreenView.volumeValue - Math.min(0.01, fullscreenView.volumeValue)
+            }
+        }
     }
 
     function setContentPosition(cLeft, cTop, cWidth, cHeight, wLeft, wTop, wWidth, wHeight)
@@ -303,13 +344,16 @@ Item {
     function setUpdateState(tx)
     {
         logoColumn.visible = true
-        titleText.text = "Updating..."
-        progressText.text = "v. " + tx
+        //progressText.text = "v. " + tx
+        progressText.text = ""
+        titleText.text = ""
+        //titleText.text = "Updating..."
         logoDownloadProgressBar.visible = false
         playerIDItem.visible = false
         waitingBlock.visible = false
         bgLogoBlock.visible = true
         fullscreenView.visible = false
+        brRect.visible = false
     }
 
     function setDownloadLogo(){
@@ -320,7 +364,6 @@ Item {
         playerIDItem.visible = false
         waitingBlock.visible = false
     }
-
 
     function setNeedActivationLogo(link, playerID, updateDelay){
         logoColumn.visible = true
@@ -646,66 +689,59 @@ Item {
     }
     Text {
         id: versionText
-        x: parent.width - width
+        x: 0
         y: parent.height - height
         text: systemVersion
     }
 
- /*   Item {
-        anchors.fill: parent
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-        }*/
-
-        PlayerView {
-            id: fullscreenView
-            visible: true
-            onAskNext: {
-                console.log("askNext?")
-                nextItem(areaId)
+    PlayerView {
+        id: fullscreenView
+        visible: true
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setMenuView(true)
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    setMenuView(false)
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
             }
         }
-  //  }
+    }
 
-
-
-    //code for testing rotations!
-   /* Rectangle {
-        id: normalRect
-        x: 100
-        y: 100
-        width: item.width/2
-        height: item.height/2
-        color: "#ff0000"
-        opacity: 0.7
-    }*/
-/*
-   Rectangle {
-        id: rotatedRect
-        x: 100 + (item.width/2 - item.height/2)/2          //parent.x + (item.width/2 - item.height/2)/2
-        y: 100 - (item.width/2 - item.height/2)/2
-        width: item.height/2
-        height: item.width/2
-        color: "#00FFFF"
-        opacity: 0.3
-        rotation: 90
-        WebView {
-            url: "https://youtube.com"
-            width: parent.width
-            height: parent.height
+    Item {
+        id: crcTextBlock
+        width: parent.width
+        height: parent.height
+        Rectangle{
+            id: bottomCRCRect
+            x: parent.width - width
+            y: parent.height - height
+            height: crcText.height + 5
+            width: crcText.width + 10
+            color: "#00333e47"
+        }
+        Text {
+            id: crcText
+            anchors.centerIn: bottomCRCRect
+            text: "________"
+            color: "#FFFFFF"
+            font.pointSize: 7
+            opacity: 0.75
         }
     }
-    WebView{
-        id: ttw
-        url: "https://yandex.ru"
-        x: 400 + (item.width/2 - item.height/2)/2
-        y: 300 - (item.width/2 - item.height/2)/2
-        width: item.height/2
-        height: item.width/2
-        opacity: 0.5
-        rotation: -60
-    }*/
 
 
     //android:excludeFromRecents="true"
@@ -882,6 +918,13 @@ Item {
         }
     }
 
+    Rectangle {
+        id: hideRect
+        anchors.fill: parent
+        color: "black"
+        visible: false
+    }
+
     function setMenuView(secondScreen){
         if (secondScreen === true)
         {
@@ -898,6 +941,7 @@ Item {
 
 
     Keys.onReleased:{
+        console.log("KEy pressed")
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             if (menu.visible == false)
             {

@@ -158,7 +158,6 @@ Platform::PlatformSpecificWorker::~PlatformSpecificWorker()
 
 void Platform::PlatformSpecificWorker::generateSystemInfo()
 {
-    qDebug() << "PlatformSpecific::SystemInfo::get()";
     SystemInfo result;
     result.time = QDateTime::currentDateTimeUtc();
     result.cpu = getAvgUsage();
@@ -166,19 +165,15 @@ void Platform::PlatformSpecificWorker::generateSystemInfo()
     result.longitude = GlobalStatsInstance.getLongitude();
     result.battery = getBattery();
 
-    GlobalStatsInstance.setTraffic(getTrafficIn(),0.0);
-    result.traffic = GlobalStatsInstance.getTrafficIn();
+    TrafficInfo trafficInfo = getTraffic();
+    GlobalStatsInstance.setTraffic(trafficInfo.in, trafficInfo.out);
+    GlobalStatsInstance.setHDMI_CEC(trafficInfo.hdmi_cec);
+    result.traffic = GlobalStatsInstance.getTrafficIn() + GlobalStatsInstance.getTrafficOut();
     result.free_memory = getFreeMemory();
     result.wifi_mac = getWifiMac();
     result.hdmi_cec = getHdmiCEC();
     result.hdmi_gpio = getHdmiGPIO();
     result.free_space = getFreeSpace();
-
-    qDebug() << result.time << result.cpu <<
-                result.latitude << result.longitude <<
-                result.battery << result.traffic << result.free_memory <<
-                result.wifi_mac << result.hdmi_cec << result.hdmi_gpio <<
-                result.free_space;
 
     emit systemInfoReady(result);
 }
@@ -252,6 +247,28 @@ QString Platform::PlatformSpecificWorker::getUniqueId()
     return "";
 }
 
+Platform::TrafficInfo Platform::PlatformSpecificWorker::getTraffic()
+{
+#if (defined PLATFORM_DEFINE_LINUX) || (defined PLATFORM_DEFINE_RPI)
+    QProcess cpuUsageProcess;
+    cpuUsageProcess.start("bash data/cpu_usage.sh");
+    cpuUsageProcess.waitForFinished();
+    QString result = cpuUsageProcess.readAll();
+    //qDebug() << result;
+    QStringList tokens = result.split(" ");
+    if (tokens.count() < 6)
+        qDebug() << "ERROR CPUBASH =>" << result;
+    qlonglong trafficIn = tokens[2].toLongLong();
+    qlonglong trafficOut = tokens[3].toLongLong();
+    TrafficInfo trafficResult;
+    trafficResult.in = trafficIn;
+    trafficResult.out = trafficOut;
+    trafficResult.hdmi_cec = tokens[4].replace("\n","");
+    return trafficResult;
+#endif
+    return TrafficInfo{0,0, QString()};
+}
+
 int64_t Platform::PlatformSpecificWorker::getTrafficIn()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
@@ -290,7 +307,7 @@ int64_t Platform::PlatformSpecificWorker::getTrafficIn()
     cpuUsageProcess.start("bash data/cpu_usage.sh");
     cpuUsageProcess.waitForFinished();
     QString result = cpuUsageProcess.readAll();
-    qDebug() << result;
+    //qDebug() << result;
     QStringList tokens = result.split(" ");
     if (tokens.count() < 5)
         qDebug() << "ERROR CPUBASH=>" << result;
@@ -309,7 +326,7 @@ int64_t Platform::PlatformSpecificWorker::getTrafficOut()
     cpuUsageProcess.start("bash data/cpu_usage.sh");
     cpuUsageProcess.waitForFinished();
     QString result = cpuUsageProcess.readAll();
-    qDebug() << result;
+    //qDebug() << result;
     QStringList tokens = result.split(" ");
     qlonglong trafficIn = tokens[2].toLongLong();
     qlonglong trafficOut = tokens[3].toLongLong();
@@ -364,7 +381,11 @@ int Platform::PlatformSpecificWorker::getFreeMemory()
 bool Platform::PlatformSpecificWorker::getHdmiCEC()
 {
 #ifdef PLATFORM_DEFINE_RPI
-    return true;
+    QString hdmiCEC = GlobalStatsInstance.getHDMI_CEC().simplified().toLower();
+    if (hdmiCEC == "on")
+        return true;
+    else
+        return false;
 #endif
     return true;
 }
@@ -372,7 +393,7 @@ bool Platform::PlatformSpecificWorker::getHdmiCEC()
 bool Platform::PlatformSpecificWorker::getHdmiGPIO()
 {
 #ifdef PLATFORM_DEFINE_RPI
-    return true;
+    return GlobalStatsInstance.getHDMI_GPIO();
 #endif
     return true;
 }

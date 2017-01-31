@@ -172,7 +172,6 @@ double SunsetSystem::findRecentSunrise(int julDay, double latitude, double dLong
             jday = 365;
         dTime = calcSunriseGMT(jday, latitude, dLongitude);
     }
-
     return jday;
 }
 

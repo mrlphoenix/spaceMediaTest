@@ -51,6 +51,7 @@ struct SettingsRequestResult
     QDateTime created_at;
     QDateTime updated_at;
     QString error;
+    QString player_id;
     QHash<int, QList<int> > time_targeting_relay_1;
     QHash<int, QList<int> > time_targeting_relay_2;
     bool reley_1_enabled, reley_2_enabled;
@@ -109,6 +110,7 @@ struct PlayerConfigAPI
 
     
     QDateTime last_modified;
+    QString hash;
     int error_id;
     QString error_text;
     QString error;

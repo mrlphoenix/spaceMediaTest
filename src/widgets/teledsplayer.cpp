@@ -24,7 +24,6 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     QTimer::singleShot(500,this,SLOT(invokeVersionText()));
     QTimer::singleShot(500,this,SLOT(invokeSetLicenseData()));
 
-
    // show();
 
     delay = 0000;
@@ -38,6 +37,8 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     connect(checkNextVideoAfterStopTimer, SIGNAL(timeout()), this, SLOT(nextItemEvent()));
     checkNextVideoAfterStopTimer->setProperty("activated", false);
     checkNextVideoAfterStopTimer->start(5000);
+
+    //view.installEventFilter(this);
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -91,12 +92,23 @@ void TeleDSPlayer::updateConfig(PlayerConfigAPI &playerConfig)
 
 void TeleDSPlayer::play(int delay)
 {
-    qDebug() << "qml! TeleDSPlayer::play!";
+    qDebug() << "TeleDSPlayer::play!";
+
+    //
+
     isActive = true;
     int currentCampaignId = config.currentCampaignId;
     qDebug() << "currentCampaignId = " << currentCampaignId;
-    int duration = config.nextCampaign()*101/100;
 
+    int duration = config.nextCampaign();
+    duration -= config.campaigns[currentCampaignId].areas.first().content.count() * 50;
+    if (config.campaigns.count() > 1)
+        GlobalStatsInstance.setCampaignEndDate(QDateTime::currentDateTimeUtc().addMSecs(duration));
+    else
+    {
+        QDateTime d;
+        GlobalStatsInstance.setCampaignEndDate(d);
+    }
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[currentCampaignId].areas)
     {
         invokeInitArea(a.area_id,
@@ -110,6 +122,7 @@ void TeleDSPlayer::play(int delay)
 
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
     {
+        qDebug() << "TeleDSPlayer::reset current index";
         ((SuperPlaylist*)playlists[a.area_id])->resetCurrentItemIndex();
     }
 
@@ -137,6 +150,19 @@ PlayerConfigAPI::Campaign::Area TeleDSPlayer::getAreaById(QString id)
 bool TeleDSPlayer::isFileCurrentlyPlaying(QString name)
 {
     return status.item == name;
+}
+
+bool TeleDSPlayer::eventFilter(QObject *target, QEvent *event)
+{
+    qDebug() << "TELEDSEVENT!" << event->type();
+    if (event->type() == QEvent::KeyPress) {
+          QKeyEvent *keyEvent = (QKeyEvent *)event;
+          if (keyEvent->key() == Qt::Key_Q) {
+            qApp->quit();
+            return true;
+          }
+        }
+    return QObject::eventFilter(target,event);
 }
 
 void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, QString area_id)
@@ -210,6 +236,19 @@ void TeleDSPlayer::invokeVersionText()
     qDebug() << "invoking version text";
     QVariant versionText(TeleDSVersion::getVersion());
     QMetaObject::invokeMethod(viewRootObject,"setVersion",Q_ARG(QVariant, versionText));
+}
+
+void TeleDSPlayer::invokePlayerCRC()
+{
+    qDebug() << "invoking version text";
+    QVariant crc(GlobalStatsInstance.getCRC32Hex());
+    QMetaObject::invokeMethod(viewRootObject,"setCRC",Q_ARG(QVariant, crc));
+}
+
+void TeleDSPlayer::invokeToggleVisibility(int status)
+{
+    qDebug() << "invokeToggleVisibility";
+    QMetaObject::invokeMethod(viewRootObject, "toggleVisibility", Q_ARG(QVariant, QVariant(status)));
 }
 
 void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)
@@ -345,9 +384,7 @@ void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double cam
 
 void TeleDSPlayer::invokeSetPlayerVolume(int value)
 {
-    // qDebug() << "TeleDSPlayer::invokeSetPlayerVolume";
-    //  qDebug() << "nothing should happen";
-    //  QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value/1.0)));
+    QMetaObject::invokeMethod(viewRootObject, "setPlayerVolume", Q_ARG(QVariant,QVariant(value/100.0)));
 }
 
 void TeleDSPlayer::invokeSetLicenseData()
@@ -441,6 +478,7 @@ void TeleDSPlayer::next(QString area_id)
 
 void TeleDSPlayer::playNextGeneric(QString area_id)
 {
+    qDebug() <<QDateTime::currentDateTime().time();
     qDebug() << "playNextGeneric!";
     if (!playlists.contains(area_id))
     {
@@ -453,7 +491,7 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
     {
         QString nextItem = playlists[area_id]->getStoredItem();
         invokeNextVideoMethodAdvanced(nextItem,area_id);
-        if (GlobalConfigInstance.isAutoBrightnessActive())
+    /*    if (GlobalConfigInstance.isAutoBrightnessActive())
         {
             SunsetSystem sunSystem;
 
@@ -468,8 +506,7 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
                 setBrightness(brightnessValue/100.);
         }
         else
-            setBrightness(1.0);
-        qDebug() << "inserting into database PLAY";
+            setBrightness(1.0);*/
         playedIds.enqueue(nextItem);
         PlatformSpecificService.generateSystemInfo();
 
@@ -490,6 +527,8 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
         //we need to stop playback after last item end
         //invoke prepare stop
     }
+
+    qDebug() <<QDateTime::currentDateTime().time();
 }
 
 void TeleDSPlayer::bindObjects()
@@ -534,7 +573,6 @@ void TeleDSPlayer::hideVideo()
 
 void TeleDSPlayer::setBrightness(double value)
 {
-    qDebug() << "invoking Brightness setup";
     QVariant brightness(value);
     QMetaObject::invokeMethod(viewRootObject,"setBrightness",Q_ARG(QVariant, brightness));
 }
@@ -546,7 +584,6 @@ void TeleDSPlayer::gpsUpdate(double lat, double lgt)
 
 void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
 {
-    qDebug() << "systemInfoReady";
     foreach (const QString &areaId, playlists.keys())
     {
         auto playlist = playlists[areaId];
@@ -575,8 +612,6 @@ void TeleDSPlayer::nextCampaignEvent()
 
 void TeleDSPlayer::nextItemEvent()
 {
-  //  qDebug() << "TeleDSPlayer::checkNextItemEvent";
-  //  qDebug() << "checkNextItemEvent activated" << checkNextVideoAfterStopTimer->property("activated").toBool();
     if (checkNextVideoAfterStopTimer->property("activated").toBool())
     {
         checkNextVideoAfterStopTimer->setProperty("activated", false);
@@ -586,7 +621,7 @@ void TeleDSPlayer::nextItemEvent()
 
 void TeleDSPlayer::invokeShowVideo(bool isVisible)
 {
-    qDebug() << "invoking video visibility change -> " + (isVisible ? QString("true") : QString("false"));
+    //qDebug() << "invoking video visibility change -> " + (isVisible ? QString("true") : QString("false"));
     QVariant isVisibleArg(isVisible);
     QMetaObject::invokeMethod(viewRootObject,"showVideo",Q_ARG(QVariant, isVisibleArg));
 }

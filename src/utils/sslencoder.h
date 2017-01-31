@@ -1,6 +1,9 @@
 #ifndef SSLENCODER_H
 #define SSLENCODER_H
 
+#include <QObject>
+#include <QByteArray>
+
 #ifdef USE_SSL_EXTERNAL
 #include <QObject>
 #include <QByteArray>
@@ -42,5 +45,16 @@ protected:
     static int encryptAES256(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext);
 };
 #endif
+
+class SSLEncoder : public QObject
+{
+    Q_OBJECT
+public:
+    explicit SSLEncoder(QObject *parent = 0);
+    static quint32 CRC32(const QByteArray& data);
+protected:
+    static quint32 updateCRC32(unsigned char ch, quint32 crc);
+};
+
 #endif // SSLENCODER_H
 

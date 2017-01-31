@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QListWidgetItem>
 namespace Ui {
 class MainWindow;
 }
@@ -73,6 +74,8 @@ private slots:
     void on_deploy_clicked();
 
     void on_pushButton_2_clicked();
+
+    void on_file_list_itemDoubleClicked(QListWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

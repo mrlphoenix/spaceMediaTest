@@ -11,6 +11,7 @@
 #include <QList>
 #include <QDebug>
 #include <QQueue>
+#include <QEvent>
 #include "playlist.h"
 #include "platformspecific.h"
 
@@ -45,12 +46,16 @@ public:
 signals:
     void refreshNeeded();
 public slots:
+    bool eventFilter(QObject *target, QEvent *event);
+    //
     void invokeNextVideoMethodAdvanced(QString name, QString area_id);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);
     void invokeDownloadDone();
     void invokeVersionText();
+    void invokePlayerCRC();
+    void invokeToggleVisibility(int status);
 
     void invokePlayerActivationRequiredView(QString url, QString playerId);
     void invokeNoItemsView(QString url);
@@ -113,5 +118,6 @@ protected:
     QTimer * nextCampaignTimer;
     QTimer * checkNextVideoAfterStopTimer;
 };
+
 #endif // RPIVIDEOPLAYER_H
 

@@ -368,6 +368,7 @@ Item {
         y: parent.height*0.89
     }
 
+
     RowLayout{
         id: menuFooterItems
         x: leftPercentPixels(0.05)

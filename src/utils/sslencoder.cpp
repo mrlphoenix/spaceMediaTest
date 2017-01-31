@@ -1,35 +1,5 @@
-#ifdef USE_SSL_EXTERNAL
-
-#include <QUrl>
-#include <QDebug>
-#include <QDataStream>
-#include <QFile>
-#include <openssl/err.h>
-#include <openssl/conf.h>
-#include <stdio.h>
 
 #include "sslencoder.h"
-#include "globalconfig.h"
-#include "singleton.h"
-
-SSLEncoder::SSLEncoder(QObject *parent) : QObject(parent)
-{
-
-}
-
-QByteArray SSLEncoder::sha256(const QByteArray &text)
-{
-    unsigned int outLen=0;
-    QByteArray dataBuff; dataBuff.resize(EVP_MAX_MD_SIZE);
-    EVP_MD_CTX evpMdCtx;
-    EVP_DigestInit(&evpMdCtx, EVP_sha256());
-    EVP_DigestUpdate(&evpMdCtx, text.data(), text.size());
-    EVP_DigestFinal_ex(&evpMdCtx, (unsigned char *)dataBuff.data(), &outLen);
-    EVP_MD_CTX_cleanup(&evpMdCtx);
-    dataBuff.resize(outLen);
-    return dataBuff.toHex();
-}
-
 quint32 SSLEncoder::updateCRC32(unsigned char ch, quint32 crc)
 {
     static const quint32 crc_32_tab[] = {
@@ -78,6 +48,49 @@ quint32 SSLEncoder::updateCRC32(unsigned char ch, quint32 crc)
         0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
     };
     return (crc_32_tab[((crc) ^ ((quint8)ch)) & 0xff] ^ ((crc) >> 8));
+}
+
+
+quint32 SSLEncoder::CRC32(const QByteArray &data)
+{
+    return ~std::accumulate(
+        data.begin(),
+        data.end(),
+        quint32(0xFFFFFFFF),
+                [](quint32 oldcrc32, char buf){ return updateCRC32(buf, oldcrc32); });
+}
+
+
+#ifdef USE_SSL_EXTERNAL
+
+#include <QUrl>
+#include <QDebug>
+#include <QDataStream>
+#include <QFile>
+#include <openssl/err.h>
+#include <openssl/conf.h>
+#include <stdio.h>
+
+#include "sslencoder.h"
+#include "globalconfig.h"
+#include "singleton.h"
+
+SSLEncoder::SSLEncoder(QObject *parent) : QObject(parent)
+{
+
+}
+
+QByteArray SSLEncoder::sha256(const QByteArray &text)
+{
+    unsigned int outLen=0;
+    QByteArray dataBuff; dataBuff.resize(EVP_MAX_MD_SIZE);
+    EVP_MD_CTX evpMdCtx;
+    EVP_DigestInit(&evpMdCtx, EVP_sha256());
+    EVP_DigestUpdate(&evpMdCtx, text.data(), text.size());
+    EVP_DigestFinal_ex(&evpMdCtx, (unsigned char *)dataBuff.data(), &outLen);
+    EVP_MD_CTX_cleanup(&evpMdCtx);
+    dataBuff.resize(outLen);
+    return dataBuff.toHex();
 }
 
 QByteArray SSLEncoder::encryptRSA(QByteArray data, QByteArray keyArray)
@@ -158,15 +171,6 @@ QByteArray SSLEncoder::compressData(const QByteArray &data)
 
     QByteArray zipData = header + compressedData + footer;
     return zipData;
-}
-
-quint32 SSLEncoder::CRC32(const QByteArray &data)
-{
-    return ~std::accumulate(
-        data.begin(),
-        data.end(),
-        quint32(0xFFFFFFFF),
-                [](quint32 oldcrc32, char buf){ return updateCRC32(buf, oldcrc32); });
 }
 
 QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)

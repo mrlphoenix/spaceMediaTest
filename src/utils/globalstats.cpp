@@ -12,8 +12,8 @@ GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
     playlistErrorCount = 0;
     cpu = 0;
     memory = 0;
-    trafficIn = trafficTotalIn = 0;
-    trafficOut = trafficTotalOut = 0;
+    trafficIn = prevTrafficIn = 0;
+    trafficOut = prevTrafficOut = 0;
 
     monitorActive = true; //until checking implemented
     connectionActive = true;
@@ -21,6 +21,7 @@ GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
 
     connectionDropped = false;
     latitude = longitude = 0.0;
+    hdmiGPIO = true;
 
     QFile f("/usr/share/zoneinfo/zone.tab");
     f.open(QFile::ReadOnly);
@@ -93,20 +94,31 @@ void GlobalStats::setTraffic(qlonglong in, qlonglong out)
 
         trafficIn = 0;
         trafficOut = 0;
-        trafficTotalIn = in;
-        trafficTotalOut = out;
+        prevTrafficIn = in;
+        prevTrafficOut = out;
         connectionDropped = false;
     }
     else
     {
-        if (trafficTotalIn != 0 || trafficTotalOut != 0)
-        {
-            trafficIn = in - trafficTotalIn;
-            trafficOut = out - trafficTotalOut;
-        }
-        trafficTotalIn = in;
-        trafficTotalOut = out;
+        prevTrafficIn = trafficIn;
+        prevTrafficOut = trafficOut;
+        trafficIn = in;
+        trafficOut = out;
     }
+}
+
+double GlobalStats::getTrafficIn()
+{
+    if (trafficIn > prevTrafficIn && prevTrafficIn != 0)
+        return trafficIn - prevTrafficIn;
+    return 0.0;
+}
+
+double GlobalStats::getTrafficOut()
+{
+    if (trafficOut > prevTrafficOut && prevTrafficOut != 0)
+        return trafficOut - prevTrafficOut;
+    return 0.0;
 }
 
 void GlobalStats::setMonitorActive(bool isActive)
@@ -128,32 +140,57 @@ void GlobalStats::setBalance(double balance)
 
 int GlobalStats::getUTCOffset()
 {
-    int foundIndex = 0;
-    double distance = 10000000.;
-    double lat = latitude;
-    double lon = longitude;
-    if (lat == 0.0 && lon == 0.0)
-        return 0;
-
-    int currentIndex = 0;
-    foreach (const TimeZoneEntry &tz, tzDatabase)
+    bool shouldUpdateUTC = false;
+    QDateTime currentTimeUTC = QDateTime::currentDateTimeUtc();
+    if (!lastTzCheck.isValid())
     {
-        double theta = lon - tz.lon;
-        double cdistance = sin(lat/180.*M_PI) * sin(tz.lat/180.*M_PI) + cos(lat/180.*M_PI)*cos(tz.lat/180.*M_PI) * cos(theta/180.*M_PI);
-        cdistance = acos(cdistance);
-        cdistance = fabs(cdistance/M_PI*180.0);
-        if (distance > cdistance)
-        {
-            foundIndex = currentIndex;
-            distance = cdistance;
-        }
-        currentIndex++;
+        lastTzCheck = currentTimeUTC;
+        shouldUpdateUTC = true;
     }
-    QTimeZone tz(tzDatabase[foundIndex].longName.toLocal8Bit());
-    if (tz.isValid())
-        return tz.offsetFromUtc(QDateTime::currentDateTime());
-    else
-        return 0;
+    if (lastTzCheck.secsTo(currentTimeUTC) > 300)
+    {
+        shouldUpdateUTC = true;
+        lastTzCheck = currentTimeUTC;
+    }
+    if (shouldUpdateUTC)
+    {
+        //qDebug() << "GlobalStats::getUTCOffset";
+        int foundIndex = 0;
+        double distance = 10000000.;
+        double lat = latitude;
+        double lon = longitude;
+        if (lat == 0.0 && lon == 0.0)
+        {
+            cachedTzValue = 0;
+            return 0;
+        }
+        int currentIndex = 0;
+        foreach (const TimeZoneEntry &tz, tzDatabase)
+        {
+            double theta = lon - tz.lon;
+            double cdistance = sin(lat/180.*M_PI) * sin(tz.lat/180.*M_PI) + cos(lat/180.*M_PI)*cos(tz.lat/180.*M_PI) * cos(theta/180.*M_PI);
+            cdistance = acos(cdistance);
+            cdistance = fabs(cdistance/M_PI*180.0);
+            if (distance > cdistance)
+            {
+                foundIndex = currentIndex;
+                distance = cdistance;
+            }
+            currentIndex++;
+        }
+        QTimeZone tz(tzDatabase[foundIndex].longName.toLocal8Bit());
+        if (tz.isValid())
+        {
+            cachedTzValue = tz.offsetFromUtc(QDateTime::currentDateTime());
+            return cachedTzValue;
+        }
+        else
+        {
+            cachedTzValue = 0;
+            return 0;
+        }
+    }
+    else return cachedTzValue;
 }
 
 void GlobalStats::setSunset(QTime sunset)
@@ -255,8 +292,18 @@ bool GlobalStats::checkDelayPass(QString areaId, QString contentId)
         return true;
     }
     QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getUTCOffset());
-    qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].time();
-    return currentTime > lastTimePlayed[areaId][contentId];
+    qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId)).time();
+    return currentTime > lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId));
+}
+
+QDateTime GlobalStats::getItemLastPlayDate(QString areaId, QString contentId)
+{
+    //qDebug() << "GlobalStats::itemLastPlayDate";
+    if (!lastTimePlayed.contains(areaId))
+        return QDateTime::currentDateTimeUtc().addSecs(getUTCOffset());
+    if (!lastTimePlayed[areaId].contains(contentId))
+        return QDateTime::currentDateTimeUtc().addSecs(getUTCOffset());
+    return lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId));
 }
 
 bool GlobalStats::itemWasPlayed(QString areaId, QString contentId)
@@ -264,6 +311,28 @@ bool GlobalStats::itemWasPlayed(QString areaId, QString contentId)
     if (!lastTimePlayed.contains(areaId))
         return false;
     return lastTimePlayed[areaId].contains(contentId);
+}
+
+void GlobalStats::setItemPlayTimeout(QString contentId, int timeout)
+{
+    itemTimeout[contentId] = timeout;
+}
+
+int GlobalStats::getItemPlayTimeout(QString contentId)
+{
+    if (!itemTimeout.contains(contentId))
+    {
+        qDebug() << "Error: Trying to find item timeout where contentId wasnt found " << contentId;
+        return -1;
+    }
+    return itemTimeout[contentId];
+}
+
+bool GlobalStats::wasAnyItemPlayed(QString areaId)
+{
+    if (!lastTimePlayed.contains(areaId))
+        return false;
+    return (lastTimePlayed[areaId].count() > 0);
 }
 
 void GlobalStats::setSystemData(QString tag, QByteArray data)

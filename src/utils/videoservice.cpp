@@ -63,12 +63,10 @@ void VideoService::executeRequest(VideoServiceRequest request)
 {
     if (currentRequestExists)
     {
-        qDebug() << "enqueuing request";
         requests.enqueue(request);
     }
     else
     {
-        qDebug() << "performing request";
         currentRequest = request;
         performRequest(request);
         currentRequestExists = true;
@@ -167,7 +165,7 @@ void VideoService::performRequest(VideoServiceRequest request)
     {
         qDebug() << "ERROR: undefined method: " << request.name;
     }
-    qDebug() << data;
+    //qDebug() << data;
     if (request.method == "GET")
         manager->get(networkRequest);
     else

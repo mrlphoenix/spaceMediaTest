@@ -1,10 +1,11 @@
 import QtQuick 2.2
+import QtMultimedia 5.5
 import QtQuick.Controls 1.1
 //import QtWebView 1.1
 import QtWebKit 3.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
-import QtMultimedia 5.5
+
 
 Item {
     id: playerViewRoot
@@ -26,14 +27,12 @@ Item {
         if (currentType != "null")
             stopAfterPlaying = true
     }
-    MediaPlayer {
-        id: mpa
-        source: "file:///home/pi/prest.mp3"
-        autoPlay: true
-        onPlaying: {
-            console.log("PREST: " + mpa.volume)
-        }
+
+    function setMuted(isMuted){
+        mp1.muted = isMuted
+        mp2.muted = isMuted
     }
+
 
     function play(contentId, length, type, skip, fillMode)
     {
@@ -155,6 +154,34 @@ Item {
         y: parent.y
     }
 
+
+    Timer {
+        id: askNextAntiFlick
+        repeat: false
+        interval: 500
+        onTriggered: {
+            askNext(areaID)
+        }
+    }
+
+    Timer {
+        id: nextVideoTimerAF1
+        repeat: false
+        interval: 310
+        onTriggered: {
+            mp1.play()
+        }
+    }
+
+    Timer {
+        id: nextVideoTimerAF2
+        repeat: false
+        interval: 310
+        onTriggered: {
+            mp2.play()
+        }
+    }
+
     Item {
         id: videoPlayer
         visible: currentType != "browser" && currentType != "null"
@@ -188,11 +215,24 @@ Item {
                     console.log("VPT:video")
                     if (videoPlayer.firstPlayer){
                         videoPlayer.firstPlayer = false
-                        mp2.play()
+                        if (mp1.isAudio && mp2.isAudio)
+                        {
+                            console.log("VPT: audio->audio")
+                            mp1.stop()
+                            nextVideoTimerAF2.restart()
+                        }
+                        else
+                            mp2.play()
                     }
                     else {
                         videoPlayer.firstPlayer = true
-                        mp1.play()
+                        if (mp1.isAudio && mp2.isAudio)
+                        {
+                            mp2.stop()
+                            nextVideoTimerAF1.restart()
+                        }
+                        else
+                            mp1.play()
                     }
                 }
                 else if (nextItemType === "browser"){
@@ -207,9 +247,9 @@ Item {
                     currentType = "image"
                     videoPlayer.reset()
                 }
-
                 console.log("askNext play::VPT")
-                askNext(areaID)
+                askNextAntiFlick.restart()
+                //askNext(areaID)
             }
         }
 
@@ -235,7 +275,7 @@ Item {
                 if (_isAudio === false)
                     videoOutput2.setFillMode(_fillMode)
             }
-            else{
+            else {
                 if (firstPlayer){
                     console.log("Load to MP2")
                     mp2.source = _url
@@ -272,6 +312,7 @@ Item {
             mp2.source = ""
             firstPlayer = true
             //currentType = "null"
+            audioIcon.visible = false
         }
 
         function preloadItem(_url, length, skip, _isAudio, _fillMode)
@@ -284,10 +325,12 @@ Item {
             if (_isAudio === false)
                 videoOutput1.setFillMode(_fillMode)
         }
+
         function playPreloaded()
         {
             mp1.play()
         }
+
         Timer {
 
             function activateTimer(isFirstVideo){
@@ -299,15 +342,24 @@ Item {
 
             id: antiFlickTimerVideo
             repeat: false
-            interval: 400
+            interval: 300
             onTriggered: {
                  if (showFirstVideo){
                      videoOutput2.opacity = 0.0
                      videoOutput1.opacity = 1.0
+
+                     if(mp1.isAudio)
+                         audioIcon.visible = true
+                     else
+                         audioIcon.visible = false
                  }
                  else{
                      videoOutput1.opacity = 0.0
                      videoOutput2.opacity = 1.0
+                     if(mp2.isAudio)
+                         audioIcon.visible = true
+                     else
+                         audioIcon.visible = false
                  }
             }
         }
@@ -325,7 +377,7 @@ Item {
                 antiFlickTimerVideo.activateTimer(true)
                 //videoOutput2.opacity = 0.0
                 //videoOutput1.opacity = 1.0
-                videoPlayerTimer.interval = Math.max(mp1.durationMsecs, 5000) - 400
+                videoPlayerTimer.interval = Math.max(mp1.durationMsecs, 5000) - 250
                 console.log("MP1::VPT " + videoPlayerTimer.interval)
                 videoPlayerTimer.start()
                 if (mp1.seekMsecs > 0)
@@ -334,7 +386,9 @@ Item {
                     audioIcon.visible = true
                 else
                     audioIcon.visible = false
+                mp2.stop()
             }
+            volume: volumeValue
         }
 
         VideoOutput{
@@ -367,16 +421,17 @@ Item {
             onPlaying: {
                 console.log("MP2::onPlay " + mp2.source)
                 antiFlickTimerVideo.activateTimer(false)
-                videoPlayerTimer.interval = Math.max(mp2.durationMsecs, 5000) - 400
+                videoPlayerTimer.interval = Math.max(mp2.durationMsecs, 5000) - 250
                 videoPlayerTimer.start()
                 if (mp2.seekMsecs > 0)
                     mp2.seek(mp2.seekMsecs)
-                if(isAudio)
+              /*  if(isAudio)
                     audioIcon.visible = true
                 else
-                    audioIcon.visible = false
+                    audioIcon.visible = false*/
+                mp1.stop()
             }
-            //volume: volumeValue
+            volume: volumeValue
         }
 
         VideoOutput{
@@ -396,7 +451,6 @@ Item {
                 else
                     videoOutput2.fillMode = VideoOutput.PreserveAspectFit
             }
-
         }
 
 
@@ -417,12 +471,13 @@ Item {
             Image{
                 id: audioIconImage
                 source: "audio.svg"
-                sourceSize.width: parent.width
-                sourceSize.height: parent.height
+                sourceSize.width: Math.min(parent.width, parent.height)
+                sourceSize.height: Math.min(parent.height, parent.width)
                 width: parent.width/2
                 height: parent.height/2
                 x: parent.width/2 - width/2
                 y: parent.height/2 - height/2
+                fillMode: Image.PreserveAspectFit
             }
         }
     }
@@ -442,7 +497,6 @@ Item {
         y: parent.y
         width: parent.width
         height: parent.height
-        //opacity: brightness
         property bool isFirstImage: false
 
         Timer {
@@ -481,7 +535,8 @@ Item {
                     browser.showPreloaded()
                     currentType = "browser"
                 }
-                askNext(areaID)
+                askNextAntiFlick.restart()
+               // askNext(areaID)
             }
         }
         Timer {
@@ -666,11 +721,33 @@ Item {
 
         function preload(url, showtime)
         {
-            console.log("browser.preload")
-            browser.isFirstBrowser = true
-            sideBrowser1.preload(url, showtime)
-            console.log(browser.isFirstBrowser)
-            return
+            if (sideBrowser1.opacity > 1.05)
+            {
+                preloadAntiFlickTimer.restart()
+            }
+            else
+            {
+                console.log("browser.preload")
+                browser.isFirstBrowser = true
+                sideBrowser1.preload(url, showtime)
+                sideBrowser2.prevUrl = "#none"
+                console.log(browser.isFirstBrowser)
+                return
+            }
+        }
+
+        Timer {
+            id: preloadAntiFlickTimer
+            repeat: false
+            interval: 500
+            onTriggered: {
+                console.log("browser.preload")
+                browser.isFirstBrowser = true
+                sideBrowser1.preload(url, showtime)
+                sideBrowser2.prevUrl = "#none"
+                console.log(browser.isFirstBrowser)
+                return
+            }
         }
 
         function showPreloaded()
@@ -680,21 +757,22 @@ Item {
 
         function load(url, showtime){
             //load first time
-            console.log("WebBrowser::load -> reloading page | " +
-                        sideBrowser1.x + " " + sideBrowser1.y + " " +
-                        sideBrowser1.width + " " + sideBrowser1.height);
+            console.log("WebBrowser::load");
             console.log("Is first browser: " + isFirstBrowser + "prev url =" + sideBrowser1.prevUrl)
-            if (browser.isFirstBrowser == false && sideBrowser1.prevUrl === "#none"){
+            if ((browser.isFirstBrowser == false && sideBrowser1.prevUrl === "#none") ||
+                (sideBrowser1.prevUrl === "#none" && sideBrowser2.prevUrl === "#none")){
                 console.log("loading to SB1")
                 sideBrowser1.load(url, showtime)
                 isFirstBrowser = true
                 return
             }
+
             if (isFirstBrowser && sideBrowser2.prevUrl === "#none"){
-                console.log("PREloading to SB2")
+                console.log("PREloading to SB2 " + isFirstBrowser +" " + sideBrowser2.prevUrl)
                 sideBrowser2.preload(url,showtime)
                 return
             }
+
             if (isFirstBrowser){
                 console.log("PREloading to SB1, showing SB2")
                 sideBrowser2.showPreloaded()
@@ -703,6 +781,7 @@ Item {
                 console.log("IFB changed to false" + isFirstBrowser)
                 return
             }
+
             else
             {
                 console.log("PREloading to SB2, showing SB1")
@@ -714,8 +793,7 @@ Item {
         }
 
         function stopBrowser(){
-            //sideBrowser1.visible = false
-            //sideBrowser2.visible = false
+            console.log("stop browser")
             sideBrowser1.opacity = false
             sideBrowser2.opacity = false
             sideBrowser1.stop()
@@ -725,6 +803,13 @@ Item {
             //isFirstBrowser = false
             turnOffTimer.stop()
             prepareStop = false
+        }
+        function hideBrowser(){
+            console.log("hide browser")
+
+            sideBrowser2.opacity = 0.0
+            sideBrowser1.opacity = 0.0
+            turnOffTimer.stop()
         }
 
         Timer {
@@ -760,26 +845,28 @@ Item {
                 }
                 else if (nextItemType === "image"){
                     console.log("next item is image")
-                    browser.stopBrowser()
+                    browser.hideBrowser()
                     imageContent.showPreloaded()
                     currentType = "image"
                 }
-                askNext(areaID)
+                askNextAntiFlick.restart()
+                //askNext(areaID)
             }
         }
+
         Timer {
             id: browserAntiFlickTimer
             repeat: false
-            interval: 400
+            interval: 420
             onTriggered: {
-                browser.stopBrowser()
+                browser.hideBrowser()
             }
         }
 
         Timer {
             id: browserTurnOnTimer
             repeat: false
-            interval: 300
+            interval: 400
             property bool isFirstBrowserProp: true
             function runTimer(isFirst){
                 isFirstBrowserProp = isFirst
@@ -806,12 +893,13 @@ Item {
             url: ""
 
             function preload(_url, _showtime){
-                if (prevUrl === _url)
+                if (sideBrowser1.prevUrl === _url)
                     reload()
                 else
                     url = _url
                 showtime = _showtime
-                prevUrl = _url
+                console.log("sb1:prev =" + _url)
+                sideBrowser1.prevUrl = _url
             }
 
             function showPreloaded(){
@@ -829,6 +917,7 @@ Item {
             }
 
             function stop(){
+                console.log("sb1::stop")
                 prevUrl = "#none"
                 url = ""
             }

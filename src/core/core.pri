@@ -6,7 +6,8 @@ SOURCES += \
     $$PWD/teledssheduler.cpp \
     $$PWD/platformspecific.cpp \
     $$PWD/statictext.cpp \
-    $$PWD/systeminfoprovider.cpp
+    $$PWD/systeminfoprovider.cpp \
+    $$PWD/gpiobuttonservice.cpp
 HEADERS += \
     $$PWD/teledscore.h \
     $$PWD/singleton.h \
@@ -16,7 +17,8 @@ HEADERS += \
     $$PWD/version.h \
     $$PWD/platformspecific.h \
     $$PWD/statictext.h \
-    $$PWD/systeminfoprovider.h
+    $$PWD/systeminfoprovider.h \
+    $$PWD/gpiobuttonservice.h
 
 FORMS += \
     $$PWD/mainwindow.ui

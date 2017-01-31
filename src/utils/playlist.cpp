@@ -22,16 +22,16 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
     //pretend we just played all items
     minPlayTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     //calculating total play time
-    //setuping campaing list
-    qDebug() << "SuperPlaylist::campaigns clear";
-    campaigns.clear();
+    items.clear();
     foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
     {
         allLength += item.duration;
-        campaigns[item.content_id] = item;
+        items[item.content_id] = item;
+        GlobalStatsInstance.setItemPlayTimeout(item.content_id, item.play_timeout);
     }
     minPlayTime = minPlayTime.addMSecs(-allLength);
     int tempTime = 0;
+
     auto playlistCopy = playlist.content;
     QList<PlayerConfigAPI::Campaign::Area::Content> shuffledPlaylist;
     while (!playlistCopy.isEmpty())
@@ -45,17 +45,11 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
         if (!GlobalStatsInstance.itemWasPlayed(item.area_id, item.content_id))
         {
             QDateTime itemFakePlayTime = minPlayTime;
-            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime).addSecs(item.play_timeout);
+            //itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime).addSecs(item.play_timeout);
+            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime);
             GlobalStatsInstance.itemPlayed(item.area_id,item.content_id,itemFakePlayTime);
             tempTime += item.duration;
         }
-       /* if (!lastTimeShowed.contains(item.content_id))
-        {
-            QDateTime itemFakePlayTime = minPlayTime;
-            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime);
-            lastTimeShowed[item.content_id] = itemFakePlayTime;
-            tempTime += item.duration;
-        }*/
     }
     magic = qRound(double(allLength/1000) / double(playlist.content.count()) * MAGIC_PLAYLIST_VALUE);
 }
@@ -63,6 +57,7 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
 QString SuperPlaylist::next()
 {
     qDebug() << "SuperPlaylist::next";
+    qDebug() << QDateTime::currentDateTime().time();
     /*
      * 1. Перемешиваем массив
     2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
@@ -77,42 +72,71 @@ QString SuperPlaylist::next()
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
     currentItemIndex = 0;
-    shuffle(true, false);
-    std::sort(fixedFloatingItems.begin(), fixedFloatingItems.end(),
+    //shuffle(true, false);
+    std::sort(normalFloatingItems.begin(), normalFloatingItems.end(),
               [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
               {
-                  int aLastPlayed = std::ceil(minPlayTime.msecsTo(lastTimeShowed[a.content_id]) / magic);
-                  int bLastPlayed = std::ceil(minPlayTime.msecsTo(lastTimeShowed[b.content_id]) / magic);
+                  int aLastPlayed = std::ceil(minPlayTime.secsTo(GlobalStatsInstance.getItemLastPlayDate(a.area_id, a.content_id)) / magic);
+                  int bLastPlayed = std::ceil(minPlayTime.secsTo(GlobalStatsInstance.getItemLastPlayDate(b.area_id, b.content_id)) / magic);
                   if (aLastPlayed == bLastPlayed)
                       return a.play_timeout > b.play_timeout;
                   else
                       return aLastPlayed > bLastPlayed;
               });
-    for (int i = 0; i < fixedFloatingItems.count(); ++i)
+    for (int i = 0; i < normalFloatingItems.count(); i++)
     {
-        PlayerConfigAPI::Campaign::Area::Content item = fixedFloatingItems.at(i);
+        PlayerConfigAPI::Campaign::Area::Content item = normalFloatingItems[i];
         if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange() &&
             item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
         {
-            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(item.play_timeout + GlobalStatsInstance.getUTCOffset() - 7);
+            qDebug() << "Next Item is " << item.name;
+            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset() - 7);
             GlobalStatsInstance.itemPlayed(playlist.area_id,item.content_id,delayPassTime);
-            //lastTimeShowed[item.content_id] = delayPassTime;
-            lastPlayed = item.content_id;
-            return item.content_id;
+
+            bool dontPlayItem = false;
+            QDateTime d = GlobalStatsInstance.getCampaignEndDate();
+            if (d.isValid())
+            {
+                QDateTime cd = QDateTime::currentDateTimeUtc();
+                if (lastPlayed != "")
+                    cd = cd.addMSecs(findItemById(lastPlayed).duration);
+                cd = cd.addMSecs(item.duration);
+                if (cd > d)
+                    dontPlayItem = true;
+
+            }
+            dontPlayItem = false;
+            if (!dontPlayItem)
+            {
+                lastPlayed = item.content_id;
+                return item.content_id;
+            }
+            else
+            {
+                qDebug() << "item cannot be played. Returning nothing! ";
+
+                qDebug() << QDateTime::currentDateTime().time();
+                return "";
+            }
         }
     }
-
-    qDebug() << "SuperPlaylist::cant find proper item with fixed-floating type. Trying to search in floating-none list(" + QString::number(floatingNoneItems.count()) + ")";
-
+    qDebug() << "SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list("
+                + QString::number(floatingFreeItems.count()) + ")";
 
     QString freeItemResult = nextFreeItem();
     if (freeItemResult.isEmpty())
     {
         lastPlayed = "";
+
+        qDebug() << QDateTime::currentDateTime().time();
         return "";
     }
     else
+    {
+
+        qDebug() << QDateTime::currentDateTime().time();
         return freeItemResult;
+    }
 }
 
 bool SuperPlaylist::haveNext()
@@ -123,57 +147,47 @@ bool SuperPlaylist::haveNext()
 
 PlayerConfigAPI::Campaign::Area::Content SuperPlaylist::findItemById(QString id)
 {
-    foreach (const PlayerConfigAPI::Campaign::Area::Content &content, campaigns)
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &content, items)
         if (content.content_id == id)
             return content;
     PlayerConfigAPI::Campaign::Area::Content emptyItem;
     return emptyItem;
 }
 
+void SuperPlaylist::resetCurrentItemIndex()
+{
+    qDebug() << this->playlist.area_id;
+    currentItemIndex = -1;
+    lastFreeFloatingItemPlayedIndex = -1;
+    lastPlayed = "";
+}
+
 void SuperPlaylist::splitItems()
 {
     qDebug() << "SuperPlaylist::splitItems";
-    fixedFloatingItems.clear();
-    floatingNoneItems.clear();
+    normalFloatingItems.clear();
+    floatingFreeItems.clear();
     foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
         if (item.play_type == "normal")
-            fixedFloatingItems.append(item);
+            normalFloatingItems.append(item);
         else if (item.play_type == "free")
-            floatingNoneItems.append(item);
+            floatingFreeItems.append(item);
         else
         {
-            fixedFloatingItems.append(item);
-            floatingNoneItems.append(item);
+            normalFloatingItems.append(item);
+            floatingFreeItems.append(item);
         }
-    qDebug() << "FF: " << fixedFloatingItems.count() << " FN: " << floatingNoneItems.count();
+    qDebug() << "Normal/Floating: " << normalFloatingItems.count() << " Floating/Free: " << floatingFreeItems.count();
 }
 
 void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
 {
     //this method is called when we need to shuffle our playlist items
-    QList<PlayerConfigAPI::Campaign::Area::Content> newFixed, newFloating;
-
     if (fixedFloating)
-    {
-        while (fixedFloatingItems.count() > 0)
-        {
-            int currentItemIndex = qrand()%fixedFloatingItems.count();
-            newFixed.append(fixedFloatingItems[currentItemIndex]);
-            fixedFloatingItems.removeAt(currentItemIndex);
-        }
-        fixedFloatingItems = newFixed;
-    }
+        std::random_shuffle(normalFloatingItems.begin(), normalFloatingItems.end());
 
     if (floatingNone)
-    {
-        while (floatingNoneItems.count() > 0)
-        {
-            int currentItemIndex = qrand()%floatingNoneItems.count();
-            newFloating.append(floatingNoneItems[currentItemIndex]);
-            floatingNoneItems.removeAt(currentItemIndex);
-        }
-        floatingNoneItems = newFloating;
-    }
+        std::random_shuffle(floatingFreeItems.begin(), floatingFreeItems.end());
 }
 
 bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item)
@@ -184,28 +198,51 @@ bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Conte
 QString SuperPlaylist::nextFreeItem()
 {
     lastFreeFloatingItemPlayedIndex++;
-    if (lastFreeFloatingItemPlayedIndex >= floatingNoneItems.count())
+    if (lastFreeFloatingItemPlayedIndex >= floatingFreeItems.count())
         lastFreeFloatingItemPlayedIndex = 0;
 
     qDebug() << "SuperPlaylist::nextFreeItem <> currentIndex = " << lastFreeFloatingItemPlayedIndex;
     bool indexReseted = false;
-    for (int i = lastFreeFloatingItemPlayedIndex; i< floatingNoneItems.count(); i++)
+    for (int i = lastFreeFloatingItemPlayedIndex; i < floatingFreeItems.count(); i++)
     {
-        auto item = floatingNoneItems[i];
+        auto item = floatingFreeItems[i];
         if (item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id) &&
             item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
         {
-            //QDateTime delayPassTime = QDateTime::currentDateTime();
-            //delayPassTime = delayPassTime.addMSecs(item.play_timeout);
-            //lastTimeShowed[item.content_id] = delayPassTime;
-            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(item.play_timeout + GlobalStatsInstance.getUTCOffset() - 7);
+            qDebug() << "Next Item is " << item.name;
+            QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset() - 7);
             GlobalStatsInstance.itemPlayed(playlist.area_id,item.content_id,delayPassTime);
 
-            lastPlayed = item.content_id;
             lastFreeFloatingItemPlayedIndex = i;
-            return item.content_id;
+
+            bool dontPlayItem = false;
+            QDateTime d = GlobalStatsInstance.getCampaignEndDate();
+            if (d.isValid())
+            {
+                QDateTime cd = QDateTime::currentDateTimeUtc();
+                if (lastPlayed != "")
+                    cd = cd.addMSecs(findItemById(lastPlayed).duration);
+                cd = cd.addMSecs(item.duration);
+                if (cd > d.addMSecs(5000))
+                    dontPlayItem = true;
+                qDebug() << d.time() << cd.time();
+            }
+            dontPlayItem = false;
+            if (!dontPlayItem)
+            {
+                lastPlayed = item.content_id;
+                return item.content_id;
+            }
+            else
+            {
+                qDebug() << "item cannot be played";
+                return "";
+            }
+            //return item.content_id;
         }
-        if (i == floatingNoneItems.count() - 1 && !indexReseted)
+        else
+            qDebug() << "SKIPPING FREE ITEM " << item.name << "!!!!!!";
+        if (i == floatingFreeItems.count() - 1 && !indexReseted)
         {
             i = -1;
             indexReseted = true;

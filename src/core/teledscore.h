@@ -19,6 +19,8 @@
 #include "qhttprequest.h"
 #include "qhttpresponse.h"
 
+#include "gpiobuttonservice.h"
+
 
 class BatteryStatus
 {
@@ -116,6 +118,8 @@ public slots:
 
     void nextCampaign();
 
+    void onButtonPressed(bool skipBlocked = false);
+
 
 protected:
     void setupDownloader();
@@ -136,6 +140,8 @@ protected:
     PlayerConfigAPI currentConfig;
     BatteryStatus batteryStatus;
     SkinManager * skinManager;
+    GPIOButtonService gpioButtonService;
+    QThread * gpioButtonServiceThread;
 
     bool shouldShowPlayer;
 
@@ -145,6 +151,7 @@ protected:
 
     QTcpSocket * gpsSocket;
     bool updateGps;
+    bool buttonBlocked;
 };
 
 

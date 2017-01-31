@@ -12,7 +12,7 @@
 #include <QScreen>
 #include <QSslSocket>
 #include <QTcpSocket>
-#include <QAudioDeviceInfo>
+#include <QThread>
 
 #include "teledscore.h"
 #include "globalconfig.h"
@@ -38,14 +38,23 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
     qDebug() << "Working in " << QDir().currentPath();
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    qDebug() << "deviceName " << info.deviceName();
-    qDebug() << " supportedCodecs" << info.supportedCodecs();
     //GPIO Releys
     qDebug() << "RELAYTM";
     QTimer * releyTimer = new QTimer();
     connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));
     releyTimer->start(60000);
+
+    //GPIO Button Service
+    gpioButtonServiceThread = new QThread();
+    QTimer *gpioButtonTimer = new QTimer();
+
+    QObject::connect(gpioButtonTimer, SIGNAL(timeout()), &gpioButtonService, SLOT(checkPinSlot()));
+    gpioButtonService.moveToThread(gpioButtonServiceThread);
+    gpioButtonServiceThread->start();
+    gpioButtonTimer->start(80);
+
+    QObject::connect(&gpioButtonService, SIGNAL(buttonPressed()), this, SLOT(onButtonPressed()));
+
 
     //Android battery shutdown-conditions checker
     QTimer * shutdownTimer = new QTimer();
@@ -144,7 +153,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         teledsPlayer->show();
     }
 
-
     downloader = 0;
     setupHttpServer();
     qDebug() << "TELEDS initialization done";
@@ -155,6 +163,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(gpsSocket, &QTcpSocket::disconnected, []() {qDebug() << "GPS CLOSED!!!!";});
     gpsSocket->connectToHost("127.0.0.1", 2947);
     updateGps = true;
+    buttonBlocked = false;
 }
 
 void TeleDSCore::setupHttpServer()
@@ -350,11 +359,11 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode());
     }
     //403: player is not configurated - requesting initialization
-    if (result.error_id == 403)
+    if (result.error_id == 403 || result.error_id == 404)
     {
         if (teledsPlayer->isPlaying())
             teledsPlayer->stopPlaying();
-        qDebug() << "403: player is not configurated - requesting initialization";
+        qDebug() << "403/404: player is not configurated - requesting initialization";
         initPlayer();
     }
     else if (result.error_id == 402)
@@ -385,15 +394,20 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             GlobalConfigInstance.setStatsInverval(result.stats_interval);
             GlobalConfigInstance.setVolume(result.volume);
 
+            quint32 crc32id = SSLEncoder::CRC32(result.player_id.toLocal8Bit());
+            QString crcHex = QString("%1").arg(crc32id, 8, 16, QLatin1Char( '0' )).toUpper();
+            qDebug() << "CRC HEX = " << crcHex;
+            GlobalStatsInstance.setCRC32Hex(crcHex);
+            teledsPlayer->invokePlayerCRC();
+
+            teledsPlayer->invokeSetPlayerVolume(result.volume);
+
             //if static gps is given - saving it in stats
             if (result.gps_lat != 0.0 && result.gps_long != 0.0)
             {
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
             }
             updateGps = result.updateGps;
-            qDebug() << "STATS INTERVAL: " << result.stats_interval;
-          //  if (result.stats_interval >= 60000)
-           //     statsTimer->start(result.stats_interval);
 
            /* if (result.brand_active)
             {
@@ -417,7 +431,6 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             if (result.autooff_by_battery_level_active || result.autooff_by_discharging_time_active)
                 batteryStatus.setConfig(result.off_charge_percent, result.off_power_loss);
         }
-        qDebug() << "Offset by GPS=" << GlobalStatsInstance.getUTCOffset();
     }
 }
 
@@ -427,6 +440,9 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     //when we should update playlist
     static int prevScreenRotation = 0;
     qDebug() << "TeleDSCore::playlistResult";
+
+    //
+
     if (!currentConfig.last_modified.isValid()
        || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid())
        || prevScreenRotation != GlobalConfigInstance.getSettingsObject().base_rotation)
@@ -434,8 +450,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         qDebug() << "TeleDSCore::playlistResult <> need to update";
         if (result.error_id == -1)
         {
-            qDebug() << "TeleDSCore::playlistResult <> loading from config";
-            qDebug() << "seems like server is offline so we load from config";
+            qDebug() << "TeleDSCore::seems like server is offline so we load from config";
             PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist());
             if (storedResult.last_modified.isValid())
             {
@@ -482,10 +497,8 @@ void TeleDSCore::updateInfoReady(UpdateInfoResult result)
     qDebug() << "TeleDSCore::updateInfoReady " + QString::number(result.error_id) + "/" + result.error_text;
     if (result.error_id == 0)
     {
-        if (TeleDSVersion::compareVersion(result.version_major,
-                                          result.version_minor,
-                                          result.version_release,
-                                          result.version_build) == 1)
+        if (TeleDSVersion::compareVersion(result.version_major, result.version_minor, result.version_release, result.version_build)
+            == 1) //upcoming version is newer
         {
             qDebug() << "NEW Version Found! Trying to download!";
             QString genName =   "TDSU_" +
@@ -493,8 +506,17 @@ void TeleDSCore::updateInfoReady(UpdateInfoResult result)
                                 QString::number(result.version_minor) + "." +
                                 QString::number(result.version_release) + "." +
                                 QString::number(result.version_build) + ".dat";
-            if (downloader)
-                downloader->startUpdateTask(result.file_url, result.file_hash, genName);
+            if (PlatformSpecificService.getFileHash(genName) != result.file_hash)
+            {
+                qDebug() << "need to download update";
+                if (downloader)
+                    downloader->startUpdateTask(result.file_url, result.file_hash, genName);
+            }
+            else
+            {
+                qDebug() << "update is already downloaded. Updating.";
+                updateReady(genName);
+            }
         }
         else{
             qDebug() << "You have the newest version of player";
@@ -523,8 +545,15 @@ void TeleDSCore::updateReady(QString filename)
         }
     }
     teledsPlayer->invokeUpdateState();
+    QFile infoFile("update_info");
+    if (infoFile.open(QFile::WriteOnly))
+    {
+        infoFile.write(filename.toLocal8Bit());
+        infoFile.flush();
+        infoFile.close();
+    }
 
-    QTimer::singleShot(1000, [this, filename]() mutable{
+  /*  QTimer::singleShot(1000, [this, filename]() mutable{
         QProcess updaterProcess;
         QStringList args;
         args.append(filename);
@@ -532,7 +561,10 @@ void TeleDSCore::updateReady(QString filename)
         updaterProcess.waitForFinished();
         qDebug() << "update process!!! " << filename << updaterProcess.readAllStandardError() << updaterProcess.readAllStandardOutput();
         updateTimer->start(30000);
-    });
+    });*/
+    QTimer::singleShot(1000, [this, filename]() mutable{
+            qApp->exit();
+        });
 }
 
 void TeleDSCore::onThemeReady(ThemeDesc desc)
@@ -553,7 +585,6 @@ void TeleDSCore::onThemeReady(ThemeDesc desc)
 
         });
     }
-
     else
     {
         auto tdsPlayer = teledsPlayer;
@@ -597,7 +628,11 @@ void TeleDSCore::downloaded()
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
                                      area.x, area.y, area.width, area.height, campaign.rotation);
 
-    teledsPlayer->play();
+    QTimer::singleShot(1000, [this](){
+        teledsPlayer->play();
+    });
+
+    //teledsPlayer->play();
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -720,6 +755,83 @@ void TeleDSCore::nextCampaign()
     QTimer::singleShot(duration, this, [this](){
         nextCampaign();
     });
+}
+
+void TeleDSCore::onButtonPressed(bool skipBlocked)
+{
+    static int status = 2;
+    if (buttonBlocked && !skipBlocked)
+    {
+        qDebug() << "Button is blocked!";
+        return;
+    }
+    if (status == 2)
+    {
+        status = 1;
+        return;
+    }
+    status = 1 - status;
+    teledsPlayer->invokeToggleVisibility(status);
+    QProcess p;
+    if (status)
+    {
+        p.startDetached("bash", QString("data/display_control.sh 1").split(" "));
+        buttonBlocked = true;
+
+        if (!skipBlocked){
+            QTimer::singleShot(4000, [this](){
+                buttonBlocked = false;
+            });
+        }
+        QTimer::singleShot(750, [this]() {
+            QFile f("display_control.log");
+            if (f.open(QFile::ReadOnly))
+            {
+                QString result = f.readAll();
+                if (result == "")
+                {
+                    qDebug() << "Warning: vcgen deamon is sleeping. Trying to wake up";
+                    status = 1 - status;
+                    this->onButtonPressed(true);
+                }
+                else
+                {
+                    GlobalStatsInstance.setHDMI_GPIO(true);
+                    //buttonBlocked = false;
+                }
+                f.close();
+            }
+        });
+    }
+    else
+    {
+        p.startDetached("bash", QString("data/display_control.sh 0").split(" "));
+        buttonBlocked = true;
+        if (!skipBlocked){
+            QTimer::singleShot(4000, [this](){
+                buttonBlocked = false;
+            });
+        }
+        QTimer::singleShot(750, [this]() {
+            QFile f("display_control.log");
+            if (f.open(QFile::ReadOnly))
+            {
+                QString result = f.readAll();
+                if (result == "")
+                {
+                    qDebug() << "Warning: vcgen deamon is sleeping. Trying to wake up";
+                    status = 1 - status;
+                    this->onButtonPressed(true);
+                }
+                else
+                {
+                    GlobalStatsInstance.setHDMI_GPIO(false);
+                    //buttonBlocked = false;
+                }
+                f.close();
+            }
+        });
+    }
 }
 
 void TeleDSCore::setupDownloader()

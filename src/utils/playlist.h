@@ -44,7 +44,7 @@ public:
     virtual PlayerConfigAPI::Campaign::Area::Content findItemById(QString id);
     virtual QString getType() {return "random";}
     virtual QString getStoredItem() {return storedNextItem;}
-    void resetCurrentItemIndex(){currentItemIndex = 0;}
+    void resetCurrentItemIndex();
 
 protected:
     void splitItems();
@@ -60,9 +60,9 @@ protected:
     int currentItemIndex;
     QString storedNextItem;
 
-    QList<PlayerConfigAPI::Campaign::Area::Content> fixedFloatingItems;
-    QList<PlayerConfigAPI::Campaign::Area::Content> floatingNoneItems;
-    QHash<QString,PlayerConfigAPI::Campaign::Area::Content> campaigns;
+    QList<PlayerConfigAPI::Campaign::Area::Content> normalFloatingItems;
+    QList<PlayerConfigAPI::Campaign::Area::Content> floatingFreeItems;
+    QHash<QString,PlayerConfigAPI::Campaign::Area::Content> items;
     QHash<QString,QDateTime> lastTimeShowed;
     QString lastPlayed; int lastFreeFloatingItemPlayedIndex;
 };

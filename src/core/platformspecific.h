@@ -59,6 +59,12 @@ struct BatteryInfo
     int value;
     bool isCharging;
 };
+struct TrafficInfo
+{
+    int64_t in;
+    int64_t out;
+    QString hdmi_cec;
+};
 
 
 class PlatformSpecificWorker : public QObject
@@ -80,6 +86,7 @@ public slots:
 
     //helper methods for generateSystemInfo
     QString getUniqueId();
+    TrafficInfo getTraffic();
     int64_t getTrafficIn();
     int64_t getTrafficOut();
     int getMemoryUsage();
