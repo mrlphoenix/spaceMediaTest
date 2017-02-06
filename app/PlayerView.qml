@@ -33,7 +33,6 @@ Item {
         mp2.muted = isMuted
     }
 
-
     function play(contentId, length, type, skip, fillMode)
     {
         var isAudio = false
@@ -142,7 +141,7 @@ Item {
         browser.stopBrowser()
         imageContent.stop()
         currentType = "null"
-
+        onStop()
     }
 
     Rectangle {
@@ -342,9 +341,10 @@ Item {
 
             id: antiFlickTimerVideo
             repeat: false
-            interval: 300
+            interval: 400
             onTriggered: {
                  if (showFirstVideo){
+
                      videoOutput2.opacity = 0.0
                      videoOutput1.opacity = 1.0
 
@@ -811,6 +811,7 @@ Item {
             sideBrowser1.opacity = 0.0
             turnOffTimer.stop()
         }
+
 
         Timer {
             id: turnOffTimer

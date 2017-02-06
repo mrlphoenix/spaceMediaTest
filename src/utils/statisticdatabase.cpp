@@ -297,6 +297,7 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
                     QString::number(info.hdmi_gpio),
                     QString::number(info.free_space)
                 );
+    qDebug() << "LAT IN DB:" << info.latitude << "LON IN DB: " << info.longitude;
     queryThread->execute("playResource", sql);
 }
 

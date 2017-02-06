@@ -55,7 +55,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     QObject::connect(&gpioButtonService, SIGNAL(buttonPressed()), this, SLOT(onButtonPressed()));
 
-
     //Android battery shutdown-conditions checker
     QTimer * shutdownTimer = new QTimer();
     connect(shutdownTimer, SIGNAL(timeout()), this, SLOT(checkForAutomaticShutdown()));
@@ -86,6 +85,7 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     connect (&sheduler,SIGNAL(getPlaylist()), this, SLOT(getPlaylistTimerSlot()));
     connect (teledsPlayer, SIGNAL(refreshNeeded()), this, SLOT(getPlaylistTimerSlot()));
+    connect (teledsPlayer, SIGNAL(readyToUpdate()), this, SLOT(playlistUpdateReady()));
 
     connect (&PlatformSpecificService,SIGNAL(hardwareInfoReady(Platform::HardwareInfo)),this,SLOT(hardwareInfoReady(Platform::HardwareInfo)));
     connect (&PlatformSpecificService,SIGNAL(batteryInfoReady(Platform::BatteryInfo)),this,SLOT(automaticShutdownBatteryInfoReady(Platform::BatteryInfo)));
@@ -441,10 +441,9 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     static int prevScreenRotation = 0;
     qDebug() << "TeleDSCore::playlistResult";
 
-    //
-
     if (!currentConfig.last_modified.isValid()
-       || (result.last_modified > currentConfig.last_modified && result.last_modified.isValid())
+       || ((result.last_modified > currentConfig.last_modified ||
+            result.hash != currentConfig.hash) && result.last_modified.isValid())
        || prevScreenRotation != GlobalConfigInstance.getSettingsObject().base_rotation)
     {
         qDebug() << "TeleDSCore::playlistResult <> need to update";
@@ -490,6 +489,15 @@ void TeleDSCore::checkUpdate()
 {
     updateTimer->stop();
     videoService->getUpdates("raspberry");
+}
+
+
+void TeleDSCore::checkKeys()
+{
+    auto keys = qApp->queryKeyboardModifiers();
+    qDebug() << keys;
+    if (keys.testFlag(Qt::ShiftModifier))
+        qApp->quit();
 }
 
 void TeleDSCore::updateInfoReady(UpdateInfoResult result)
@@ -608,6 +616,12 @@ void TeleDSCore::downloaded()
     //this slot is called when all items got downloaded
     qDebug() << "TeleDSCore::downloaded";
 
+    if (teledsPlayer->isPlaying())
+    {
+        qDebug() << "TeleDSPlayer is busy playing: waiting until player will be ready!";
+        teledsPlayer->prepareStop();
+        return;
+    }
     //after we download items - update playlists every 60 secs
     GlobalConfigInstance.setGetPlaylistTimerTime(60000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
@@ -631,8 +645,31 @@ void TeleDSCore::downloaded()
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
+}
 
-    //teledsPlayer->play();
+void TeleDSCore::playlistUpdateReady()
+{
+    qDebug() << "TeleDSPlayer is ready to update -> updating playlist";
+    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
+    sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+    int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
+    if (currentCampaignIndex >= currentConfig.campaigns.count())
+        currentCampaignIndex = 0;
+    qDebug() << "choosing campaign" << currentCampaignIndex;
+    currentConfig.currentCampaignId = currentCampaignIndex;
+    PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[0];
+    qDebug() << campaign.campaign_id;
+    qDebug() << "stopping player";
+    teledsPlayer->invokeStop();
+    teledsPlayer->updateConfig(currentConfig);
+    teledsPlayer->invokeDownloadDone();
+    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
+                                     area.x, area.y, area.width, area.height, campaign.rotation);
+    QTimer::singleShot(1000, [this](){
+        teledsPlayer->play();
+    });
+    //
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -710,7 +747,7 @@ void TeleDSCore::showPlayer()
 void TeleDSCore::gpsRead()
 {
     static int i = 0;
-    qDebug() << "gpsRead";
+   // qDebug() << "gpsRead";
     if (i == 0){
         //gpsSocket->write(QString("?POLL;").toLocal8Bit());
         //i = 1;
@@ -725,11 +762,13 @@ void TeleDSCore::gpsRead()
         if (doc.isObject())
         {
             QJsonObject root = doc.object();
+           // qDebug() << root;
             if (root["class"].toString() == "TPV")
             {
                 double lat = root["lat"].toDouble();
                 double lon = root["lon"].toDouble();
-                GlobalStatsInstance.setGps(lat, lon);
+                if (lat != 0.0 && lon != 0.0)
+                    GlobalStatsInstance.setGps(lat, lon);
             }
         }
     }

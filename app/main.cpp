@@ -5,6 +5,14 @@
 #include <QFile>
 #include <teledscore.h>
 #include <QDir>
+#include <QDebug>
+#include <stdio.h>
+#include <linux/input.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <QHash>
+#include <QString>
 #include "sslencoder.h"
 
 
@@ -17,6 +25,19 @@ int main(int argc, char *argv[])
     //QApplication a(argc, argv);
     //MainWindow w;
     TeleDSCore core;
+
+  /*  int ff = open("/dev/input/event0", O_RDONLY);
+    input_event event;
+    qDebug() << ff;
+    while (1)
+    {
+        read(ff,&event,sizeof(input_event));
+        if (event.value < 2 && event.type == 1)
+            qDebug() << event.code << event.value;
+    }*/
+
+
+
     //w.showFullScreen();
 
  /*   QQuickView view;

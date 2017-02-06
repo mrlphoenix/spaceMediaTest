@@ -45,8 +45,11 @@ public:
 
 signals:
     void refreshNeeded();
+    void readyToUpdate();
 public slots:
     bool eventFilter(QObject *target, QEvent *event);
+    //
+    void prepareStop();
     //
     void invokeNextVideoMethodAdvanced(QString name, QString area_id);
     void invokeFileProgress(double p, QString name);
@@ -117,6 +120,7 @@ protected:
     bool isSplitScreen;
     QTimer * nextCampaignTimer;
     QTimer * checkNextVideoAfterStopTimer;
+    bool shouldStop;
 };
 
 #endif // RPIVIDEOPLAYER_H

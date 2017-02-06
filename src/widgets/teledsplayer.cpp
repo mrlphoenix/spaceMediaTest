@@ -8,6 +8,8 @@
 #include "version.h"
 #include "statictext.h"
 
+#include "linux/input.h"
+
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
     QSurfaceFormat curSurface = view.format();
@@ -39,6 +41,7 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
     checkNextVideoAfterStopTimer->start(5000);
 
     //view.installEventFilter(this);
+    shouldStop = false;
 }
 
 TeleDSPlayer::~TeleDSPlayer()
@@ -95,7 +98,7 @@ void TeleDSPlayer::play(int delay)
     qDebug() << "TeleDSPlayer::play!";
 
     //
-
+    status.isPlaying = true;
     isActive = true;
     int currentCampaignId = config.currentCampaignId;
     qDebug() << "currentCampaignId = " << currentCampaignId;
@@ -163,6 +166,12 @@ bool TeleDSPlayer::eventFilter(QObject *target, QEvent *event)
           }
         }
     return QObject::eventFilter(target,event);
+}
+
+void TeleDSPlayer::prepareStop()
+{
+    shouldStop = true;
+    invokePrepareStop();
 }
 
 void TeleDSPlayer::invokeNextVideoMethodAdvanced(QString name, QString area_id)
@@ -457,6 +466,13 @@ void TeleDSPlayer::runAfterStop()
 void TeleDSPlayer::next(QString area_id)
 {
     qDebug() << "TeleDSPlayer::next(" << area_id;
+
+    if (shouldStop)
+    {
+        shouldStop = false;
+        emit readyToUpdate();
+        return;
+    }
     if (isActive)
     {
         qDebug() << "next method is called";

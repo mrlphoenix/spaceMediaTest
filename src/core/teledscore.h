@@ -78,8 +78,10 @@ public slots:
     void playlistResult(PlayerConfigAPI result);
 
     void checkUpdate();
+    void checkKeys();
     void updateInfoReady(UpdateInfoResult result);
     void updateReady(QString filename);
+
 
     void onThemeReady(ThemeDesc desc);
 
@@ -88,6 +90,9 @@ public slots:
 
     //slot is called when every item got downloaded and we need to show items
     void downloaded();
+
+    //slot is called when we are ready to update playlist and reset campaign index
+    void playlistUpdateReady();
 
     //method is outdated
     //used for loading systemInfo

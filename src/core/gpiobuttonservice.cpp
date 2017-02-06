@@ -2,6 +2,8 @@
 #include <wiringPi.h>
 #include <QDebug>
 
+#include <fcntl.h>
+
 bool GPIOButtonService::checkPin(int pinId)
 {
     return digitalRead(pinId) ;
@@ -19,3 +21,15 @@ GPIOButtonService::GPIOButtonService(QObject *parent) : QObject(parent)
 {
     prevState = false;
 }
+
+/*
+InputService::InputService(QObject *parent)
+{
+
+}
+
+void InputService::run()
+{
+
+}
+*/

@@ -719,6 +719,10 @@ Item {
                 event.accepted = true
             }
         }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
     }
 
     Item {
@@ -939,9 +943,12 @@ Item {
         }
     }
 
+    Keys.onReturnPressed:{
+        console.log("keypressed")
+    }
 
     Keys.onReleased:{
-        console.log("KEy pressed")
+        console.log("Key pressed")
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             if (menu.visible == false)
             {

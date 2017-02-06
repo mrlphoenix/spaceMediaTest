@@ -20,16 +20,22 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
     splitItems();
     allLength = 0;
     //pretend we just played all items
-    minPlayTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+   // minPlayTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    minPlayTime = QDateTime::currentDateTimeUtc();
     //calculating total play time
     items.clear();
+    int maxTimeout = 0;
     foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
     {
         allLength += item.duration;
         items[item.content_id] = item;
+        if (item.play_timeout > maxTimeout)
+            maxTimeout = item.play_timeout;
         GlobalStatsInstance.setItemPlayTimeout(item.content_id, item.play_timeout);
     }
     minPlayTime = minPlayTime.addMSecs(-allLength);
+    minPlayTime = minPlayTime.addSecs(-maxTimeout);
+    qDebug() << minPlayTime;
     int tempTime = 0;
 
     auto playlistCopy = playlist.content;
@@ -44,13 +50,14 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
     {
         if (!GlobalStatsInstance.itemWasPlayed(item.area_id, item.content_id))
         {
-            QDateTime itemFakePlayTime = minPlayTime;
-            //itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime).addSecs(item.play_timeout);
-            itemFakePlayTime = itemFakePlayTime.addMSecs(tempTime);
+            QDateTime itemFakePlayTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+            qDebug() << "itemFakePlayTime" << itemFakePlayTime << "| "<< QDateTime::currentDateTimeUtc();
+            itemFakePlayTime = itemFakePlayTime.addMSecs(-qrand()%(item.play_timeout*1000+1) - item.play_timeout*400);
             GlobalStatsInstance.itemPlayed(item.area_id,item.content_id,itemFakePlayTime);
             tempTime += item.duration;
         }
     }
+
     magic = qRound(double(allLength/1000) / double(playlist.content.count()) * MAGIC_PLAYLIST_VALUE);
 }
 

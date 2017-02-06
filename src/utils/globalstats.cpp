@@ -181,13 +181,16 @@ int GlobalStats::getUTCOffset()
         QTimeZone tz(tzDatabase[foundIndex].longName.toLocal8Bit());
         if (tz.isValid())
         {
-            cachedTzValue = tz.offsetFromUtc(QDateTime::currentDateTime());
+            auto newTz = tz.offsetFromUtc(QDateTime::currentDateTime());
+            if (newTz != 0)
+                cachedTzValue = tz.offsetFromUtc(QDateTime::currentDateTime());
             return cachedTzValue;
         }
         else
         {
-            cachedTzValue = 0;
-            return 0;
+            return cachedTzValue;
+         //   cachedTzValue = 0;
+          //  return 0;
         }
     }
     else return cachedTzValue;
@@ -291,7 +294,11 @@ bool GlobalStats::checkDelayPass(QString areaId, QString contentId)
         qDebug() << "item was never played -> return true";
         return true;
     }
-    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getUTCOffset());
+    int getutcoffset = getUTCOffset();
+    qDebug() << "GET UTC OFFSET" << getutcoffset;
+    //QDateTime currentTime = QDateTime::currentDateTimeUtc();
+    //currentTime = currentTime.addSecs(getutcoffset);
+    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getutcoffset);
     qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId)).time();
     return currentTime > lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId));
 }
