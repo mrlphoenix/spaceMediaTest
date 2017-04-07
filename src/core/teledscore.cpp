@@ -2,6 +2,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QFile>
+#include <QFileInfo>
 #include <QDebug>
 #include <QTimer>
 #include <QProcess>
@@ -44,23 +45,17 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     connect(releyTimer, SIGNAL(timeout()),this,SLOT(checkReleyTime()));
     releyTimer->start(60000);
 
-    //GPIO Button Service
-    gpioButtonServiceThread = new QThread();
-    QTimer *gpioButtonTimer = new QTimer();
+    gpsInitializated = 0;
 
-    QObject::connect(gpioButtonTimer, SIGNAL(timeout()), &gpioButtonService, SLOT(checkPinSlot()));
-    gpioButtonService.moveToThread(gpioButtonServiceThread);
-    gpioButtonServiceThread->start();
-    gpioButtonTimer->start(80);
-
-    QObject::connect(&gpioButtonService, SIGNAL(buttonPressed()), this, SLOT(onButtonPressed()));
+    keyboardServiceThread = 0;
+    initSystemServices();
 
     //Android battery shutdown-conditions checker
     QTimer * shutdownTimer = new QTimer();
     connect(shutdownTimer, SIGNAL(timeout()), this, SLOT(checkForAutomaticShutdown()));
     shutdownTimer->start(60000);
 
-    videoService = new VideoService("http://api.teleds.com");
+    videoService = new VideoService("https://api.teleds.com");
 
     PlatformSpecificService.install();
 
@@ -72,7 +67,8 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    statsTimer->start(120000);
+    statsTimer->start(240000);
+
 
     updateTimer = new QTimer();
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
@@ -105,7 +101,6 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
         result.status = "success";
         qDebug() << "loading: token = " << result.token;
         playerInitParams = result;
-
       /*  if (settings.brand_active)
         {
             qDebug() << "TeleDSCore::init brand is active and stored in config file. loading";
@@ -160,10 +155,59 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     qDebug() << "Init gps Receiver";
     gpsSocket = new QTcpSocket(this);
     connect(gpsSocket,SIGNAL(readyRead()), this, SLOT(gpsRead()));
-    connect(gpsSocket, &QTcpSocket::disconnected, []() {qDebug() << "GPS CLOSED!!!!";});
+    connect(gpsSocket, &QTcpSocket::disconnected, [this]() {
+        qDebug() << "GPS CLOSED::init!!!!";
+        reconnectToGpsServer();
+    });
     gpsSocket->connectToHost("127.0.0.1", 2947);
     updateGps = true;
     buttonBlocked = false;
+
+    QTimer::singleShot(300000, [](){
+        GlobalStatsInstance.setSystemData("force_request", QString("true").toLocal8Bit());
+    });
+}
+
+void TeleDSCore::initSystemServices()
+{
+    qDebug() << "TeleDSCore::initSystemServices";
+    qDebug() << "Initialization of Combos";
+
+    resetCombo = QList<int>()   << 29 << 42    << 32;       //ctrl-shift-D
+    menuCombo = QList<int>()    << 29 << 42    << 50;       //ctrl-shift-M
+    settingsCombo = QList<int>()<< 29 << 42    << 31;       //ctrl-shift-S
+    passCombo = QList<int>()    << 29 << 42    << 25;       //ctrl-shift-P
+    ifconfigCombo = QList<int>()<< 29 << 42    << 23;       //ctrl-shift-I
+    hidePlayerCodeCombo = QList<int>() << 29 << 42 << 35;   //ctrl-shift-H
+    skipItemCombo = QList<int>()<< 29 << 42    << 49;       //ctrl-shift-N
+    rebootCombo = QList<int>()  << 29 << 42    << 19;       //ctrl-shift-R
+
+    qDebug() << "Initialization of InputDeviceControlService";
+    inputDeviceControlServiceThread = new QThread();
+    inputDeviceControlService = new InputDeviceControlService();
+    inputDeviceControlService->moveToThread(inputDeviceControlServiceThread);
+    inputDeviceControlServiceThread->start();
+    QTimer::singleShot(3000, [this](){
+        connect(inputDeviceControlService, SIGNAL(deviceConnected()), this, SLOT(onInputDeviceConnected()));
+        connect(inputDeviceControlService, SIGNAL(deviceDisconnected()), this, SLOT(onInputDeviceDisconnected()));
+        connect(this, SIGNAL(runInputDeviceControlService()), inputDeviceControlService, SLOT(run()));
+        emit runInputDeviceControlService();
+    });
+
+    qDebug() << "Initialization of GPIOButtonService";
+    gpioButtonServiceThread = new QThread();
+    QTimer *gpioButtonTimer = new QTimer();
+    QObject::connect(gpioButtonTimer, SIGNAL(timeout()), &gpioButtonService, SLOT(checkPinSlot()));
+    gpioButtonService.moveToThread(gpioButtonServiceThread);
+    gpioButtonServiceThread->start();
+    gpioButtonTimer->start(80);
+    QObject::connect(&gpioButtonService, SIGNAL(buttonPressed()), this, SLOT(onButtonPressed()));
+
+    qDebug() << "Initialization of Reset Player Button";
+    QTimer *resetTimer = new QTimer(this);
+    connect(resetTimer, SIGNAL(timeout()), this, SLOT(checkReset()));
+    resetTimer->start(2500);
+
 }
 
 void TeleDSCore::setupHttpServer()
@@ -180,27 +224,62 @@ void TeleDSCore::initPlayer()
     //videoService->advancedInit();
 }
 
+void TeleDSCore::reconnectToGpsServer()
+{
+    QTimer::singleShot(30000, [this]()
+    {
+        gpsInitializated = false;
+        qDebug() << "Reinitialization GPS";
+        if (gpsSocket)
+        {
+            gpsSocket->disconnect();
+            gpsSocket->deleteLater();
+        }
+        gpsSocket = new QTcpSocket(this);
+        connect(gpsSocket,SIGNAL(readyRead()), this, SLOT(gpsRead()));
+        connect(gpsSocket, &QTcpSocket::disconnected, [this]() {
+            qDebug() << "GPS CLOSED!!!!";
+            reconnectToGpsServer();
+        });
+        gpsSocket->connectToHost("127.0.0.1", 2947);
+    });
+}
+
 void TeleDSCore::initResult(InitRequestResult result)
 {
     qDebug() << "TeleDSCore::initResult" << result.code << result.token;
-    emit playerIdUpdate(result.code);
-    //save init params
-    playerInitParams = result;
 
-    //run getplaylist timer
-    //player will try to load player every 10 sec
-    GlobalConfigInstance.setGetPlaylistTimerTime(10000);
-    sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+    if (result.error_id == 0)
+    {
+        emit playerIdUpdate(result.code);
+        //save init params
+        playerInitParams = result;
 
-    //save token and code in config file
-    GlobalConfigInstance.setToken(result.token);
-    GlobalConfigInstance.setActivationCode(result.code);
+        //run getplaylist timer
+        //player will try to load player every 10 sec
+        GlobalConfigInstance.setGetPlaylistTimerTime(10000);
+        sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
-    //after initialization we show actitivation required action with given code
-    teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",result.code);
+        //save token and code in config file
+        GlobalConfigInstance.setToken(result.token);
+        GlobalConfigInstance.setActivationCode(result.code);
 
-    //start get playlist
-    QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
+        //after initialization we show actitivation required action with given code
+        teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",result.code);
+
+        //start get playlist
+        QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
+    }
+    else if (result.error_id == 422)
+    {
+        qApp->quit();
+    }
+    else if (result.error_id == -1)
+    {
+        QTimer::singleShot(5000, this, [this](){
+            initPlayer();
+        });
+    }
 }
 
 void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
@@ -226,7 +305,11 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
 
     QJsonDocument doc(jsonBody);
     QByteArray jsonData = doc.toJson();
+
+    qDebug() << "Hardware result timestamp = " << jsonBody["timestamp"].toString();
+    qDebug() << "timezone" << jsonBody["timezone"].toString();
     videoService->advancedInit(jsonData);
+
 }
 
 void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response)
@@ -403,12 +486,13 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             teledsPlayer->invokeSetPlayerVolume(result.volume);
 
             //if static gps is given - saving it in stats
-            if (result.gps_lat != 0.0 && result.gps_long != 0.0)
+            if (result.gps_lat != 0.0 && result.gps_long != 0.0 && !result.updateGps)
             {
                 GlobalStatsInstance.setGps(result.gps_lat, result.gps_long);
             }
             updateGps = result.updateGps;
-
+            if (updateGps && GlobalStatsInstance.getLatitude() == result.gps_lat && GlobalStatsInstance.getLongitude() == result.gps_long)
+                GlobalStatsInstance.setGps(0.0, 0.0);
            /* if (result.brand_active)
             {
                 qDebug() << "TeleDSCore::settings brand is active!";
@@ -476,6 +560,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     {
         qDebug() << "TeleDSCore::no updates";
         prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
+        teledsPlayer->invokeBackDownloadProgressBarVisible(false);
     }
     if (currentConfig.count() == 0)
     {
@@ -488,6 +573,10 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
 void TeleDSCore::checkUpdate()
 {
     updateTimer->stop();
+    QTimer::singleShot(125000, [this](){
+        updateTimer->stop();
+        updateTimer->start(60000);
+    });
     videoService->getUpdates("raspberry");
 }
 
@@ -561,15 +650,6 @@ void TeleDSCore::updateReady(QString filename)
         infoFile.close();
     }
 
-  /*  QTimer::singleShot(1000, [this, filename]() mutable{
-        QProcess updaterProcess;
-        QStringList args;
-        args.append(filename);
-        updaterProcess.startDetached("bash updater.sh " + filename);
-        updaterProcess.waitForFinished();
-        qDebug() << "update process!!! " << filename << updaterProcess.readAllStandardError() << updaterProcess.readAllStandardOutput();
-        updateTimer->start(30000);
-    });*/
     QTimer::singleShot(1000, [this, filename]() mutable{
             qApp->exit();
         });
@@ -611,8 +691,10 @@ void TeleDSCore::getPlaylistTimerSlot()
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 }
 
-void TeleDSCore::downloaded()
+void TeleDSCore::downloaded(int index)
 {
+    if (index != 0)
+        return;
     //this slot is called when all items got downloaded
     qDebug() << "TeleDSCore::downloaded";
 
@@ -623,8 +705,8 @@ void TeleDSCore::downloaded()
         return;
     }
     //after we download items - update playlists every 60 secs
-    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
-    sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+    //GlobalConfigInstance.setGetPlaylistTimerTime(60000);
+    //sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
     int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
     if (currentCampaignIndex >= currentConfig.campaigns.count())
@@ -641,9 +723,23 @@ void TeleDSCore::downloaded()
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
                                      area.x, area.y, area.width, area.height, campaign.rotation);
-
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
+    });
+}
+
+void TeleDSCore::playWithoutDownload(int count)
+{
+    qDebug() << "Download Finished";
+    if (!teledsPlayer->isPlaying() || count == 0)
+    {
+        downloaded(0);
+    }
+    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
+    sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
+
+    QTimer::singleShot(2000, [this](){
+        teledsPlayer->invokeBackDownloadProgressBarVisible(false);
     });
 }
 
@@ -669,7 +765,6 @@ void TeleDSCore::playlistUpdateReady()
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
-    //
 }
 
 void TeleDSCore::checkCPUStatus()
@@ -746,18 +841,17 @@ void TeleDSCore::showPlayer()
 
 void TeleDSCore::gpsRead()
 {
-    static int i = 0;
-   // qDebug() << "gpsRead";
-    if (i == 0){
+    if (gpsInitializated == 0){
         //gpsSocket->write(QString("?POLL;").toLocal8Bit());
         //i = 1;
         gpsSocket->write(QString("?WATCH={\"enable\":true,\"json\":true}").toLocal8Bit());
-        i = 1;
+        gpsInitializated = 1;
         return;
     }
     if (updateGps)
     {
         QByteArray jsonData = gpsSocket->readAll();
+        //qDebug() << jsonData;
         QJsonDocument doc = QJsonDocument::fromJson(jsonData);
         if (doc.isObject())
         {
@@ -768,7 +862,10 @@ void TeleDSCore::gpsRead()
                 double lat = root["lat"].toDouble();
                 double lon = root["lon"].toDouble();
                 if (lat != 0.0 && lon != 0.0)
+                {
+                    //qDebug() << "Got GPS: " << lat << lon;
                     GlobalStatsInstance.setGps(lat, lon);
+                }
             }
         }
     }
@@ -873,6 +970,94 @@ void TeleDSCore::onButtonPressed(bool skipBlocked)
     }
 }
 
+void TeleDSCore::onKeyDown(int code)
+{
+    teledsPlayer->onKeyDown(code);
+    int prevCodeState = storedKeys[code];
+    if (!checkCombo(settingsCombo))
+    {
+        storedKeys[code] = 1;
+        if (checkCombo(settingsCombo))
+        {
+            teledsPlayer->invokeToggleMenu();
+        }
+    }
+
+    storedKeys[code] = prevCodeState;
+    if (!checkCombo(passCombo))
+    {
+        storedKeys[code] = 1;
+        if (checkCombo(passCombo))
+            teledsPlayer->invokeShowPassword();
+    }
+
+    storedKeys[code] = prevCodeState;
+    if (!checkCombo(ifconfigCombo))
+    {
+        storedKeys[code] = 1;
+        if (checkCombo(ifconfigCombo))
+            teledsPlayer->invokeShowInternetConnectionInfo();
+    }
+
+    storedKeys[code] = prevCodeState;
+    if (!checkCombo(hidePlayerCodeCombo))
+    {
+        storedKeys[code] = 1;
+        if (checkCombo(hidePlayerCodeCombo))
+            teledsPlayer->invokeTogglePlayerIDVisible();
+    }
+
+    storedKeys[code] = prevCodeState;
+    if (!checkCombo(skipItemCombo))
+    {
+        storedKeys[code] = 1;
+        if (checkCombo(skipItemCombo))
+        {
+            GlobalStatsInstance.itemWasSkipped(15);
+            teledsPlayer->invokeSkipCurrentItem();
+        }
+    }
+
+    storedKeys[code] = 1;
+
+    qDebug() << "onKeyDown " << code;
+}
+
+void TeleDSCore::onKeyUp(int code)
+{
+    teledsPlayer->onKeyUp(code);
+    storedKeys[code] = 0;
+    qDebug() << "onKeyUp " << code;
+}
+
+void TeleDSCore::onInputDeviceConnected()
+{
+    qDebug() << "Input Device connected";
+    isInputDeviceConnected = true;
+    if (keyboardServiceThread)
+        keyboardServiceThread->deleteLater();
+    keyboardServiceThread = new QThread();
+    inputService = new InputService();
+    inputService->moveToThread(keyboardServiceThread);
+    keyboardServiceThread->start();
+    QTimer::singleShot(3000, [this](){
+        connect(inputService, SIGNAL(keyDown(int)), this, SLOT(onKeyDown(int)));
+        connect(inputService, SIGNAL(keyUp(int)), this, SLOT(onKeyUp(int)));
+        connect(this, SIGNAL(runInputService()), inputService, SLOT(run()));
+        emit runInputService();
+    });
+}
+
+void TeleDSCore::onInputDeviceDisconnected()
+{
+    qDebug() << "Input Device Disconnected";
+    isInputDeviceConnected = false;
+    inputService->disconnect();
+    keyboardServiceThread->disconnect();
+    inputService->deleteLater();
+    keyboardServiceThread->terminate();
+}
+
 void TeleDSCore::setupDownloader()
 {
     qDebug() << "Core::setupDownloader";
@@ -882,13 +1067,16 @@ void TeleDSCore::setupDownloader()
     {
         downloader = new VideoDownloader(currentConfig,this);
         downloader->start();
-        connect(downloader, SIGNAL(done()), this, SLOT(downloaded()));
+        connect(downloader, SIGNAL(done(int)), this, SLOT(playWithoutDownload(int)));
+        connect(downloader,SIGNAL(fileDownloaded(int)), this, SLOT(downloaded(int)));
+        //connect(downloader,SIGNAL(fileDownloaded()), this, SLOT(downloaded()));
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)), teledsPlayer, SLOT(invokeSimpleProgress(double,QString)));
         connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
         connect(downloader, SIGNAL(updateReady(QString)), this, SLOT(updateReady(QString)));
     }
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();
+    teledsPlayer->invokeBackDownloadProgressBarVisible(true);
 }
 
 void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
@@ -897,6 +1085,68 @@ void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
         teledsPlayer->invokeInitArea(area.area_id,
                                      c.screen_width, c.screen_height,
                                      area.x, area.y, area.width, area.height, c.rotation);
+}
+
+bool TeleDSCore::checkCombo(const QList<int> &keys)
+{
+    if (!isInputDeviceConnected)
+        return false;
+    bool result = true;
+    foreach (const int&k, keys)
+    {
+        if (storedKeys.contains(k))
+            result = storedKeys[k];
+        else
+            return false;
+        if (!result)
+            return false;
+    }
+    return true;
+}
+
+void TeleDSCore::resetPlayer()
+{
+    teledsPlayer->invokeStop();
+    QDir dir(qApp->applicationDirPath() + "/data/video");
+    dir.removeRecursively();
+    QFile configFile("data/config.dat");
+    if (configFile.open(QFile::WriteOnly))
+    {
+        configFile.write(QString("{}").toLocal8Bit());
+        configFile.flush();
+        configFile.close();
+    }
+    QFile::remove(DATABASE_FOLDER + "stat.db");
+    qApp->quit();
+}
+
+void TeleDSCore::rebootPlayer()
+{
+    QProcess p;
+    p.start("reboot");
+    p.waitForStarted();
+    p.waitForFinished();
+}
+
+void TeleDSCore::checkReset()
+{
+    static int count = 0;
+    static int rebootCount = 0;
+    if (checkCombo(resetCombo))
+        count++;
+    else
+        count = 0;
+    if (count >= 3)
+        resetPlayer();
+
+    if (checkCombo(rebootCombo))
+        rebootCount++;
+    else
+        rebootCount = 0;
+    if (rebootCount >= 3)
+    {
+        rebootPlayer();
+    }
 }
 
 void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)

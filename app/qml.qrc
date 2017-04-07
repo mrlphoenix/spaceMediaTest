@@ -17,5 +17,8 @@
         <file>TeleDSMenu.qml</file>
         <file>menu_background_horizontal.png</file>
         <file>PlayerView.qml</file>
+        <file>less.png</file>
+        <file>more.png</file>
+        <file>SpaceMediaMenu.qml</file>
     </qresource>
 </RCC>

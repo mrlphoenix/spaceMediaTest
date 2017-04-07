@@ -64,7 +64,23 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
 QString SuperPlaylist::next()
 {
     qDebug() << "SuperPlaylist::next";
-    qDebug() << QDateTime::currentDateTime().time();
+    qDebug() << "forceItemscount = " <<forceItems.count();
+    if (forceItems.count())
+    {
+        QString itemName = forceItems.first();
+        forceItems.removeFirst();
+        foreach (const QString &k, items.keys())
+        {
+            auto item = items[k];
+            if (item.content_id == itemName)
+            {
+                if (GlobalStatsInstance.isItemActivated(item.content_id))
+                    return item.content_id;
+                else
+                    return "";
+            }
+        }
+    }
     /*
      * 1. Перемешиваем массив
     2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
@@ -79,6 +95,8 @@ QString SuperPlaylist::next()
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
     currentItemIndex = 0;
+    auto realCurrentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    qDebug() << "start next: " << QDateTime::currentDateTimeUtc().time();
     //shuffle(true, false);
     std::sort(normalFloatingItems.begin(), normalFloatingItems.end(),
               [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
@@ -90,11 +108,14 @@ QString SuperPlaylist::next()
                   else
                       return aLastPlayed > bLastPlayed;
               });
+
+    //qDebug() << "after sort: " << QDateTime::currentDateTimeUtc().time();
+    QPointF currentGps(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude());
     for (int i = 0; i < normalFloatingItems.count(); i++)
     {
         PlayerConfigAPI::Campaign::Area::Content item = normalFloatingItems[i];
-        if (itemDelayPassed(item) && item.checkTimeTargeting() && item.checkDateRange() &&
-            item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
+        if (GlobalStatsInstance.checkDelayPass(playlist.area_id, item.content_id, realCurrentTime) && item.checkTimeTargeting() && item.checkDateRange() &&
+            item.checkGeoTargeting(currentGps) && GlobalStatsInstance.isItemActivated(item.content_id))
         {
             qDebug() << "Next Item is " << item.name;
             QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset() - 7);
@@ -129,7 +150,6 @@ QString SuperPlaylist::next()
     }
     qDebug() << "SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list("
                 + QString::number(floatingFreeItems.count()) + ")";
-
     QString freeItemResult = nextFreeItem();
     if (freeItemResult.isEmpty())
     {
@@ -197,11 +217,6 @@ void SuperPlaylist::shuffle(bool fixedFloating, bool floatingNone)
         std::random_shuffle(floatingFreeItems.begin(), floatingFreeItems.end());
 }
 
-bool SuperPlaylist::itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item)
-{
-    return GlobalStatsInstance.checkDelayPass(playlist.area_id, item.content_id);
-}
-
 QString SuperPlaylist::nextFreeItem()
 {
     lastFreeFloatingItemPlayedIndex++;
@@ -210,11 +225,12 @@ QString SuperPlaylist::nextFreeItem()
 
     qDebug() << "SuperPlaylist::nextFreeItem <> currentIndex = " << lastFreeFloatingItemPlayedIndex;
     bool indexReseted = false;
+    QPointF currentGps(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude());
     for (int i = lastFreeFloatingItemPlayedIndex; i < floatingFreeItems.count(); i++)
     {
         auto item = floatingFreeItems[i];
-        if (item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id) &&
-            item.checkGeoTargeting(QPointF(GlobalStatsInstance.getLatitude(), GlobalStatsInstance.getLongitude())))
+        if (GlobalStatsInstance.isItemActivated(item.content_id) && item.checkTimeTargeting() && item.checkDateRange() && (indexReseted ? true : lastPlayed != item.content_id) &&
+            item.checkGeoTargeting(currentGps))
         {
             qDebug() << "Next Item is " << item.name;
             QDateTime delayPassTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset() - 7);

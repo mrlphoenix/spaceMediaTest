@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
             qDebug() << "given data is: " << data;
             if (data.length() > 5)
                 updateBatchFile = data;
-
             f.close();
+            QFile::remove("update_info");
         }
         else
         {
@@ -46,26 +46,23 @@ int main(int argc, char *argv[])
     nfs.load(QString(updateBatchFile));
     foreach (const QString &d, nfs.dirs())
         QDir().mkpath(d);
-
-    // QProcess stopProc;
-    // stopProc.start("sudo service videoplayer stop");
-    // stopProc.waitForFinished();
-    // qDebug() << "stopss" << stopProc.readAllStandardError() << stopProc.readAllStandardOutput();
-
     if (nfs.fileExists("system::player"))
     {
         QByteArray data = nfs.getFile("system::player");
-        QFile::remove("TeleDSPlayer");
-        QFile f("TeleDSPlayer");
-        if (f.open(QFile::WriteOnly))
+        if (data.length() > 1000000)
         {
-            f.write(data);
-            f.flush();
+            QFile::remove("TeleDSPlayer");
+            QFile f("TeleDSPlayer");
+            if (f.open(QFile::WriteOnly))
+            {
+                f.write(data);
+                f.flush();
 
-            f.setPermissions(QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther | QFile::ExeUser |
-                             QFile::ReadOwner| QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup |
-                             QFile::WriteGroup | QFile::WriteOwner | QFile::WriteOther | QFile::WriteUser);
-            f.close();
+                f.setPermissions(QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther | QFile::ExeUser |
+                                 QFile::ReadOwner| QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup |
+                                 QFile::WriteGroup | QFile::WriteOwner | QFile::WriteOther | QFile::WriteUser);
+                f.close();
+            }
         }
     }
     else
@@ -80,23 +77,28 @@ int main(int argc, char *argv[])
         {
             qDebug () << "unpacking " << filename;
             QByteArray data = nfs.getFile(filename);
-            QFile f(filename);
-            if (f.open(QFile::WriteOnly))
+            if (data.length() > 0)
             {
-                f.write(data);
-                f.flush();
+                QFile f(filename);
+                if (f.open(QFile::WriteOnly))
+                {
+                    f.write(data);
+                    f.flush();
 
-                f.setPermissions(QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther | QFile::ExeUser |
-                                 QFile::ReadOwner| QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup |
-                                 QFile::WriteGroup | QFile::WriteOwner | QFile::WriteOther | QFile::WriteUser);
-                f.close();
-            }
-            else
-            {
-                qDebug() << "file " << filename << "cannot be opened";
+                    f.setPermissions(QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther | QFile::ExeUser |
+                                     QFile::ReadOwner| QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup |
+                                     QFile::WriteGroup | QFile::WriteOwner | QFile::WriteOther | QFile::WriteUser);
+                    f.close();
+                }
+                else
+                {
+                    qDebug() << "file " << filename << "cannot be opened";
+                }
             }
         }
     }
+
+    QFile::remove(updateBatchFile);
 
   //  QProcess startProc;
   //  startProc.start("bash updater.sh srv");

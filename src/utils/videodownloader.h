@@ -58,11 +58,12 @@ public:
     };
 
 signals:
-    void done();
+    void done(int count);
     void downloadProgress(double p);
     void totalDownloadProgress(double p, QString name);
     void downloadProgressSingle(double p, QString name);
     void checkDownloadItemsTodownloadResult(int c);
+    void fileDownloaded(int index);
 public slots:
     void updateConfig(PlayerConfigAPI config);
     int itemsToDownloadCount(){return itemsToDownload.count();}
@@ -140,11 +141,12 @@ public slots:
 
     void startUpdateTask(QString url, QString hash, QString filename);
 signals:
-    void done();
+    void done(int count);
     void downloadProgressSingle(double p, QString name);
     void donwloadConfigResult(int c);
     void runDownloadSignal();
     void runDownloadSignalNew();
+    void fileDownloaded(int index);
 
     void startTask(QString url, QString hash, QString filename);
     void updateReady(QString filename);

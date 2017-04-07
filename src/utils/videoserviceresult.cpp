@@ -29,8 +29,13 @@ void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
     if (reply->error())
     {
         InitRequestResult result;
-        result.error_id = -1;
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+            result.error_id = httpStatus.toInt();
+        else
+            result.error_id = -1;
         result.error_text = reply->errorString();
+        qDebug() << "INIT ERROR BODY: " << reply->readAll();
         emit initResult(result);
     }
     else
@@ -265,6 +270,7 @@ QHash<int, QList<int> > SettingsRequestResult::generateHashByString(QString cont
         result[currentDay] = hours;
         currentDay++;
     }
+
     return result;
 }
 
@@ -355,6 +361,7 @@ PlayerConfigAPI::Campaign PlayerConfigAPI::Campaign::fromJson(QJsonObject json)
     result.play_order = json["play_order"].toInt();
     result.screen_width = json["width"].toInt();
     result.screen_height = json["height"].toInt();
+    result.delay = json["content_spacing"].toInt();
 
     if (json["orientation"].toString() == "landscape")
         result.rotation = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings()).base_rotation;
@@ -403,7 +410,15 @@ PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonO
     QJsonArray content = json["content"].toArray();
     foreach (const QJsonValue &cValue, content)
         result.content.append(PlayerConfigAPI::Campaign::Area::Content::fromJson(cValue.toObject()));
+    QJsonArray priorityContent = json["priority_content"].toArray();
+    foreach (const QJsonValue &v, priorityContent)
+    {
+        qDebug() << "adding priority item " << v.toString();
+        GlobalStatsInstance.addPriorityItem(v.toString());
+        result.priority_content.append(v.toString());
+    }
     return result;
+
 }
 
 PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Content::fromJson(QJsonObject json)
@@ -427,6 +442,7 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
     result.file_url = json["file_url"].toString();
     result.file_hash = json["file_hash"].toString();
     result.file_extension = json["file_extension"].toString();
+    result.file_size = json["file_size"].toInt();
     result.fill_mode = json["fill_mode"].toString();
 
     QJsonObject timeTargeting = json["time_targeting"].toObject();
@@ -459,6 +475,7 @@ PlayerConfigAPI::Campaign::Area::Content PlayerConfigAPI::Campaign::Area::Conten
         geoTargetingVector.append(geoTargetingAreaVector);
         result.polygons.append(currentPolygon);
     }
+
     result.geo_targeting = geoTargetingVector;
     return result;
 }
@@ -473,29 +490,32 @@ QString PlayerConfigAPI::Campaign::Area::Content::getExtension() const
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkTimeTargeting() const
 {
+    if (time_targeting.isEmpty())
+        return true;
     QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     QString dayInt = QString::number(currentTime.date().dayOfWeek() + 1);
     int hour = currentTime.time().hour();
     if (time_targeting.contains(dayInt))
     {
         bool result = time_targeting[dayInt].contains(hour);
-       // qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
         return result;
     }
     bool result = (time_targeting.count() == 0);
-   // qDebug() << "is Time Targeting Passed for " + this->content_id + "? :" << result;
     return result;
 }
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkDateRange() const
 {
+    bool isStartDateValid = start_timestamp.isValid();
+    bool isEndDateValid = end_timestamp.isValid();
+    if (!isStartDateValid && !isEndDateValid)
+        return true;
     QDateTime currentTime = QDateTime::currentDateTimeUtc();
     bool sinceCheck = true, untilCheck = true;
-    if (start_timestamp.isValid())
+    if (isStartDateValid)
         sinceCheck = currentTime > start_timestamp;
-    if (end_timestamp.isValid())
+    if (isEndDateValid)
         untilCheck = currentTime < end_timestamp;
-//    qDebug() << "checkDateRange for " + content_id + "? :" << sinceCheck << untilCheck;
     return sinceCheck && untilCheck;
 }
 

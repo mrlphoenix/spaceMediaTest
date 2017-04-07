@@ -22,7 +22,7 @@ TeleDSSheduler::~TeleDSSheduler()
 
 void TeleDSSheduler::start(TeleDSSheduler::Task t)
 {
-    //qDebug() << "TeleDSSheduler::start " << t;
+    qDebug() << "TeleDSSheduler::start " << t;
     switch(t)
     {
     case GET_PLAYLIST:
@@ -37,7 +37,7 @@ void TeleDSSheduler::start(TeleDSSheduler::Task t)
 
 void TeleDSSheduler::stop(TeleDSSheduler::Task t)
 {
-    //qDebug() << "TeleDSSheduler::stop " << t;
+    qDebug() << "TeleDSSheduler::stop " << t;
     switch(t)
     {
     case GET_PLAYLIST:

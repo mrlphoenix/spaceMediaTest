@@ -14,7 +14,13 @@
 #include <QEvent>
 #include "playlist.h"
 #include "platformspecific.h"
+#include "spacemediamenu.h"
 
+struct PlaylistContentId
+{
+    QString areaId;
+    QString id;
+};
 
 class TeleDSPlayer : public QObject
 {
@@ -39,26 +45,35 @@ public:
         bool isPlaying;
     };
 
-    bool isPlaying() {return status.isPlaying;}
-    QString getCurrentItem() {return status.item;}
+    bool isPlaying();
+    QString getCurrentItem() { return status.item; }
     bool isFileCurrentlyPlaying(QString name);
 
 signals:
     void refreshNeeded();
     void readyToUpdate();
+    void keyDown(int code);
+    void keyUp(int code);
 public slots:
     bool eventFilter(QObject *target, QEvent *event);
     //
     void prepareStop();
-    //
+
+    void onKeyDown(int code);
+    void onKeyUp(int code);
+    //QML bindings
     void invokeNextVideoMethodAdvanced(QString name, QString area_id);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
     void invokeSimpleProgress(double p, QString);
+    void invokeBackDownloadProgressBarVisible(bool isVisible);
     void invokeDownloadDone();
     void invokeVersionText();
+    void invokeShowPassword();
+    void invokeShowInternetConnectionInfo();
     void invokePlayerCRC();
     void invokeToggleVisibility(int status);
+    void invokeSetDelay(int delay);
 
     void invokePlayerActivationRequiredView(QString url, QString playerId);
     void invokeNoItemsView(QString url);
@@ -69,21 +84,42 @@ public slots:
     void invokeSetTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, QString color3, bool tileMode, bool showTeleDSLogo);
     void invokeSetMenuTheme(QString backgroundURL, QString logoURL, QString color1, QString color2, bool tileMode, bool showTeleDSLogo);
     void invokeRestoreDefaultTheme();
-
+    void invokeToggleMenu();
     void invokeUpdateState();
-
-    //new methods
     void invokeSetAreaCount(int areaCount);
     void invokePlayCampaign(int campaignIndex);
     void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation);
-
     void invokeSetPlayerVolume(int value);
-
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
     void invokeSetDisplayMode(QString mode);
     void invokeSetContentPosition(float contentLeft = 0.f, float contentTop = 0.f, float contentWidth = 100.f, float contentHeight = 100.f,
                                   float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);
+    void invokeSkipCurrentItem();
+
+    //SpaceMediaMenu QML methods
+    void invokeMenuDisplayRotationSelected();
+    void invokeMenuDisplayRotationChanged(int value, QString text);
+    void invokeMenuHDMIGroupSelected();
+    void invokeMenuHDMIGroupChanged(int value, QString text);
+    void invokeMenuHDMIModeSelected();
+    void invokeMenuHDMIModeChanged(int value, QString text);
+    void invokeMenuHDMIDriveSelected();
+    void invokeMenuHDMIDriveChanged(int value, QString text);
+    void invokeMenuHDMIBoostSelected();
+    void invokeMenuHDMIBoostChanged(int value);
+    //
+    void invokeMenuWifiNetworkSelected();
+    void invokeMenuWifiNetworkChanged(QString text);
+    void invokeMenuWifiNameSelected();
+    void invokeMenuWifiNameChanged(QString text);
+    void invokeMenuWifiPassSelected();
+    void invokeMenuWifiPassChanged(QString text);
+    void invokeMenuSaveSelected();
+    void invokeMenuSavePressed();
+    void invokeMenuCancelSelected();
+    void invokeMenuCancelPressed();
+    void invokeTogglePlayerIDVisible();
 
     void runAfterStop();
     void next(QString area_id);
@@ -107,6 +143,8 @@ protected:
     void invokeShowVideo(bool isVisible);
 
     QQuickView view;
+    SpaceMediaMenuBackend menu;
+
     QHash<QString, AbstractPlaylist*> playlists;
     bool isPlaylistRandom;
 

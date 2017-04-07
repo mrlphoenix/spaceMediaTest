@@ -41,11 +41,31 @@ void VideoDownloaderWorker::checkDownload()
 {
     int itemCount = 0;
     itemsToDownload.clear();
-    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, config.items())
+    QVector<PlayerConfigAPI::Campaign::Area::Content> allItems = config.items();
+    std::sort(allItems.begin(), allItems.end(), [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
+    {
+        if (GlobalStatsInstance.isItemHighPriority(a.content_id) && !GlobalStatsInstance.isItemHighPriority(b.content_id))
+            return true;
+        if (a.play_type == "free" && b.play_type != "free")
+            return true;
+        else
+            return false;
+
+        if (a.play_type == "only_empty" && b.play_type != "only_empty")
+            return true;
+        else
+            return false;
+    });
+
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, allItems)
     {
         //no need to download online resource
         if (item.type == "html5_online")
+        {
+            GlobalStatsInstance.setItemActivated(item.content_id, true);
             continue;
+        }
+
         QString filename = VIDEO_FOLDER + item.content_id + item.file_hash + item.file_extension;
         QString filehash;
         if (!QFile::exists(filename))
@@ -58,6 +78,8 @@ void VideoDownloaderWorker::checkDownload()
             qDebug() << "different hashes " << filehash << " vs " << item.file_hash;
             itemsToDownload.append(item);
         }
+        else
+            GlobalStatsInstance.setItemActivated(item.content_id, true);
         itemCount++;
     }
     GlobalStatsInstance.setContentPlay(itemCount);
@@ -89,6 +111,7 @@ void VideoDownloaderWorker::download()
     if (itemsToDownload.count() > currentItemIndex)
     {
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
+        GlobalStatsInstance.setItemActivated(itemsToDownload[currentItemIndex].content_id, false);
         emit totalDownloadProgress(double(currentItemIndex+1)/double(itemsToDownload.count()),itemsToDownload[currentItemIndex].name);
 
         QString tempFileName = VIDEO_FOLDER + itemsToDownload[currentItemIndex].content_id +
@@ -100,8 +123,35 @@ void VideoDownloaderWorker::download()
             QFileInfo info(tempFileName);
             file = new QFile(tempFileName);
             file->open(QFile::Append);
-            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].file_url));
+            if (info.size() == itemsToDownload[currentItemIndex].file_size)
+            {
 
+                qDebug()<<"Seems like file is already downloaded. Registering in database.";
+                qDebug()<<"C="<<itemsToDownload.count() << " I=" << currentItemIndex;
+                PlayerConfigAPI::Campaign::Area::Content currentItem = itemsToDownload[currentItemIndex];
+                QString currentItemId = currentItem.content_id;
+                emit fileDownloaded(currentItemIndex);
+                currentItemIndex++;
+                file->flush();
+                file->close();
+                reply = 0;
+                delete file;
+                file = 0;
+                if (currentItem.type == "html5_zip")
+                {
+                    PlatformSpecificService.extractFile(currentItemId + currentItem.file_hash + currentItem.file_extension, currentItemId);
+                }
+                else
+                    swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension,
+                                VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension + "_");
+                swapper.start();
+                QTimer::singleShot(5000, [currentItemId, currentItem]() {
+                    qDebug() << "Item is ready " << currentItem.name;
+                    GlobalStatsInstance.setItemActivated(currentItemId, true);
+                });
+                return;
+            }
+            QNetworkRequest request(QUrl(itemsToDownload[currentItemIndex].file_url));
             QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(info.size()) + "-";
             request.setRawHeader("Range",rangeHeaderValue);
             reply = manager->get(request);
@@ -131,7 +181,7 @@ void VideoDownloaderWorker::download()
     else
     {
         qDebug() << "downloading completed";
-        emit done();
+        emit done(itemsToDownload.count());
     }
 }
 
@@ -257,10 +307,12 @@ void VideoDownloaderWorker::httpFinished()
         manager = new QNetworkAccessManager(this);
         return;
     }
+
     qDebug()<<"File downloading Finished. Registering in database.";
     qDebug()<<"C="<<itemsToDownload.count() << " I=" << currentItemIndex;
     PlayerConfigAPI::Campaign::Area::Content currentItem = itemsToDownload[currentItemIndex];
     QString currentItemId = currentItem.content_id;
+    emit fileDownloaded(currentItemIndex);
     currentItemIndex++;
     file->flush();
     file->close();
@@ -277,7 +329,10 @@ void VideoDownloaderWorker::httpFinished()
         swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension,
                     VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension + "_");
     swapper.start();
-  //  download();
+    QTimer::singleShot(5000, [currentItemId, currentItem]() {
+        qDebug() << "Item is ready " << currentItem.name;
+        GlobalStatsInstance.setItemActivated(currentItemId, true);
+    });
 }
 
 void VideoDownloaderWorker::httpReadyRead()
@@ -366,9 +421,10 @@ VideoDownloader::VideoDownloader(PlayerConfigAPI config, QObject *parent) : QThr
     qDebug() << "VIDEODOWNLOADER INIT";
     worker = new VideoDownloaderWorker(config,this);
     updateWorker = new UpdateDownloaderWorker(this);
-    connect(worker,SIGNAL(done()),this, SIGNAL(done()));
+    connect(worker,SIGNAL(done(int)),this, SIGNAL(done(int)));
     connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
     connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
+    connect(worker, SIGNAL(fileDownloaded(int)),this, SIGNAL(fileDownloaded(int)));
     connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
     connect(this, SIGNAL(runDownloadSignalNew()),worker,SLOT(runDownloadNew()));
     //

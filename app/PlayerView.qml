@@ -12,6 +12,7 @@ Item {
     property string areaID: ""
     property double brightness: 1.0
     property double volumeValue: 1.0
+    property int delay: 0
 
     signal askNext(string areaId)
     signal onStop()
@@ -33,6 +34,16 @@ Item {
         mp2.muted = isMuted
     }
 
+    function skipCurrentItem(){
+        if (videoPlayerTimer.isActivated)
+            videoPlayerTimer.forceTriggered()
+        else if (imageOffTimer.isActivated)
+            imageOffTimer.forceTriggered()
+        else if (turnOffTimer.isActivated)
+            turnOffTimer.forceTriggered()
+        delayManager.reset()
+    }
+
     function play(contentId, length, type, skip, fillMode)
     {
         var isAudio = false
@@ -40,6 +51,7 @@ Item {
             isAudio = true
             type = "video"
         }
+        stopAfterPlaying = false
 
         console.log("PlayerView::play" + contentId + " " + length + " " + type +" " + skip)
         if (type === "video")
@@ -142,6 +154,7 @@ Item {
         imageContent.stop()
         currentType = "null"
         onStop()
+        delayManager.reset()
     }
 
     Rectangle {
@@ -201,8 +214,25 @@ Item {
             id: videoPlayerTimer
             repeat: false
 
+            property bool isActivated: false
+
+            function startTimer(){
+                videoPlayerTimer.isActivated = true
+                videoPlayerTimer.start()
+            }
+            function stopTimer(){
+                videoPlayerTimer.isActivated = false
+                videoPlayerTimer.stop()
+            }
+
+            function forceTriggered(){
+                videoPlayerTimer.interval = 1
+                videoPlayerTimer.restart()
+            }
+
             onTriggered: {
                 console.log("VPT::onTriggered")
+                videoPlayerTimer.isActivated = false
                 if (stopAfterPlaying)
                 {
                     console.log("STOP AFTER PLAYING!")
@@ -248,7 +278,6 @@ Item {
                 }
                 console.log("askNext play::VPT")
                 askNextAntiFlick.restart()
-                //askNext(areaID)
             }
         }
 
@@ -304,7 +333,7 @@ Item {
         function reset()
         {
             prepareResetP = false
-            videoPlayerTimer.stop()
+            videoPlayerTimer.stopTimer()
             mp1.stop()
             mp1.source = ""
             mp2.stop()
@@ -341,7 +370,7 @@ Item {
 
             id: antiFlickTimerVideo
             repeat: false
-            interval: 400
+            interval: 300
             onTriggered: {
                  if (showFirstVideo){
 
@@ -375,11 +404,11 @@ Item {
             onPlaying:{
                 console.log("MP1::onPlay " + mp1.source + " " + volume)
                 antiFlickTimerVideo.activateTimer(true)
-                //videoOutput2.opacity = 0.0
-                //videoOutput1.opacity = 1.0
-                videoPlayerTimer.interval = Math.max(mp1.durationMsecs, 5000) - 250
-                console.log("MP1::VPT " + videoPlayerTimer.interval)
-                videoPlayerTimer.start()
+                var dur = Math.max(mp1.durationMsecs, 5000) - 250 + delay
+                videoPlayerTimer.interval = dur
+                videoPlayerTimer.startTimer()
+                if (delay != 0)
+                    delayManager.run(dur)
                 if (mp1.seekMsecs > 0)
                     mp1.seek(mp1.seekMsecs)
                 if(isAudio)
@@ -421,8 +450,16 @@ Item {
             onPlaying: {
                 console.log("MP2::onPlay " + mp2.source)
                 antiFlickTimerVideo.activateTimer(false)
-                videoPlayerTimer.interval = Math.max(mp2.durationMsecs, 5000) - 250
-                videoPlayerTimer.start()
+
+
+                var dur = Math.max(mp2.durationMsecs, 5000) - 250 + delay
+                videoPlayerTimer.interval = dur
+                videoPlayerTimer.startTimer()
+                if (delay != 0)
+                    delayManager.run(dur)
+
+               // videoPlayerTimer.interval = Math.max(mp2.durationMsecs, 5000) - 250
+                //videoPlayerTimer.startTimer()
                 if (mp2.seekMsecs > 0)
                     mp2.seek(mp2.seekMsecs)
               /*  if(isAudio)
@@ -502,6 +539,28 @@ Item {
         Timer {
             id: imageOffTimer
             repeat: false
+            property bool isActivated: false
+
+            function startTimer(){
+                imageOffTimer.isActivated = true
+                imageOffTimer.start()
+            }
+
+            function stopTimer(){
+                imageOffTimer.isActivated = false
+                imageOffTimer.stop()
+            }
+
+            function restartTimer(){
+                imageOffTimer.isActivated = true
+                imageOffTimer.restart()
+            }
+
+            function forceTriggered(){
+                imageOffTimer.interval = 1
+                imageOffTimer.restart()
+            }
+
             onTriggered: {
                 console.log("image off timer")
                 if (stopAfterPlaying)
@@ -599,7 +658,7 @@ Item {
             contentImage1.stop()
             contentImage2.stop()
             isFirstImage = false
-            imageOffTimer.stop()
+            imageOffTimer.stopTimer()
         }
 
         Image {
@@ -621,8 +680,12 @@ Item {
             }
 
             function showPreloaded(){
-                imageOffTimer.interval = showtime
-                imageOffTimer.restart()
+                //imageOffTimer.interval = showtime
+                imageOffTimer.interval = showtime + delay
+                imageOffTimer.restartTimer()
+                if (delay != 0)
+                    delayManager.run(showtime + delay)
+
                 visible = true
                 contentImage2.visible = false
             }
@@ -632,6 +695,7 @@ Item {
                 visible = false
                 showtime = 0
             }
+
             function setFillMode(fill_mode){
                 //console.log("setFillmode image1 " + fill_mode)
                 if (fill_mode === "stretch")
@@ -661,8 +725,11 @@ Item {
             }
 
             function showPreloaded(){
-                imageOffTimer.interval = showtime
-                imageOffTimer.restart()
+                //imageOffTimer.interval = showtime
+                imageOffTimer.interval = showtime + delay
+                imageOffTimer.restartTimer()
+                if (delay != 0)
+                    delayManager.run(showtime + delay)
                 visible = true
                 contentImage1.visible = false
             }
@@ -801,7 +868,7 @@ Item {
 
             //console.log("IFB changed to false" + isFirstBrowser)
             //isFirstBrowser = false
-            turnOffTimer.stop()
+            turnOffTimer.stopTimer()
             prepareStop = false
         }
         function hideBrowser(){
@@ -809,13 +876,32 @@ Item {
 
             sideBrowser2.opacity = 0.0
             sideBrowser1.opacity = 0.0
-            turnOffTimer.stop()
+            turnOffTimer.stopTimer()
         }
 
 
         Timer {
             id: turnOffTimer
             repeat: false
+            property bool isActivated: false
+
+            function startTimer(){
+                isActivated = true
+                turnOffTimer.start()
+            }
+            function stopTimer(){
+                isActivated = false
+                turnOffTimer.stop()
+            }
+            function restartTimer(){
+                isActivated = true
+                turnOffTimer.restart()
+            }
+            function forceTriggered(){
+                turnOffTimer.interval = 1
+                turnOffTimer.restart()
+            }
+
             onTriggered: {
                 console.log("browser::onStop")
 
@@ -851,7 +937,6 @@ Item {
                     currentType = "image"
                 }
                 askNextAntiFlick.restart()
-                //askNext(areaID)
             }
         }
 
@@ -884,6 +969,7 @@ Item {
             }
         }
 
+
         WebView {
             id: sideBrowser1
             //visible: false
@@ -904,8 +990,11 @@ Item {
             }
 
             function showPreloaded(){
-                turnOffTimer.interval = showtime
-                turnOffTimer.restart()
+                //turnOffTimer.interval = showtime
+                turnOffTimer.interval = showtime + delay
+                if (delay != 0)
+                    delayManager.run(showtime + delay)
+                turnOffTimer.restartTimer()
                 browserTurnOnTimer.runTimer(true)
                 sideBrowser1.opacity = 1.0
                 browserTurnOnTimer.runTimer(true)
@@ -943,8 +1032,11 @@ Item {
             }
 
             function showPreloaded(){
-                turnOffTimer.interval = showtime
-                turnOffTimer.restart()
+                //turnOffTimer.interval = showtime
+                turnOffTimer.interval = showtime + delay
+                if (delay != 0)
+                    delayManager.run(showtime + delay)
+                turnOffTimer.restartTimer()
                 sideBrowser2.opacity = 1.00
                 browserTurnOnTimer.runTimer(false)
             }
@@ -965,5 +1057,68 @@ Item {
         anchors.fill: parent
         color: "#000000"
         opacity: 1 - brightness
+    }
+
+    Item {
+        id: delayManager
+        width: parent.width
+        height: parent.height
+        function run(start)
+        {
+            console.log("DelayManager::run " + start + "/" + delay)
+            delayStartTimer.interval = start - delay + 375
+            var lonDelay = start + 400
+            console.log("DelayEndTimer:: " + lonDelay)
+            delayEndTimer.interval = lonDelay
+            delayStartTimer.restart()
+            resetEndTimer()
+        }
+
+        function reset()
+        {
+            console.log("DelayManager::reset " + delay)
+            delayStartTimer.stop()
+            delayOnAntiFlickTimer.stop()
+            delayEndTimer.stop()
+            delayBlackScreenRect.visible = false
+        }
+        function resetEndTimer()
+        {
+            delayOnAntiFlickTimer.restart()
+            delayEndTimer.restart()
+        }
+
+        Timer {
+            id: delayOnAntiFlickTimer
+            interval: 500
+            onTriggered: {
+                delayBlackScreenRect.visible = false
+            }
+        }
+
+        Timer {
+            id: delayStartTimer
+            repeat: false
+            onTriggered: {
+                console.log("DelayManager::start")
+                delayBlackScreenRect.visible = true
+            }
+        }
+
+        Timer {
+            id: delayEndTimer
+            repeat: false
+            onTriggered: {
+                console.log("DelayManager::end")
+                delayBlackScreenRect.visible = false
+            }
+        }
+
+        Rectangle {
+            id: delayBlackScreenRect
+            anchors.fill: parent
+            color: "#000000"
+            visible: false
+        }
     }
 }

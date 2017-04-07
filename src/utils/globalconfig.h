@@ -75,7 +75,7 @@ public:
     QString getActivationCode(){return activationCode;}
     QString getVirtualScreenId(){return virtualScreenId;}
 
-    int getGetPlaylistTimerTime() {return getPlaylistTimerTime;}
+    int getGetPlaylistTimerTime() {qDebug() << getPlaylistTimerTime; return getPlaylistTimerTime;}
 
     void setMetaProperty(QString key, QString value);
     QString getMetaProperty(QString key);

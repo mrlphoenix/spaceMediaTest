@@ -1,7 +1,9 @@
 #include <QDebug>
 #include <QFile>
 #include <QTimeZone>
+#include <QProcess>
 #include "globalstats.h"
+#include "platformspecific.h"
 
 GlobalStats::GlobalStats(QObject *parent) : QObject(parent)
 {
@@ -281,10 +283,10 @@ void GlobalStats::itemPlayed(QString areaId, QString contentId, QDateTime date)
     lastTimePlayed[areaId][contentId] = date;
 }
 
-bool GlobalStats::checkDelayPass(QString areaId, QString contentId)
+bool GlobalStats::checkDelayPass(const QString &areaId, const QString &contentId, const QDateTime &realCurrentTime)
 {
-    qDebug() << "GlobalStats::checkDelayPass";
-    if (!lastTimePlayed.contains(areaId))
+    //qDebug() << "GlobalStats::checkDelayPass " << QDateTime::currentDateTime();
+   /* if (!lastTimePlayed.contains(areaId))
     {
         qDebug() << "no such area -> return true";
         return true;
@@ -293,14 +295,13 @@ bool GlobalStats::checkDelayPass(QString areaId, QString contentId)
     {
         qDebug() << "item was never played -> return true";
         return true;
-    }
-    int getutcoffset = getUTCOffset();
-    qDebug() << "GET UTC OFFSET" << getutcoffset;
-    //QDateTime currentTime = QDateTime::currentDateTimeUtc();
-    //currentTime = currentTime.addSecs(getutcoffset);
-    QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getutcoffset);
-    qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId)).time();
-    return currentTime > lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId));
+    }*/
+    //int getutcoffset = getUTCOffset();
+    //qDebug() << "GET UTC OFFSET" << getutcoffset;
+    //QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(getutcoffset);
+    //qDebug() << currentTime.time() << "prevPL" << lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId)).time();
+    //qDebug() << "GlobalStats::checkDelayPass before return" << QDateTime::currentDateTime();
+    return realCurrentTime > lastTimePlayed[areaId][contentId].addSecs(getItemPlayTimeout(contentId));
 }
 
 QDateTime GlobalStats::getItemLastPlayDate(QString areaId, QString contentId)
@@ -320,12 +321,46 @@ bool GlobalStats::itemWasPlayed(QString areaId, QString contentId)
     return lastTimePlayed[areaId].contains(contentId);
 }
 
+void GlobalStats::itemWasSkipped(int duration)
+{
+    foreach (const QString &areaId, lastTimePlayed.keys())
+        foreach (const QString &contentId, lastTimePlayed[areaId].keys())
+        {
+            auto time = lastTimePlayed[areaId][contentId];
+            time = time.addSecs(-duration);
+            lastTimePlayed[areaId][contentId] = time;
+        }
+}
+
+void GlobalStats::setItemActivated(const QString &item, bool isActive)
+{
+    itemActivated[item] = isActive;
+}
+
+bool GlobalStats::isItemActivated(const QString &item)
+{
+    if (itemActivated.contains(item))
+        return itemActivated[item];
+    return false;
+}
+
+void GlobalStats::addPriorityItem(const QString &contentId)
+{
+    if (!priorityItems.contains(contentId))
+        priorityItems.append(contentId);
+}
+
+bool GlobalStats::isItemHighPriority(const QString &contentId)
+{
+    return priorityItems.contains(contentId);
+}
+
 void GlobalStats::setItemPlayTimeout(QString contentId, int timeout)
 {
     itemTimeout[contentId] = timeout;
 }
 
-int GlobalStats::getItemPlayTimeout(QString contentId)
+int GlobalStats::getItemPlayTimeout(const QString &contentId)
 {
     if (!itemTimeout.contains(contentId))
     {
@@ -350,4 +385,33 @@ void GlobalStats::setSystemData(QString tag, QByteArray data)
 QByteArray GlobalStats::getSystemData(QString tag)
 {
     return systemData[tag];
+}
+
+void GlobalStats::setCRC32Hex(QString v)
+{
+    if (v != crc32Hex)
+    {
+        crc32Hex = v;
+        PlatformSpecificService.writeToFile(v.toLocal8Bit(),"/home/pi/teleds/crc32.txt");
+        QProcess p;
+        p.start("/usr/bin/php",QStringList() << "/home/pi/teleds_git/git/splash/initialize.php");
+        p.waitForStarted();
+        p.waitForFinished();
+    }
+}
+
+bool GlobalStats::cacheItemData(QString id)
+{
+    if (cachedSentData.contains(id))
+        return false;
+    else
+    {
+        cachedSentData.append(id);
+        return true;
+    }
+}
+
+void GlobalStats::clearCachedItemData()
+{
+    cachedSentData.clear();
 }

@@ -23,10 +23,19 @@ GlobalConfig::GlobalConfig(QObject *parent) : QObject(parent)
     if (!QFile::exists(CONFIG_FOLDER + "config.dat"))
     {
         qDebug() << "config file does not exists; creating new one";
-
-        save();
-        configured = false;
-
+        QFile out(CONFIG_FOLDER + "config.dat");
+        if (out.open(QFile::WriteOnly))
+        {
+            out.write(QString("{}").toLocal8Bit());
+            out.flush();
+            out.close();
+            loadFromJson();
+        }
+        else
+        {
+            save();
+            configured = false;
+        }
     }
     else
         loadFromJson();

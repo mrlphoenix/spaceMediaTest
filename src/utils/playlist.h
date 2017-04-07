@@ -6,6 +6,7 @@
 #include <QHash>
 #include <QWidget>
 #include <QVector>
+#include <QStringList>
 #include "videoserviceresult.h"
 
 #define MAGIC_PLAYLIST_VALUE 4.
@@ -23,6 +24,7 @@ public:
     virtual void updatePlaylist(const PlayerConfigAPI::Campaign::Area &playlist)=0;
     virtual QString getType()=0;
     virtual PlayerConfigAPI::Campaign::Area::Content findItemById(QString iid)=0;
+    QStringList forceItems;
 public slots:
     virtual QString next()=0;
     virtual bool haveNext()=0;
@@ -49,7 +51,6 @@ public:
 protected:
     void splitItems();
     void shuffle(bool fixedFloating = true, bool floatingNone = true);
-    bool itemDelayPassed(const PlayerConfigAPI::Campaign::Area::Content &item);
     QString nextFreeItem();
 
 

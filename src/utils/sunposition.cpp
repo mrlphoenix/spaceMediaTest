@@ -132,6 +132,14 @@ double SunsetSystem::getSinPercent()
 {
     QTime sunRise = GetSunrise().time();
     QTime sunSet = GetSunset().time();
+    int sunriseHour = sunRise.hour();
+    int sunsetHour = sunSet.hour();
+    if (sunriseHour > 0)
+        sunriseHour -= 1;
+    if (sunsetHour < 23)
+        sunsetHour += 1;
+    sunRise.setHMS(sunriseHour,sunRise.minute(), sunRise.second());
+    sunSet.setHMS(sunsetHour, sunSet.minute(), sunSet.second());
 
     qDebug() << "SUNSET/SUNRISE" << sunRise << sunSet;
     QTime currentTime = QDateTime::currentDateTimeUtc().time().addSecs(GlobalStatsInstance.getUTCOffset());

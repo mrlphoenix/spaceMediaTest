@@ -826,6 +826,74 @@ void Platform::PlatformSpecific::install()
     QDir().mkpath(DATABASE_FOLDER);
 }
 
+QString Platform::PlatformSpecific::mapKey(int code, bool shiftState)
+{
+    shiftState = !shiftState;
+    switch (code)
+    {
+
+    case 2: return shiftState? "1" : "!";
+    case 3: return shiftState? "2" : "@";
+    case 4: return shiftState? "3" : "#";
+    case 5: return shiftState? "4" : "$";
+    case 6: return shiftState? "5" : "%";
+    case 7: return shiftState? "6" : "^";
+    case 8: return shiftState? "7" : "&";
+    case 9: return shiftState? "8" : "*";
+    case 10: return shiftState? "9" : "(";
+    case 11: return shiftState? "0" : ")";
+    case 12: return shiftState? "-" : "_";
+    case 13: return shiftState? "=" : "+";
+
+    case 16: return shiftState? "q" : "Q";
+    case 17: return shiftState? "w" : "W";
+    case 18: return shiftState? "e" : "E";
+    case 19: return shiftState? "r" : "R";
+    case 20: return shiftState? "t" : "T";
+    case 21: return shiftState? "y" : "Y";
+    case 22: return shiftState? "u" : "U";
+    case 23: return shiftState? "i" : "I";
+    case 24: return shiftState? "o" : "O";
+    case 25: return shiftState? "p" : "P";
+    case 26: return shiftState? "[" : "{";
+    case 27: return shiftState? "]" : "}";
+
+    case 30: return shiftState? "a" : "A";
+    case 31: return shiftState? "s" : "S";
+    case 32: return shiftState? "d" : "D";
+    case 33: return shiftState? "f" : "F";
+    case 34: return shiftState? "g" : "G";
+    case 35: return shiftState? "h" : "H";
+    case 36: return shiftState? "j" : "J";
+    case 37: return shiftState? "k" : "K";
+    case 38: return shiftState? "l" : "L";
+    case 39: return shiftState? ";" : ":";
+    case 40: return shiftState? "'" : "\"";
+
+    case 44: return shiftState? "z" : "Z";
+    case 45: return shiftState? "x" : "X";
+    case 46: return shiftState? "c" : "C";
+    case 47: return shiftState? "v" : "V";
+    case 48: return shiftState? "b" : "B";
+    case 49: return shiftState? "n" : "N";
+    case 50: return shiftState? "m" : "M";
+    case 51: return shiftState? "," : "<";
+    case 52: return shiftState? "." : ">";
+    case 53: return shiftState? "/" : "?";
+    case 57: return " ";
+    default: return "";
+    }
+}
+
+bool Platform::PlatformSpecific::isKeySymbol(int code)
+{
+    return (code >= 2 && code <= 13) ||
+           (code >= 16 && code <= 27) ||
+           (code >= 30 && code <= 40) ||
+           (code >= 44 && code <= 53) ||
+            code == 57;
+}
+
 void Platform::PlatformSpecific::generateSystemInfo()
 {
     thread->generateSystemInfo();

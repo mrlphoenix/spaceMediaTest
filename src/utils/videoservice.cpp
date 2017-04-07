@@ -61,8 +61,9 @@ void VideoService::advancedInit(QByteArray data)
 
 void VideoService::executeRequest(VideoServiceRequest request)
 {
-    if (currentRequestExists)
+    if (currentRequestExists && QString(GlobalStatsInstance.getSystemData("force_request")) != "true")
     {
+        qDebug() << "Warning::enqueuing request" << request.name;
         requests.enqueue(request);
     }
     else

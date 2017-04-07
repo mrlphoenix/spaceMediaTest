@@ -2,7 +2,6 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += \ 
-    $$PWD/yandexweathermodel.cpp \
     $$PWD/instagramrecentpostmodel.cpp \
     $$PWD/videoservice.cpp \
     $$PWD/videoserviceresult.cpp \
@@ -17,9 +16,9 @@ SOURCES += \
     $$PWD/sunposition.cpp \
     $$PWD/subsmanager.cpp \
     $$PWD/skinmanager.cpp \
-    $$PWD/notherfilesystem.cpp
+    $$PWD/notherfilesystem.cpp \
+    $$PWD/playlistmanager.cpp
 HEADERS += \ 
-    $$PWD/yandexweathermodel.h \
     $$PWD/instagramrecentpostmodel.h \
     $$PWD/videoservice.h \
     $$PWD/videoserviceresult.h \
@@ -34,6 +33,7 @@ HEADERS += \
     $$PWD/sunposition.h \
     $$PWD/subsmanager.h \
     $$PWD/skinmanager.h \
-    $$PWD/notherfilesystem.h
+    $$PWD/notherfilesystem.h \
+    $$PWD/playlistmanager.h
 FORMS   +=
 

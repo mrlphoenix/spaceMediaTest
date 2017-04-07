@@ -105,7 +105,14 @@ Item {
     property string systemOpensourceText: ""
     property string systemLegalText: ""
     property string systemVersion: ""
+    property string systemVersionBuild: ""
     property string displayMode: "fullscreen"
+
+    property bool isPlayerCodeVisibleState: false
+    property bool isPlayerCodeVisibleMode: false
+
+    property int playlistDelay: 0
+
 
     signal nextItem(string areaID)
     signal nextWidget()
@@ -119,6 +126,112 @@ Item {
     onHeightChanged: {
         heightP = height
         widthP = width
+    }
+
+    function setDelay(delay)
+    {
+        playlistDelay = delay
+    }
+
+    //spacemedia menu functions
+    function invokeMenuDisplayRotationSelected()
+    {
+        menu.invokeMenuDisplayRotationSelected()
+    }
+
+    function invokeMenuDisplayRotationChanged(value, text)
+    {
+        menu.invokeMenuDisplayRotationChanged(value, text)
+    }
+
+    function invokeMenuHDMIGroupSelected()
+    {
+        menu.invokeMenuHDMIGroupSelected()
+    }
+
+    function invokeMenuHDMIGroupChanged(value, text)
+    {
+        menu.invokeMenuHDMIGroupChanged(value, text)
+    }
+
+    function invokeMenuHDMIModeSelected()
+    {
+        menu.invokeMenuHDMIModeSelected()
+    }
+
+    function invokeMenuHDMIModeChanged(value, text)
+    {
+        menu.invokeMenuHDMIModeChanged(value, text)
+    }
+
+    function invokeMenuHDMIDriveSelected()
+    {
+        menu.invokeMenuHDMIDriveSelected()
+    }
+
+    function invokeMenuHDMIDriveChanged(value, text)
+    {
+        menu.invokeMenuHDMIDriveChanged(value, text)
+    }
+
+    function invokeMenuHDMIBoostSelected()
+    {
+        menu.invokeMenuHDMIBoostSelected()
+    }
+
+    function invokeMenuHDMIBoostChanged(value)
+    {
+        menu.invokeMenuHDMIBoostChanged(value)
+    }
+
+    function invokeMenuWifiNetworkSelected()
+    {
+        menu.invokeMenuWifiNetworkSelected()
+    }
+
+    function invokeMenuWifiNetworkChanged(text)
+    {
+        menu.invokeMenuWifiNetworkChanged(text)
+    }
+
+    function invokeMenuWifiNameSelected()
+    {
+        menu.invokeMenuWifiNameSelected()
+    }
+
+    function invokeMenuWifiNameChanged(text)
+    {
+        menu.invokeMenuWifiNameChanged(text)
+    }
+
+    function invokeMenuWifiPassSelected()
+    {
+        menu.invokeMenuWifiPassSelected()
+    }
+
+    function invokeMenuWifiPassChanged(text)
+    {
+        menu.invokeMenuWifiPassChanged(text)
+    }
+
+    function invokeMenuSaveSelected()
+    {
+        menu.invokeMenuSaveSelected()
+    }
+
+    function invokeMenuSavePressed()
+    {
+        menu.invokeMenuSavePressed()
+    }
+
+    function invokeMenuCancelSelected()
+    {
+        menu.invokeMenuCancelSelected()
+    }
+
+    function invokeMenuCancelPressed()
+    {
+        menu.invokeMenuCancelPressed()
     }
 
     function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation)
@@ -158,6 +271,7 @@ Item {
     {
         crcText.text = crc
     }
+
     function toggleVisibility(status)
     {
         if (status === 0)
@@ -178,6 +292,21 @@ Item {
         if (fullscreenView.visible == false)
             fullscreenView.visible = true
         fullscreenView.play(source, duration, type, skipTime, fillMode)
+    }
+    function toggleMenu()
+    {
+        menu.visible = !menu.visible
+    }
+    function showConnectionMenu(text)
+    {
+        oldMenu.visible = true
+        oldMenu.showInternetInfoDialog(text)
+        //menu.restoreTextDialog(text, "")
+    }
+    function hideConnectionMenu()
+    {
+        oldMenu.visible = false
+        oldMenu.hideTextDialog()
     }
 
     function setPlayerVolume(value)
@@ -271,7 +400,7 @@ Item {
 
     function restoreDefaultTheme()
     {
-        brand_backgroundColor = brand_default_backgroundColor
+     /*   brand_backgroundColor = brand_default_backgroundColor
         brand_foregroundColor = brand_default_foregroundColor
         brand_borderGrayColor = brand_default_borderGrayColor
 
@@ -287,7 +416,7 @@ Item {
         teledsLogo.opacity = 1.0
         bgLogoBlock.setDefaultMode()
         menu.setDefaultMode()
-        menu.showTeleDSLogo = true
+        menu.showTeleDSLogo = true*/
     }
 
     function stopPlayer()
@@ -304,6 +433,18 @@ Item {
         bgLogoBlock.visible = false
         logoColumn.visible = false
     }
+
+    function setDownloadProgressSimple(value)
+    {
+        logoDownloadProgressBar.value = value
+        backDownloadingProgressBar.value = value
+    }
+
+    function setBackDownloadProgressBarVisible(value)
+    {
+        backDownloadingProgressBar.visible = value
+    }
+
     function setPlayerName(playerId){
         playerName.text = playerId
     }
@@ -323,8 +464,17 @@ Item {
         videoOutBrightness = value
         fullscreenView.brightness = value
     }
-    function setVersion(version){
+    function setVersion(version, build){
         systemVersion = version
+        systemVersionBuild = build
+    }
+    function showPassword(is_visible, pass)
+    {
+        if (is_visible === 1)
+            passText.visible = true
+        else
+            passText.visible = false
+        passTextItem.text = pass
     }
 
 
@@ -333,7 +483,7 @@ Item {
         titleText.text = brand_nothingToPlayText
         progressText.text = "Go to <a href=\"" + link + "\">" + brand_nothingToPlayLinkText +"</a></html>"
         logoDownloadProgressBar.visible = false
-        playerIDItem.visible = false
+        isPlayerCodeVisibleState.visible = false
         waitingBlock.visible = false
 
         bgLogoBlock.visible = true
@@ -349,7 +499,7 @@ Item {
         titleText.text = ""
         //titleText.text = "Updating..."
         logoDownloadProgressBar.visible = false
-        playerIDItem.visible = false
+        isPlayerCodeVisibleState.visible = false
         waitingBlock.visible = false
         bgLogoBlock.visible = true
         fullscreenView.visible = false
@@ -361,7 +511,7 @@ Item {
         titleText.text = brand_downloadingText
         progressText.text = brand_pleaseWaitText
         logoDownloadProgressBar.visible = true
-        playerIDItem.visible = false
+        isPlayerCodeVisibleState = false
         waitingBlock.visible = false
     }
 
@@ -372,12 +522,18 @@ Item {
         logoDownloadProgressBar.visible = false
         playerIDText.text = playerID
 
-        playerIDItem.visible = true
-       // waitingBlock.visible = true
+        isPlayerCodeVisibleState = true
+        //playerIDItem.visible = true
         playerIDText.color = brand_backgroundColor
 
         bgLogoBlock.visible = true
     }
+
+    function setPlayerIdHiddenMode(isVisible)
+    {
+        isPlayerCodeVisibleMode = isVisible
+    }
+
     function getPointSize(text){
         if (text.length > 40)
             decreasingTextValue = text.length-40
@@ -412,10 +568,7 @@ Item {
             return playerIDRect.y + playerIDRect.height + 8
         }
     }
-    function setDownloadProgressSimple(value)
-    {
-        logoDownloadProgressBar.value = value
-    }
+
 
     function getTopValue(h)
     {
@@ -424,6 +577,9 @@ Item {
             return h * 0.248148148 * aspect
         else
             return result
+    }
+    function skipCurrentItem(){
+        fullscreenView.skipCurrentItem()
     }
 
     PositionSource {
@@ -511,6 +667,7 @@ Item {
             bgLogoImageTiling.visible = true
         }
     }
+
     Item
     {
         id: logoColumn
@@ -531,6 +688,7 @@ Item {
             sourceSize.height: 156.0 * aspect
             x: parent.width/2 - width/2
         }
+
         Image {
             id: teledsLogo
             y: teledsLogoImg.y + teledsLogoImg.height + (22.0 * aspect)
@@ -548,6 +706,7 @@ Item {
             x: parent.width/2 - width/2
             color: brand_foregroundColor
         }
+
         Text {
             id: titleText
             font.family: ubuntuFont.name
@@ -590,11 +749,13 @@ Item {
                     }
                 }
         }
+
+
         Item{
             id: playerIDItem
             width: parent.width
             height: parent.height
-            visible: false
+            visible: isPlayerCodeVisibleMode && isPlayerCodeVisibleState
             Rectangle {
                 id: playerIDRect
                 color: brand_foregroundColor
@@ -638,8 +799,6 @@ Item {
         }
     }
 
-    //
-
     Column
     {
         visible: false
@@ -668,6 +827,7 @@ Item {
                     }
                 }
         }
+
         ProgressBar{
             id: downloadProgressBar
             value: 0.0
@@ -687,16 +847,11 @@ Item {
                    }
         }
     }
-    Text {
-        id: versionText
-        x: 0
-        y: parent.height - height
-        text: systemVersion
-    }
 
     PlayerView {
         id: fullscreenView
         visible: true
+        delay: playlistDelay
         onAskNext: {
             console.log("askNext?")
             nextItem(areaId)
@@ -725,33 +880,20 @@ Item {
         }
     }
 
-    Item {
-        id: crcTextBlock
-        width: parent.width
-        height: parent.height
-        Rectangle{
-            id: bottomCRCRect
-            x: parent.width - width
-            y: parent.height - height
-            height: crcText.height + 5
-            width: crcText.width + 10
-            color: "#00333e47"
-        }
-        Text {
-            id: crcText
-            anchors.centerIn: bottomCRCRect
-            text: "________"
-            color: "#FFFFFF"
-            font.pointSize: 7
-            opacity: 0.75
-        }
+    //android:excludeFromRecents="true"
+
+
+
+    SpaceMediaMenu{
+        id: menu
+        width: item.width
+        height: item.height
+        visible: false
     }
 
 
-    //android:excludeFromRecents="true"
-
     TeleDSMenu {
-        id: menu
+        id: oldMenu
         color1: brand_menu_backgroundColor
         color2: brand_menu_foregroundColor
         logo: brand_menu_logo
@@ -789,6 +931,85 @@ Item {
                 sideBrowser.visible = false
             console.log("back key pressed: main")
         }
+    }
+
+    Item {
+        id: passText
+        width: parent.width
+        height: parent.height
+        visible: false
+        Rectangle{
+            id: passTextRect
+            x: parent.width/2 - width/2
+            y: parent.height - height
+            height: passTextItem.height + 5
+            width: passTextItem.width + 10
+            color: "#333e47"
+            opacity: 0.5
+        }
+
+        Text {
+            id: passTextItem
+            anchors.centerIn: passTextRect
+            text: ""
+            color: "#FFFFFF"
+            font.pointSize: 12
+        }
+    }
+
+    Item {
+        id: crcTextBlock
+        width: parent.width
+        height: parent.height
+        Rectangle{
+            id: bottomCRCRect
+            x: parent.width - width
+            y: parent.height - height
+            height: crcText.height + 5
+            width: crcText.width + 10
+            color: "#00333e47"
+        }
+        Text {
+            id: crcText
+            anchors.centerIn: bottomCRCRect
+            text: "________"
+            color: "#FFFFFF"
+            font.pointSize: 7
+            opacity: 0.75
+        }
+    }
+
+    Text {
+        id: versionText
+        x: 0
+        y: parent.height - height
+        text: "build: " + systemVersionBuild
+        color: "#FFFFFF"
+        font.pointSize: 7
+        opacity: 0.5
+    }
+
+    ProgressBar{
+        id: backDownloadingProgressBar
+        visible: false
+        value: 0.0
+        x: versionText.x + versionText.width + 4
+        y: parent.height - height
+        width: 100
+        opacity: 0.4
+        style: ProgressBarStyle {
+                background: Rectangle {
+                    color: "transparent"
+                    border.color: "black"
+                    border.width: 1
+                    implicitHeight: versionText.height
+                }
+                progress: Rectangle {
+                    color: brand_foregroundColor
+                    border.color: brand_foregroundColor
+                }
+            }
+
     }
 
     Dialog {
@@ -918,6 +1139,8 @@ Item {
                     }
                     onClicked: Qt.quit()
                 }
+
+
             }
         }
     }
@@ -947,7 +1170,7 @@ Item {
         console.log("keypressed")
     }
 
-    Keys.onReleased:{
+  /*  Keys.onReleased:{
         console.log("Key pressed")
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             if (menu.visible == false)
@@ -964,5 +1187,5 @@ Item {
             }
             event.accepted = true
         }
-    }
+    }*/
 }

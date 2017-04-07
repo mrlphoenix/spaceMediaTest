@@ -1,7 +1,11 @@
 #include <QDebug>
 #include <QLocale>
+#include <QProcess>
+#include <QFile>
+#include "version.h"
 #include "statisticdatabase.h"
 #include "globalconfig.h"
+#include "globalstats.h"
 
 /*
  * */
@@ -28,7 +32,8 @@ DatabaseWorker::DatabaseWorker(QString dbName, QObject* parent)
         m_database.transaction();
         m_database.exec("create table systemInfo (report_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic_in INTEGER, traffic_out INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
         m_database.transaction();
-        m_database.exec("create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT, cpu REAL, latitude REAL, longitude REAL, battery REAL, traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)");
+        m_database.exec("create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT, cpu REAL, latitude REAL, longitude REAL, "
+                        "battery REAL, traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER, was_sent INTEGER, version INTEGER)");
         m_database.commit();
     }
 }
@@ -241,6 +246,29 @@ void QueryThread::run()
 StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
 {
     databaseName = DATABASE_FOLDER + "stat.db";
+    qDebug() << "DB INIT";
+    QProcess dbCheckProcess;
+    dbCheckProcess.start("bash check_db.sh");
+    if (dbCheckProcess.waitForFinished())
+    {
+        QString data = dbCheckProcess.readAll();
+        if (data.replace("\n","").toInt() != 0)
+        {
+            qDebug() << "Database is corrupted. Creating new one";
+            QFile::remove("stat.db");
+        }
+    }
+   /* if (TeleDSVersion::BUILD == 1640 && !QFile::exists("pack_info"))
+    {
+        qDebug() << "Database is outdated. Creating new one";
+        QFile f("pack_info");
+        f.open(QFile::WriteOnly);
+        f.write(QString("1640").toLocal8Bit());
+        f.flush();
+        f.close();
+        QFile::remove("stat.db");
+    }*/
+    //qDebug() << result;
     queryThread = new QueryThread(databaseName,parent);
     queryThread->start();
     connect (queryThread, SIGNAL(results(QString,QList<QSqlRecord>,QString)),this,SLOT(slotResults(QString,QList<QSqlRecord>,QString)));
@@ -282,8 +310,8 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
     //		create table event (event_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, screen TEXT, area TEXT, content TEXT, campaign TEXT,
     //                          cpu REAL, latitude REAL, longitude REAL, battery REAL,
     //                          traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)
-    QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space) " +
-                  QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15)")).arg(
+    QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space, was_sent, version) " +
+                  QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15, %16, %17)")).arg(
                     QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
                     item.payment_type,
                     item.area_id,
@@ -295,7 +323,9 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
                     QString::number(info.free_memory), info.wifi_mac,
                     QString::number(info.hdmi_cec)).arg(
                     QString::number(info.hdmi_gpio),
-                    QString::number(info.free_space)
+                    QString::number(info.free_space),
+                    QString::number(0),
+                    QString::number(TeleDSVersion::BUILD)
                 );
     qDebug() << "LAT IN DB:" << info.latitude << "LON IN DB: " << info.longitude;
     queryThread->execute("playResource", sql);
@@ -325,6 +355,18 @@ void StatisticDatabase::findEventsToSend()
     queryThread->execute("findEventsToSend", sql);
 }
 
+void StatisticDatabase::prepareEventsToSend()
+{
+    QString sql = "update event set was_sent = 1";
+    queryThread->execute("prepareEventsToSend", sql);
+}
+
+void StatisticDatabase::resetPreparedEvents()
+{
+    QString sql = "update event set was_sent = 0 where was_sent = 1";
+    queryThread->execute("resetPreparedEvents", sql);
+}
+
 void StatisticDatabase::playsUploaded()
 {
     queryThread->execute("uploadingSuccess:","delete from Play");
@@ -337,7 +379,7 @@ void StatisticDatabase::systemInfoUploaded()
 
 void StatisticDatabase::eventsUploaded()
 {
-    queryThread->execute("uploadingSuccess:", "delete from event");
+    queryThread->execute("uploadingSuccess:", "delete from event where was_sent = 1");
 }
 
 QString StatisticDatabase::serializeDate(QDateTime date)
@@ -369,26 +411,16 @@ void StatisticDatabase::slotResults(const QString &queryId, const QList<QSqlReco
         else
             emit resourceCount(0);
     }
-    else if (queryId == "findPlaysToSend")
-    {
-        QList<Play> plays;
-        foreach (const QSqlRecord& record, records)
-            plays.append(Play::fromRecord(record));
-        emit playsFound(plays);
-    }
-    else if (queryId == "findSystemInfoToSend")
-    {
-        QList<Platform::SystemInfo> systemInfos;
-        foreach (const QSqlRecord& record, records)
-            systemInfos.append(Platform::SystemInfo::fromRecord(record));
-        emit systemInfoFound(systemInfos);
-    }
     else if (queryId == "findEventsToSend")
     {
        // qDebug() << "events found in DB: " << records.count();
         QList<PlayEvent> events;
         foreach (const QSqlRecord &record, records)
-            events.append(PlayEvent::fromRecord(record));
+        {
+            PlayEvent event = PlayEvent::fromRecord(record);
+            if (GlobalStatsInstance.cacheItemData(event.uniqueData))
+                events.append(event);
+        }
         emit eventsFound(events);
     }
     else
@@ -461,6 +493,9 @@ StatisticDatabase::PlayEvent StatisticDatabase::PlayEvent::fromRecord(const QSql
     result.longitude = record.value("longitude").toDouble();
     result.traffic = record.value("traffic").toInt();
     result.wifi_mac = record.value("wifi_mac").toString();
+    result.was_sent = record.value("was_sent").toInt();
+    result.version = record.value("version").toInt();
+    result.uniqueData = result.time + result.area + result.content;
     return result;
 }
 
@@ -483,5 +518,7 @@ QJsonObject StatisticDatabase::PlayEvent::serialize() const
     result["hdmi_cec"] = ((hdmi_cec == 1) ? true : false);
     result["hdmi_gpio"] = ((hdmi_gpio == 1) ? true : false);
     result["free_space"] = free_space;
+    result["was_sent"] = was_sent;
+    result["version"] = version;
     return result;
 }

@@ -127,6 +127,8 @@ public:
     void findPlaysToSend();
     void findSystemInfoToSend();
     void findEventsToSend();
+    void prepareEventsToSend();
+    void resetPreparedEvents();
 
     struct Play
     {
@@ -176,6 +178,9 @@ public:
         int hdmi_cec;
         int hdmi_gpio;
         int free_space;
+        int was_sent;
+        int version;
+        QString uniqueData;
     };
 
 signals:

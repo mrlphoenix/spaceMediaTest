@@ -36,6 +36,7 @@ Item{
             return
         }
     }
+
     function stopBrowser(){
         sideBrowser1.visible = false
         sideBrowser2.visible = false
@@ -87,6 +88,7 @@ Item{
             url = ""
         }
     }
+
 
     WebView {
         id: sideBrowser2

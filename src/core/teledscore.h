@@ -48,12 +48,16 @@ class TeleDSCore : public QObject
     friend class HTTPServerDataReceiver;
 public:
     explicit TeleDSCore(QObject *parent = 0);
+    void initSystemServices();
 
 signals:
     void playerIdUpdate(QString playerId);
+    void runInputService();
+    void runInputDeviceControlService();
 public slots:
     //slot is called when we should reinit player
     void initPlayer();
+    void reconnectToGpsServer();
 
 
     void setupHttpServer();
@@ -89,7 +93,8 @@ public slots:
     void getPlaylistTimerSlot();
 
     //slot is called when every item got downloaded and we need to show items
-    void downloaded();
+    void downloaded(int index);
+    void playWithoutDownload(int count);
 
     //slot is called when we are ready to update playlist and reset campaign index
     void playlistUpdateReady();
@@ -125,10 +130,24 @@ public slots:
 
     void onButtonPressed(bool skipBlocked = false);
 
+    void onKeyDown(int code);
+    void onKeyUp(int code);
+
+    void onInputDeviceConnected();
+    void onInputDeviceDisconnected();
+
+
+    void resetPlayer();
+    void rebootPlayer();
+    void checkReset();
 
 protected:
     void setupDownloader();
     void setupCampaignAreas(const PlayerConfigAPI::Campaign &c);
+
+    bool checkCombo(const QList<int> &keys);
+    bool isInputDeviceConnected;
+
     QVector<QObject*> widgets;
     TeleDSPlayer * teledsPlayer;
 
@@ -147,16 +166,24 @@ protected:
     SkinManager * skinManager;
     GPIOButtonService gpioButtonService;
     QThread * gpioButtonServiceThread;
+    QThread * keyboardServiceThread;
+    QThread * inputDeviceControlServiceThread;
+    InputService *inputService;
+    InputDeviceControlService * inputDeviceControlService;
 
     bool shouldShowPlayer;
 
     QHttpServer * httpserver;
     QHash<QString, QHash<QString, QByteArray> > storedData;
+    QHash<int, int> storedKeys;
+    QList<int> settingsCombo, resetCombo, menuCombo, passCombo, ifconfigCombo, hidePlayerCodeCombo, skipItemCombo, rebootCombo;
+
     QNetworkAccessManager myServerManager;
 
     QTcpSocket * gpsSocket;
     bool updateGps;
     bool buttonBlocked;
+    int gpsInitializated;
 };
 
 

@@ -60,12 +60,19 @@ public:
 
 
     void itemPlayed(QString areaId, QString contentId, QDateTime date);
-    bool checkDelayPass(QString areaId, QString contentId);
+    bool checkDelayPass(const QString &areaId, const QString &contentId, const QDateTime &realCurrentTime);
     QDateTime getItemLastPlayDate(QString areaId, QString contentId);
     bool itemWasPlayed(QString areaId, QString contentId);
+    void itemWasSkipped(int duration);
+
+    void setItemActivated(const QString &item, bool isActive);
+    bool isItemActivated(const QString &item);
+
+    void addPriorityItem(const QString &contentId);
+    bool isItemHighPriority(const QString &contentId);
 
     void setItemPlayTimeout(QString contentId, int timeout);
-    int getItemPlayTimeout(QString contentId);
+    int getItemPlayTimeout(const QString &contentId);
     bool wasAnyItemPlayed(QString areaId);
 
     void setSystemData(QString tag, QByteArray data);
@@ -74,7 +81,7 @@ public:
     void setCampaignEndDate(QDateTime date) {campaignEndDate = date;}
     QDateTime getCampaignEndDate() {return campaignEndDate;}
 
-    void setCRC32Hex(QString v) { crc32Hex = v; }
+    void setCRC32Hex(QString v);
     QString getCRC32Hex() { return crc32Hex; }
 
     void setHDMI_CEC(QString value) { hdmiCEC = value; }
@@ -82,6 +89,9 @@ public:
 
     void setHDMI_GPIO(bool value) { hdmiGPIO = value; }
     bool getHDMI_GPIO() {qDebug() << "HDMIGPIO = " << hdmiGPIO; return hdmiGPIO; }
+
+    bool cacheItemData(QString id);
+    void clearCachedItemData();
 
     struct Report
     {
@@ -134,6 +144,9 @@ private:
     int cachedTzValue;
     QHash<QString, QHash<QString, QDateTime> > lastTimePlayed;
     QHash<QString, int> itemTimeout;
+    QHash<QString, bool> itemActivated;
+    QList<QString> priorityItems;
+    QList<QString> cachedSentData;
 
     QDateTime campaignEndDate;
     QString hdmiCEC;

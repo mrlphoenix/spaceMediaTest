@@ -39,6 +39,7 @@ OTHER_FILES += VideoPlayer.qml \
                AndroidBrowser.qml \
                SideBrowser.qml \
                PlayerView.qml \
+               SpaceMediaMenu.qml \
                android/src/org/qtproject/qt5/android/bindings/QtActivity.java
 
 SOURCES += main.cpp
@@ -49,7 +50,8 @@ RESOURCES += \
 DISTFILES += android/AndroidManifest.xml \
     android/src/org/qtproject/qt5/android/bindings/KioskService.java \
     TeleDSMenu.qml \
-    PlayerView.qml
+    PlayerView.qml \
+    SpaceMediaMenu.qml
 QML_IMPORT_PATH =
 
 

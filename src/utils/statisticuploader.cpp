@@ -34,18 +34,17 @@ bool StatisticUploader::start()
 
 void StatisticUploader::eventsReady(QList<StatisticDatabase::PlayEvent> events)
 {
+    qDebug() << "Events ready to send: " << events.count();
     if (events.count() == 0)
     {
         return;
     }
+    DatabaseInstance.prepareEventsToSend();
     QJsonArray result;
     foreach (const StatisticDatabase::PlayEvent &event, events)
         result.append(event.serialize());
     QJsonDocument doc(result);
     QString strToSend = doc.toJson();
-
-    //for debugging
-    PlatformSpecificService.writeToFile(strToSend.toLocal8Bit(), VIDEO_FOLDER + "stats.txt");
 
     //send via videoService
     videoService->sendEvents(strToSend);
@@ -61,5 +60,7 @@ void StatisticUploader::eventsUploadResult(NonQueryResult result)
     else
     {
         qDebug() << "EventsUploadResult::FAIL" << result.source;
+        DatabaseInstance.resetPreparedEvents();
+        GlobalStatsInstance.clearCachedItemData();
     }
 }

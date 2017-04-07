@@ -176,6 +176,8 @@ public:
     static void setResetWindow(bool enabled);
     static QString getConnectionName();
     static void install();
+    static QString mapKey(int code, bool shiftState);
+    static bool isKeySymbol(int code);
 
 public slots:
     void generateSystemInfo();

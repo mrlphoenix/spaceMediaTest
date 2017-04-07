@@ -423,6 +423,7 @@ Item {
                 }
             }
         }
+
         Text {
             color: color1
             font.pixelSize: fontSizeSP(11.7)
@@ -496,11 +497,26 @@ Item {
         showTextDialogCloseButton.focus = true
     }
 
+    function showInternetInfoDialog(text)
+    {
+        showTextDialogTitle.text = ""
+        dialogContentText.text = text
+        dialogContentText.font.pixelSize = 11
+        showTextDialog.open()
+        showTextDialogCloseButton.focus = true
+    }
+
+    function hideTextDialog(){
+        showTextDialog.close()
+        item.focus = true
+        dialogContentText.font.pixelSize = 16
+    }
+
     Dialog{
         id: showTextDialog
         contentItem: Item{
-            width: Screen.width * 0.85
-            height: Screen.height * 0.85
+            width: Screen.width * 0.95
+            height: Screen.height * 0.95
             Rectangle {
                 color: brand_default_backgroundColor
                 width: parent.width
@@ -524,15 +540,17 @@ Item {
                 readOnly: true
                 textFormat: TextEdit.RichText
                 width: parent.width
-                height: parent.height*0.9 - showTextDialogTitle.height - 10
+                height: parent.height*0.9
+
                 textColor: color1
                 backgroundVisible: false
                 anchors.top: showTextDialogTitle.bottom
                 textMargin: parent.width * 0.05
-                font.pixelSize: fontSize(9)
+                font.pixelSize: 16
             }
             Button {
                 id: showTextDialogCloseButton
+                visible: false
                 width: parent.width
                 height: parent.height*0.1 - 10
                 anchors.top: dialogContentText.bottom

@@ -128,6 +128,7 @@ struct PlayerConfigAPI
         int screen_width;
         int screen_height;
         int rotation;
+        int delay;
 
         struct Area {
             static PlayerConfigAPI::Campaign::Area fromJson(QJsonObject json);
@@ -165,6 +166,7 @@ struct PlayerConfigAPI
                 QString file_url;
                 QString file_hash;
                 QString file_extension;
+                int file_size;
                 QString fill_mode;
 
                 struct gps
@@ -180,6 +182,7 @@ struct PlayerConfigAPI
                 bool checkGeoTargeting(QPointF gps) const;
             };
             QVector<Content> content;
+            QVector<QString> priority_content;
         };
         QVector<Area> areas;
     };
