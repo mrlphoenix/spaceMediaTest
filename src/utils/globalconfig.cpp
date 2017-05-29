@@ -261,6 +261,7 @@ void GlobalConfig::save()
     file.open(QFile::WriteOnly);
 
     QByteArray data = doc.toJson();
+
 #ifdef PLATFORM_ENCODE_CONFIG
     data = Platform::lfsrEncode(qCompress(data), CONFIG_FOLDER);
 #endif

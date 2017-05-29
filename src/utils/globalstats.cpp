@@ -142,6 +142,8 @@ void GlobalStats::setBalance(double balance)
 
 int GlobalStats::getUTCOffset()
 {
+    if (PlatformSpecificService.isAndroid())
+        return 0;
     bool shouldUpdateUTC = false;
     QDateTime currentTimeUTC = QDateTime::currentDateTimeUtc();
     if (!lastTzCheck.isValid())

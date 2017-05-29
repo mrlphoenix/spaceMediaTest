@@ -89,7 +89,6 @@ QString PlaylistItem::getFullPath()
     }
     //unknown content type
     return "";
-
     /*
      *
 QString TeleDSPlayer::getFullPath(QString fileName, AbstractPlaylist * playlist)

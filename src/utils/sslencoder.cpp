@@ -1,4 +1,4 @@
-
+#include <QDataStream>
 #include "sslencoder.h"
 quint32 SSLEncoder::updateCRC32(unsigned char ch, quint32 crc)
 {
@@ -59,6 +59,35 @@ quint32 SSLEncoder::CRC32(const QByteArray &data)
         quint32(0xFFFFFFFF),
                 [](quint32 oldcrc32, char buf){ return updateCRC32(buf, oldcrc32); });
 }
+
+QByteArray SSLEncoder::compressGZIP(const QByteArray &data)
+{
+    auto compressedData = qCompress(data,9);
+    //removing zlib header and suffix
+    compressedData.remove(0, 6);
+    compressedData.chop(4);
+
+    QByteArray header;
+    QDataStream ds1(&header, QIODevice::WriteOnly);
+    ds1<< quint16(0x1f8b)
+       << quint16(0x0800)
+       << quint16(0x0000)
+       << quint16(0x0000)
+       << quint16(0x000b);
+   // 1F 8B 08 08 6B C6 B9 56 02 03 73 2E 74 78 74 00
+
+    // Append a four-byte CRC-32 of the uncompressed data
+    // Append 4 bytes uncompressed input size modulo 2^32
+    QByteArray footer;
+    QDataStream ds2(&footer, QIODevice::WriteOnly);
+    ds2.setByteOrder(QDataStream::LittleEndian);
+    ds2 << CRC32(data)
+        << quint32(data.size());
+
+    QByteArray zipData = header + compressedData + footer;
+    return zipData;
+}
+
 
 
 #ifdef USE_SSL_EXTERNAL
@@ -145,33 +174,6 @@ QByteArray SSLEncoder::encryptRSA(QByteArray data, QByteArray keyArray)
     return QUrl::toPercentEncoding(result.toBase64());
 }
 
-QByteArray SSLEncoder::compressData(const QByteArray &data)
-{
-    auto compressedData = qCompress(data,9);
-    //removing zlib header and suffix
-    compressedData.remove(0, 6);
-    compressedData.chop(4);
-
-    QByteArray header;
-    QDataStream ds1(&header, QIODevice::WriteOnly);
-    ds1<< quint16(0x1f8b)
-       << quint16(0x0800)
-       << quint16(0x0000)
-       << quint16(0x0000)
-       << quint16(0x000b);
-   // 1F 8B 08 08 6B C6 B9 56 02 03 73 2E 74 78 74 00
-
-    // Append a four-byte CRC-32 of the uncompressed data
-    // Append 4 bytes uncompressed input size modulo 2^32
-    QByteArray footer;
-    QDataStream ds2(&footer, QIODevice::WriteOnly);
-    ds2.setByteOrder(QDataStream::LittleEndian);
-    ds2 << CRC32(data)
-        << quint32(data.size());
-
-    QByteArray zipData = header + compressedData + footer;
-    return zipData;
-}
 
 QByteArray SSLEncoder::encodeAES256(QByteArray data, bool toBase64, bool isText)
 {

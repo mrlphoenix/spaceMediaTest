@@ -52,6 +52,7 @@ class SSLEncoder : public QObject
 public:
     explicit SSLEncoder(QObject *parent = 0);
     static quint32 CRC32(const QByteArray& data);
+    static QByteArray compressGZIP(const QByteArray &data);
 protected:
     static quint32 updateCRC32(unsigned char ch, quint32 crc);
 };

@@ -148,6 +148,7 @@ QString SuperPlaylist::next()
             }
         }
     }
+
     qDebug() << "SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list("
                 + QString::number(floatingFreeItems.count()) + ")";
     QString freeItemResult = nextFreeItem();

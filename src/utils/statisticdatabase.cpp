@@ -258,16 +258,18 @@ StatisticDatabase::StatisticDatabase(QObject *parent) : QObject(parent)
             QFile::remove("stat.db");
         }
     }
-   /* if (TeleDSVersion::BUILD == 1640 && !QFile::exists("pack_info"))
+    if (TeleDSVersion::BUILD == 1960 && !QFile::exists("update_1960"))
     {
-        qDebug() << "Database is outdated. Creating new one";
-        QFile f("pack_info");
+        qDebug() << "Clearing Logs On Update";
+        QFile f("update_1960");
         f.open(QFile::WriteOnly);
-        f.write(QString("1640").toLocal8Bit());
+        f.write(QString("1960").toLocal8Bit());
         f.flush();
         f.close();
-        QFile::remove("stat.db");
-    }*/
+        QProcess removeLogsProcess;
+        removeLogsProcess.start("bash remove_logs.sh");
+        removeLogsProcess.waitForFinished();
+    }
     //qDebug() << result;
     queryThread = new QueryThread(databaseName,parent);
     queryThread->start();

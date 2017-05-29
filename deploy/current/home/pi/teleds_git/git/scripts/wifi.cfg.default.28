@@ -1,0 +1,8 @@
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    disabled=0
+    ssid="HUAWEI-E8231-8052"
+    psk="4SRvBT4aplgel4r4"
+}

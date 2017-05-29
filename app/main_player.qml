@@ -4,7 +4,7 @@ import QtMultimedia 5.5
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
-import QtWebKit 3.0
+//import QtWebKit 3.0
 
 
 Item {
@@ -515,7 +515,7 @@ Item {
         waitingBlock.visible = false
     }
 
-    function setNeedActivationLogo(link, playerID, updateDelay){
+    function setNeedActivationLogo(link, playerID, showCode){
         logoColumn.visible = true
         titleText.text = brand_setupText
         progressText.text = "<a href=\"" + link + "\">" + link + "</a></html>"
@@ -527,6 +527,10 @@ Item {
         playerIDText.color = brand_backgroundColor
 
         bgLogoBlock.visible = true
+        if (showCode === true)
+        {
+            isPlayerCodeVisibleMode = true
+        }
     }
 
     function setPlayerIdHiddenMode(isVisible)
@@ -1009,7 +1013,6 @@ Item {
                     border.color: brand_foregroundColor
                 }
             }
-
     }
 
     Dialog {

@@ -1,5 +1,4 @@
 #include "gpiobuttonservice.h"
-#include <wiringPi.h>
 #include <QDebug>
 #include <QDateTime>
 
@@ -10,25 +9,34 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <QFileInfo>
+#include <platformdefines.h>
+
+#ifdef PLATFORM_DEFINE_RPI
+#include <wiringPi.h>
+#endif
 
 bool GPIOButtonService::checkPin(int pinId)
 {
+#ifdef PLATFORM_DEFINE_RPI
     return digitalRead(pinId) ;
+#endif
+    return true;
 }
 
 void GPIOButtonService::checkPinSlot()
 {
+#ifdef PLATFORM_DEFINE_RPI
     bool currentResult = !checkPin(9);
     if (currentResult && !prevState)
         emit buttonPressed();
     prevState = currentResult;
+#endif
 }
 
 GPIOButtonService::GPIOButtonService(QObject *parent) : QObject(parent)
 {
     prevState = false;
 }
-
 
 InputService::InputService(QObject *parent)
 {
@@ -37,6 +45,7 @@ InputService::InputService(QObject *parent)
 
 void InputService::run()
 {
+#ifdef PLATFORM_DEFINE_RPI
     qDebug() << "Inputservice::run";
     int ff = open("/dev/input/event0", O_RDONLY);
     input_event event;
@@ -54,12 +63,14 @@ void InputService::run()
           //  qDebug() << "InputService::run" << event.code << event.value;
         }
     }
+#endif
 }
 
 
 
 void InputDeviceControlService::run()
 {
+#ifdef PLATFORM_DEFINE_RPI
     qDebug() << "InputDeviceControlService::run";
     while (1)
     {
@@ -81,4 +92,5 @@ void InputDeviceControlService::run()
         }
         this->thread()->sleep(1);
     }
+#endif
 }

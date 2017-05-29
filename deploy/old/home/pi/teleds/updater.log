@@ -1,0 +1,8 @@
+Updater Started!!! QDateTime(2017-04-25 15:17:20.771 UTC Qt::TimeSpec(UTC))
+"/home/pi/teleds"
+arg is  -service
+running from service!
+trying to open file update_info
+ERROR! Cant open??? "No such file or directory"
+working with  "-service"
+WARNING: no player update in batch!

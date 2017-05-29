@@ -12,6 +12,7 @@
 #include "globalstats.h"
 #include "globalconfig.h"
 #include "platformspecific.h"
+#include "sslencoder.h"
 
 VideoService::VideoService(QString serverURL, QObject *parent) : QObject(parent)
 {
@@ -165,12 +166,14 @@ void VideoService::performRequest(VideoServiceRequest request)
     else
     {
         qDebug() << "ERROR: undefined method: " << request.name;
-    }
+    };
+
     //qDebug() << data;
     if (request.method == "GET")
         manager->get(networkRequest);
     else
         manager->post(networkRequest, data);
+
 }
 
 void VideoService::nextRequest()
@@ -195,12 +198,17 @@ VideoServiceRequest::VideoServiceRequestParam::VideoServiceRequestParam(QString 
 VideoServiceRequest VideoServiceRequestFabric::sendEventsRequest(QString data)
 {
     VideoServiceRequest result;
-    result.body = data.toLocal8Bit();
+    //result.body = data.toLocal8Bit();
+    qDebug() << "original size: " << data.toLocal8Bit().count();
+    result.body = SSLEncoder::compressGZIP(data.toLocal8Bit());
+    qDebug() << "upload body size = " << result.body.count();
     result.knownHeaders[QNetworkRequest::ContentTypeHeader] = "application/json";
     result.headers["Authorization"] = GlobalConfigInstance.getToken();
+    result.headers["Content-Encoding"] = "gzip";
     result.methodAPI = "player/event";
     result.method = "POST";
     result.name = "statistics:events";
+    //
     return result;
 }
 
@@ -224,6 +232,26 @@ VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest()
     result.methodAPI = "player/playlist";
     result.name = "playlist";
     result.method = "GET";
+    VideoServiceRequest::VideoServiceRequestParam hashParam;
+    hashParam.key = "hash";
+    hashParam.value = GlobalConfigInstance.getMetaProperty("playlist_hash");
+    if (!hashParam.value.isEmpty())
+        result.params.append(hashParam);
+    qDebug() << "getPlaylistRequest::isAndroid";
+    if (PlatformSpecificService.isAndroid())
+    {
+        qDebug() << "getPlaylistRequest::format";
+        VideoServiceRequest::VideoServiceRequestParam formatParam;
+        formatParam.key = "video_format";
+        formatParam.value = ".webm";
+        result.params.append(formatParam);
+        qDebug() << "getPlaylistRequest::ignore";
+        VideoServiceRequest::VideoServiceRequestParam ignoreRotationParam;
+        ignoreRotationParam.key = "ignore_rotation";
+        ignoreRotationParam.value = "1";
+        result.params.append(ignoreRotationParam);
+    }
+    //
     return result;
 }
 
@@ -234,6 +262,12 @@ VideoServiceRequest VideoServiceRequestFabric::getSettingsRequest()
     result.methodAPI = "player/settings";
     result.name = "settings";
     result.method = "GET";
+    VideoServiceRequest::VideoServiceRequestParam hashParam;
+    hashParam.key = "hash";
+    hashParam.value = GlobalConfigInstance.getMetaProperty("settings_hash");
+    qDebug() << "VideoService::building request with hash = " << hashParam.value;
+    if (!hashParam.value.isEmpty())
+        result.params.append(hashParam);
     return result;
 }
 

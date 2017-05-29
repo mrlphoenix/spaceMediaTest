@@ -26,6 +26,7 @@ VideoServiceResponseHandler::VideoServiceResponseHandler(QObject *parent) : QObj
 
 void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
 {
+    qDebug() << "INIT RESULT REPLY";
     if (reply->error())
     {
         InitRequestResult result;
@@ -43,6 +44,8 @@ void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
         QByteArray data = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(data);
         InitRequestResult result = InitRequestResult::fromJson(doc.object());
+        result.error_id = 0;
+
         emit initResult(result);
     }
     reply->deleteLater();
@@ -70,10 +73,22 @@ void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
     }
     else
     {
+        int error_id;
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+        {
+            error_id = httpStatus.toInt();
+            if (error_id == 200)
+                error_id = 0;
+        }
+        else
+            error_id = 0;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
-        result = PlayerConfigAPI::fromJson(root);
+        result = PlayerConfigAPI::fromJson(root, error_id == 0? true:false);
+        result.error_id = error_id;
+
     }
     emit getPlaylistResult(result);
     reply->deleteLater();
@@ -113,8 +128,6 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
             result.error_id = httpStatus.toInt();
         else
             result.error_id = -1;
-
-        qDebug() << "VideoServiceResponseHandler::Settings -> network eror." << result.error_id;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
@@ -122,10 +135,22 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
     }
     else
     {
+        int error_id;
+        QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if (httpStatus.isValid())
+        {
+            error_id = httpStatus.toInt();
+            if (error_id == 200)
+                error_id = 0;
+        }
+        else
+            error_id = 0;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
-        result = SettingsRequestResult::fromJson(root);
+        qDebug() << "SettingsReply Error" << error_id;
+        result = SettingsRequestResult::fromJson(root, error_id == 0?true:false);
+        result.error_id = error_id;
     }
     emit getPlayerSettingsResult(result);
     reply->deleteLater();
@@ -245,6 +270,8 @@ SettingsRequestResult SettingsRequestResult::fromJson(QJsonObject data, bool nee
     result.volume = data["volume"].toInt();
 
     result.player_id = data["player_id"].toString();
+    result.send_logs = data["send_logs"].toInt();
+    result.hash = data["hash"].toString();
 
     if (needSave)
     {
@@ -285,10 +312,11 @@ bool SettingsRequestResult::getForcePlaylistUpdate()
         return false;
 }
 
-PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json)
+PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json, bool needSave)
 {
     //
-    GlobalConfigInstance.setPlaylist(json);
+    if (needSave)
+        GlobalConfigInstance.setPlaylist(json);
     PlayerConfigAPI result;
     result.last_modified = timeFromJson(json["last_modified"]);
     result.hash = json["hash"].toString();

@@ -18,9 +18,12 @@
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QInputDialog>
+#include <QDir>
+#include <QDirIterator>
 
 #include "lfsrencoder.h"
 #include "notherfilesystem.h"
+#include "teledsencoder.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -54,6 +57,28 @@ void MainWindow::loadPreferences()
     f.close();
 }
 
+QStringList scanDir(QDir dir)
+{
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    qDebug() << "Scanning: " << dir.path();
+
+    QStringList fileList = dir.entryList();
+    for (int i = 0; i < fileList.count(); i++)
+    {
+        fileList[i] = dir.path() + "/" + fileList[i];
+    }
+
+    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QStringList dirList = dir.entryList();
+    for (int i=0; i<dirList.size(); ++i)
+    {
+        QString newPath = QString("%1/%2").arg(dir.absolutePath()).arg(dirList.at(i));
+        fileList.append(scanDir(QDir(newPath)));
+    }
+    return fileList;
+}
+
 void MainWindow::setupUiFromJson(QJsonObject root)
 {
     ui->updater_path->setText(root["updater_path"].toString());
@@ -68,6 +93,8 @@ void MainWindow::setupUiFromJson(QJsonObject root)
     ui->platformCombobox->setCurrentIndex(ui->platformCombobox->findText(root["platform"].toString()));
     ui->deploy_player->setChecked(root["deploy_player"].toBool());
     ui->deploy_updater->setChecked(root["deploy_updater"].toBool());
+    ui->prev_version_folder->setText(root["deploy_prev_path"].toString());
+    ui->next_version_folder->setText(root["deploy_current_path"].toString());
 }
 
 void MainWindow::saveConfigToJson()
@@ -83,6 +110,9 @@ void MainWindow::saveConfigToJson()
     json["platform"] = ui->platformCombobox->currentText();
     json["deploy_player"] = ui->deploy_player->isChecked();
     json["deploy_updater"] = ui->deploy_updater->isChecked();
+
+    json["deploy_prev_path"] = ui->prev_version_folder->text();
+    json["deploy_current_path"] = ui->next_version_folder->text();
 
     QJsonDocument doc(json);
     QByteArray data = doc.toJson();
@@ -418,11 +448,9 @@ void MainWindow::on_deploy_clicked()
     multiPart->append(platformPart);
     multiPart->append(filePart);
 
-
     QUrl url("http://api.teleds.com/app/deploy");
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", authHeader.toLocal8Bit());
-
 
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply
@@ -441,5 +469,85 @@ void MainWindow::on_file_list_itemDoubleClicked(QListWidgetItem *item)
     QString text = QInputDialog::getText(this, tr("Set custom path"),
                                              tr("custom path: "), QLineEdit::Normal,tokens[1], &ok);
     if (ok)
-    item->setText(tokens[0] + "||" + text);
+        item->setText(tokens[0] + "||" + text);
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Root Directory"),
+                                                 qApp->applicationDirPath(),
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty())
+        ui->prev_version_folder->setText(dir);
+    saveConfigToJson();
+}
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Root Directory"),
+                                                 qApp->applicationDirPath(),
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty())
+        ui->next_version_folder->setText(dir);
+    saveConfigToJson();
+}
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    //test function
+    QStringList prevDirFiles = scanDir(QDir(ui->prev_version_folder->text()));
+    QStringList nextDirFiles = scanDir(QDir(ui->next_version_folder->text()));
+    TeleDSPatch patch = TeleDSPatcher::createPatch(prevDirFiles,nextDirFiles, prevDirFiles,
+                                                   "/home/nother/TeleDS/deploy/old", "/home/nother/TeleDS/deploy/current", ui->player_version->value(), ui->patch_version->value());
+
+    qDebug() << patch.magic;
+
+    QByteArray out;
+    QDataStream ds(&out, QIODevice::WriteOnly);
+
+    qDebug() << "Serialization Start" << QDateTime::currentDateTime();
+    ds << patch.magic << patch.patchVersion << patch.playerVersion;
+    ds << patch.totalFileCount << patch.updateFileCount;
+    ds << patch.fileNames << patch.fileHashes;
+    ds << patch.updateFiles.count();
+    for (int i = 0; i < patch.updateFiles.count(); i++)
+    {
+        FilePatchInfo info = patch.updateFiles[i];
+        ds << info.magic << info.patchHash << info.originalFileHash << info.filePath;
+        ds << TeleDSPatcher::serializePatch(info.patch);
+    }
+
+    QFile f("/home/nother/1945patch.patch");
+    if (f.open(QFile::WriteOnly))
+    {
+        f.write(out);
+        f.flush();
+        f.close();
+    }
+    qDebug() << "Serialization end " << QDateTime::currentDateTime();
+
+    qDebug() << "Creating image ";
+    TeleDSImage image = TeleDSImage::createImage(ui->player_version->value(), ui->patch_version->value(), nextDirFiles);
+    qDebug() << "Serializing Image " << QDateTime::currentDateTime();
+    QByteArray data = image.serialize();
+    QFile imagef("/home/nother/1945patch.image");
+    if (imagef.open(QFile::WriteOnly))
+    {
+        imagef.write(data);
+        imagef.flush();
+        imagef.close();
+    }
+    qDebug() << "Ready" << QDateTime::currentDateTime();
+}
+
+void MainWindow::on_prev_version_folder_editingFinished()
+{
+    saveConfigToJson();
+}
+
+void MainWindow::on_next_version_folder_editingFinished()
+{
+    saveConfigToJson();
 }

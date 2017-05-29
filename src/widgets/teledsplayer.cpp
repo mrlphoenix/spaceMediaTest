@@ -57,7 +57,6 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
         connect(this, SIGNAL(keyUp(int)), &menu, SLOT(onKeyUp(int)));
         menu.load();
     });
-
    // show();
     isSplitScreen = false;
     nextCampaignTimer = new QTimer(this);
@@ -286,7 +285,6 @@ void TeleDSPlayer::invokeSimpleProgress(double p, QString)
 {
     QVariant percent(p);
     QMetaObject::invokeMethod(viewRootObject,"setDownloadProgressSimple",Q_ARG(QVariant, percent));
-
 }
 
 void TeleDSPlayer::invokeBackDownloadProgressBarVisible(bool isVisible)
@@ -373,16 +371,15 @@ void TeleDSPlayer::invokeSetDelay(int delay)
     QMetaObject::invokeMethod(viewRootObject, "setDelay", Q_ARG(QVariant, QVariant(delay)));
 }
 
-void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playerId)
+void TeleDSPlayer::invokePlayerActivationRequiredView(QString url, QString playerId, bool showCode)
 {
     qDebug() << "invokePlayerActivationRequiredView";
     QVariant urlParam(url);
     QVariant playerIdParam("  " + playerId.toUpper() + "  ");
-    QVariant updateDelayParam(GlobalConfigInstance.getGetPlaylistTimerTime()/1000);
     QMetaObject::invokeMethod(viewRootObject,"setNeedActivationLogo",
                               Q_ARG(QVariant, urlParam),
                               Q_ARG(QVariant, playerIdParam),
-                              Q_ARG(QVariant, updateDelayParam));
+                              Q_ARG(QVariant, QVariant(showCode)));
 
     invokeSetDeviceInfo();
 }
@@ -439,6 +436,7 @@ void TeleDSPlayer::invokeSetTheme(QString backgroundURL, QString logoURL, QStrin
                               Q_ARG(QVariant, color3Param),
                               Q_ARG(QVariant, tileModeParam),
                               Q_ARG(QVariant, showTeleDSLogoParam));
+
     this->show();
 }
 
@@ -814,8 +812,7 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
         //we need to stop playback after last item end
         //invoke prepare stop
     }
-
-    qDebug() <<QDateTime::currentDateTime().time();
+    qDebug() << QDateTime::currentDateTime().time();
 }
 
 void TeleDSPlayer::bindObjects()

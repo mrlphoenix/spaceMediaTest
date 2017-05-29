@@ -51,11 +51,13 @@ OBJECTS_DIR   = ./
 SOURCES       = ../teledsDeployTool/main.cpp \
 		../teledsDeployTool/mainwindow.cpp \
 		../teledsDeployTool/lfsrencoder.cpp \
-		../teledsDeployTool/notherfilesystem.cpp moc_mainwindow.cpp
+		../teledsDeployTool/notherfilesystem.cpp \
+		../teledsDeployTool/teledsencoder.cpp moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		lfsrencoder.o \
 		notherfilesystem.o \
+		teledsencoder.o \
 		moc_mainwindow.o
 DIST          = ../../../Qt/5.5/gcc/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.5/gcc/mkspecs/common/unix.conf \
@@ -193,10 +195,12 @@ DIST          = ../../../Qt/5.5/gcc/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.5/gcc/mkspecs/features/lex.prf \
 		../teledsDeployTool/teledsDeployTool.pro ../teledsDeployTool/mainwindow.h \
 		../teledsDeployTool/lfsrencoder.h \
-		../teledsDeployTool/notherfilesystem.h ../teledsDeployTool/main.cpp \
+		../teledsDeployTool/notherfilesystem.h \
+		../teledsDeployTool/teledsencoder.h ../teledsDeployTool/main.cpp \
 		../teledsDeployTool/mainwindow.cpp \
 		../teledsDeployTool/lfsrencoder.cpp \
-		../teledsDeployTool/notherfilesystem.cpp
+		../teledsDeployTool/notherfilesystem.cpp \
+		../teledsDeployTool/teledsencoder.cpp
 QMAKE_TARGET  = teledsDeployTool
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = teledsDeployTool
@@ -520,8 +524,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../teledsDeployTool/mainwindow.h ../teledsDeployTool/lfsrencoder.h ../teledsDeployTool/notherfilesystem.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../teledsDeployTool/main.cpp ../teledsDeployTool/mainwindow.cpp ../teledsDeployTool/lfsrencoder.cpp ../teledsDeployTool/notherfilesystem.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../teledsDeployTool/mainwindow.h ../teledsDeployTool/lfsrencoder.h ../teledsDeployTool/notherfilesystem.h ../teledsDeployTool/teledsencoder.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../teledsDeployTool/main.cpp ../teledsDeployTool/mainwindow.cpp ../teledsDeployTool/lfsrencoder.cpp ../teledsDeployTool/notherfilesystem.cpp ../teledsDeployTool/teledsencoder.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../teledsDeployTool/mainwindow.ui $(DISTDIR)/
 
 
@@ -1086,6 +1090,8 @@ mainwindow.o: ../teledsDeployTool/mainwindow.cpp ../teledsDeployTool/mainwindow.
 		../../../Qt/5.5/gcc/include/QtGui/qfontdatabase.h \
 		../../../Qt/5.5/gcc/include/QtWidgets/QPushButton \
 		../../../Qt/5.5/gcc/include/QtWidgets/qpushbutton.h \
+		../../../Qt/5.5/gcc/include/QtWidgets/QSpinBox \
+		../../../Qt/5.5/gcc/include/QtWidgets/qspinbox.h \
 		../../../Qt/5.5/gcc/include/QtWidgets/QTabWidget \
 		../../../Qt/5.5/gcc/include/QtWidgets/QWidget \
 		../../../Qt/5.5/gcc/include/QtCore/QJsonDocument \
@@ -1107,6 +1113,9 @@ mainwindow.o: ../teledsDeployTool/mainwindow.cpp ../teledsDeployTool/mainwindow.
 		../../../Qt/5.5/gcc/include/QtNetwork/QHttpPart \
 		../../../Qt/5.5/gcc/include/QtWidgets/QInputDialog \
 		../../../Qt/5.5/gcc/include/QtWidgets/qinputdialog.h \
+		../../../Qt/5.5/gcc/include/QtCore/QDir \
+		../../../Qt/5.5/gcc/include/QtCore/QDirIterator \
+		../../../Qt/5.5/gcc/include/QtCore/qdiriterator.h \
 		../teledsDeployTool/lfsrencoder.h \
 		../teledsDeployTool/notherfilesystem.h \
 		../../../Qt/5.5/gcc/include/QtCore/QList \
@@ -1246,6 +1255,125 @@ notherfilesystem.o: ../teledsDeployTool/notherfilesystem.cpp ../../../Qt/5.5/gcc
 		../teledsDeployTool/lfsrencoder.h \
 		../../../Qt/5.5/gcc/include/QtCore/QByteArray
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o notherfilesystem.o ../teledsDeployTool/notherfilesystem.cpp
+
+teledsencoder.o: ../teledsDeployTool/teledsencoder.cpp ../../../Qt/5.5/gcc/include/QtCore/QFile \
+		../../../Qt/5.5/gcc/include/QtCore/qfile.h \
+		../../../Qt/5.5/gcc/include/QtCore/qfiledevice.h \
+		../../../Qt/5.5/gcc/include/QtCore/qiodevice.h \
+		../../../Qt/5.5/gcc/include/QtCore/qglobal.h \
+		../../../Qt/5.5/gcc/include/QtCore/qconfig.h \
+		../../../Qt/5.5/gcc/include/QtCore/qfeatures.h \
+		../../../Qt/5.5/gcc/include/QtCore/qsystemdetection.h \
+		../../../Qt/5.5/gcc/include/QtCore/qprocessordetection.h \
+		../../../Qt/5.5/gcc/include/QtCore/qcompilerdetection.h \
+		../../../Qt/5.5/gcc/include/QtCore/qtypeinfo.h \
+		../../../Qt/5.5/gcc/include/QtCore/qtypetraits.h \
+		../../../Qt/5.5/gcc/include/QtCore/qsysinfo.h \
+		../../../Qt/5.5/gcc/include/QtCore/qlogging.h \
+		../../../Qt/5.5/gcc/include/QtCore/qflags.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic.h \
+		../../../Qt/5.5/gcc/include/QtCore/qbasicatomic.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_bootstrap.h \
+		../../../Qt/5.5/gcc/include/QtCore/qgenericatomic.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_cxx11.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_gcc.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_msvc.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_armv7.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_armv6.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_armv5.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_ia64.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_mips.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_x86.h \
+		../../../Qt/5.5/gcc/include/QtCore/qatomic_unix.h \
+		../../../Qt/5.5/gcc/include/QtCore/qglobalstatic.h \
+		../../../Qt/5.5/gcc/include/QtCore/qmutex.h \
+		../../../Qt/5.5/gcc/include/QtCore/qnumeric.h \
+		../../../Qt/5.5/gcc/include/QtCore/qobject.h \
+		../../../Qt/5.5/gcc/include/QtCore/qobjectdefs.h \
+		../../../Qt/5.5/gcc/include/QtCore/qnamespace.h \
+		../../../Qt/5.5/gcc/include/QtCore/qobjectdefs_impl.h \
+		../../../Qt/5.5/gcc/include/QtCore/qstring.h \
+		../../../Qt/5.5/gcc/include/QtCore/qchar.h \
+		../../../Qt/5.5/gcc/include/QtCore/qbytearray.h \
+		../../../Qt/5.5/gcc/include/QtCore/qrefcount.h \
+		../../../Qt/5.5/gcc/include/QtCore/qarraydata.h \
+		../../../Qt/5.5/gcc/include/QtCore/qstringbuilder.h \
+		../../../Qt/5.5/gcc/include/QtCore/qlist.h \
+		../../../Qt/5.5/gcc/include/QtCore/qalgorithms.h \
+		../../../Qt/5.5/gcc/include/QtCore/qiterator.h \
+		../../../Qt/5.5/gcc/include/QtCore/qbytearraylist.h \
+		../../../Qt/5.5/gcc/include/QtCore/qstringlist.h \
+		../../../Qt/5.5/gcc/include/QtCore/qregexp.h \
+		../../../Qt/5.5/gcc/include/QtCore/qstringmatcher.h \
+		../../../Qt/5.5/gcc/include/QtCore/qcoreevent.h \
+		../../../Qt/5.5/gcc/include/QtCore/qscopedpointer.h \
+		../../../Qt/5.5/gcc/include/QtCore/qmetatype.h \
+		../../../Qt/5.5/gcc/include/QtCore/qvarlengtharray.h \
+		../../../Qt/5.5/gcc/include/QtCore/qcontainerfwd.h \
+		../../../Qt/5.5/gcc/include/QtCore/qisenum.h \
+		../../../Qt/5.5/gcc/include/QtCore/qobject_impl.h \
+		../../../Qt/5.5/gcc/include/QtCore/QByteArray \
+		../../../Qt/5.5/gcc/include/QtWidgets/QFileDialog \
+		../../../Qt/5.5/gcc/include/QtWidgets/qfiledialog.h \
+		../../../Qt/5.5/gcc/include/QtCore/qdir.h \
+		../../../Qt/5.5/gcc/include/QtCore/qfileinfo.h \
+		../../../Qt/5.5/gcc/include/QtCore/qshareddata.h \
+		../../../Qt/5.5/gcc/include/QtCore/qhash.h \
+		../../../Qt/5.5/gcc/include/QtCore/qpair.h \
+		../../../Qt/5.5/gcc/include/QtCore/qurl.h \
+		../../../Qt/5.5/gcc/include/QtCore/qurlquery.h \
+		../../../Qt/5.5/gcc/include/QtWidgets/qdialog.h \
+		../../../Qt/5.5/gcc/include/QtWidgets/qwidget.h \
+		../../../Qt/5.5/gcc/include/QtGui/qwindowdefs.h \
+		../../../Qt/5.5/gcc/include/QtGui/qwindowdefs_win.h \
+		../../../Qt/5.5/gcc/include/QtCore/qmargins.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpaintdevice.h \
+		../../../Qt/5.5/gcc/include/QtCore/qrect.h \
+		../../../Qt/5.5/gcc/include/QtCore/qsize.h \
+		../../../Qt/5.5/gcc/include/QtCore/qpoint.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpalette.h \
+		../../../Qt/5.5/gcc/include/QtGui/qcolor.h \
+		../../../Qt/5.5/gcc/include/QtGui/qrgb.h \
+		../../../Qt/5.5/gcc/include/QtGui/qbrush.h \
+		../../../Qt/5.5/gcc/include/QtCore/qvector.h \
+		../../../Qt/5.5/gcc/include/QtGui/qmatrix.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpolygon.h \
+		../../../Qt/5.5/gcc/include/QtGui/qregion.h \
+		../../../Qt/5.5/gcc/include/QtCore/qdatastream.h \
+		../../../Qt/5.5/gcc/include/QtCore/qline.h \
+		../../../Qt/5.5/gcc/include/QtGui/qtransform.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpainterpath.h \
+		../../../Qt/5.5/gcc/include/QtGui/qimage.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpixelformat.h \
+		../../../Qt/5.5/gcc/include/QtGui/qpixmap.h \
+		../../../Qt/5.5/gcc/include/QtCore/qsharedpointer.h \
+		../../../Qt/5.5/gcc/include/QtCore/qsharedpointer_impl.h \
+		../../../Qt/5.5/gcc/include/QtGui/qfont.h \
+		../../../Qt/5.5/gcc/include/QtGui/qfontmetrics.h \
+		../../../Qt/5.5/gcc/include/QtGui/qfontinfo.h \
+		../../../Qt/5.5/gcc/include/QtWidgets/qsizepolicy.h \
+		../../../Qt/5.5/gcc/include/QtGui/qcursor.h \
+		../../../Qt/5.5/gcc/include/QtGui/qkeysequence.h \
+		../../../Qt/5.5/gcc/include/QtGui/qevent.h \
+		../../../Qt/5.5/gcc/include/QtCore/qvariant.h \
+		../../../Qt/5.5/gcc/include/QtCore/qmap.h \
+		../../../Qt/5.5/gcc/include/QtCore/qdebug.h \
+		../../../Qt/5.5/gcc/include/QtCore/qtextstream.h \
+		../../../Qt/5.5/gcc/include/QtCore/qlocale.h \
+		../../../Qt/5.5/gcc/include/QtCore/qset.h \
+		../../../Qt/5.5/gcc/include/QtCore/qcontiguouscache.h \
+		../../../Qt/5.5/gcc/include/QtGui/qvector2d.h \
+		../../../Qt/5.5/gcc/include/QtGui/qtouchdevice.h \
+		../../../Qt/5.5/gcc/include/QtCore/QDateTime \
+		../../../Qt/5.5/gcc/include/QtCore/qdatetime.h \
+		../../../Qt/5.5/gcc/include/QtCore/QVector \
+		../../../Qt/5.5/gcc/include/QtCore/QCryptographicHash \
+		../../../Qt/5.5/gcc/include/QtCore/qcryptographichash.h \
+		../../../Qt/5.5/gcc/include/QtCore/QHash \
+		../teledsDeployTool/teledsencoder.h \
+		../../../Qt/5.5/gcc/include/QtCore/QObject \
+		../../../Qt/5.5/gcc/include/QtCore/QDebug
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o teledsencoder.o ../teledsDeployTool/teledsencoder.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

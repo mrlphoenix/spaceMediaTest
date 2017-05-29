@@ -1,0 +1,12 @@
+dtparam=audio=on
+dtparam=i2c1=on
+hdmi_mode=85
+dtparam=i2c_arm=on
+gpu_mem=256
+disable_splash=1
+hdmi_drive=1
+hdmi_force_hotplug=1
+display_rotate=0
+boot_delay=10
+config_hdmi_boost=7
+hdmi_group=2

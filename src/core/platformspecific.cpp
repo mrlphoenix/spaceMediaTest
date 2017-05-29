@@ -894,6 +894,14 @@ bool Platform::PlatformSpecific::isKeySymbol(int code)
             code == 57;
 }
 
+bool Platform::PlatformSpecific::isAndroid()
+{
+#ifdef PLATFORM_DEFINE_ANDROID
+    return true;
+#endif
+    return false;
+}
+
 void Platform::PlatformSpecific::generateSystemInfo()
 {
     thread->generateSystemInfo();

@@ -75,7 +75,7 @@ public slots:
     void invokeToggleVisibility(int status);
     void invokeSetDelay(int delay);
 
-    void invokePlayerActivationRequiredView(QString url, QString playerId);
+    void invokePlayerActivationRequiredView(QString url, QString playerId, bool showCode);
     void invokeNoItemsView(QString url);
     void invokeDownloadingView();
     void invokeStop();

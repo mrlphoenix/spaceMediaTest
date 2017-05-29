@@ -1,0 +1,3648 @@
+Unable to query physical screen size, defaulting to 100 dpi.
+To override, set QT_QPA_EGLFS_PHYSICAL_WIDTH and QT_QPA_EGLFS_PHYSICAL_HEIGHT (in millimeters).
+qt.qpa.input: X-less xkbcommon not available, not performing key mapping
+global config init
+loading from config.dat
+currentConfig:  "Bearer WEmmsAqfREH6PMbU6QpwzjhcjAKfy6g3NefiuZlt4dJqQUPRkJV8miDQ1ro8BFWPCSlaXAwXusggtEbhCXGa76yJCZoKyzWgWuWcQ8oDwO1hXpOOFadLuvLluSMpZxbGMqJ9eBWXpdEH6m1vrgHFfiyDOUrcmBZooCIofzQZvAEOps2DiXeCpPrPFmaSZJCvAJfrWFlxQxJ4xFSC7x6w2nbrx9IuopLQBrZhARIW81Mk3JpaVGfuCQCgUPbPWRY"
+0
+TELEDS v "1.0.20/1947"
+DB INIT
+Platform::PlatformSpecificThread::run()
+Working in  "/home/pi/teleds"
+RELAYTM
+TeleDSCore::initSystemServices
+DB OPENED
+Initialization of Combos
+Initialization of InputDeviceControlService
+Initialization of GPIOButtonService
+Initialization of Reset Player Button
+QDir::mkpath: Empty or null file name
+Statistic Uploader Initialization
+Requesting control for org.qt-project.qt.metadatareadercontrol/5.0...
+Requesting control for org.qt-project.qt.mediaavailabilitycontrol/5.0...
+Requesting control for org.qt-project.qt.mediaplayercontrol/5.0...
+Requesting control for org.qt-project.qt.medianetworkaccesscontrol/5.0...
+Requesting control for org.qt-project.qt.audiorolecontrol/5.6...
+Requesting control for org.qt-project.qt.metadatareadercontrol/5.0...
+Requesting control for org.qt-project.qt.mediaavailabilitycontrol/5.0...
+Requesting control for org.qt-project.qt.mediaplayercontrol/5.0...
+Requesting control for org.qt-project.qt.medianetworkaccesscontrol/5.0...
+Requesting control for org.qt-project.qt.audiorolecontrol/5.6...
+Requesting control for org.qt-project.qt.videorenderercontrol/5.0...
+Requesting control for org.qt-project.qt.videorenderercontrol/5.0...
+Unable to query physical screen size, defaulting to 100 dpi.
+To override, set QT_QPA_EGLFS_PHYSICAL_WIDTH and QT_QPA_EGLFS_PHYSICAL_HEIGHT (in millimeters).
+qt.qpa.input: X-less xkbcommon not available, not performing key mapping
+qrc:/main_player.qml:725:9: QML Text: Binding loop detected for property "font.pointSize"
+qrc:/main_player.qml:725:9: QML Text: Binding loop detected for property "font.pointSize"
+qrc:/main_player.qml:714:9: QML Text: Binding loop detected for property "font.pointSize"
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+qml: Coordinate: NaN NaN
+Loading config from  "data/"
+TeleDSCore::loading config
+loading: token =  "Bearer WEmmsAqfREH6PMbU6QpwzjhcjAKfy6g3NefiuZlt4dJqQUPRkJV8miDQ1ro8BFWPCSlaXAwXusggtEbhCXGa76yJCZoKyzWgWuWcQ8oDwO1hXpOOFadLuvLluSMpZxbGMqJ9eBWXpdEH6m1vrgHFfiyDOUrcmBZooCIofzQZvAEOps2DiXeCpPrPFmaSZJCvAJfrWFlxQxJ4xFSC7x6w2nbrx9IuopLQBrZhARIW81Mk3JpaVGfuCQCgUPbPWRY"
+TeleDSCore::init brand is NOT active
+TeleDSPlayer::show
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+Could not add child element to parent element because the types are incorrect.
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+10000
+TELEDS initialization done
+Init gps Receiver
+zip result
+""
+Failed to create Geoclue client interface. Geoclue error: org.freedesktop.DBus.Error.Disconnected
+binding QML and C++
+InputDeviceControlService::run
+invoking version text
+TeleDSPlayer::invokeSetLicenseData
+"TeleDSPlayer::invoke eula(9075)"
+qml: E.l=9075
+SpaceMediaMenu Initialization
+SpaceMediaMenu::initialization
+Loading menu config
+Loading HDMI Config
+"                    ESSID:\"WiFi-DOM.ru-7853\""
+"                    ESSID:\"dom 86\""
+"                    ESSID:\"office8v2\""
+"                    ESSID:\"office8v2\""
+""
+invokeMenuHDMIGroupChanged 2 "2: DMT "
+invokeMenuHDMIModeChanged 85 "85: 1280x720 60Hz"
+invokeMenuHDMIDriveChanged 1 "1: DVI "
+invokeMenuHDMIBoostChanged 7
+invokeMenuDisplayRotationChanged 0 "0°"
+"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev"
+"update_config=1"
+""
+"network={"
+"    disabled=0"
+Disabled flag found
+"disabled=0"
+"    ssid=\"HUAWEI-E8231-8052\""
+SSID flag found
+SSID test  "HUAWEI-E8231-8052"
+("WiFi-DOM.ru-7853", "dom 86", "office8v2", "office8v2", "Hidden", "Disabled")
+"    psk=\"4SRvBT4aplgel4r4\""
+currentWifiPass "4SRvBT4aplgel4r4"
+"}"
+""
+Input Device connected
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  ""
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+10000
+SettingsReply Error 0
+playerSettingsResult 0
+getPlaylistRequest::isAndroid
+Warning::enqueuing request "playlist"
+CRC HEX =  "2EDF3207"
+invoking version text
+qml: player volume 1
+VideoService::performRequest "playlist"
+Inputservice::run
+TeleDSCore::playlistResult
+TeleDSCore::playlistResult <> need to update
+Core::setupDownloader
+VIDEODOWNLOADER INIT
+TeleDSSheduler::stop  0
+VIDEO DOWNLOADER::runDownloadNew
+VDW: run Donwload new
+"filehash  of data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 was not found in cache - calculating!"
+"filehash  of data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29c4757e97efc4103d35f8c9cc096c699b.zip was not found in cache - calculating!"
+"filehash  of data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 was not found in cache - calculating!"
+"filehash  of data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 was not found in cache - calculating!"
+"filehash  of data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 was not found in cache - calculating!"
+"filehash  of data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 was not found in cache - calculating!"
+"filehash  of data/video/92888918-e5b3-4617-9d3d-ff82b3f3b3187f9331d11f0d6dcaa361f9a8e112db1d.zip was not found in cache - calculating!"
+"filehash  of data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 was not found in cache - calculating!"
+"filehash  of data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 was not found in cache - calculating!"
+"filehash  of data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4 was not found in cache - calculating!"
+FILES NEED TO BE DOWNLOADED:  0
+TeleDSPlayer "" false
+downloading completed
+Download Finished
+TeleDSPlayer "" false
+TeleDSCore::downloaded
+TeleDSPlayer "" false
+choosing campaign 0
+"15dc9e8c-21ad-440f-8760-42c2be061412"
+stopping player
+TeleDSPlayer::invokeStop
+qml: PlayerView::stop
+qml: stop browser
+qml: sb1::stop
+qml: FULLSCREENVIEW::onstop
+TeleDSPlayer::next  ""
+next method is called
+QTime("08:18:59.081")
+playNextGeneric! ""
+playlist  ""  not found
+qml: DelayManager::reset 0
+SuperPlaylist::splitItems
+Normal/Floating:  1  Floating/Free:  9
+QDateTime(2017-05-02 08:08:40.117 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.119 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.119 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:18:59.119 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.129 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.130 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "b63656b6-d781-4a03-8cff-e6c8eb05118c"   QDateTime(2017-05-02 04:13:20.581 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.143 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.143 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:18:59.143 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.154 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.155 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:18:59.154 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.166 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.166 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:18:59.166 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.178 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.178 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:18:59.178 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.189 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.189 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:18:59.189 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.201 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.201 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:18:59.201 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.212 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.212 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:18:59.212 UTC Qt::TimeSpec(UTC))
+itemFakePlayTime QDateTime(2017-05-02 04:18:59.224 UTC Qt::TimeSpec(UTC)) |  QDateTime(2017-05-02 08:18:59.224 UTC Qt::TimeSpec(UTC))
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:18:59.224 UTC Qt::TimeSpec(UTC))
+invoking download completed
+qml: download complete. Hiding Progress Bars, Showing Video Player
+TeleDSPlayer::invokeSetDeviceInfo
+TeleDSPlayer::invokeInitArea
+qml: prepareArea 1920 1080 1920 1080
+qml: set rotation 0
+qml: no need to recalculate boundrect =0
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+TeleDSPlayer::play!
+status.isPlaying = true;
+currentCampaignId =  0 1
+currentCampaignId =  0 1
+TeleDSPlayer::invokeSetDelay
+TeleDSPlayer::invokeInitArea
+qml: prepareArea 1920 1080 1920 1080
+qml: set rotation 0
+qml: no need to recalculate boundrect =0
+TeleDSPlayer::reset current index
+"6ba5f611-3c96-4b3c-a72c-357b009e538f"
+Trying to fill force items
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:01.078")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:01.100")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:18:54.123 UTC Qt::TimeSpec(UTC))
+QTime("08:19:01.129")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:null
+qml: Filling src < MP1
+qml: askNext play::video::null
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:01.240")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:01.304")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:18:54.368 UTC Qt::TimeSpec(UTC))
+QTime("08:19:01.394")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+set next playnextgeneric::status.isPlaying=true;
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+QTime("08:19:01.524")
+    encoder         : Lavf57.25.100set next playnextgeneric::status.isPlaying=true;
+
+  Duration: QTime("08:19:01.601")
+00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+true
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:19:17.182 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:17.666")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:17.687")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:19:10.707 UTC Qt::TimeSpec(UTC))
+QTime("08:19:17.712")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:19:17.755")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:32.932")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:32.960")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:19:25.985 UTC Qt::TimeSpec(UTC))
+QTime("08:19:32.990")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:19:33.038")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:41.734")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:41.754")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:19:34.774 UTC Qt::TimeSpec(UTC))
+QTime("08:19:41.780")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:19:41.813")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:19:56.775")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:19:56.796")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:19:49.818 UTC Qt::TimeSpec(UTC))
+QTime("08:19:56.823")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:19:56.868")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+Warning::enqueuing request "playlist"
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:20:08.825")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:20:08.845")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:20:01.866 UTC Qt::TimeSpec(UTC))
+QTime("08:20:08.871")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:20:08.910")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:20:27.382 ERR:	 [0;31mEmpty media URL.[0m
+08:20:27.383 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:20:27.868")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:20:27.888")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:20:20.908 UTC Qt::TimeSpec(UTC))
+QTime("08:20:27.913")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:20:27.948")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:20:42.132")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:20:42.152")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:20:35.172 UTC Qt::TimeSpec(UTC))
+QTime("08:20:42.177")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:20:42.221")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:20:57.212")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:20:57.233")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:20:50.255 UTC Qt::TimeSpec(UTC))
+QTime("08:20:57.261")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:20:57.303")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+Warning::enqueuing request "playlist"
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:21:12.378")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:21:12.401")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:21:05.424 UTC Qt::TimeSpec(UTC))
+QTime("08:21:12.430")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:21:12.473")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:21:26.987 ERR:	 [0;31mEmpty media URL.[0m
+08:21:26.988 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:21:27.455")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:21:27.477")
+Next Item is  "id32310505-p100-s100-t480-w1-Te_amo_2"
+GlobalStats::itemPlayed "b63656b6-d781-4a03-8cff-e6c8eb05118c"   QDateTime(2017-05-02 04:21:20.488 UTC Qt::TimeSpec(UTC))
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4 10112 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:21:27.538")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:10.16, start: 0.000000, bitrate: 2510 kb/s
+    Stream #0:0(eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2361 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4 0.009999999776482582
+qml: DelayManager::run 10112/250
+qml: DelayEndTimer:: 10512
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:21:42.719")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:21:42.737")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:21:35.754 UTC Qt::TimeSpec(UTC))
+QTime("08:21:42.759")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:21:42.792")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:21:52.897")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:21:52.914")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:21:45.932 UTC Qt::TimeSpec(UTC))
+QTime("08:21:52.936")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:21:52.994")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+Warning::enqueuing request "playlist"
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 0.009999999776482582
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:22:01.668")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:22:01.705")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:21:54.722 UTC Qt::TimeSpec(UTC))
+QTime("08:22:01.726")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:22:01.757")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:22:16.704")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:22:16.758")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:22:09.776 UTC Qt::TimeSpec(UTC))
+QTime("08:22:16.780")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:22:16.816")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 0.009999999776482582
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:22:28.752")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:22:28.775")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:22:21.798 UTC Qt::TimeSpec(UTC))
+QTime("08:22:28.804")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:22:28.852")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:22:47.320 ERR:	 [0;31mEmpty media URL.[0m
+08:22:47.329 ERR:	 [0;31mEmpty media URL.[0m
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:22:47.792")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:22:47.814")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:22:40.837 UTC Qt::TimeSpec(UTC))
+QTime("08:22:47.842")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:22:47.889")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+Uploader:start
+true
+Events ready to send:  30
+VideoService::performRequest "statistics:events"
+true
+EventsUploadResult::Success
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+Warning::enqueuing request "playlist"
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:23:02.063")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:23:02.084")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:22:55.105 UTC Qt::TimeSpec(UTC))
+QTime("08:23:02.111")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:23:02.150")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:23:17.114")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:23:17.133")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:23:10.152 UTC Qt::TimeSpec(UTC))
+QTime("08:23:17.156")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:23:17.203")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:23:32.274")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:23:32.293")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:23:25.313 UTC Qt::TimeSpec(UTC))
+QTime("08:23:32.317")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:23:32.367")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:23:46.864 ERR:	 [0;31mEmpty media URL.[0m
+08:23:46.866 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:23:47.351")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:23:47.384")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:23:40.404 UTC Qt::TimeSpec(UTC))
+QTime("08:23:47.410")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:23:47.475")
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:24:02.614")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:24:02.634")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:23:55.655 UTC Qt::TimeSpec(UTC))
+QTime("08:24:02.660")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:24:02.693")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:24:11.407")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:24:11.448")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:24:04.466 UTC Qt::TimeSpec(UTC))
+QTime("08:24:11.471")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:24:11.507")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:24:26.450")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:24:26.468")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:24:19.485 UTC Qt::TimeSpec(UTC))
+QTime("08:24:26.490")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:24:26.521")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:24:38.508")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:24:38.531")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:24:31.586 UTC Qt::TimeSpec(UTC))
+QTime("08:24:38.592")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:24:38.643")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:24:57.063 ERR:	 [0;31mEmpty media URL.[0m
+08:24:57.065 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:24:57.544")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:24:57.567")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:24:50.590 UTC Qt::TimeSpec(UTC))
+QTime("08:24:57.596")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:24:57.642")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:25:11.807")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:25:11.830")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:25:04.857 UTC Qt::TimeSpec(UTC))
+QTime("08:25:11.862")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:25:11.905")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:25:26.848")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:25:26.868")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:25:19.888 UTC Qt::TimeSpec(UTC))
+QTime("08:25:26.893")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:25:26.927")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:25:42.008")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:25:42.029")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:25:35.049 UTC Qt::TimeSpec(UTC))
+QTime("08:25:42.054")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:25:42.098")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+VideoService::performRequest "update"
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+08:25:56.613 ERR:	 [0;31mEmpty media URL.[0m
+08:25:56.626 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:25:57.090")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:25:57.113")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:25:50.136 UTC Qt::TimeSpec(UTC))
+QTime("08:25:57.142")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:25:57.186")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:26:12.352")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:26:12.374")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:26:05.396 UTC Qt::TimeSpec(UTC))
+QTime("08:26:12.401")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:26:12.445")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:26:21.152")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:26:21.173")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:26:14.196 UTC Qt::TimeSpec(UTC))
+QTime("08:26:21.201")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:26:21.243")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:26:36.196")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:26:36.219")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:26:29.243 UTC Qt::TimeSpec(UTC))
+QTime("08:26:36.248")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:26:36.321")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:26:48.251")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:26:48.274")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:26:41.298 UTC Qt::TimeSpec(UTC))
+QTime("08:26:48.304")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:26:48.360")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+Uploader:start
+true
+Events ready to send:  17
+VideoService::performRequest "statistics:events"
+true
+EventsUploadResult::Success
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:27:06.826 ERR:	 [0;31mEmpty media URL.[0m
+08:27:06.827 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:27:07.337")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:27:07.361")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:27:00.384 UTC Qt::TimeSpec(UTC))
+QTime("08:27:07.390")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:27:07.433")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:27:21.552")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:27:21.574")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:27:14.596 UTC Qt::TimeSpec(UTC))
+QTime("08:27:21.602")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:27:21.642")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:27:36.602")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:27:36.662")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:27:29.685 UTC Qt::TimeSpec(UTC))
+QTime("08:27:36.691")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:27:36.736")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:27:51.773")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:27:51.797")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:27:44.819 UTC Qt::TimeSpec(UTC))
+QTime("08:27:51.824")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:27:51.866")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:28:06.376 ERR:	 [0;31mEmpty media URL.[0m
+08:28:06.392 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:28:06.852")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:28:06.875")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:27:59.898 UTC Qt::TimeSpec(UTC))
+QTime("08:28:06.904")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:28:06.954")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:28:22.114")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:28:22.135")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:28:15.157 UTC Qt::TimeSpec(UTC))
+QTime("08:28:22.163")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:28:22.201")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:28:30.912")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:28:30.934")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:28:23.956 UTC Qt::TimeSpec(UTC))
+QTime("08:28:30.961")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:28:30.998")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:28:45.960")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:28:45.983")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:28:39.007 UTC Qt::TimeSpec(UTC))
+QTime("08:28:46.013")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:28:46.057")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:28:58.025")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:28:58.048")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:28:51.071 UTC Qt::TimeSpec(UTC))
+QTime("08:28:58.078")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:28:58.128")
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:29:16.582 ERR:	 [0;31mEmpty media URL.[0m
+08:29:16.598 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:29:17.064")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:29:17.090")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:29:10.113 UTC Qt::TimeSpec(UTC))
+QTime("08:29:17.119")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:29:17.168")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:29:31.336")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:29:31.356")
+Next Item is  "id32310505-p100-s100-t480-w1-Te_amo_2"
+GlobalStats::itemPlayed "b63656b6-d781-4a03-8cff-e6c8eb05118c"   QDateTime(2017-05-02 04:29:24.366 UTC Qt::TimeSpec(UTC))
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4 10112 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:29:31.408")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:10.16, start: 0.000000, bitrate: 2510 kb/s
+    Stream #0:0(eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2361 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4
+qml: DelayManager::run 10112/250
+qml: DelayEndTimer:: 10512
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:29:46.374")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:29:46.394")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:29:39.415 UTC Qt::TimeSpec(UTC))
+QTime("08:29:46.420")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:29:46.454")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 0.009999999776482582
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:29:56.527")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:29:56.547")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:29:49.570 UTC Qt::TimeSpec(UTC))
+QTime("08:29:56.575")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:29:56.610")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:30:11.692")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:30:11.713")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:30:04.733 UTC Qt::TimeSpec(UTC))
+QTime("08:30:11.738")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:30:11.785")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:30:26.275 ERR:	 [0;31mEmpty media URL.[0m
+08:30:26.294 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:30:26.763")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:30:26.785")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:30:19.808 UTC Qt::TimeSpec(UTC))
+QTime("08:30:26.814")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:30:26.859")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:30:42.054")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:30:42.074")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:30:35.094 UTC Qt::TimeSpec(UTC))
+QTime("08:30:42.099")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:30:42.145")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:30:50.848")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:30:50.868")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:30:43.889 UTC Qt::TimeSpec(UTC))
+QTime("08:30:50.894")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:30:50.928")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+Uploader:start
+true
+Events ready to send:  16
+VideoService::performRequest "statistics:events"
+true
+EventsUploadResult::Success
+true
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:31:05.895")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:31:05.916")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:30:58.937 UTC Qt::TimeSpec(UTC))
+QTime("08:31:05.942")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:31:05.983")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:31:17.950")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:31:17.973")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:31:10.995 UTC Qt::TimeSpec(UTC))
+QTime("08:31:18.001")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:31:18.069")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:31:36.509 ERR:	 [0;31mEmpty media URL.[0m
+08:31:36.518 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:31:36.984")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:31:37.006")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:31:30.028 UTC Qt::TimeSpec(UTC))
+QTime("08:31:37.033")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:31:37.077")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:31:51.246")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:31:51.266")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:31:44.286 UTC Qt::TimeSpec(UTC))
+QTime("08:31:51.292")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:31:51.332")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:32:06.309")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:32:06.330")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:31:59.351 UTC Qt::TimeSpec(UTC))
+QTime("08:32:06.356")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:32:06.391")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:32:21.472")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:32:21.493")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:32:14.513 UTC Qt::TimeSpec(UTC))
+QTime("08:32:21.519")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:32:21.559")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:32:36.067 ERR:	 [0;31mEmpty media URL.[0m
+08:32:36.084 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:32:36.550")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:32:36.573")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:32:29.594 UTC Qt::TimeSpec(UTC))
+QTime("08:32:36.600")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:32:36.671")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:32:51.810")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:32:51.831")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:32:44.851 UTC Qt::TimeSpec(UTC))
+QTime("08:32:51.856")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:32:51.891")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:33:00.606")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:33:00.629")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:32:53.651 UTC Qt::TimeSpec(UTC))
+QTime("08:33:00.657")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:33:00.706")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:33:15.646")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:33:15.668")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:33:08.691 UTC Qt::TimeSpec(UTC))
+QTime("08:33:15.697")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:33:15.740")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:33:27.699")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:33:27.720")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:33:20.741 UTC Qt::TimeSpec(UTC))
+QTime("08:33:27.747")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:33:27.792")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:33:46.261 ERR:	 [0;31mEmpty media URL.[0m
+08:33:46.262 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:33:46.867")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:33:46.908")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:33:39.944 UTC Qt::TimeSpec(UTC))
+QTime("08:33:46.954")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:33:47.017")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:34:01.047")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:34:01.067")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:33:54.087 UTC Qt::TimeSpec(UTC))
+QTime("08:34:01.092")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:34:01.127")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:34:16.118")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:34:16.140")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:34:09.161 UTC Qt::TimeSpec(UTC))
+QTime("08:34:16.167")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:34:16.210")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:34:31.322")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:34:31.343")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:34:24.363 UTC Qt::TimeSpec(UTC))
+QTime("08:34:31.368")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:34:31.408")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:34:45.868 ERR:	 [0;31mEmpty media URL.[0m
+08:34:45.871 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:34:46.358")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:34:46.380")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:34:39.400 UTC Qt::TimeSpec(UTC))
+QTime("08:34:46.405")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:34:46.439")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+Uploader:start
+true
+Events ready to send:  17
+VideoService::performRequest "statistics:events"
+true
+EventsUploadResult::Success
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:35:01.631")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:35:01.651")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:34:54.671 UTC Qt::TimeSpec(UTC))
+QTime("08:35:01.676")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:35:01.710")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:35:10.426")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:35:10.446")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:35:03.467 UTC Qt::TimeSpec(UTC))
+QTime("08:35:10.472")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:35:10.506")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:35:25.474")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:35:25.495")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:35:18.515 UTC Qt::TimeSpec(UTC))
+QTime("08:35:25.520")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:35:25.566")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4
+qml: DelayManager::run 19000/250
+qml: DelayEndTimer:: 19400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:35:37.537")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:35:37.560")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  6
+Next Item is  "Виджет_погоды"
+GlobalStats::itemPlayed "92888918-e5b3-4617-9d3d-ff82b3f3b318"   QDateTime(2017-05-02 04:35:30.582 UTC Qt::TimeSpec(UTC))
+QTime("08:35:37.588")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html 14000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:35:37.635")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 14250/250
+qml: DelayEndTimer:: 14650
+qml: file:///home/pi/teleds/data/video/92888918-e5b3-4617-9d3d-ff82b3f3b318/index.html
+qml: askNext play::VPT
+08:35:56.097 ERR:	 [0;31mEmpty media URL.[0m
+08:35:56.098 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:35:56.571")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:35:56.592")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  7
+Next Item is  "fd0251fe-5dba-4ee7-a1b9-4f29bb06403c_sq"
+GlobalStats::itemPlayed "0c18a73b-564e-414b-aefb-6394905761d2"   QDateTime(2017-05-02 04:35:49.613 UTC Qt::TimeSpec(UTC))
+QTime("08:35:56.619")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 14982 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:35:56.692")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    date            : 2015-11-12T11:05:15.0062+03:00
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 2314 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2312 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+true
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/0c18a73b-564e-414b-aefb-6394905761d26832672bc648b23e54f198b8d187fe9f.mp4 0.009999999776482582
+qml: DelayManager::run 14982/250
+qml: DelayEndTimer:: 15382
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:36:10.833")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:36:10.853")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  8
+Next Item is  "6lJrECt"
+GlobalStats::itemPlayed "5264739d-5b88-47d1-b54c-0fecb76b80c7"   QDateTime(2017-05-02 04:36:03.873 UTC Qt::TimeSpec(UTC))
+QTime("08:36:10.880")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4 15120 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:36:10.915")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.12, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 718x404 [SAR 3232:3231 DAR 16:9], 1232 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/5264739d-5b88-47d1-b54c-0fecb76b80c71f836498cc3c1a4163ad5f411428c091.mp4
+qml: DelayManager::run 15120/250
+qml: DelayEndTimer:: 15520
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:36:25.912")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:36:25.932")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  0
+Next Item is  "id2025-p100-s100-t720-w1-InfoServis"
+GlobalStats::itemPlayed "fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad"   QDateTime(2017-05-02 04:36:18.952 UTC Qt::TimeSpec(UTC))
+QTime("08:36:25.957")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 15040 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:36:25.992")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:15.05, start: 0.000000, bitrate: 2360 kb/s
+    Stream #0:0(eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2359 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/fcbfbaa6-9b81-4a4a-be9d-f6f3066c9bad7f4c0cd7838890f4ceed4216f504c0f1.mp4 0.009999999776482582
+qml: DelayManager::run 15040/250
+qml: DelayEndTimer:: 15440
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:36:41.075")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:36:41.097")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  1
+Next Item is  "Виджет_новостей"
+GlobalStats::itemPlayed "35f39376-fccb-4054-b3e0-8c75fb9e2f29"   QDateTime(2017-05-02 04:36:34.119 UTC Qt::TimeSpec(UTC))
+QTime("08:36:41.125")
+qml: PlayerView::playfile:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html 15000 html5_online 0
+qml: play::t:video
+qml: browser.preload
+qml: sb1:prev =file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: true
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:36:41.177")
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+qml: VPT::onTriggered
+qml: VPT:browser
+qml: DelayManager::run 15250/250
+qml: DelayEndTimer:: 15650
+qml: file:///home/pi/teleds/data/video/35f39376-fccb-4054-b3e0-8c75fb9e2f29/index.html
+qml: askNext play::VPT
+08:36:55.665 ERR:	 [0;31mEmpty media URL.[0m
+08:36:55.686 ERR:	 [0;31mEmpty media URL.[0m
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:36:56.154")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:36:56.176")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  2
+Next Item is  "Вовик"
+GlobalStats::itemPlayed "71b38f19-bf1b-4fc0-97c5-8e6176ce2bd1"   QDateTime(2017-05-02 04:36:49.197 UTC Qt::TimeSpec(UTC))
+QTime("08:36:56.202")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 8730 video 0
+qml: play::t:browser
+qml: preload item to mp1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:36:56.253")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:08.78, start: 0.000000, bitrate: 2148 kb/s
+    Stream #0:0(und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1996 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+getPlaylistTimerSlot
+grabbing areas
+VideoService::building request with hash =  "d17a49f3b9072e3afa840a52d9b2834d"
+VideoService::performRequest "settings"
+TeleDSSheduler::stop  0
+TeleDSSheduler::start  0
+60000
+SettingsReply Error 304
+playerSettingsResult 304
+304: settings wasnt updated - no need to update
+getPlaylistRequest::isAndroid
+VideoService::performRequest "playlist"
+TeleDSCore::playlistResult
+TeleDSCore::no updates ( 304 )
+VideoService::performRequest "update"
+"TeleDSCore::updateInfoReady 0/"
+You have the newest version of player
+qml: browser::onStop
+qml: next item is video
+qml: MP1::onPlay file:///home/pi/teleds/data/video/71b38f19-bf1b-4fc0-97c5-8e6176ce2bd17cf96a4bf8755210926c80e6dd4d16de.mp4 0.009999999776482582
+qml: DelayManager::run 8730/250
+qml: DelayEndTimer:: 9130
+qml: hide browser
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:37:11.419")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:37:11.439")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  3
+Next Item is  "id32230601-p100-s100-t480-w1-instroy"
+GlobalStats::itemPlayed "6dff754c-301c-429d-9f2f-0630648a676d"   QDateTime(2017-05-02 04:37:04.459 UTC Qt::TimeSpec(UTC))
+QTime("08:37:11.465")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4 15000 video 0
+qml: play::t:video
+qml: Filling src < MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:37:11.509")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:14.98, start: 0.000000, bitrate: 4557 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 4556 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/6dff754c-301c-429d-9f2f-0630648a676d3d5e572266e5390488c87ef9e4b2374e.mp4
+qml: DelayManager::run 15000/250
+qml: DelayEndTimer:: 15400
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:37:20.228")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:37:20.249")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  4
+Next Item is  "1LkXZs4"
+GlobalStats::itemPlayed "3f42ce7a-e6dc-45b4-85cf-1505dcee9072"   QDateTime(2017-05-02 04:37:13.271 UTC Qt::TimeSpec(UTC))
+QTime("08:37:20.277")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 12012 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:37:20.320")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:12.01, start: 0.000000, bitrate: 1186 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 720x404 [SAR 4095:4096 DAR 184275:103424], 1184 kb/s, SAR 4949:4950 DAR 98:55, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP1::onPlay file:///home/pi/teleds/data/video/3f42ce7a-e6dc-45b4-85cf-1505dcee9072cb321cd9e62358e61de1027cd4f00b74.mp4 0.009999999776482582
+qml: DelayManager::run 12012/250
+qml: DelayEndTimer:: 12412
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:37:35.269")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:37:35.291")
+Next Item is  "id32310505-p100-s100-t480-w1-Te_amo_2"
+GlobalStats::itemPlayed "b63656b6-d781-4a03-8cff-e6c8eb05118c"   QDateTime(2017-05-02 04:37:28.302 UTC Qt::TimeSpec(UTC))
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4 10112 video 0
+qml: play::t:video
+qml: Load to MP2
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:37:35.345")
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:10.16, start: 0.000000, bitrate: 2510 kb/s
+    Stream #0:0(eng): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 160 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+    Stream #0:1(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709), 1280x720 [SAR 1:1 DAR 16:9], 2361 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+HDMICEC =  "unknown"
+HDMIGPIO =  true
+LAT IN DB: 40.7851 LON IN DB:  -73.9683
+true
+qml: VPT::onTriggered
+qml: VPT:video
+qml: askNext play::VPT
+qml: MP2::onPlay file:///home/pi/teleds/data/video/b63656b6-d781-4a03-8cff-e6c8eb05118c3776d57cc205c318a74ac32f6b5bbcfe.mp4
+qml: DelayManager::run 10112/250
+qml: DelayEndTimer:: 10512
+qml: askNext?
+TeleDSPlayer::next  "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+next method is called
+QTime("08:37:47.331")
+playNextGeneric! "6ba5f611-3c96-4b3c-a72c-357b009e538f"
+SuperPlaylist::next
+forceItemscount =  0
+start next:  QTime("08:37:47.351")
+"SuperPlaylist::cant find proper item with normal/floating type. Trying to search in floating-free list(9)"
+SuperPlaylist::nextFreeItem <> currentIndex =  5
+Next Item is  "id51-p100-s100-t480-w1-News90"
+GlobalStats::itemPlayed "1c4049d0-b907-47fc-967b-0d3d32059aed"   QDateTime(2017-05-02 04:37:40.371 UTC Qt::TimeSpec(UTC))
+QTime("08:37:47.376")
+qml: player volume 1
+qml: PlayerView::playfile:///home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4 19000 video 0
+qml: play::t:video
+qml: Load to MP1
+set next playnextgeneric::status.isPlaying=true;
+QTime("08:37:47.412")
+TeleDSCore::checkReleyTime
+TeleDSCore::checkForAutomaticShutdown
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/pi/teleds/data/video/1c4049d0-b907-47fc-967b-0d3d32059aed24d7a07e498d2b0d57977642356eadc1.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf57.25.100
+  Duration: 00:00:18.99, start: 0.000000, bitrate: 1068 kb/s
+    Stream #0:0(und): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 1067 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler

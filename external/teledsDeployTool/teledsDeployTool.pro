@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     lfsrencoder.cpp \
-    notherfilesystem.cpp
+    notherfilesystem.cpp \
+    teledsencoder.cpp
 
 HEADERS  += mainwindow.h \
     lfsrencoder.h \
-    notherfilesystem.h
+    notherfilesystem.h \
+    teledsencoder.h
 
 FORMS    += mainwindow.ui

@@ -77,6 +77,16 @@ private slots:
 
     void on_file_list_itemDoubleClicked(QListWidgetItem *item);
 
+    void on_pushButton_6_clicked();
+
+    void on_pushButton_7_clicked();
+
+    void on_pushButton_8_clicked();
+
+    void on_prev_version_folder_editingFinished();
+
+    void on_next_version_folder_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;

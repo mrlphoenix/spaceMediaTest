@@ -98,11 +98,13 @@ struct SettingsRequestResult
     bool autooff_by_discharging_time_active;
     bool is_paid;
     int volume;
+    int send_logs;
+    QString hash;
 };
 
 struct PlayerConfigAPI
 {
-    static PlayerConfigAPI fromJson(QJsonObject json);
+    static PlayerConfigAPI fromJson(QJsonObject json, bool needSave = true);
     static QDateTime timeFromJson(QJsonValue v);
     int count();
     int currentAreaCount();

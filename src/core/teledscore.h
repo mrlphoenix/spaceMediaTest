@@ -58,6 +58,8 @@ public slots:
     //slot is called when we should reinit player
     void initPlayer();
     void reconnectToGpsServer();
+    QByteArray createZip();
+    void sendLogs();
 
 
     void setupHttpServer();

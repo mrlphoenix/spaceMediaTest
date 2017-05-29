@@ -598,6 +598,7 @@ Item {
                // askNext(areaID)
             }
         }
+
         Timer {
             id: imageAntiFlickTimer
             interval: 400
@@ -969,7 +970,6 @@ Item {
             }
         }
 
-
         WebView {
             id: sideBrowser1
             //visible: false
@@ -1012,6 +1012,8 @@ Item {
                 url = ""
             }
         }
+
+
 
         WebView {
             id: sideBrowser2
