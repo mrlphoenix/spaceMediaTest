@@ -7,17 +7,34 @@
 #include <QDir>
 #include <QDebug>
 #include <stdio.h>
-#include <linux/input.h>
-#include <termios.h>
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <QHash>
 #include <QString>
+#include <QtMsgHandler>
 #include "sslencoder.h"
 
 
+void myMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QDateTime dateTime(QDateTime::currentDateTime());
+
+    QString timeStr(dateTime.toString("dd-MM-yyyy HH:mm:ss:zzz"));
+    QString contextString(QString("(%1, %2)").arg(context.file).arg(context.line));
+
+    QFile outFile("file.log");
+    outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+
+    QTextStream stream(&outFile);
+    stream << timeStr << " " << contextString << ": " << msg << endl;
+
+    outFile.flush();
+    outFile.close();
+}
+
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(myMessageHandler);
     QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QGuiApplication app(argc, argv);
     QDir().setCurrent(qApp->applicationDirPath());

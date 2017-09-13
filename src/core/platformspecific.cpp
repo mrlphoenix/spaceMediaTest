@@ -17,6 +17,18 @@
 #include "globalstats.h"
 #include "platformspecific.h"
 
+#ifdef PLATFORM_DEFINE_WINDOWS
+#include <windows.h>
+#include <Psapi.h>
+
+#pragma comment(lib, "IPHLPAPI.lib")
+#include <iphlpapi.h>
+
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+
+#endif
+
 #ifdef PLATFORM_DEFINE_ANDROID
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
@@ -71,8 +83,6 @@
     result = result + QString::number(len);
     len = __system_property_get(ANDROID_OS_BUILD_HARDWARE, model_id);
     result = result + QString::number(len);*/
-
-
 
 #endif
 
@@ -160,6 +170,7 @@ void Platform::PlatformSpecificWorker::generateSystemInfo()
 {
     SystemInfo result;
     result.time = QDateTime::currentDateTimeUtc();
+    qDebug() << result.time;
     result.cpu = getAvgUsage();
     result.latitude = GlobalStatsInstance.getLatitude();
     result.longitude = GlobalStatsInstance.getLongitude();
@@ -180,6 +191,18 @@ void Platform::PlatformSpecificWorker::generateSystemInfo()
 
 QString Platform::PlatformSpecificWorker::getUniqueId()
 {
+#ifdef PLATFORM_DEFINE_WINDOWS
+    QProcess wmicProcess;
+    qDebug() << "Win::getuniqueId";
+    wmicProcess.start("wmic cpu get ProcessorId");
+    wmicProcess.waitForStarted();
+    wmicProcess.waitForFinished();
+    QString result = wmicProcess.readAll();
+    result = result.replace("ProcessorId", "").simplified();
+    qDebug() << "unique ID = " << result;
+    return result;
+#endif
+
 #ifdef PLATFORM_DEFINE_ANDROID
     //if platform is Android - get DeviceID using JNI
     qDebug() << "Platform::PlatformSpecificWorker::getUniqueId()";
@@ -266,6 +289,53 @@ Platform::TrafficInfo Platform::PlatformSpecificWorker::getTraffic()
     trafficResult.hdmi_cec = tokens[4].replace("\n","");
     return trafficResult;
 #endif
+#ifdef PLATFORM_DEFINE_WINDOWS
+    long long in = 0, out = 0;
+
+    TrafficInfo trafficResult;
+    DWORD dwSize = 0;
+    DWORD dwRetVal = 0;
+
+    unsigned int i;
+
+    MIB_IFTABLE *pIfTable;
+    MIB_IFROW *pIfRow;
+
+    pIfTable = (MIB_IFTABLE *) MALLOC(sizeof (MIB_IFTABLE));
+    if (pIfTable == NULL) {
+        return TrafficInfo{0,0, QString()};
+    }
+    dwSize = sizeof (MIB_IFTABLE);
+    if (GetIfTable(pIfTable, &dwSize, FALSE) == ERROR_INSUFFICIENT_BUFFER) {
+        FREE(pIfTable);
+        pIfTable = (MIB_IFTABLE *) MALLOC(dwSize);
+        if (pIfTable == NULL) {
+            return TrafficInfo{0,0, QString()};
+        }
+    }
+    if ((dwRetVal = GetIfTable(pIfTable, &dwSize, FALSE)) == NO_ERROR) {
+        for (i = 0; i < pIfTable->dwNumEntries; i++) {
+            pIfRow = (MIB_IFROW *) & pIfTable->table[i];
+            in += pIfRow->dwInOctets;
+            out += pIfRow->dwOutOctets;
+        }
+    } else {
+        if (pIfTable != NULL) {
+            FREE(pIfTable);
+            pIfTable = NULL;
+        }
+        return TrafficInfo{0,0, QString()};
+    }
+
+    if (pIfTable != NULL) {
+        FREE(pIfTable);
+        pIfTable = NULL;
+    }
+    trafficResult.in = in / 4;
+    trafficResult.out = out / 4;
+
+    return trafficResult;
+#endif
     return TrafficInfo{0,0, QString()};
 }
 
@@ -348,6 +418,12 @@ int Platform::PlatformSpecificWorker::getMemoryUsage()
 
 int Platform::PlatformSpecificWorker::getFreeMemory()
 {
+#ifdef PLATFORM_DEFINE_WINDOWS
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&memInfo);
+    return memInfo.ullAvailPhys/1024;
+#endif
 #ifdef PLATFORM_DEFINE_LINUX
     struct sysinfo info;
     sysinfo(&info);
@@ -409,10 +485,12 @@ double Platform::PlatformSpecificWorker::getBattery()
     return 0.;
 }
 
+
+
 double Platform::PlatformSpecificWorker::getAvgUsage()
 {
 #ifdef PLATFORM_DEFINE_WINDOWS
-    return 0.;
+    return double(GlobalWINAPICPUInstance.get() + 1)/100.*2.;
 #else
     QProcess loadAvgProcess;
     loadAvgProcess.start("cat /proc/loadavg");
@@ -458,7 +536,7 @@ int Platform::PlatformSpecificWorker::getFreeSpace()
     return infoRoot.bytesAvailable()/1024;
 }
 
-void Platform::PlatformSpecificWorker::writeGPIO(int n, int value)
+void Platform::PlatformSpecificWorker::writeGPIO(int, int)
 {
 #if defined(PLATFORM_DEFINE_RPI) && defined(PLATFORM_RPI_ENABLE_GPIO)
     digitalWrite(n, value);
@@ -652,6 +730,14 @@ void Platform::PlatformSpecificWorker::extractFile(QString file, QString id)
     unzipProc.waitForFinished();
     unzipProc.close();
 #endif
+
+#ifdef PLATFORM_DEFINE_WINDOWS
+    QProcess unzipProc;
+    unzipProc.start("unzip " + VIDEO_FOLDER + file + " -d " + VIDEO_FOLDER + id);
+    unzipProc.waitForStarted();
+    unzipProc.waitForFinished();
+    unzipProc.close();
+#endif
 }
 
 void Platform::PlatformSpecificWorker::writeToFile(QByteArray data, QString filename)
@@ -797,7 +883,7 @@ QString Platform::PlatformSpecific::getFileHash(QString filename)
     return "";
 }
 
-void Platform::PlatformSpecific::setResetWindow(bool enabled)
+void Platform::PlatformSpecific::setResetWindow(bool)
 {
 #ifdef PLATFORM_DEFINE_ANDROID
     if (enabled)
@@ -897,6 +983,14 @@ bool Platform::PlatformSpecific::isKeySymbol(int code)
 bool Platform::PlatformSpecific::isAndroid()
 {
 #ifdef PLATFORM_DEFINE_ANDROID
+    return true;
+#endif
+    return false;
+}
+
+bool Platform::PlatformSpecific::isWindows()
+{
+#ifdef PLATFORM_DEFINE_WINDOWS
     return true;
 #endif
     return false;

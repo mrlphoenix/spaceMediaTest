@@ -53,9 +53,11 @@ void VideoServiceResponseHandler::initRequestResultReply(QNetworkReply *reply)
 
 void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
 {
+    qDebug() << "VideoServiceResponseHandler::playlistResultReply Handler SLOT";
     PlayerConfigAPI result;
     if (reply->error())
     {
+        qDebug() << "Reply Error!";
         QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
         if (httpStatus.isValid())
             result.error_id = httpStatus.toInt();
@@ -73,6 +75,7 @@ void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
     }
     else
     {
+        qDebug() << "Reply without errors";
         int error_id;
         QVariant httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
         if (httpStatus.isValid())
@@ -85,6 +88,7 @@ void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
             error_id = 0;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
+        qDebug() << "Before Parsing hook!";
         QJsonObject root = doc.object();
         result = PlayerConfigAPI::fromJson(root, error_id == 0? true:false);
         result.error_id = error_id;
@@ -151,6 +155,15 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
         qDebug() << "SettingsReply Error" << error_id;
         result = SettingsRequestResult::fromJson(root, error_id == 0?true:false);
         result.error_id = error_id;
+    }
+    if (reply->url().toString().contains("sett"))
+    {
+        qDebug() << "Settings reply' url is fine";
+    }
+    else
+    {
+        result.error_id = 650;
+        qDebug() << "ERROR: Wrong settings result URL";
     }
     emit getPlayerSettingsResult(result);
     reply->deleteLater();
@@ -317,12 +330,15 @@ PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json, bool needSave)
     //
     if (needSave)
         GlobalConfigInstance.setPlaylist(json);
+    qDebug() << "start Parsing";
     PlayerConfigAPI result;
     result.last_modified = timeFromJson(json["last_modified"]);
     result.hash = json["hash"].toString();
+    qDebug() << "Parsing campaigns";
     QJsonArray campaigns = json["campaigns"].toArray();
     foreach (const QJsonValue &cValue, campaigns){
         auto campaign = PlayerConfigAPI::Campaign::fromJson(cValue.toObject());
+        qDebug() << "campaign ready " << campaign.campaign_id;
         if (campaign.checkDateRange())
             result.campaigns.append(campaign);
     }
@@ -428,13 +444,14 @@ PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonO
     result.type = json["type"].toString();
     result.screen_height = json["campaign_height"].toInt();
     result.screen_width = json["campaign_width"].toInt();
-    result.x = json["left"].toInt();
-    result.y = json["top"].toInt();
+    result.x = json["x"].toInt();
+    result.y = json["y"].toInt();
     result.width = json["width"].toInt();
     result.height = json["height"].toInt();
     result.opacity = double(json["opacity"].toInt())/100.;
     result.z_index = json["z_index"].toInt();
     result.sound_enabled = json["sound_enabled"].toBool();
+    result.area_volume = result.sound_enabled ? 1.00 : 0.00;
     QJsonArray content = json["content"].toArray();
     foreach (const QJsonValue &cValue, content)
         result.content.append(PlayerConfigAPI::Campaign::Area::Content::fromJson(cValue.toObject()));

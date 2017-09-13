@@ -8,7 +8,9 @@
 #include "version.h"
 #include "statictext.h"
 
+#ifdef PLATFORM_DEFINE_RPI
 #include "linux/input.h"
+#endif
 
 TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
 {
@@ -55,8 +57,10 @@ TeleDSPlayer::TeleDSPlayer(QObject *parent) : QObject(parent)
         connect(&menu, SIGNAL(cancelPressed()), this, SLOT(invokeMenuCancelPressed()));
         connect(this, SIGNAL(keyDown(int)), &menu, SLOT(onKeyDown(int)));
         connect(this, SIGNAL(keyUp(int)), &menu, SLOT(onKeyUp(int)));
+        //connect(this, SIGNAL(refreshNeeded()), &menu, SLOT(setActive(bool)));
         menu.load();
     });
+
    // show();
     isSplitScreen = false;
     nextCampaignTimer = new QTimer(this);
@@ -94,9 +98,12 @@ void TeleDSPlayer::show()
 {
     qDebug() << "TeleDSPlayer::show";
 #ifdef PLAYER_MODE_WINDOWED
-    view.show();
     view.setMinimumHeight(520);
     view.setMinimumWidth(920);
+    view.setWidth(920);
+    view.setHeight(520);
+    //view.show();
+    view.showFullScreen();
 #else
     view.showFullScreen();
 #endif
@@ -121,7 +128,7 @@ void TeleDSPlayer::updateConfig(PlayerConfigAPI &playerConfig)
         config.currentCampaignId = 0;
 }
 
-void TeleDSPlayer::play(int delay)
+void TeleDSPlayer::play()
 {
     qDebug() << "TeleDSPlayer::play!";
     static int wasEverPlayed = false;
@@ -144,16 +151,22 @@ void TeleDSPlayer::play(int delay)
         QDateTime d;
         GlobalStatsInstance.setCampaignEndDate(d);
     }
+
     invokeSetDelay(config.campaigns[currentCampaignId].delay);
+    int index = 0;
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[currentCampaignId].areas)
     {
         invokeInitArea(a.area_id,
                        config.campaigns[currentCampaignId].screen_width,
                        config.campaigns[currentCampaignId].screen_height,
-                       a.x, a.y, a.width, a.height, config.campaigns[currentCampaignId].rotation);
+                       a.x, a.y, a.width, a.height,
+                       config.campaigns[currentCampaignId].rotation,
+                       a.opacity, index);
+        invokeSetAreaMuted(index, !a.sound_enabled);
         QTimer::singleShot(700, [this, a]() {
             next(a.area_id);
         });
+        index++;
     }
 
     foreach (const PlayerConfigAPI::Campaign::Area &a,config.campaigns[config.currentCampaignId].areas)
@@ -197,6 +210,31 @@ bool TeleDSPlayer::isPlaying()
 bool TeleDSPlayer::isFileCurrentlyPlaying(QString name)
 {
     return status.item == name;
+}
+
+QVector<QString> TeleDSPlayer::getAreas(QString areaString)
+{
+    QVector<QString> result;
+    auto tokens = areaString.split(";");
+    foreach (const QString &s, tokens)
+        if (!s.simplified().isEmpty())
+            result.append(s);
+    return result;
+}
+
+QString TeleDSPlayer::packAreas(QString oldAreas, QString area)
+{
+    QString result;
+    QVector<QString> areaVector = getAreas(oldAreas);
+    if (!areaVector.contains(area))
+        areaVector.append(area);
+    for (int i = 0; i < areaVector.count(); i++)
+    {
+        result += areaVector[i];
+        if (i != areaVector.count() - 1)
+            result += ";";
+    }
+    return result;
 }
 
 bool TeleDSPlayer::eventFilter(QObject *target, QEvent *event)
@@ -497,7 +535,7 @@ void TeleDSPlayer::invokePlayCampaign(int campaignIndex)
         next(area.area_id);
 }
 
-void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation)
+void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation, double opacity, int index)
 {
     qDebug() << "TeleDSPlayer::invokeInitArea";
     QMetaObject::invokeMethod(viewRootObject, "prepareArea",
@@ -508,7 +546,9 @@ void TeleDSPlayer::invokeInitArea(QString name, double campaignWidth, double cam
                               Q_ARG(QVariant, QVariant(y)),
                               Q_ARG(QVariant, QVariant(w)),
                               Q_ARG(QVariant, QVariant(h)),
-                              Q_ARG(QVariant, QVariant(rotation)));
+                              Q_ARG(QVariant, QVariant(rotation)),
+                              Q_ARG(QVariant, QVariant(opacity)),
+                              Q_ARG(QVariant, QVariant(index)));
 }
 
 void TeleDSPlayer::invokeSetPlayerVolume(int value)
@@ -574,6 +614,14 @@ void TeleDSPlayer::invokeSkipCurrentItem()
 {
     qDebug() << "TeleDSPlayer::invokeSkipCurrentItem";
     QMetaObject::invokeMethod(viewRootObject, "skipCurrentItem");
+}
+
+void TeleDSPlayer::invokeSetAreaMuted(int index, bool isMuted)
+{
+    qDebug() << "TeleDSPlayer::invokeSetAreaMuted";
+    QMetaObject::invokeMethod(viewRootObject, "setAreaMuted",
+                              Q_ARG(QVariant, QVariant(index)),
+                              Q_ARG(QVariant, QVariant(isMuted)));
 }
 
 void TeleDSPlayer::invokeMenuDisplayRotationSelected()
@@ -744,15 +792,6 @@ void TeleDSPlayer::next(QString area_id)
     {
         qDebug() << "next method is called";
         playNextGeneric(area_id);
-       /* if (delay == 0)
-            playNextGeneric(area_id);
-        else
-        {
-            QTimer::singleShot(1000, [this, area_id]() { playNextGeneric(area_id); } );
-            hideVideo();
-            status.isPlaying = false;
-            status.item = "";
-        }*/
     }
     else
     {
@@ -762,7 +801,7 @@ void TeleDSPlayer::next(QString area_id)
 
 void TeleDSPlayer::playNextGeneric(QString area_id)
 {
-    qDebug() <<QDateTime::currentDateTime().time();
+    qDebug() << QDateTime::currentDateTime().time();
     qDebug() << "playNextGeneric!" << area_id;
     if (!playlists.contains(area_id))
     {
@@ -807,8 +846,10 @@ void TeleDSPlayer::playNextGeneric(QString area_id)
         invokePrepareStop();
 
         //this->playNextGeneric(area_id);
-         checkNextVideoAfterStopTimer->setProperty("area_id", area_id);
-         checkNextVideoAfterStopTimer->setProperty("activated", true);
+
+        checkNextVideoAfterStopTimer->setProperty("area_id", packAreas(checkNextVideoAfterStopTimer->property("area_id").toString(), area_id));
+         //checkNextVideoAfterStopTimer->setProperty("area_id", area_id);
+        checkNextVideoAfterStopTimer->setProperty("activated", true);
         //we need to stop playback after last item end
         //invoke prepare stop
     }
@@ -869,22 +910,32 @@ void TeleDSPlayer::gpsUpdate(double lat, double lgt)
 
 void TeleDSPlayer::systemInfoReady(Platform::SystemInfo info)
 {
+    qDebug() << "TeleDSPlayer::systemInfoReady()";
     foreach (const QString &areaId, playlists.keys())
     {
+        qDebug() << areaId;
         auto playlist = playlists[areaId];
         if (playlist){
             while (!playedIds.isEmpty())
             {
                 auto item = playlists[areaId]->findItemById(playedIds.head());
+                qDebug() << item.content_id;
                 if (item.content_id != "")
                 {
                     DatabaseInstance.createPlayEvent(item, info);
                     playedIds.dequeue();
                     //break;
                 }
+                else
+                {
+                    qDebug() << "This area doesnt contain such item";
+                    break;
+                }
             }
         }
     }
+
+    qDebug() << "~~~TeleDSPlayer::systemInfoReady()";
 }
 
 void TeleDSPlayer::nextCampaignEvent()
@@ -892,7 +943,7 @@ void TeleDSPlayer::nextCampaignEvent()
     qDebug() << "nextCampaignEvent";
     this->invokeStop();
     checkNextVideoAfterStopTimer->stop();
-    this->play(100);
+    this->play();
 }
 
 void TeleDSPlayer::nextItemEvent()
@@ -900,7 +951,12 @@ void TeleDSPlayer::nextItemEvent()
     if (checkNextVideoAfterStopTimer->property("activated").toBool())
     {
         checkNextVideoAfterStopTimer->setProperty("activated", false);
-        this->playNextGeneric(checkNextVideoAfterStopTimer->property("area_id").toString());
+
+        QVector<QString> areas = getAreas(checkNextVideoAfterStopTimer->property("area_id").toString());
+        foreach (const QString &area, areas)
+            this->playNextGeneric(area);
+        //checkNextVideoAfterStopTimer->setProperty("area_id","");
+        //this->playNextGeneric(checkNextVideoAfterStopTimer->property("area_id").toString());
     }
 
 }

@@ -174,6 +174,7 @@ void NFSHeader::save(QDataStream &s)
         s << dir;
     foreach (const FileDescriptor &fd, files)
         fd.save(s);
+
 }
 
 void NFSHeader::buildDirsFromFiles()

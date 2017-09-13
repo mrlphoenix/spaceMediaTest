@@ -1,4 +1,4 @@
-#include <QNetworkRequest>
+/*#include <QNetworkRequest>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QPixmap>
@@ -66,3 +66,4 @@ void InstagramRecentPostViewer::replyFinished(QNetworkReply *reply)
         }
     }
 }
+*/

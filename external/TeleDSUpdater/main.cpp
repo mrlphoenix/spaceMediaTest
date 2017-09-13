@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     qDebug() << "Updater Started!!!" << QDateTime::currentDateTimeUtc();
-    QDir::setCurrent ( "home/pi/teleds" );
+    //QDir::setCurrent ( "home/pi/teleds" );
     qDebug() << QDir::currentPath();
     //IN: tdsu file
     if (argc < 2)

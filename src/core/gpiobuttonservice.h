@@ -11,7 +11,7 @@ class GPIOButtonService : public QObject
 public:
     GPIOButtonService(QObject * parent = 0);
     ~GPIOButtonService(){}
-    bool checkPin(int pinId);
+    bool checkPin(int);
 public slots:
     void checkPinSlot();
 signals:

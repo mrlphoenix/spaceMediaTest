@@ -1,4 +1,5 @@
 #include <QDataStream>
+#include <QDebug>
 #include "sslencoder.h"
 quint32 SSLEncoder::updateCRC32(unsigned char ch, quint32 crc)
 {
@@ -66,6 +67,9 @@ QByteArray SSLEncoder::compressGZIP(const QByteArray &data)
     //removing zlib header and suffix
     compressedData.remove(0, 6);
     compressedData.chop(4);
+
+    qDebug() << "SSLEncoder::compressGZIP";
+    qDebug() << data.count() << compressedData.count();
 
     QByteArray header;
     QDataStream ds1(&header, QIODevice::WriteOnly);

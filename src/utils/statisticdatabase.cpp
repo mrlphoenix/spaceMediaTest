@@ -314,7 +314,7 @@ void StatisticDatabase::createPlayEvent(PlayerConfigAPI::Campaign::Area::Content
     //                          traffic INTEGER, free_memory INTEGER, wifi_mac TEXT, hdmi_cec INTEGER, hdmi_gpio INTEGER, free_space INTEGER)
     QString sql = QString("insert into event (time, screen, area, content, campaign, cpu, latitude, longitude, battery, traffic, free_memory, wifi_mac, hdmi_cec, hdmi_gpio, free_space, was_sent, version) " +
                   QString("VALUES ('%1', '%2', '%3', '%4', '%5', %6, %7, %8, %9, %10, %11, '%12', %13, %14, %15, %16, %17)")).arg(
-                    QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss"),
+                    QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"),
                     item.payment_type,
                     item.area_id,
                     item.content_id,

@@ -56,6 +56,15 @@ void VideoDownloaderWorker::checkDownload()
         else
             return false;
     });
+    
+    std::sort(allItems.begin(), allItems.end(), [&, this](const PlayerConfigAPI::Campaign::Area::Content &a, const PlayerConfigAPI::Campaign::Area::Content &b)
+    {
+        if (GlobalStatsInstance.isItemHighPriority(a.content_id) && !GlobalStatsInstance.isItemHighPriority(b.content_id))
+            return true;
+        if (a.play_type == "free" && b.play_type != "free")
+            return true;
+        else
+    });
 
     foreach (const PlayerConfigAPI::Campaign::Area::Content &item, allItems)
     {

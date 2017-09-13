@@ -46,6 +46,7 @@ struct SettingsRequestResult
     static SettingsRequestResult fromJson(QJsonObject data, bool needSave = true);
 
     int error_id;
+    QString error_source;
     QString name;
     QString video_quality;
     QDateTime created_at;
@@ -145,6 +146,7 @@ struct PlayerConfigAPI
             int z_index;
             double opacity;
             bool sound_enabled;
+            double area_volume;
 
             struct Content{
 

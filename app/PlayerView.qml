@@ -1,11 +1,12 @@
 import QtQuick 2.2
-import QtMultimedia 5.5
+//import QtMultimedia 5.5
 import QtQuick.Controls 1.1
 //import QtWebView 1.1
-import QtWebKit 3.0
+//import QtWebKit 3.0
+import QtWebEngine 1.3
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.2
-
+import QtAV 1.7
 
 Item {
     id: playerViewRoot
@@ -23,6 +24,19 @@ Item {
     property string nextItemType: "--"
     property bool stopAfterPlaying: false
 
+    function prepare(name, campaignWidth, campaignHeight, x, y, w, h, _rotation, screenWidth, screenHeight, _opacity)
+    {
+        console.log("PlayerView::prepare " + name + " " + campaignWidth + " " + campaignHeight + " " + w + " " + h + " " + x + " " + y + "()" + screenWidth +" " + screenHeight)
+        playerViewRoot.areaID = name
+        playerViewRoot.x = screenWidth * x / campaignWidth
+        playerViewRoot.y = screenHeight * y / campaignHeight
+        playerViewRoot.width = screenWidth * w / campaignWidth
+        playerViewRoot.height = screenHeight * h / campaignHeight
+        playerViewRoot.setRotation(_rotation)
+        playerViewRoot.visible = true
+        playerViewRoot.opacity = _opacity
+    }
+
     function prepareStop()
     {
         if (currentType != "null")
@@ -30,8 +44,8 @@ Item {
     }
 
     function setMuted(isMuted){
-        mp1.muted = isMuted
-        mp2.muted = isMuted
+        vp1.muted = isMuted
+        vp2.muted = isMuted
     }
 
     function skipCurrentItem(){
@@ -155,6 +169,7 @@ Item {
         currentType = "null"
         onStop()
         delayManager.reset()
+        playerViewRoot.opacity = 0.0
     }
 
     Rectangle {
@@ -162,8 +177,8 @@ Item {
         color: "#000000"
         width: parent.width
         height: parent.height
-        x: parent.x
-        y: parent.y
+        x: 0
+        y: 0
     }
 
 
@@ -181,7 +196,7 @@ Item {
         repeat: false
         interval: 310
         onTriggered: {
-            mp1.play()
+            vp1.play()
         }
     }
 
@@ -190,7 +205,7 @@ Item {
         repeat: false
         interval: 310
         onTriggered: {
-            mp2.play()
+            vp2.play()
         }
     }
 
@@ -244,24 +259,24 @@ Item {
                     console.log("VPT:video")
                     if (videoPlayer.firstPlayer){
                         videoPlayer.firstPlayer = false
-                        if (mp1.isAudio && mp2.isAudio)
+                        if (vp1.isAudio && vp2.isAudio)
                         {
                             console.log("VPT: audio->audio")
-                            mp1.stop()
+                            vp1.stop()
                             nextVideoTimerAF2.restart()
                         }
                         else
-                            mp2.play()
+                            vp2.play()
                     }
                     else {
                         videoPlayer.firstPlayer = true
-                        if (mp1.isAudio && mp2.isAudio)
+                        if (vp1.isAudio && vp2.isAudio)
                         {
-                            mp2.stop()
+                            vp2.stop()
                             nextVideoTimerAF1.restart()
                         }
                         else
-                            mp1.play()
+                            vp1.play()
                     }
                 }
                 else if (nextItemType === "browser"){
@@ -283,44 +298,44 @@ Item {
 
         function play(_url, _length, _skip, _isAudio, _fillMode)
         {
-            if (mp1.source == ""){
-                console.log("Filling src < MP1")
-                mp1.durationMsecs = _length
-                mp1.seekMsecs = _skip
-                mp1.source = _url
-                mp1.isAudio = _isAudio
-                mp1.play()
+            if (vp1.source == ""){
+                console.log("Filling src < vp1")
+                vp1.durationMsecs = _length
+                vp1.seekMsecs = _skip
+                vp1.source = _url
+                vp1.isAudio = _isAudio
+                vp1.play()
                 if (_isAudio === false)
-                    videoOutput1.setFillMode(_fillMode)
+                    vp1.setFillMode(_fillMode)
             }
-            else if (mp2.source == "")
+            else if (vp2.source == "")
             {
                 console.log("Filling src < MP2")
-                mp2.source = _url
-                mp2.durationMsecs = _length
-                mp2.seekMsecs = _skip
-                mp2.isAudio = _isAudio
+                vp2.source = _url
+                vp2.durationMsecs = _length
+                vp2.seekMsecs = _skip
+                vp2.isAudio = _isAudio
                 if (_isAudio === false)
-                    videoOutput2.setFillMode(_fillMode)
+                    vp2.setFillMode(_fillMode)
             }
             else {
                 if (firstPlayer){
                     console.log("Load to MP2")
-                    mp2.source = _url
-                    mp2.durationMsecs = _length
-                    mp2.seekMsecs = _skip
-                    mp2.isAudio = _isAudio
+                    vp2.source = _url
+                    vp2.durationMsecs = _length
+                    vp2.seekMsecs = _skip
+                    vp2.isAudio = _isAudio
                     if (_isAudio === false)
-                        videoOutput2.setFillMode(_fillMode)
+                        vp2.setFillMode(_fillMode)
                 }
                 else{
                     console.log("Load to MP1")
-                    mp1.source = _url
-                    mp1.durationMsecs = _length
-                    mp1.seekMsecs = _skip
-                    mp1.isAudio = _isAudio
+                    vp1.source = _url
+                    vp1.durationMsecs = _length
+                    vp1.seekMsecs = _skip
+                    vp1.isAudio = _isAudio
                     if (_isAudio === false)
-                        videoOutput1.setFillMode(_fillMode)
+                        vp1.setFillMode(_fillMode)
                 }
             }
         }
@@ -334,10 +349,10 @@ Item {
         {
             prepareResetP = false
             videoPlayerTimer.stopTimer()
-            mp1.stop()
-            mp1.source = ""
-            mp2.stop()
-            mp2.source = ""
+            vp1.stop()
+            vp1.source = ""
+            vp2.stop()
+            vp2.source = ""
             firstPlayer = true
             //currentType = "null"
             audioIcon.visible = false
@@ -346,17 +361,17 @@ Item {
         function preloadItem(_url, length, skip, _isAudio, _fillMode)
         {
             console.log("preload item to mp1")
-            mp1.source = _url
-            mp1.durationMsecs = length
-            mp1.seekMsecs = skip
-            mp1.isAudio = _isAudio
+            vp1.source = _url
+            vp1.durationMsecs = length
+            vp1.seekMsecs = skip
+            vp1.isAudio = _isAudio
             if (_isAudio === false)
-                videoOutput1.setFillMode(_fillMode)
+                vp1.setFillMode(_fillMode)
         }
 
         function playPreloaded()
         {
-            mp1.play()
+            vp1.play()
         }
 
         Timer {
@@ -374,18 +389,18 @@ Item {
             onTriggered: {
                  if (showFirstVideo){
 
-                     videoOutput2.opacity = 0.0
-                     videoOutput1.opacity = 1.0
+                     vp2.opacity = 0.0
+                     vp1.opacity = 1.0
 
-                     if(mp1.isAudio)
+                     if(vp1.isAudio)
                          audioIcon.visible = true
                      else
                          audioIcon.visible = false
                  }
                  else{
-                     videoOutput1.opacity = 0.0
-                     videoOutput2.opacity = 1.0
-                     if(mp2.isAudio)
+                     vp1.opacity = 0.0
+                     vp2.opacity = 1.0
+                     if(vp2.isAudio)
                          audioIcon.visible = true
                      else
                          audioIcon.visible = false
@@ -393,109 +408,98 @@ Item {
             }
         }
 
-        MediaPlayer{
-            id: mp1
+        Video {
+            id: vp1
             autoLoad: true
             autoPlay: false
             source: ""
             property int durationMsecs: 0
             property int seekMsecs: 0
             property bool isAudio: false
-            onPlaying:{
-                console.log("MP1::onPlay " + mp1.source + " " + volume)
+            x: -videoPlayer.x
+            y: -videoPlayer.y
+            width: videoPlayer.width
+            height: videoPlayer.height
+            opacity: 0.0
+            visible: true
+
+            function setFillMode(fill_mode)
+            {
+                if (fill_mode === "stretch")
+                    vp1.fillMode = VideoOutput.Stretch
+                else if (fill_mode === "preserveAspectCrop")
+                    vp1.fillMode = VideoOutput.PreserveAspectCrop
+                else
+                    vp1.fillMode = VideoOutput.PreserveAspectFit
+            }
+
+            onPlaying: {
+                console.log("VP1::onPlay" + vp1.source)
+                console.log("VP: " + videoPlayer.x + " " + videoPlayer.y + " " + videoPlayer.width + " " + videoPlayer.height)
                 antiFlickTimerVideo.activateTimer(true)
-                var dur = Math.max(mp1.durationMsecs, 5000) - 250 + delay
+                var dur = Math.max(vp1.durationMsecs, 5000) - 250 + delay
                 videoPlayerTimer.interval = dur
                 videoPlayerTimer.startTimer()
                 if (delay != 0)
                     delayManager.run(dur)
-                if (mp1.seekMsecs > 0)
-                    mp1.seek(mp1.seekMsecs)
+                if (vp1.seekMsecs > 0)
+                    vp1.seek(vp1.seekMsecs)
                 if(isAudio)
                     audioIcon.visible = true
                 else
                     audioIcon.visible = false
-                mp2.stop()
+                vp2.stop()
             }
+
             volume: volumeValue
         }
 
-        VideoOutput{
-            id: videoOutput1
-            x: parent.x
-            y: parent.y
-            width: parent.width
-            height: parent.height
-            source: mp1
-            opacity: 0.0
-            visible: true
-            function setFillMode(fill_mode){
-                if (fill_mode === "stretch")
-                    videoOutput1.fillMode = VideoOutput.Stretch
-                else if (fill_mode === "preserveAspectCrop")
-                    videoOutput1.fillMode = VideoOutput.PreserveAspectCrop
-                else
-                    videoOutput1.fillMode = VideoOutput.PreserveAspectFit
-            }
-        }
-
-        MediaPlayer{
-            id: mp2
+        Video {
+            id: vp2
             autoLoad: true
             autoPlay: false
             source: ""
             property int durationMsecs: 0
             property int seekMsecs: 0
             property bool isAudio: false
+            x: -videoPlayer.x
+            y: -videoPlayer.y
+            width: videoPlayer.width
+            height: videoPlayer.height
+            opacity: 0.0
+            visible: true
+            function setFillMode(fill_mode)
+            {
+                if (fill_mode === "stretch")
+                    vp2.fillMode = VideoOutput.Stretch
+                else if (fill_mode === "preserveAspectCrop")
+                    vp2.fillMode = VideoOutput.PreserveAspectCrop
+                else
+                    vp2.fillMode = VideoOutput.PreserveAspectFit
+            }
+
             onPlaying: {
-                console.log("MP2::onPlay " + mp2.source)
+                console.log("vp2::onPlay" + vp2.source)
                 antiFlickTimerVideo.activateTimer(false)
-
-
-                var dur = Math.max(mp2.durationMsecs, 5000) - 250 + delay
+                var dur = Math.max(vp2.durationMsecs, 5000) - 250 + delay
                 videoPlayerTimer.interval = dur
                 videoPlayerTimer.startTimer()
                 if (delay != 0)
                     delayManager.run(dur)
-
-               // videoPlayerTimer.interval = Math.max(mp2.durationMsecs, 5000) - 250
-                //videoPlayerTimer.startTimer()
-                if (mp2.seekMsecs > 0)
-                    mp2.seek(mp2.seekMsecs)
-              /*  if(isAudio)
+                if (vp2.seekMsecs > 0)
+                    vp2.seek(vp2.seekMsecs)
+                if(isAudio)
                     audioIcon.visible = true
                 else
-                    audioIcon.visible = false*/
-                mp1.stop()
+                    audioIcon.visible = false
+                vp1.stop()
             }
             volume: volumeValue
         }
 
-        VideoOutput{
-            id: videoOutput2
-            x: parent.x
-            y: parent.y
-            width: parent.width
-            height: parent.height
-            source: mp2
-            opacity: 0.0
-
-            function setFillMode(fill_mode){
-                if (fill_mode === "stretch")
-                    videoOutput2.fillMode = VideoOutput.Stretch
-                else if (fill_mode === "preserveAspectCrop")
-                    videoOutput2.fillMode = VideoOutput.PreserveAspectCrop
-                else
-                    videoOutput2.fillMode = VideoOutput.PreserveAspectFit
-            }
-        }
-
-
         Item{
             id: audioIcon
             visible: false
-            x: parent.x
-            y: parent.y
             width: parent.width
             height: parent.height
             Rectangle{
@@ -526,12 +530,11 @@ Item {
         height: parent.height
         color: "#000000"
         visible: contentImage1.visible || contentImage2.visible
+        //visible: false
     }
 
     Item {
         id: imageContent
-        x: parent.x
-        y: parent.y
         width: parent.width
         height: parent.height
         property bool isFirstImage: false
@@ -666,8 +669,6 @@ Item {
             id: contentImage1
             visible: false
             property int showtime: 500
-            x: parent.x
-            y: parent.y
             width: parent.width
             height: parent.height
             source: ""
@@ -760,10 +761,10 @@ Item {
         {
             console.log("no need to recalculate boundrect =" + (_rotation % 90))
             //no need to recalculate boundrect
-            browser.width = parent.width
-            browser.height = parent.height
-            browser.x = parent.x
-            browser.y = parent.y
+            //browser.width = parent.width
+            //browser.height = parent.height
+            browser.x = 0
+            browser.y = 0
             browser.rotation = _rotation
         } else
         {
@@ -872,6 +873,7 @@ Item {
             turnOffTimer.stopTimer()
             prepareStop = false
         }
+
         function hideBrowser(){
             console.log("hide browser")
 
@@ -970,11 +972,13 @@ Item {
             }
         }
 
-        WebView {
+        WebEngineView {
             id: sideBrowser1
+            audioMuted: true
             //visible: false
             opacity: 0.00
-            anchors.fill: parent
+            width: vp1.width
+            height: vp1.height
             property string prevUrl:"#none"
             property int showtime: 0
             url: ""
@@ -1013,13 +1017,12 @@ Item {
             }
         }
 
-
-
-        WebView {
+        WebEngineView {
             id: sideBrowser2
             //visible: false
             opacity: 0.00
-            anchors.fill: parent
+            width: vp1.width
+            height: vp1.height
             property string prevUrl:"#none"
             property int showtime: 0
             url: ""

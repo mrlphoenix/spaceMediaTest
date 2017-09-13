@@ -1,13 +1,12 @@
 #ifndef INSTAGRAMRECENTPOSTVIEWER_H
 #define INSTAGRAMRECENTPOSTVIEWER_H
-
+/*
 #include <QPainter>
 #include <QStyleOption>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QWidget>
 #include <QTimer>
-#include <soundwidgetinfo.h>
 
 namespace Ui {
 class InstagramRecentPostViewer;
@@ -33,5 +32,5 @@ private:
     QTimer * reloadTimer;
     QString downloadTarget;
 };
-
+*/
 #endif // INSTAGRAMRECENTPOSTVIEWER_H

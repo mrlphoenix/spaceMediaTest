@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+contains (KIT, Raspberry){
 SOURCES += \
     $$PWD/http_parser.c \
     $$PWD/qhttpconnection.cpp \
@@ -15,3 +16,4 @@ HEADERS += \
     $$PWD/qhttpserver.h \
     $$PWD/qhttpserverapi.h \
     $$PWD/qhttpserverfwd.h
+}

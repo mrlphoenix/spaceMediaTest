@@ -30,12 +30,15 @@
 #include "notherfilesystem.h"
 #include "version.h"
 
+
+
 TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 {
     qDebug() << "TELEDS v" <<TeleDSVersion::getVersion();
     qsrand((uint)QTime::currentTime().msec());
     DatabaseInstance;
     PlatformSpecificService;
+
     StaticTextService;
     StaticTextService.init();
     qRegisterMetaType< ThemeDesc >("ThemeDesc");
@@ -285,15 +288,15 @@ void TeleDSCore::initSystemServices()
     QTimer *resetTimer = new QTimer(this);
     connect(resetTimer, SIGNAL(timeout()), this, SLOT(checkReset()));
     resetTimer->start(2500);
-
-    //
 }
 
 void TeleDSCore::setupHttpServer()
 {
+#ifndef PLATFORM_DEFINE_WINDOWS
     httpserver = new QHttpServer(this);
     httpserver->listen(16080);
     connect(httpserver,SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)),this,SLOT(handleNewRequest(QHttpRequest*,QHttpResponse*)));
+#endif
 }
 
 void TeleDSCore::initPlayer()
@@ -376,8 +379,6 @@ void TeleDSCore::sendLogs()
         qDebug() << "Error: no logs, cant send nothing";
         mgr->deleteLater();
     }
-
-
 }
 
 void TeleDSCore::initResult(InitRequestResult result)
@@ -399,7 +400,7 @@ void TeleDSCore::initResult(InitRequestResult result)
         GlobalConfigInstance.setActivationCode(result.code);
 
         //after initialization we show actitivation required action with given code
-        teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",result.code, PlatformSpecificService.isAndroid());
+        teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",result.code, PlatformSpecificService.showCode());
 
         //start get playlist
         QTimer::singleShot(1000,this,SLOT(getPlaylistTimerSlot()));
@@ -448,6 +449,7 @@ void TeleDSCore::hardwareInfoReady(Platform::HardwareInfo info)
     videoService->advancedInit(jsonData);
 }
 
+#ifndef PLATFORM_DEFINE_WINDOWS
 void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response)
 {
     QString path = request->path();
@@ -536,6 +538,7 @@ void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response
     }
 
 }
+#endif
 
 void TeleDSCore::checkForAutomaticShutdown()
 {
@@ -567,6 +570,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             return;
         }
     }
+
     //if backend responsed with 401 - it means player need to be reactivated
     if (result.error_id == 401)
     {
@@ -576,14 +580,14 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         if (teledsPlayer->isPlaying())
             teledsPlayer->stopPlaying();
         teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode(),
-                                                         PlatformSpecificService.isAndroid());
+                                                         PlatformSpecificService.showCode());
     }
     //403: player is not configurated - requesting initialization
     if (result.error_id == 403 || result.error_id == 404)
     {
         if (teledsPlayer->isPlaying())
             teledsPlayer->stopPlaying();
-        qDebug() << "403/404: player is not configurated - requesting initialization";
+        qDebug() << "403/404: player is not configurated - requesting initialization" << "; exact error = " << result.error_id;
         initPlayer();
     }
     else if (result.error_id == 402)
@@ -603,6 +607,13 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         //if no errors
         if (result.error_id == 0)
         {
+            static int prevRotation = 0;
+            if (result.base_rotation != prevRotation)
+            {
+                qDebug() << "Settings got new orientation";
+                GlobalConfigInstance.setMetaProperty("playlist_hash", "");
+            }
+            prevRotation = result.base_rotation;
             //load all player areas information
             videoService->getPlaylist();
 
@@ -667,7 +678,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     //this method is called when we got playlist
     //when we should update playlist
     static int prevScreenRotation = 0;
-    qDebug() << "TeleDSCore::playlistResult";
+    qDebug() << "TeleDSCore::playlistResult" << result.error_id;
 
     if ((!currentConfig.last_modified.isValid()
        || ((result.last_modified > currentConfig.last_modified ||
@@ -686,7 +697,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
                 currentConfig = storedResult;
             }
         }
-        else
+        else if (result.error_id == 0)
         {
             currentConfig = result;
             GlobalConfigInstance.setMetaProperty("playlist_hash", result.hash);
@@ -714,7 +725,6 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
         return;
     }
-
 }
 
 void TeleDSCore::checkUpdate()
@@ -724,9 +734,8 @@ void TeleDSCore::checkUpdate()
         updateTimer->stop();
         updateTimer->start(60000);
     });
-    videoService->getUpdates("raspberry");
+    videoService->getUpdates("windows");
 }
-
 
 void TeleDSCore::checkKeys()
 {
@@ -850,9 +859,6 @@ void TeleDSCore::downloaded(int index)
         teledsPlayer->prepareStop();
         return;
     }
-    //after we download items - update playlists every 60 secs
-    //GlobalConfigInstance.setGetPlaylistTimerTime(60000);
-    //sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
     int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
     if (currentCampaignIndex >= currentConfig.campaigns.count())
@@ -866,9 +872,9 @@ void TeleDSCore::downloaded(int index)
     teledsPlayer->invokeStop();
     teledsPlayer->updateConfig(currentConfig);
     teledsPlayer->invokeDownloadDone();
-    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
-        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+
+
+    prepareAreas(campaign);
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
@@ -905,9 +911,9 @@ void TeleDSCore::playlistUpdateReady()
     teledsPlayer->invokeStop();
     teledsPlayer->updateConfig(currentConfig);
     teledsPlayer->invokeDownloadDone();
-    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
-        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+
+    prepareAreas(campaign);
+
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
@@ -1030,9 +1036,9 @@ void TeleDSCore::nextCampaign()
     qDebug() << "choosing campaign";
     currentConfig.currentCampaignId = currentCampaignIndex;
     PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[currentCampaignIndex];
-    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
-        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+
+    prepareAreas(campaign);
+
     teledsPlayer->play();
 
     QTimer::singleShot(duration, this, [this](){
@@ -1193,6 +1199,8 @@ void TeleDSCore::onInputDeviceConnected()
         connect(this, SIGNAL(runInputService()), inputService, SLOT(run()));
         emit runInputService();
     });
+
+    //initialization windows input service
 }
 
 void TeleDSCore::onInputDeviceDisconnected()
@@ -1225,16 +1233,6 @@ void TeleDSCore::setupDownloader()
     downloader->runDownloadNew();
     teledsPlayer->invokeBackDownloadProgressBarVisible(true);
 }
-
-void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
-{
-    foreach (const PlayerConfigAPI::Campaign::Area &area, c.areas)
-        teledsPlayer->invokeInitArea(area.area_id,
-                                     c.screen_width, c.screen_height,
-                                     area.x, area.y, area.width, area.height, c.rotation);
-
-}
-
 bool TeleDSCore::checkCombo(const QList<int> &keys)
 {
     if (!isInputDeviceConnected)
@@ -1297,6 +1295,18 @@ void TeleDSCore::checkReset()
     }
 }
 
+void TeleDSCore::prepareAreas(PlayerConfigAPI::Campaign &campaign)
+{
+    int index = 0;
+    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+    {
+        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
+                                     area.x, area.y, area.width, area.height, campaign.rotation, area.opacity, index);
+        teledsPlayer->invokeSetAreaMuted(index, !area.sound_enabled);
+        index++;
+    }
+}
+
 void BatteryStatus::setConfig(int minCapacityLevel, int maxTimeWithoutPower)
 {
     this->minCapacityLevel = minCapacityLevel;
@@ -1342,6 +1352,7 @@ bool BatteryStatus::checkIfNeedToShutDown(Platform::BatteryInfo status)
     return false;
 }
 
+#ifndef PLATFORM_DEFINE_WINDOWS
 HTTPServerDataReceiver::HTTPServerDataReceiver(TeleDSCore *core, QHttpRequest *request, QHttpResponse *response, QString widgetId, QString contentId) :
     req(request),
     res(response)
@@ -1374,3 +1385,4 @@ void HTTPServerDataReceiver::reply()
     res->setHeader("Content-Length", QString::number(successResponse.size()));
     res->end(successResponse);
 }
+#endif

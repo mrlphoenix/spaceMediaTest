@@ -2,6 +2,11 @@
 #include <QFile>
 #include <QTimeZone>
 #include <QProcess>
+#include "platformdefines.h"
+#ifdef PLATFORM_DEFINE_WINDOWS
+#define _USE_MATH_DEFINES
+#include "math.h"
+#endif
 #include "globalstats.h"
 #include "platformspecific.h"
 
@@ -143,6 +148,8 @@ void GlobalStats::setBalance(double balance)
 int GlobalStats::getUTCOffset()
 {
     if (PlatformSpecificService.isAndroid())
+        return 0;
+    if (PlatformSpecificService.isWindows())
         return 0;
     bool shouldUpdateUTC = false;
     QDateTime currentTimeUTC = QDateTime::currentDateTimeUtc();

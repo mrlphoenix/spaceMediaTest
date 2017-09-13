@@ -123,6 +123,7 @@ Item {
 
     focus: true
 
+
     onHeightChanged: {
         heightP = height
         widthP = width
@@ -131,6 +132,25 @@ Item {
     function setDelay(delay)
     {
         playlistDelay = delay
+    }
+
+    function setRotation(angle)
+    {
+        if (angle % 180 != 0)
+        {
+            item.height = parent.width
+            item.width = parent.height
+            item.x = (parent.width - parent.height) / 2
+            item.y = (parent.height - parent.width) / 2
+        }
+        else
+        {
+            item.width = parent.width
+            item.height = parent.height
+            item.x = 0
+            item.y = 0
+        }
+        item.rotation = angle
     }
 
     //spacemedia menu functions
@@ -234,37 +254,84 @@ Item {
         menu.invokeMenuCancelPressed()
     }
 
-    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation)
+    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation, opacity, index)
     {
-        console.log("prepareArea " + campaignWidth + " " + campaignHeight + " " + w + " " + h)
-        fullscreenView.areaID = name
-        fullscreenView.x = width * x / campaignWidth;
-        fullscreenView.y = height * y / campaignHeight;
-        fullscreenView.width = width * w / campaignWidth;
-        fullscreenView.height = height * h / campaignHeight;
-        fullscreenView.setRotation(_rotation)
-        item.focus = true
+        console.log("OPACITY = " + opacity)
+        switch (index)
+        {
+        case 0:
+            fullscreenView.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 1:
+            fullscreenView2.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 2:
+            fullscreenView3.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 3:
+            fullscreenView4.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 4:
+            fullscreenView5.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 5:
+            fullscreenView6.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 6:
+            fullscreenView7.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        case 7:
+            fullscreenView8.prepare(name, campaignWidth, campaignHeight, x, y, w, h, 0, width, height, opacity)
+            break;
+        default:
+            break;
+        }
+        item.setRotation(_rotation)
+    }
 
-      /*  fullscreenView.areaID = name
-        fullscreenView.x = 0
-        fullscreenView.y = 0
-        fullscreenView.height = item.height
-        fullscreenView.width = item.width*/
-       // moveTimer.start()
+    function setAreaMuted(index, isMuted)
+    {
+        switch (index)
+        {
+        case 0:
+            fullscreenView.setMuted(isMuted)
+            break;
+        case 1:
+            fullscreenView2.setMuted(isMuted)
+            break;
+        case 2:
+            fullscreenView3.setMuted(isMuted)
+            break;
+        case 3:
+            fullscreenView4.setMuted(isMuted)
+            break;
+        case 4:
+            fullscreenView5.setMuted(isMuted)
+            break;
+        case 5:
+            fullscreenView6.setMuted(isMuted)
+            break;
+        case 6:
+            fullscreenView7.setMuted(isMuted)
+            break;
+        case 7:
+            fullscreenView8.setMuted(isMuted)
+            break;
+        default:
+            break;
+        }
     }
 
     function prepareStop()
     {
         fullscreenView.prepareStop()
-    }
-
-    Timer {
-        id: moveTimer
-        repeat: true
-        interval: 50
-        onTriggered: {
-            fullscreenView.x = fullscreenView.x + 1
-        }
+        fullscreenView2.prepareStop()
+        fullscreenView3.prepareStop()
+        fullscreenView4.prepareStop()
+        fullscreenView5.prepareStop()
+        fullscreenView6.prepareStop()
+        fullscreenView7.prepareStop()
+        fullscreenView8.prepareStop()
     }
 
     function setCRC(crc)
@@ -278,31 +345,96 @@ Item {
         {
             hideRect.visible = true
             fullscreenView.setMuted(true)
+            fullscreenView2.setMuted(true)
+            fullscreenView3.setMuted(true)
+            fullscreenView4.setMuted(true)
+            fullscreenView5.setMuted(true)
+            fullscreenView6.setMuted(true)
+            fullscreenView7.setMuted(true)
+            fullscreenView8.setMuted(true)
         }
         else
         {
             hideRect.visible = false
             fullscreenView.setMuted(false)
+            fullscreenView2.setMuted(false)
+            fullscreenView3.setMuted(false)
+            fullscreenView4.setMuted(false)
+            fullscreenView5.setMuted(false)
+            fullscreenView6.setMuted(false)
+            fullscreenView7.setMuted(false)
+            fullscreenView8.setMuted(false)
         }
         item.focus = true
     }
 
     function playNextItem(areaId, source, type, duration, skipTime, fillMode)
     {
-        if (fullscreenView.visible == false)
-            fullscreenView.visible = true
-        fullscreenView.play(source, duration, type, skipTime, fillMode)
+        if (fullscreenView.areaID === areaId)
+        {
+            if (fullscreenView.visible == false)
+                fullscreenView.visible = true
+            fullscreenView.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView2.areaID === areaId)
+        {
+            if (fullscreenView2.visible == false)
+                fullscreenView2.visible = true
+            fullscreenView2.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView3.areaID === areaId)
+        {
+            if (fullscreenView3.visible == false)
+                fullscreenView3.visible = true
+            fullscreenView3.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView4.areaID === areaId)
+        {
+            if (fullscreenView4.visible == false)
+                fullscreenView4.visible = true
+            fullscreenView4.play(source, duration, type, skipTime, fillMode)
+        }
+
+        else if (fullscreenView5.areaID === areaId)
+        {
+            if (fullscreenView5.visible == false)
+                fullscreenView5.visible = true
+            fullscreenView5.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView6.areaID === areaId)
+        {
+            if (fullscreenView6.visible == false)
+                fullscreenView6.visible = true
+            fullscreenView6.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView7.areaID === areaId)
+        {
+            if (fullscreenView7.visible == false)
+                fullscreenView7.visible = true
+            fullscreenView7.play(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView8.areaID === areaId)
+        {
+            if (fullscreenView8.visible == false)
+                fullscreenView8.visible = true
+            fullscreenView8.play(source, duration, type, skipTime, fillMode)
+        }
+        else
+            console.log("playNextItem::ERROR! Area " + areaId + " not found")
     }
+
     function toggleMenu()
     {
         menu.visible = !menu.visible
     }
+
     function showConnectionMenu(text)
     {
         oldMenu.visible = true
         oldMenu.showInternetInfoDialog(text)
         //menu.restoreTextDialog(text, "")
     }
+
     function hideConnectionMenu()
     {
         oldMenu.visible = false
@@ -316,6 +448,7 @@ Item {
         changeVolumeTimer.destValue = value
         changeVolumeTimer.restart()
     }
+
     Timer {
         id: changeVolumeTimer
         repeat: true
@@ -331,6 +464,76 @@ Item {
                 fullscreenView.volumeValue = fullscreenView.volumeValue - fullscreenView.volumeValue;
             else if (fullscreenView.volumeValue > destValue) {
                 fullscreenView.volumeValue = fullscreenView.volumeValue - Math.min(0.01, fullscreenView.volumeValue)
+            }
+
+            if (fullscreenView2.volumeValue < destValue)
+            {
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue - fullscreenView2.volumeValue;
+            else if (fullscreenView2.volumeValue > destValue) {
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue - Math.min(0.01, fullscreenView2.volumeValue)
+            }
+
+            if (fullscreenView3.volumeValue < destValue)
+            {
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue - fullscreenView3.volumeValue;
+            else if (fullscreenView3.volumeValue > destValue) {
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue - Math.min(0.01, fullscreenView3.volumeValue)
+            }
+
+            if (fullscreenView4.volumeValue < destValue)
+            {
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue - fullscreenView4.volumeValue;
+            else if (fullscreenView4.volumeValue > destValue) {
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue - Math.min(0.01, fullscreenView4.volumeValue)
+            }
+
+            if (fullscreenView5.volumeValue < destValue)
+            {
+                fullscreenView5.volumeValue = fullscreenView5.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView5.volumeValue = fullscreenView5.volumeValue - fullscreenView5.volumeValue;
+            else if (fullscreenView5.volumeValue > destValue) {
+                fullscreenView5.volumeValue = fullscreenView5.volumeValue - Math.min(0.01, fullscreenView5.volumeValue)
+            }
+
+            if (fullscreenView6.volumeValue < destValue)
+            {
+                fullscreenView6.volumeValue = fullscreenView6.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView6.volumeValue = fullscreenView6.volumeValue - fullscreenView6.volumeValue;
+            else if (fullscreenView6.volumeValue > destValue) {
+                fullscreenView6.volumeValue = fullscreenView6.volumeValue - Math.min(0.01, fullscreenView6.volumeValue)
+            }
+
+            if (fullscreenView7.volumeValue < destValue)
+            {
+                fullscreenView7.volumeValue = fullscreenView7.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView7.volumeValue = fullscreenView7.volumeValue - fullscreenView7.volumeValue;
+            else if (fullscreenView7.volumeValue > destValue) {
+                fullscreenView7.volumeValue = fullscreenView7.volumeValue - Math.min(0.01, fullscreenView7.volumeValue)
+            }
+
+            if (fullscreenView8.volumeValue < destValue)
+            {
+                fullscreenView8.volumeValue = fullscreenView8.volumeValue + 0.01
+            }
+            else if (destValue == 0.0)
+                fullscreenView8.volumeValue = fullscreenView8.volumeValue - fullscreenView8.volumeValue;
+            else if (fullscreenView8.volumeValue > destValue) {
+                fullscreenView8.volumeValue = fullscreenView8.volumeValue - Math.min(0.01, fullscreenView8.volumeValue)
             }
         }
     }
@@ -383,6 +586,7 @@ Item {
         else
             teledsLogo.opacity = 0.0
     }
+
     function setMenuTheme(brandBGLogo, brandLogo, brandBGColor, brandFGColor, tileMode, showTeleDSLogo)
     {
         brand_menu_backgroundColor = brandBGColor
@@ -422,10 +626,18 @@ Item {
     function stopPlayer()
     {
         fullscreenView.stop()
+        fullscreenView2.stop()
+        fullscreenView3.stop()
+        fullscreenView4.stop()
+        fullscreenView5.stop()
+        fullscreenView6.stop()
+        fullscreenView7.stop()
+        fullscreenView8.stop()
         currentType = "null"
     }
 
-    function downloadComplete(){
+    function downloadComplete()
+    {
         console.debug("download complete. Hiding Progress Bars, Showing Video Player");
         filesProgressBar.visible = false
         downloadProgressBar.visible = false
@@ -448,13 +660,16 @@ Item {
     function setPlayerName(playerId){
         playerName.text = playerId
     }
+
     function setTotalProgress(p, name){
         filesProgressBar.value = p
         playerName.text = name
     }
+
     function setProgress(p){
         downloadProgressBar.value = p
     }
+
     function showVideo(isVisible){
         logoColumn.visible = false
     }
@@ -464,10 +679,12 @@ Item {
         videoOutBrightness = value
         fullscreenView.brightness = value
     }
+
     function setVersion(version, build){
         systemVersion = version
         systemVersionBuild = build
     }
+
     function showPassword(is_visible, pass)
     {
         if (is_visible === 1)
@@ -476,7 +693,6 @@ Item {
             passText.visible = false
         passTextItem.text = pass
     }
-
 
     function setNoItemsLogo(link){
         logoColumn.visible = true
@@ -487,8 +703,27 @@ Item {
         waitingBlock.visible = false
 
         bgLogoBlock.visible = true
+
+        stopEverything()
+    }
+    function stopEverything()
+    {
         fullscreenView.visible = false
         fullscreenView.stop()
+        fullscreenView2.visible = false
+        fullscreenView2.stop()
+        fullscreenView3.visible = false
+        fullscreenView3.stop()
+        fullscreenView4.visible = false
+        fullscreenView4.stop()
+        fullscreenView5.visible = false
+        fullscreenView5.stop()
+        fullscreenView6.visible = false
+        fullscreenView6.stop()
+        fullscreenView7.visible = false
+        fullscreenView7.stop()
+        fullscreenView8.visible = false
+        fullscreenView8.stop()
     }
 
     function setUpdateState(tx)
@@ -539,6 +774,8 @@ Item {
     }
 
     function getPointSize(text){
+        return 32
+        /*
         if (text.length > 40)
             decreasingTextValue = text.length-40
         else
@@ -553,26 +790,8 @@ Item {
             if (testText.width < item.widthP)
                 decreasingTextValue -= 4
             return 32 - decreasingTextValue
-        }
+        }*/
     }
-    function getPointSizeSecond(text){
-        if (item.widthP > item.heightP)
-            return 20
-        else
-            return 18
-    }
-    function getRefreshButtonPositionY(w, h)
-    {
-        if (w > h)
-        {
-            return playerIDRect.y
-        }
-        else
-        {
-            return playerIDRect.y + playerIDRect.height + 8
-        }
-    }
-
 
     function getTopValue(h)
     {
@@ -582,6 +801,7 @@ Item {
         else
             return result
     }
+
     function skipCurrentItem(){
         fullscreenView.skipCurrentItem()
     }
@@ -597,6 +817,7 @@ Item {
             gpsChanged(coord.latitude, coord.longitude)
         }
     }
+
     Timer {
         id: dialogCloseTimer
         repeat: false
@@ -615,7 +836,7 @@ Item {
 
     Rectangle {
         id: overlayBgRect
-        color: brand_backgroundColor
+        color: "#000000"
         width: parent.width
         height: parent.height
     }
@@ -882,17 +1103,244 @@ Item {
             console.log("FULLSCREENVIEW::onstop")
             nextItem("")
         }
+        z: 0
     }
 
+    PlayerView {
+        id: fullscreenView2
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setMenuView(true)
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    setMenuView(false)
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+
+        z: 1
+    }
+
+    PlayerView {
+        id: fullscreenView3
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+
+        z: 2
+    }
+
+    PlayerView {
+        id: fullscreenView4
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+
+        z: 3
+    }
+
+    PlayerView {
+        id: fullscreenView5
+        visible: true
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+
+        z: 4
+    }
+
+    PlayerView {
+        id: fullscreenView6
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 5
+    }
+
+    PlayerView {
+        id: fullscreenView7
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 6
+    }
+
+    PlayerView {
+        id: fullscreenView8
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setMenuView(true)
+                    setRestoreModeFalse()
+                    menu.restore()
+                }
+                else
+                {
+                    setMenuView(false)
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 7
+    }
+
+
+
     //android:excludeFromRecents="true"
-
-
 
     SpaceMediaMenu{
         id: menu
         width: item.width
         height: item.height
         visible: false
+        z: 7
     }
 
 
@@ -935,6 +1383,7 @@ Item {
                 sideBrowser.visible = false
             console.log("back key pressed: main")
         }
+        z: 7
     }
 
     Item {
@@ -959,6 +1408,7 @@ Item {
             color: "#FFFFFF"
             font.pointSize: 12
         }
+        z: 7
     }
 
     Item {
@@ -981,6 +1431,8 @@ Item {
             font.pointSize: 7
             opacity: 0.75
         }
+        z: 7
+
     }
 
     Text {
@@ -991,6 +1443,7 @@ Item {
         color: "#FFFFFF"
         font.pointSize: 7
         opacity: 0.5
+        z: 7
     }
 
     ProgressBar{
@@ -1013,6 +1466,7 @@ Item {
                     border.color: brand_foregroundColor
                 }
             }
+        z: 7
     }
 
     Dialog {
@@ -1142,53 +1596,37 @@ Item {
                     }
                     onClicked: Qt.quit()
                 }
-
-
             }
         }
     }
+
 
     Rectangle {
         id: hideRect
         anchors.fill: parent
         color: "black"
         visible: false
-    }
-
-    function setMenuView(secondScreen){
-        if (secondScreen === true)
-        {
-            if (androidBrowser.visible === true)
-                androidBrowser.visible = false
-            if (sideBrowser.visible === true)
-                sideBrowser.visible = false
-        }
-        else {
-            if (sideBrowser.visible === false && displayMode == "split")
-                sideBrowser.visible = true
-        }
+        z: 7
     }
 
     Keys.onReturnPressed:{
         console.log("keypressed")
     }
 
-  /*  Keys.onReleased:{
+    Keys.onReleased:{
         console.log("Key pressed")
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
             if (menu.visible == false)
             {
-                setMenuView(true)
                 setRestoreModeFalse()
-                menu.restore()
+                menu.visible = true
             }
             else
             {
-                setMenuView(false)
                 menu.visible = false
                 setRestoreModeTrue()
             }
             event.accepted = true
         }
-    }*/
+    }
 }

@@ -168,12 +168,10 @@ void VideoService::performRequest(VideoServiceRequest request)
         qDebug() << "ERROR: undefined method: " << request.name;
     };
 
-    //qDebug() << data;
     if (request.method == "GET")
         manager->get(networkRequest);
     else
         manager->post(networkRequest, data);
-
 }
 
 void VideoService::nextRequest()
@@ -225,7 +223,7 @@ VideoServiceRequest VideoServiceRequestFabric::advancedInitRequest(QByteArray bo
     return result;
 }
 
-VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest()
+VideoServiceRequest VideoServiceRequestFabric::  getPlaylistRequest()
 {
     VideoServiceRequest result;
     result.headers["Authorization"] = GlobalConfigInstance.getToken();
@@ -251,7 +249,14 @@ VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest()
         ignoreRotationParam.value = "1";
         result.params.append(ignoreRotationParam);
     }
-    //
+    else if (PlatformSpecificService.isWindows())
+    {
+        VideoServiceRequest::VideoServiceRequestParam ignoreRotationParam;
+        ignoreRotationParam.key = "ignore_rotation";
+        ignoreRotationParam.value = "1";
+        result.params.append(ignoreRotationParam);
+    }
+
     return result;
 }
 

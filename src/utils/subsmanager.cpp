@@ -38,10 +38,10 @@ void SubManager::load(QString filename)
                 i++;    //next string = times
                 QStringList timeTokens = stringList[i].split(" --> ");
                 SubItem item;
-                item.timeStart = QTime::fromString(timeTokens[0],"hh:mm:ss,zzz");
-                item.timeStart = item.timeStart.addMSecs(-200);
-                item.timeEnd   = QTime::fromString(timeTokens[1],"hh:mm:ss,zzz");
-                item.timeEnd   = item.timeEnd.addMSecs(-200);
+                item.timeStart  = QTime::fromString(timeTokens[0],"hh:mm:ss,zzz");
+                item.timeStart  = item.timeStart.addMSecs(-200);
+                item.timeEnd    = QTime::fromString(timeTokens[1],"hh:mm:ss,zzz");
+                item.timeEnd    = item.timeEnd.addMSecs(-200);
                 i++;
                 //building string
                 QStringList totalStrings;

@@ -9,6 +9,7 @@
 
 #include "platformdefines.h"
 #include "singleton.h"
+#include "winapicpuusage.h"
 
 #define PlatformSpecificService Singleton<Platform::PlatformSpecific>::instance()
 
@@ -101,7 +102,7 @@ public slots:
 
     //following method are used to operate with GPIO
     //implemented only for RPI, on other platforms do nothing (right now)
-    void writeGPIO(int n, int value);
+    void writeGPIO(int n, int);
     void turnOnFirstReley();
     void turnOffFirstReley();
     void turnOnSecondReley();
@@ -173,12 +174,14 @@ public:
     ~PlatformSpecific();
 
     static QString getFileHash(QString filename);
-    static void setResetWindow(bool enabled);
+    static void setResetWindow(bool);
     static QString getConnectionName();
     static void install();
     static QString mapKey(int code, bool shiftState);
     static bool isKeySymbol(int code);
     static bool isAndroid();
+    static bool isWindows();
+    static bool showCode() { return isAndroid() || isWindows(); }
 
 public slots:
     void generateSystemInfo();

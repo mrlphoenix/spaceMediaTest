@@ -7,7 +7,8 @@ SOURCES += \
     $$PWD/platformspecific.cpp \
     $$PWD/statictext.cpp \
     $$PWD/systeminfoprovider.cpp \
-    $$PWD/gpiobuttonservice.cpp
+    $$PWD/gpiobuttonservice.cpp \
+    $$PWD/winapicpuusage.cpp
 HEADERS += \
     $$PWD/teledscore.h \
     $$PWD/singleton.h \
@@ -18,7 +19,8 @@ HEADERS += \
     $$PWD/platformspecific.h \
     $$PWD/statictext.h \
     $$PWD/systeminfoprovider.h \
-    $$PWD/gpiobuttonservice.h
+    $$PWD/gpiobuttonservice.h \
+    $$PWD/winapicpuusage.h
 
 FORMS += \
     $$PWD/mainwindow.ui

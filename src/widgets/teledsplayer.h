@@ -33,7 +33,7 @@ public:
 
     void show();
     void updateConfig(PlayerConfigAPI &playerConfig);
-    void play(int delay = 1000);
+    void play();
     void stop();
     int nextCampaign() { return config.nextCampaign(); }
     int getCurrentCampaignIndex() { return config.currentCampaignId; }
@@ -48,6 +48,11 @@ public:
     bool isPlaying();
     QString getCurrentItem() { return status.item; }
     bool isFileCurrentlyPlaying(QString name);
+
+
+    //Area for funAfterStopTimer
+    QVector<QString> getAreas(QString areaString);
+    QString packAreas(QString oldAreas, QString area);
 
 signals:
     void refreshNeeded();
@@ -88,7 +93,7 @@ public slots:
     void invokeUpdateState();
     void invokeSetAreaCount(int areaCount);
     void invokePlayCampaign(int campaignIndex);
-    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation);
+    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation, double opacity, int index);
     void invokeSetPlayerVolume(int value);
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
@@ -96,6 +101,7 @@ public slots:
     void invokeSetContentPosition(float contentLeft = 0.f, float contentTop = 0.f, float contentWidth = 100.f, float contentHeight = 100.f,
                                   float widgetLeft = 0.f, float widgetTop = 0.f, float widgetWidth = 0.f, float widgetHeight = 0.f);
     void invokeSkipCurrentItem();
+    void invokeSetAreaMuted(int index, bool isMuted);
 
     //SpaceMediaMenu QML methods
     void invokeMenuDisplayRotationSelected();

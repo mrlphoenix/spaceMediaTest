@@ -2,6 +2,11 @@
 #define SUNPOSITION_H
 
 #include <QDateTime>
+#include "platformdefines.h"
+#ifdef PLATFORM_DEFINE_WINDOWS
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
 
 class SunsetSystem
 {

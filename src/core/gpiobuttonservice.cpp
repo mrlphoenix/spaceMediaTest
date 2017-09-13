@@ -4,18 +4,22 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+
+#include <QFileInfo>
+#include <platformdefines.h>
+
+#ifdef PLATFORM_DEFINE_RPI
 #include <linux/input.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <QFileInfo>
-#include <platformdefines.h>
+#endif
 
 #ifdef PLATFORM_DEFINE_RPI
 #include <wiringPi.h>
 #endif
 
-bool GPIOButtonService::checkPin(int pinId)
+bool GPIOButtonService::checkPin(int)
 {
 #ifdef PLATFORM_DEFINE_RPI
     return digitalRead(pinId) ;
@@ -38,7 +42,7 @@ GPIOButtonService::GPIOButtonService(QObject *parent) : QObject(parent)
     prevState = false;
 }
 
-InputService::InputService(QObject *parent)
+InputService::InputService(QObject *parent) : QObject(parent)
 {
 
 }

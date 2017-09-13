@@ -6,7 +6,6 @@
 #include <QProcess>
 #include <QHash>
 #include <QScopedPointer>
-#include "soundwidgetinfo.h"
 #include "videoservice.h"
 #include "videodownloader.h"
 #include "teledsplayer.h"
@@ -70,9 +69,9 @@ public slots:
     void initResult(InitRequestResult result);
     //slot is called when hardware info is ready
     void hardwareInfoReady(Platform::HardwareInfo info);
-
+#ifndef PLATFORM_DEFINE_WINDOWS
     void handleNewRequest(QHttpRequest * request, QHttpResponse * response);
-
+#endif
     //slots for automatic shutdown
     void checkForAutomaticShutdown();
     void automaticShutdownBatteryInfoReady(Platform::BatteryInfo info);
@@ -143,9 +142,11 @@ public slots:
     void rebootPlayer();
     void checkReset();
 
+    //
+    void prepareAreas(PlayerConfigAPI::Campaign &campaign);
+
 protected:
     void setupDownloader();
-    void setupCampaignAreas(const PlayerConfigAPI::Campaign &c);
 
     bool checkCombo(const QList<int> &keys);
     bool isInputDeviceConnected;
@@ -174,8 +175,9 @@ protected:
     InputDeviceControlService * inputDeviceControlService;
 
     bool shouldShowPlayer;
-
+#ifndef PLATFORM_DEFINE_WINDOWS
     QHttpServer * httpserver;
+#endif
     QHash<QString, QHash<QString, QByteArray> > storedData;
     QHash<int, int> storedKeys;
     QList<int> settingsCombo, resetCombo, menuCombo, passCombo, ifconfigCombo, hidePlayerCodeCombo, skipItemCombo, rebootCombo;
@@ -188,7 +190,7 @@ protected:
     int gpsInitializated;
 };
 
-
+#ifndef PLATFORM_DEFINE_WINDOWS
 class HTTPServerDataReceiver : public QObject
 {
     Q_OBJECT
@@ -207,5 +209,6 @@ private:
     TeleDSCore * core;
     QString widgetId, contentId;
 };
+#endif
 
 #endif // TELEDSCORE_H
