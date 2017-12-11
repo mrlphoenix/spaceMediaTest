@@ -61,6 +61,7 @@ public:
 
     void executeRequest(VideoServiceRequest request);
     bool processReplyError(const QNetworkReply * reply, QString method);
+    QString getServerURL() {return serverURL;}
 
 signals:
     void initResult(InitRequestResult result);

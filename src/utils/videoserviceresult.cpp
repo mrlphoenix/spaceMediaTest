@@ -15,6 +15,7 @@
 #include "globalconfig.h"
 #include "globalstats.h"
 #include "sslencoder.h"
+#include "platformspecific.h"
 
 
 
@@ -82,7 +83,7 @@ void VideoServiceResponseHandler::getPlaylistResultReply(QNetworkReply *reply)
                 error_id = 0;
         }
         else
-            error_id = 0;
+            error_id = -1;
         QByteArray replyData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(replyData);
         QJsonObject root = doc.object();
@@ -152,6 +153,17 @@ void VideoServiceResponseHandler::getPlayerSettingsReply(QNetworkReply *reply)
         result = SettingsRequestResult::fromJson(root, error_id == 0?true:false);
         result.error_id = error_id;
     }
+
+    if (reply->url().toString().contains("sett"))
+    {
+        qDebug() << "SETTINGS URL is FINE";
+    }
+    else
+    {
+        qDebug() << "SETTINGS URL is WRONG";
+        result.error_id = 650;
+    }
+
     emit getPlayerSettingsResult(result);
     reply->deleteLater();
 }
@@ -314,7 +326,6 @@ bool SettingsRequestResult::getForcePlaylistUpdate()
 
 PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json, bool needSave)
 {
-    //
     if (needSave)
         GlobalConfigInstance.setPlaylist(json);
     PlayerConfigAPI result;
@@ -325,6 +336,8 @@ PlayerConfigAPI PlayerConfigAPI::fromJson(QJsonObject json, bool needSave)
         auto campaign = PlayerConfigAPI::Campaign::fromJson(cValue.toObject());
         if (campaign.checkDateRange())
             result.campaigns.append(campaign);
+        else
+            qDebug() << "Skipping campaign because of date";
     }
     result.currentCampaignId = 0;
     return result;
@@ -412,12 +425,19 @@ int PlayerConfigAPI::Campaign::itemCount() const
 
 int PlayerConfigAPI::Campaign::checkDateRange() const
 {
+    return true;
     QDateTime currentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
+    QDateTime sCurrentTime = PlatformSpecificService.getNativeCurrentDate().addSecs(GlobalStatsInstance.getUTCOffset());
+    qDebug() << "Campaign::checkDataRange";
+    qDebug() << "Current Date/Time: " << currentTime;
+    qDebug() << "Native Date/Time: " << sCurrentTime;
+    qDebug() << "Campaign start Date: " << start_timestamp;
     bool sinceCheck = true, untilCheck = true;
     if (start_timestamp.isValid())
-        sinceCheck = currentTime > start_timestamp;
+        sinceCheck = sCurrentTime > start_timestamp;
     if (end_timestamp.isValid())
-        untilCheck = currentTime < end_timestamp;
+        untilCheck = sCurrentTime < end_timestamp;
+    qDebug() << "checks: " << sinceCheck << untilCheck;
     return sinceCheck && untilCheck;
 }
 
@@ -428,14 +448,16 @@ PlayerConfigAPI::Campaign::Area PlayerConfigAPI::Campaign::Area::fromJson(QJsonO
     result.type = json["type"].toString();
     result.screen_height = json["campaign_height"].toInt();
     result.screen_width = json["campaign_width"].toInt();
-    result.x = json["left"].toInt();
-    result.y = json["top"].toInt();
+    result.x = json["x"].toInt();
+    result.y = json["y"].toInt();
     result.width = json["width"].toInt();
     result.height = json["height"].toInt();
     result.opacity = double(json["opacity"].toInt())/100.;
     result.z_index = json["z_index"].toInt();
     result.sound_enabled = json["sound_enabled"].toBool();
+    result.area_volume = result.sound_enabled ? 1.00 : 0.00;
     QJsonArray content = json["content"].toArray();
+    qDebug() << "ARCC = " << result.area_id << " " << content.count();
     foreach (const QJsonValue &cValue, content)
         result.content.append(PlayerConfigAPI::Campaign::Area::Content::fromJson(cValue.toObject()));
     QJsonArray priorityContent = json["priority_content"].toArray();
@@ -549,22 +571,17 @@ bool PlayerConfigAPI::Campaign::Area::Content::checkDateRange() const
 
 bool PlayerConfigAPI::Campaign::Area::Content::checkGeoTargeting(QPointF gps) const
 {
-   // qDebug() << "checkGeoTargeting";
     if (polygons.count())
     {
         foreach (const QPolygon &p, polygons){
-
             if (p.containsPoint(QPoint(gps.x()*100000, gps.y()*100000),Qt::OddEvenFill)){
-     //           qDebug() << "GEOTARGETING: passed!";
                 return true;
             }
         }
-      //  qDebug() << "GEOTARGETING: failed!";
         return false;
     }
     else
     {
-        //qDebug() << "no gotargeting set; return true";
         return true;
     }
 }

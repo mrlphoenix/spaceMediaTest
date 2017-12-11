@@ -179,6 +179,7 @@ public:
     static QString mapKey(int code, bool shiftState);
     static bool isKeySymbol(int code);
     static bool isAndroid();
+    static QDateTime getNativeCurrentDate();
 
 public slots:
     void generateSystemInfo();

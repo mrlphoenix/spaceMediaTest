@@ -5,6 +5,7 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtPositioning 5.2
 //import QtWebKit 3.0
+import QtWebView 1.1
 
 
 Item {
@@ -133,6 +134,142 @@ Item {
         playlistDelay = delay
     }
 
+    function setRotation(angle)
+    {
+        if (angle % 180 != 0)
+        {
+            item.height = parent.width
+            item.width = parent.height
+            item.x = (parent.width - parent.height) / 2
+            item.y = (parent.height - parent.width) / 2
+        }
+        else
+        {
+            item.width = parent.width
+            item.height = parent.height
+            item.x = 0
+            item.y = 0
+        }
+        item.rotation = angle
+    }
+
+    function playerisReady()
+    {
+        prepareLoadRect.visible = false
+    }
+
+    function setSpaceMediaTheme()
+    {
+        brand_backgroundColor = "#F2F2F2"
+        brand_foregroundColor = "#C9353D"
+        brand_nothingToPlayText = "Нет роликов для воспроизведения"
+        brand_nothingToPlayLinkText = ""
+        brand_downloadingText = "Загрузка роликов"
+        brand_setupText = ""
+        brand_waitingForActivationText = ""
+        brand_initialization = "Инициализация плеера..."
+        //
+        brand_backgroundLogoHorizonal = ""
+        brand_backgroundLogoVertical = ""
+        brand_logoImage = "sm_bg.png"
+
+        teledsLogoImg.y = getHeightPercentSize(0.125925926)
+        teledsLogoImg.width = getWidthPercentSize(0.515625)
+        teledsLogoImg.height = getHeightPercentSize(0.333333)
+
+        teledsLogoImg.sourceSize.width =  getWidthPercentSize(0.515625*4)
+        teledsLogoImg.sourceSize.height = getHeightPercentSize(0.333333*4)
+
+        teledsLogo.height = 0
+        brRect.height = 0
+
+        progressText.visible = false
+
+
+        playerIDRect.x = getWidthPercentSize(0.393229167)
+        playerIDRect.y = getHeightPercentSize(0.599074074)
+        playerIDRect.width = getWidthPercentSize(0.211458333)
+        playerIDRect.height = getHeightPercentSize(0.109259259)
+        playerIDText.font.family = ptSansFont.name
+        playerIDText.font.pixelSize = getHeightPercentSize(0.064)
+
+        //playerIDText.x = getWidthPercentSize(0.019797917 / 6.0)
+        playerIDText.y = getHeightPercentSize(0.027777778 / 2.5)
+
+        titleText.color = brand_blackColor
+        spacemediaContactsBlock.visible = true
+
+        logoDownloadProgressBar.y = getHeightPercentSize(0.673148148)
+        logoDownloadProgressBar.height = getHeightPercentSize(0.055555556)
+        titleText.y = getHeightPercentSize(0.58)
+
+
+        crcText.color = brand_blackColor
+        versionText.color = brand_blackColor
+
+        fullscreenView.browserVisible = true
+        fullscreenView2.browserVisible = true
+        fullscreenView3.browserVisible = true
+        fullscreenView4.browserVisible = true
+    }
+
+    function setSpaceMediaThemeBlack()
+    {
+        brand_backgroundColor = "#2F2F3A"
+        brand_foregroundColor = "#C9353D"
+        brand_nothingToPlayText = "Нет роликов для воспроизведения"
+        brand_nothingToPlayLinkText = ""
+        brand_downloadingText = "Загрузка роликов"
+        brand_setupText = ""
+        brand_waitingForActivationText = ""
+        brand_initialization = "Инициализация плеера..."
+        //
+        brand_backgroundLogoHorizonal = ""
+        brand_backgroundLogoVertical = ""
+        brand_logoImage = "sm_bg_black.png"
+
+        teledsLogoImg.y = getHeightPercentSize(0.125925926)
+        teledsLogoImg.width = getWidthPercentSize(0.515625)
+        teledsLogoImg.height = getHeightPercentSize(0.333333)
+
+        teledsLogoImg.sourceSize.width =  getWidthPercentSize(0.515625*4)
+        teledsLogoImg.sourceSize.height = getHeightPercentSize(0.333333*4)
+
+        teledsLogo.height = 0
+        brRect.height = 0
+
+        progressText.visible = false
+
+
+        playerIDRect.x = getWidthPercentSize(0.393229167)
+        playerIDRect.y = getHeightPercentSize(0.599074074)
+        playerIDRect.width = getWidthPercentSize(0.211458333)
+        playerIDRect.height = getHeightPercentSize(0.109259259)
+        playerIDText.font.family = ptSansFont.name
+        playerIDText.font.pixelSize = getHeightPercentSize(0.064)
+        playerIDText.y = getHeightPercentSize(0.027777778 / 2.5)
+        playerIDText.color = brand_whiteColor
+
+        titleText.color = brand_whiteColor
+        spacemediaContactsBlock.visible = true
+
+        logoDownloadProgressBar.y = getHeightPercentSize(0.673148148)
+        logoDownloadProgressBar.height = getHeightPercentSize(0.055555556)
+        titleText.y = getHeightPercentSize(0.58)
+
+
+        crcText.color = brand_whiteColor
+        versionText.color = brand_whiteColor
+
+        spacemediaContactsPhoneText.color = brand_whiteColor
+        spacemediaContactsEmailText.color = brand_whiteColor
+
+        fullscreenView.browserVisible = true
+        fullscreenView2.browserVisible = true
+        fullscreenView3.browserVisible = true
+        fullscreenView4.browserVisible = true
+    }
+
     //spacemedia menu functions
     function invokeMenuDisplayRotationSelected()
     {
@@ -234,7 +371,52 @@ Item {
         menu.invokeMenuCancelPressed()
     }
 
-    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation)
+    function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation, opacity, index)
+    {
+        console.log("OPACITY = " + opacity)
+        switch (index)
+        {
+        case 0:
+            fullscreenView.prepare(name, campaignWidth, campaignHeight, x, y, w, h , 0, width, height, opacity)
+            break;
+        case 1:
+            fullscreenView2.prepare(name, campaignWidth, campaignHeight, x, y, w, h , 0, width, height, opacity)
+            break;
+
+        case 2:
+            fullscreenView3.prepare(name, campaignWidth, campaignHeight, x, y, w, h , 0, width, height, opacity)
+            break;
+
+        case 3:
+            fullscreenView4.prepare(name, campaignWidth, campaignHeight, x, y, w, h , 0, width, height, opacity)
+            break;
+        default: break
+        }
+        item.setRotation(_rotation)
+    }
+
+    function setAreaMuted(index, isMuted)
+    {
+        switch (index)
+        {
+        case 0:
+            fullscreenView.setMuted(isMuted)
+            break
+        case 1:
+            fullscreenView2.setMuted(isMuted)
+            break
+        case 2:
+            fullscreenView3.setMuted(isMuted)
+            break
+        case 3:
+            fullscreenView4.setMuted(isMuted)
+            break
+        default:
+            break
+        }
+    }
+
+   /* function prepareArea(name, campaignWidth, campaignHeight, x, y, w, h, _rotation)
     {
         console.log("prepareArea " + campaignWidth + " " + campaignHeight + " " + w + " " + h)
         fullscreenView.areaID = name
@@ -244,18 +426,21 @@ Item {
         fullscreenView.height = height * h / campaignHeight;
         fullscreenView.setRotation(_rotation)
         item.focus = true
-
+*/
       /*  fullscreenView.areaID = name
         fullscreenView.x = 0
         fullscreenView.y = 0
         fullscreenView.height = item.height
         fullscreenView.width = item.width*/
        // moveTimer.start()
-    }
+   // }
 
     function prepareStop()
     {
         fullscreenView.prepareStop()
+        fullscreenView2.prepareStop()
+        fullscreenView3.prepareStop()
+        fullscreenView4.prepareStop()
     }
 
     Timer {
@@ -289,20 +474,46 @@ Item {
 
     function playNextItem(areaId, source, type, duration, skipTime, fillMode)
     {
-        if (fullscreenView.visible == false)
-            fullscreenView.visible = true
-        fullscreenView.play(source, duration, type, skipTime, fillMode)
+        if (fullscreenView.areaID === areaId)
+        {
+            if (fullscreenView.visible == false)
+                fullscreenView.visible = true
+            fullscreenView.playStandartMode(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView2.areaID === areaId)
+        {
+            if (fullscreenView2.visible == false)
+                fullscreenView2.visible = true
+            fullscreenView2.playStandartMode(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView3.areaID === areaId)
+        {
+            if (fullscreenView3.visible == false)
+                fullscreenView3.visible = true
+            fullscreenView3.playStandartMode(source, duration, type, skipTime, fillMode)
+        }
+        else if (fullscreenView4.areaID === areaId)
+        {
+            if (fullscreenView4.visible == false)
+                fullscreenView4.visible = true
+            fullscreenView4.playStandartMode(source, duration, type, skipTime, fillMode)
+        }
+        else
+            console.log("playNextItem::ERROR! Area " + areaId + " not found!")
     }
+
     function toggleMenu()
     {
         menu.visible = !menu.visible
     }
+
     function showConnectionMenu(text)
     {
         oldMenu.visible = true
         oldMenu.showInternetInfoDialog(text)
         //menu.restoreTextDialog(text, "")
     }
+
     function hideConnectionMenu()
     {
         oldMenu.visible = false
@@ -323,14 +534,37 @@ Item {
         //property bool forward: true
         property double destValue: 1.0
         onTriggered: {
+
             if (fullscreenView.volumeValue < destValue)
-            {
                 fullscreenView.volumeValue = fullscreenView.volumeValue + 0.01
-            }
             else if (destValue == 0.0)
                 fullscreenView.volumeValue = fullscreenView.volumeValue - fullscreenView.volumeValue;
             else if (fullscreenView.volumeValue > destValue) {
                 fullscreenView.volumeValue = fullscreenView.volumeValue - Math.min(0.01, fullscreenView.volumeValue)
+            }
+
+            if (fullscreenView2.volumeValue < destValue)
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue + 0.01
+            else if (destValue == 0.0)
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue - fullscreenView2.volumeValue;
+            else if (fullscreenView2.volumeValue > destValue) {
+                fullscreenView2.volumeValue = fullscreenView2.volumeValue - Math.min(0.01, fullscreenView2.volumeValue)
+            }
+
+            if (fullscreenView3.volumeValue < destValue)
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue + 0.01
+            else if (destValue == 0.0)
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue - fullscreenView3.volumeValue;
+            else if (fullscreenView3.volumeValue > destValue) {
+                fullscreenView3.volumeValue = fullscreenView3.volumeValue - Math.min(0.01, fullscreenView3.volumeValue)
+            }
+
+            if (fullscreenView4.volumeValue < destValue)
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue + 0.01
+            else if (destValue == 0.0)
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue - fullscreenView4.volumeValue;
+            else if (fullscreenView4.volumeValue > destValue) {
+                fullscreenView4.volumeValue = fullscreenView4.volumeValue - Math.min(0.01, fullscreenView4.volumeValue)
             }
         }
     }
@@ -422,11 +656,16 @@ Item {
     function stopPlayer()
     {
         fullscreenView.stop()
+        fullscreenView2.stop()
+        fullscreenView3.stop()
+        fullscreenView4.stop()
         currentType = "null"
     }
 
-    function downloadComplete(){
+    function downloadComplete()
+    {
         console.debug("download complete. Hiding Progress Bars, Showing Video Player");
+
         filesProgressBar.visible = false
         downloadProgressBar.visible = false
         playerName.visible = false
@@ -448,26 +687,30 @@ Item {
     function setPlayerName(playerId){
         playerName.text = playerId
     }
+
     function setTotalProgress(p, name){
         filesProgressBar.value = p
         playerName.text = name
     }
+
     function setProgress(p){
         downloadProgressBar.value = p
     }
+
     function showVideo(isVisible){
         logoColumn.visible = false
     }
 
     function setBrightness(value){
-        //fullscreenView.opacity = value
         videoOutBrightness = value
         fullscreenView.brightness = value
     }
+
     function setVersion(version, build){
         systemVersion = version
         systemVersionBuild = build
     }
+
     function showPassword(is_visible, pass)
     {
         if (is_visible === 1)
@@ -477,29 +720,40 @@ Item {
         passTextItem.text = pass
     }
 
-
     function setNoItemsLogo(link){
+
         logoColumn.visible = true
         titleText.text = brand_nothingToPlayText
         progressText.text = "Go to <a href=\"" + link + "\">" + brand_nothingToPlayLinkText +"</a></html>"
+
         logoDownloadProgressBar.visible = false
-        isPlayerCodeVisibleState.visible = false
+        isPlayerCodeVisibleState = false
         waitingBlock.visible = false
 
         bgLogoBlock.visible = true
+
+        stopEverything()
+    }
+
+    function stopEverything()
+    {
         fullscreenView.visible = false
         fullscreenView.stop()
+        fullscreenView2.visible = false
+        fullscreenView2.stop()
+        fullscreenView3.visible = false
+        fullscreenView3.stop()
+        fullscreenView4.visible = false
+        fullscreenView4.stop()
     }
 
     function setUpdateState(tx)
     {
         logoColumn.visible = true
-        //progressText.text = "v. " + tx
         progressText.text = ""
         titleText.text = ""
-        //titleText.text = "Updating..."
         logoDownloadProgressBar.visible = false
-        isPlayerCodeVisibleState.visible = false
+        isPlayerCodeVisibleState = false
         waitingBlock.visible = false
         bgLogoBlock.visible = true
         fullscreenView.visible = false
@@ -524,7 +778,7 @@ Item {
 
         isPlayerCodeVisibleState = true
         //playerIDItem.visible = true
-        playerIDText.color = brand_backgroundColor
+        //playerIDText.color = brand_backgroundColor
 
         bgLogoBlock.visible = true
         if (showCode === true)
@@ -538,8 +792,20 @@ Item {
         isPlayerCodeVisibleMode = isVisible
     }
 
+    function getWidthPercentSize(value)
+    {
+        return value * item.width
+    }
+
+    function getHeightPercentSize(value)
+    {
+        return value * item.heightP
+    }
+
     function getPointSize(text){
-        if (text.length > 40)
+        return 28
+        /*
+                if (text.length > 40)
             decreasingTextValue = text.length-40
         else
             decreasingTextValue = 0
@@ -553,35 +819,18 @@ Item {
             if (testText.width < item.widthP)
                 decreasingTextValue -= 4
             return 32 - decreasingTextValue
-        }
+        }*/
     }
-    function getPointSizeSecond(text){
-        if (item.widthP > item.heightP)
-            return 20
-        else
-            return 18
-    }
-    function getRefreshButtonPositionY(w, h)
-    {
-        if (w > h)
-        {
-            return playerIDRect.y
-        }
-        else
-        {
-            return playerIDRect.y + playerIDRect.height + 8
-        }
-    }
-
 
     function getTopValue(h)
     {
-        var result = h * 0.248148148 - Math.max(waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h,0)*1.5
+        var result = h * 0.248148148 //- Math.max(waitingRefreshInText.y + h * 0.248148148 + waitingRefreshInText.height - h,0)*1.5
         if (result < 0)
             return h * 0.248148148 * aspect
         else
             return result
     }
+
     function skipCurrentItem(){
         fullscreenView.skipCurrentItem()
     }
@@ -611,6 +860,11 @@ Item {
     FontLoader {
         id: ubuntuFont
         source: "ubuntu-m.ttf"
+    }
+
+    FontLoader {
+        id: ptSansFont
+        source: "pt_sans.ttf"
     }
 
     Rectangle {
@@ -722,6 +976,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             width: parent.width
         }
+
         Text {
             id: progressText
             font.family: ubuntuFont.name
@@ -753,7 +1008,6 @@ Item {
                     }
                 }
         }
-
 
         Item{
             id: playerIDItem
@@ -800,6 +1054,47 @@ Item {
                 text: ""
                 color: brand_foregroundColor
             }
+        }
+
+        Item {
+            id: spacemediaContactsBlock
+            visible: false
+
+            Image {
+                id: spacemediaContactsPhoneImage
+                source: "sm_phone.png"
+                width: getWidthPercentSize(0.010416667)
+                height: getHeightPercentSize(0.031481481)
+                x: getWidthPercentSize(0.416666667)
+                y: getHeightPercentSize(0.848148148)
+            }
+            Text {
+                id: spacemediaContactsPhoneText
+                text: "8 800 555 32 06"
+                font.family: ptSansFont.name
+                x: spacemediaContactsPhoneImage.x + spacemediaContactsPhoneImage.width + spacemediaContactsPhoneImage.width/2
+                y: spacemediaContactsPhoneImage.y - spacemediaContactsPhoneText.height / 4
+                font.pixelSize: getHeightPercentSize(0.031481481 * 1.25)
+            }
+
+            Image {
+                id: spacemediaContactsEmailImage
+                source: "sm_mail.png"
+                width: getWidthPercentSize(0.016666667)
+                height: getHeightPercentSize(0.02037037)
+                x: getWidthPercentSize(0.396354167)
+                y: getHeightPercentSize(0.912962963)
+            }
+
+            Text {
+                id: spacemediaContactsEmailText
+                text: "info@spacemedia.ru"
+                font.family: ptSansFont.name
+                x: spacemediaContactsEmailImage.x + spacemediaContactsEmailImage.width + spacemediaContactsEmailImage.width/2
+                y: spacemediaContactsEmailImage.y - spacemediaContactsEmailText.height * 0.38
+                font.pixelSize: getHeightPercentSize(0.031481481 * 1.25)
+            }
+
         }
     }
 
@@ -865,13 +1160,11 @@ Item {
             if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
                 if (menu.visible == false)
                 {
-                    setMenuView(true)
                     setRestoreModeFalse()
-                    menu.restore()
+                    menu.visible = true
                 }
                 else
                 {
-                    setMenuView(false)
                     menu.visible = false
                     setRestoreModeTrue()
                 }
@@ -882,7 +1175,102 @@ Item {
             console.log("FULLSCREENVIEW::onstop")
             nextItem("")
         }
+        z: 0
     }
+
+    PlayerView {
+        id: fullscreenView2
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.visible = true
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 1
+    }
+
+    PlayerView {
+        id: fullscreenView3
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.visible = true
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 2
+    }
+    PlayerView {
+        id: fullscreenView4
+        visible: false
+        delay: playlistDelay
+        onAskNext: {
+            console.log("askNext?")
+            nextItem(areaId)
+        }
+        Keys.onReleased:{
+            console.log("KEy pressed")
+            if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
+                if (menu.visible == false)
+                {
+                    setRestoreModeFalse()
+                    menu.visible = true
+                }
+                else
+                {
+                    menu.visible = false
+                    setRestoreModeTrue()
+                }
+                event.accepted = true
+            }
+        }
+
+        onOnStop: {
+            console.log("FULLSCREENVIEW::onstop")
+            nextItem("")
+        }
+        z: 3
+    }
+
 
     //android:excludeFromRecents="true"
 
@@ -893,6 +1281,7 @@ Item {
         width: item.width
         height: item.height
         visible: false
+        z: 10
     }
 
 
@@ -915,11 +1304,10 @@ Item {
         deviceVersion: systemVersion
 
         onPlayerClicked: {
-            menu.visible = false
-            setRestoreModeTrue()
-            if (displayMode == "split")
-                sideBrowser.visible = true
+
+            hideTeleDSMenu()
         }
+
         onExitClicked: {
             dialogCloseTimer.start()
             dialogAndroid.open()
@@ -935,6 +1323,7 @@ Item {
                 sideBrowser.visible = false
             console.log("back key pressed: main")
         }
+        z: 10
     }
 
     Item {
@@ -959,6 +1348,14 @@ Item {
             color: "#FFFFFF"
             font.pointSize: 12
         }
+        z: 10
+    }
+
+    Rectangle{
+        id: prepareLoadRect
+        color: brand_blackColor
+        width: parent.width
+        height: parent.height
     }
 
     Item {
@@ -981,6 +1378,7 @@ Item {
             font.pointSize: 7
             opacity: 0.75
         }
+        z: 10
     }
 
     Text {
@@ -991,6 +1389,7 @@ Item {
         color: "#FFFFFF"
         font.pointSize: 7
         opacity: 0.5
+        z: 10
     }
 
     ProgressBar{
@@ -1002,17 +1401,20 @@ Item {
         width: 100
         opacity: 0.4
         style: ProgressBarStyle {
+
                 background: Rectangle {
                     color: "transparent"
                     border.color: "black"
                     border.width: 1
                     implicitHeight: versionText.height
                 }
+
                 progress: Rectangle {
                     color: brand_foregroundColor
                     border.color: brand_foregroundColor
                 }
             }
+        z: 10
     }
 
     Dialog {
@@ -1037,6 +1439,7 @@ Item {
                     anchors.centerIn: parent
                 }
             }
+
             Rectangle {
                 id: dividerHorizontal
                 color: brand_borderGrayColor
@@ -1124,26 +1527,12 @@ Item {
                         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
                             dialogAndroid.close()
                             setRestoreModeTrue();
-                            if (displayMode == "split")
-                                sideBrowser.visible = true
-                            if (currentType === "browser")
-                            {
-                                androidBrowser.visible = true
-                                videoPlayer.visible = true
-                                bgLogoBlock.visible = false
-                            }
-                            else if (currentType == "videoPlayer")
-                            {
-                                bgLogoBlock.visible = false
-                            }
                             item.focus = true
                             event.accepted = true
                         }
                     }
                     onClicked: Qt.quit()
                 }
-
-
             }
         }
     }
@@ -1155,40 +1544,64 @@ Item {
         visible: false
     }
 
-    function setMenuView(secondScreen){
-        if (secondScreen === true)
-        {
-            if (androidBrowser.visible === true)
-                androidBrowser.visible = false
-            if (sideBrowser.visible === true)
-                sideBrowser.visible = false
-        }
-        else {
-            if (sideBrowser.visible === false && displayMode == "split")
-                sideBrowser.visible = true
-        }
-    }
 
     Keys.onReturnPressed:{
         console.log("keypressed")
     }
 
-  /*  Keys.onReleased:{
+
+    function showTeleDSMenu()
+    {
+        setRestoreModeFalse()
+        fullscreenView.visible = false
+        fullscreenView2.visible = false
+        fullscreenView3.visible = false
+        fullscreenView4.visible = false
+
+        fullscreenView.hideWebViews = true
+        fullscreenView2.hideWebViews = true
+        fullscreenView3.hideWebViews = true
+        fullscreenView4.hideWebViews = true
+
+        oldMenu.restore()
+    }
+
+    function hideTeleDSMenu()
+    {
+        oldMenu.visible = false
+        fullscreenView.visible = fullscreenView.isActive
+        fullscreenView2.visible = fullscreenView2.isActive
+        fullscreenView3.visible = fullscreenView3.isActive
+        fullscreenView4.visible = fullscreenView4.isActive
+
+        fullscreenView.hideWebViews = false
+        fullscreenView2.hideWebViews = false
+        fullscreenView3.hideWebViews = false
+        fullscreenView4.hideWebViews = false
+
+        setRestoreModeTrue()
+
+        fullscreenView.restore()
+        fullscreenView2.restore()
+        fullscreenView3.restore()
+        fullscreenView4.restore()
+    }
+
+    Keys.onReleased:{
         console.log("Key pressed")
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Q) {
-            if (menu.visible == false)
+
+            console.log("KEY BACK!!!!")
+            //event.accepted = true
+            if (oldMenu.visible == false)
             {
-                setMenuView(true)
-                setRestoreModeFalse()
-                menu.restore()
+                showTeleDSMenu()
             }
             else
             {
-                setMenuView(false)
-                menu.visible = false
-                setRestoreModeTrue()
+                hideTeleDSMenu()
             }
             event.accepted = true
         }
-    }*/
+    }
 }

@@ -20,5 +20,10 @@
         <file>less.png</file>
         <file>more.png</file>
         <file>SpaceMediaMenu.qml</file>
+        <file>sm_bg.png</file>
+        <file>sm_mail.png</file>
+        <file>sm_phone.png</file>
+        <file>pt_sans.ttf</file>
+        <file>sm_bg_black.png</file>
     </qresource>
 </RCC>

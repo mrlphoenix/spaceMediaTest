@@ -61,6 +61,8 @@ public slots:
     QByteArray createZip();
     void sendLogs();
 
+    void backupService();
+
 
     void setupHttpServer();
   //  void runMyserverRequest();
@@ -97,6 +99,7 @@ public slots:
     //slot is called when every item got downloaded and we need to show items
     void downloaded(int index);
     void playWithoutDownload(int count);
+    void readyToPlayItems(int count);
 
     //slot is called when we are ready to update playlist and reset campaign index
     void playlistUpdateReady();
@@ -142,10 +145,10 @@ public slots:
     void resetPlayer();
     void rebootPlayer();
     void checkReset();
+    void prepareAreas(PlayerConfigAPI::Campaign &campaign);
 
 protected:
     void setupDownloader();
-    void setupCampaignAreas(const PlayerConfigAPI::Campaign &c);
 
     bool checkCombo(const QList<int> &keys);
     bool isInputDeviceConnected;

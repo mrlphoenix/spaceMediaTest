@@ -71,7 +71,6 @@ void PlaylistManager::addForceItem(const QString &areaId, const QString &item)
         playlists[areaId]->forceItems.append(item);
 }
 
-
 QString PlaylistItem::getFullPath()
 {
     if (content.type == "video" || content.type == "audio" || content.type == "image")

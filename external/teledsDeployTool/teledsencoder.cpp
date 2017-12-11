@@ -38,9 +38,6 @@ QVector<DeltaPart> TeleDSPatcher::createFilePatch(QByteArray srcData, QByteArray
 
     for (int destIndex = 0; destIndex < destDataCount; destIndex++)
     {
-        if (destIndex %100 == 0)
-            qDebug() << destIndex << "/" << destDataCount;
-        //
         int bestMatchIndex = -1, bestMatchSize = -1;
         for (int srcIndex = std::max(0, destIndex - window); srcIndex < destDataCount && srcIndex < srcDataCount && srcIndex < destIndex + window; srcIndex++)
         {
@@ -61,7 +58,7 @@ QVector<DeltaPart> TeleDSPatcher::createFilePatch(QByteArray srcData, QByteArray
                 bestMatchSize = currentMatchSize;
             }
         }
-        //Adding deploy data
+        //Adding patch data
 
         if (bestMatchSize > minPartSize)
         {

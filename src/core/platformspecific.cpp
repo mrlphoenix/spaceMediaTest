@@ -210,7 +210,6 @@ QString Platform::PlatformSpecificWorker::getUniqueId()
 #endif
 
 #ifdef PLATFORM_DEFINE_LINUX
-
     //if platform is linux - get processor unique number using gcc asm commands
     char PSN[30];
     int varEAX, varEBX, varECX, varEDX;
@@ -900,6 +899,21 @@ bool Platform::PlatformSpecific::isAndroid()
     return true;
 #endif
     return false;
+}
+
+QDateTime Platform::PlatformSpecific::getNativeCurrentDate()
+{
+#ifdef PLATFORM_DEFINE_RPI
+    QProcess process;
+    process.start("date +\"%Y-%m-%d %H:%M:%S\"");
+    process.waitForStarted();
+    process.waitForFinished();
+    QString data = process.readAll();
+    data = data.replace("\n","");
+    qDebug() << "PlatformSpecific::getNativeCurrentDate " << data;
+    return QDateTime::fromString(data, "yyyy-MM-dd HH:mm:ss");
+#endif
+    return QDateTime::currentDateTimeUtc();
 }
 
 void Platform::PlatformSpecific::generateSystemInfo()

@@ -144,6 +144,7 @@ struct PlayerConfigAPI
             int screen_height;
             int z_index;
             double opacity;
+            double area_volume;
             bool sound_enabled;
 
             struct Content{
@@ -175,6 +176,7 @@ struct PlayerConfigAPI
                 {
                     float latitude, longitude;
                 };
+
                 QHash<QString, QVector<int> > time_targeting;
                 QVector<QVector<gps> > geo_targeting;
                 QVector<QPolygon> polygons;

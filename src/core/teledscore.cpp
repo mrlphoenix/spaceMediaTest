@@ -64,17 +64,18 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
     uploader = new StatisticUploader(videoService,this);
     teledsPlayer = new TeleDSPlayer(this);
     skinManager = new SkinManager(this);
+
     //teledsPlayer->show();
     shouldShowPlayer = true;
 
     statsTimer = new QTimer();
     connect(statsTimer,SIGNAL(timeout()),uploader,SLOT(start()));
-    statsTimer->start(180000);
+    statsTimer->start(150000);
 
 
     updateTimer = new QTimer();
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
-    updateTimer->start(60000);
+    updateTimer->start(555000);
 
     connect(videoService,SIGNAL(initResult(InitRequestResult)),this,SLOT(initResult(InitRequestResult)));
     connect(videoService,SIGNAL(getPlayerSettings(SettingsRequestResult)),this,SLOT(playerSettingsResult(SettingsRequestResult)));
@@ -171,79 +172,13 @@ TeleDSCore::TeleDSCore(QObject *parent) : QObject(parent)
 
     QTimer *checkConfigFileTimer = new QTimer();
     connect(checkConfigFileTimer, &QTimer::timeout, [this](){
-        qDebug() << "Config Backup Service started";
-        QFileInfo configInfo("/home/pi/teleds/data/config.dat");
-        if (configInfo.size() > 5000)
-        {
-            QFileInfo configBackupInfo("/home/pi/teleds/data/config_backup.dat");
-            if (configBackupInfo.size() != configInfo.size())
-            {
-                qDebug() << "Backing up config File!";
-                QFile configFile("/home/pi/teleds/data/config.dat");
-                if (configFile.open(QFile::ReadOnly))
-                {
-                    QByteArray configData = configFile.readAll();
-                    QFile configBackupFile("/home/pi/teleds/data/config_backup.dat");
-                    if (configBackupFile.open(QFile::WriteOnly))
-                    {
-                        configBackupFile.write(configData);
-                        configBackupFile.flush();
-                        configBackupFile.close();
-                    }
-                    else
-                        qDebug() << "Error: cant open backup file";
-                }
-                else
-                    qDebug() << "Error: cant open config file";
-            }
-        }
-        else
-        {
-            qDebug() << "Suspicious config File! Checking content";
-            if (QFile::exists("/home/pi/teleds/data/config_backup.dat"))
-            {
-                QFile configFile("/home/pi/teleds/data/config.dat");
-                if (configFile.open(QFile::ReadOnly))
-                {
-                    QJsonDocument configDoc = QJsonDocument::fromJson(configFile.readAll());
-                    QJsonObject configRoot = configDoc.object();
-                    if (configRoot["device"].toString() == "" &&
-                        configRoot["areas"].toArray().count() == 0)
-                    {
-                        qDebug() << "Seems like playlist is empty, trying to replace with backuped one";
-                        configFile.close();
-                        if (configFile.open(QFile::WriteOnly))
-                        {
-                            QFile configBackupFile("/home/pi/teleds/data/config_backup.dat");
-                            if (configBackupFile.open(QFile::ReadOnly))
-                            {
-                                QByteArray data = configBackupFile.readAll();
-                                configFile.write(data);
-                                configFile.flush();
-                                configFile.close();
-                                configBackupFile.close();
-                                qApp->exit();
-                            }
-                            else
-                                qDebug() << "Error: cant open backup file";
-                        }
-                        else
-                            qDebug() << "Error: cant open config file for writing";
-                    }
-                    else
-                    {
-                        configFile.close();
-                        qDebug() << "Config File seems configurated. Doing nothing";
-                    }
-                }
-                else
-                    qDebug() << "Error: cant open config file for reading";
-            }
-            else
-                qDebug() << "Backup config file does not exist, do nothing";
-        }
+        backupService();
     });
+    //calling backup service before start
+    backupService();
+
     checkConfigFileTimer->start(120000);
+
 }
 
 void TeleDSCore::initSystemServices()
@@ -285,8 +220,6 @@ void TeleDSCore::initSystemServices()
     QTimer *resetTimer = new QTimer(this);
     connect(resetTimer, SIGNAL(timeout()), this, SLOT(checkReset()));
     resetTimer->start(2500);
-
-    //
 }
 
 void TeleDSCore::setupHttpServer()
@@ -376,8 +309,99 @@ void TeleDSCore::sendLogs()
         qDebug() << "Error: no logs, cant send nothing";
         mgr->deleteLater();
     }
+    //backing up log service
 
+    qDebug() << "Running teleds Log backup service";
+    QFileInfo configInfo("/home/pi/teleds/data/config.dat");
+    if (configInfo.size() > 5000)
+    {
+        QFile configFile("/home/pi/teleds/data/config.dat");
+        if (configFile.open(QFile::ReadOnly))
+        {
+            QByteArray configData = configFile.readAll();
+            QFile configBackupFile("/home/pi/teleds/data/config_backup.dat");
+            if (configBackupFile.open(QFile::WriteOnly))
+            {
+                configBackupFile.write(configData);
+            }
+        }
+    }
+}
 
+void TeleDSCore::backupService()
+{
+    qDebug() << "Config Backup Service started";
+    QFileInfo configInfo("/home/pi/teleds/data/config.dat");
+
+    if (configInfo.size() > 5000)
+    {
+        QFileInfo configBackupInfo("/home/pi/teleds/data/config_backup.dat");
+        if (configBackupInfo.size() != configInfo.size())
+        {
+            qDebug() << "Backing up config File!";
+            QFile configFile("/home/pi/teleds/data/config.dat");
+            if (configFile.open(QFile::ReadOnly))
+            {
+                QByteArray configData = configFile.readAll();
+                QFile configBackupFile("/home/pi/teleds/data/config_backup.dat");
+                if (configBackupFile.open(QFile::WriteOnly))
+                {
+                    configBackupFile.write(configData);
+                    configBackupFile.flush();
+                    configBackupFile.close();
+                }
+                else
+                    qDebug() << "Error: cant open backup file";
+            }
+            else
+                qDebug() << "Error: cant open config file";
+        }
+    }
+    else
+    {
+        qDebug() << "Suspicious config File! Checking content";
+        if (QFile::exists("/home/pi/teleds/data/config_backup.dat"))
+        {
+            QFile configFile("/home/pi/teleds/data/config.dat");
+            if (configFile.open(QFile::ReadOnly))
+            {
+                QJsonDocument configDoc = QJsonDocument::fromJson(configFile.readAll());
+                QJsonObject configRoot = configDoc.object();
+                if (configRoot["device"].toString() == "" &&
+                    configRoot["areas"].toArray().count() == 0)
+                {
+                    qDebug() << "` like playlist is empty, trying to replace with backuped one";
+                    configFile.close();
+                    if (configFile.open(QFile::WriteOnly))
+                    {
+                        QFile configBackupFile("/home/pi/teleds/data/config_backup.dat");
+                        if (configBackupFile.open(QFile::ReadOnly))
+                        {
+                            QByteArray data = configBackupFile.readAll();
+                            configFile.write(data);
+                            configFile.flush();
+                            configFile.close();
+                            configBackupFile.close();
+                            qApp->exit();
+                        }
+                        else
+                            qDebug() << "Error: cant open backup file";
+                    }
+                    else
+                        qDebug() << "Error: cant open config file for writing";
+                }
+                else
+                {
+                    configFile.close();
+                    qDebug() << "Config File seems configurated. Doing nothing";
+                }
+            }
+            else
+                qDebug() << "Error: cant open config file for reading";
+        }
+        else
+            qDebug() << "Backup config file does not exist, do nothing";
+    }
 }
 
 void TeleDSCore::initResult(InitRequestResult result)
@@ -534,7 +558,6 @@ void TeleDSCore::handleNewRequest(QHttpRequest *request, QHttpResponse *response
         response->setHeader("Content-Length", QString::number(unsupported.size()));
         response->end(unsupported);
     }
-
 }
 
 void TeleDSCore::checkForAutomaticShutdown()
@@ -555,9 +578,10 @@ void TeleDSCore::automaticShutdownBatteryInfoReady(Platform::BatteryInfo info)
 void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
 {
     qDebug() << "playerSettingsResult" << result.error_id;
+    qDebug() << "player id " << result.player_id;
     //this method is called when we try to get player settings
 
-    if (result.error_id == -1)
+    if (result.error_id == -1 || (result.error_id >= 500 && result.error_id < 600))
     {
         SettingsRequestResult storedSettings = SettingsRequestResult::fromJson(GlobalConfigInstance.getSettings(), false);
 
@@ -577,6 +601,7 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
             teledsPlayer->stopPlaying();
         teledsPlayer->invokePlayerActivationRequiredView("http://teleds.com",GlobalConfigInstance.getActivationCode(),
                                                          PlatformSpecificService.isAndroid());
+        //QFile::remove("data/config_backup.dat");
     }
     //403: player is not configurated - requesting initialization
     if (result.error_id == 403 || result.error_id == 404)
@@ -584,14 +609,16 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         if (teledsPlayer->isPlaying())
             teledsPlayer->stopPlaying();
         qDebug() << "403/404: player is not configurated - requesting initialization";
+
+        QFile::remove("data/config_backup.dat");
         initPlayer();
     }
     else if (result.error_id == 402)
     {
         if (teledsPlayer->isPlaying())
             teledsPlayer->stopPlaying();
-        qDebug() << "403: player is not configurated - requesting initialization";
-        //invoke played is not activated
+        qDebug() << "402: player is not configurated - requesting initialization";
+        //invoke played is not played
     }
     else if (result.error_id == 304) //settings was not updated
     {
@@ -603,6 +630,13 @@ void TeleDSCore::playerSettingsResult(SettingsRequestResult result)
         //if no errors
         if (result.error_id == 0)
         {
+            static int prevRotation = 0;
+            if (result.base_rotation != prevRotation)
+            {
+                qDebug() << "Settings got new orientation";
+                GlobalConfigInstance.setMetaProperty("playlist_hash", "");
+            }
+            prevRotation = result.base_rotation;
             //load all player areas information
             videoService->getPlaylist();
 
@@ -667,7 +701,7 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
     //this method is called when we got playlist
     //when we should update playlist
     static int prevScreenRotation = 0;
-    qDebug() << "TeleDSCore::playlistResult";
+    qDebug() << "TeleDSCore::playlistResult" << result.error_id;
 
     if ((!currentConfig.last_modified.isValid()
        || ((result.last_modified > currentConfig.last_modified ||
@@ -676,17 +710,17 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         result.error_id != 304)
     {
         qDebug() << "TeleDSCore::playlistResult <> need to update";
-        if (result.error_id == -1)
+        if (result.error_id == -1 || (result.error_id >= 500 && result.error_id < 600))
         {
             qDebug() << "TeleDSCore::seems like server is offline so we load from config";
-            PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist());
+            PlayerConfigAPI storedResult = PlayerConfigAPI::fromJson(GlobalConfigInstance.getPlaylist(), false);
             if (storedResult.last_modified.isValid())
             {
-                qDebug() << "config is Valid";
+                qDebug() << "config is Valid" << storedResult.count();
                 currentConfig = storedResult;
             }
         }
-        else
+        else if (result.error_id == 0)
         {
             currentConfig = result;
             GlobalConfigInstance.setMetaProperty("playlist_hash", result.hash);
@@ -714,19 +748,20 @@ void TeleDSCore::playlistResult(PlayerConfigAPI result)
         prevScreenRotation = GlobalConfigInstance.getSettingsObject().base_rotation;
         return;
     }
-
 }
 
 void TeleDSCore::checkUpdate()
 {
+#ifdef PLATFORM_DEFINE_ANDROID
+    return;
+#endif
     updateTimer->stop();
     QTimer::singleShot(125000, [this](){
         updateTimer->stop();
-        updateTimer->start(60000);
+        updateTimer->start(555000);
     });
     videoService->getUpdates("raspberry");
 }
-
 
 void TeleDSCore::checkKeys()
 {
@@ -765,7 +800,7 @@ void TeleDSCore::updateInfoReady(UpdateInfoResult result)
             qDebug() << "You have the newest version of player";
         }
     }
-    updateTimer->start(30000);
+    updateTimer->start(57700);
 }
 
 void TeleDSCore::updateReady(QString filename)
@@ -866,9 +901,11 @@ void TeleDSCore::downloaded(int index)
     teledsPlayer->invokeStop();
     teledsPlayer->updateConfig(currentConfig);
     teledsPlayer->invokeDownloadDone();
+    /*
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+                                     area.x, area.y, area.width, area.height, campaign.rotation);*/
+    prepareAreas(campaign);
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
@@ -881,7 +918,7 @@ void TeleDSCore::playWithoutDownload(int count)
     {
         downloaded(0);
     }
-    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
+    GlobalConfigInstance.setGetPlaylistTimerTime(600000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
 
     QTimer::singleShot(2000, [this](){
@@ -889,10 +926,16 @@ void TeleDSCore::playWithoutDownload(int count)
     });
 }
 
+void TeleDSCore::readyToPlayItems(int count)
+{
+    if (count > 0 && teledsPlayer->isPlaying() == false)
+        downloaded(0);
+}
+
 void TeleDSCore::playlistUpdateReady()
 {
     qDebug() << "TeleDSPlayer is ready to update -> updating playlist";
-    GlobalConfigInstance.setGetPlaylistTimerTime(60000);
+    GlobalConfigInstance.setGetPlaylistTimerTime(600000);
     sheduler.restart(TeleDSSheduler::GET_PLAYLIST);
     int currentCampaignIndex = teledsPlayer->getCurrentCampaignIndex();
     if (currentCampaignIndex >= currentConfig.campaigns.count())
@@ -905,12 +948,17 @@ void TeleDSCore::playlistUpdateReady()
     teledsPlayer->invokeStop();
     teledsPlayer->updateConfig(currentConfig);
     teledsPlayer->invokeDownloadDone();
-    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+
+    /*foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+                                     area.x, area.y, area.width, area.height, campaign.rotation);*/
+
+    prepareAreas(campaign);
+
     QTimer::singleShot(1000, [this](){
         teledsPlayer->play();
     });
+
     currentConfig.nextCampaign();
 }
 
@@ -1030,14 +1078,30 @@ void TeleDSCore::nextCampaign()
     qDebug() << "choosing campaign";
     currentConfig.currentCampaignId = currentCampaignIndex;
     PlayerConfigAPI::Campaign campaign = currentConfig.campaigns[currentCampaignIndex];
+
+    /*
     foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
         teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
-                                     area.x, area.y, area.width, area.height, campaign.rotation);
+                                     area.x, area.y, area.width, area.height, campaign.rotation);*/
+    prepareAreas(campaign);
+
     teledsPlayer->play();
 
     QTimer::singleShot(duration, this, [this](){
         nextCampaign();
     });
+}
+
+void TeleDSCore::prepareAreas(PlayerConfigAPI::Campaign &campaign)
+{
+    int index = 0;
+    foreach (const PlayerConfigAPI::Campaign::Area &area, campaign.areas)
+    {
+        teledsPlayer->invokeInitArea(area.area_id, campaign.screen_width, campaign.screen_height,
+                                     area.x, area.y, area.width, area.height, campaign.rotation, area.opacity, index);
+        teledsPlayer->invokeSetAreaMuted(index, !area.sound_enabled);
+        index++;
+    }
 }
 
 void TeleDSCore::onButtonPressed(bool skipBlocked)
@@ -1187,6 +1251,7 @@ void TeleDSCore::onInputDeviceConnected()
     inputService = new InputService();
     inputService->moveToThread(keyboardServiceThread);
     keyboardServiceThread->start();
+
     QTimer::singleShot(3000, [this](){
         connect(inputService, SIGNAL(keyDown(int)), this, SLOT(onKeyDown(int)));
         connect(inputService, SIGNAL(keyUp(int)), this, SLOT(onKeyUp(int)));
@@ -1216,23 +1281,14 @@ void TeleDSCore::setupDownloader()
         downloader->start();
         connect(downloader, SIGNAL(done(int)), this, SLOT(playWithoutDownload(int)));
         connect(downloader,SIGNAL(fileDownloaded(int)), this, SLOT(downloaded(int)));
-        //connect(downloader,SIGNAL(fileDownloaded()), this, SLOT(downloaded()));
         connect(downloader,SIGNAL(downloadProgressSingle(double,QString)), teledsPlayer, SLOT(invokeSimpleProgress(double,QString)));
         connect(downloader, SIGNAL(donwloadConfigResult(int)),this, SLOT(needToDownloadResult(int)));
         connect(downloader, SIGNAL(updateReady(QString)), this, SLOT(updateReady(QString)));
+        connect(downloader, SIGNAL(readyToPlayItemsCount(int)), this, SLOT(readyToPlayItems(int)));
     }
     sheduler.stop(TeleDSSheduler::GET_PLAYLIST);
     downloader->runDownloadNew();
     teledsPlayer->invokeBackDownloadProgressBarVisible(true);
-}
-
-void TeleDSCore::setupCampaignAreas(const PlayerConfigAPI::Campaign &c)
-{
-    foreach (const PlayerConfigAPI::Campaign::Area &area, c.areas)
-        teledsPlayer->invokeInitArea(area.area_id,
-                                     c.screen_width, c.screen_height,
-                                     area.x, area.y, area.width, area.height, c.rotation);
-
 }
 
 bool TeleDSCore::checkCombo(const QList<int> &keys)
@@ -1264,6 +1320,7 @@ void TeleDSCore::resetPlayer()
         configFile.flush();
         configFile.close();
     }
+    QFile::remove("data/config_backup.dat");
     QFile::remove(DATABASE_FOLDER + "stat.db");
     qApp->quit();
 }
@@ -1373,4 +1430,5 @@ void HTTPServerDataReceiver::reply()
     res->setHeader("Content-Type","text/plain");
     res->setHeader("Content-Length", QString::number(successResponse.size()));
     res->end(successResponse);
+
 }

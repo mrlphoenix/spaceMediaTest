@@ -64,6 +64,7 @@ signals:
     void downloadProgressSingle(double p, QString name);
     void checkDownloadItemsTodownloadResult(int c);
     void fileDownloaded(int index);
+    void readyToPlayItemsCount(int count);
 public slots:
     void updateConfig(PlayerConfigAPI config);
     int itemsToDownloadCount(){return itemsToDownload.count();}
@@ -142,6 +143,7 @@ public slots:
     void startUpdateTask(QString url, QString hash, QString filename);
 signals:
     void done(int count);
+    void readyToPlayItemsCount(int count);
     void downloadProgressSingle(double p, QString name);
     void donwloadConfigResult(int c);
     void runDownloadSignal();

@@ -133,12 +133,16 @@ SettingsRequestResult &GlobalConfig::getSettingsObject()
 
 void GlobalConfig::setPlaylist(QJsonObject json)
 {
+    QJsonDocument doc(json);
+    qDebug() << "SAVING PLAYLIST: " << doc.toJson();
     playlist = json;
     save();
 }
 
 QJsonObject GlobalConfig::getPlaylist()
 {
+    QJsonDocument doc(playlist);
+    qDebug() << "PLAYLIST ON RETURN: " << doc.toJson();
     return playlist;
 }
 

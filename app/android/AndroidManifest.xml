@@ -1,9 +1,20 @@
 <?xml version="1.0"?>
-<manifest package="org.teleds.com.player" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0.36" android:versionCode="1187" android:installLocation="auto">
+<manifest package="org.teleds.com.teledsplayer" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.1" android:versionCode="2873" android:installLocation="auto">
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="TeleDS" android:icon="@drawable/icon">
 
         <service android:name="org.qtproject.qt5.android.bindings.KioskService"/>
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="TeleDS" android:screenOrientation="unspecified" android:launchMode="singleTop">
+
+        <receiver android:enabled="true" android:exported="true" android:name="org.qtproject.qt5.android.bindings.yourActivityRunOnStartup" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+        </receiver>
+
+        <activity android:screenOrientation="landscape" android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="TeleDS" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -82,4 +93,5 @@
 <uses-permission android:name="android.permission.GET_TASKS"/>
 
 <uses-permission android:name="android.permission.REORDER_TASKS"/>
+ <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 </manifest>

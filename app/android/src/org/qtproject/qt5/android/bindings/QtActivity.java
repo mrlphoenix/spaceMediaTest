@@ -279,6 +279,7 @@ public class QtActivity extends Activity
             QT_ANDROID_THEMES = new String[] {"Theme_DeviceDefault_Light"};
             QT_ANDROID_DEFAULT_THEME = "Theme_DeviceDefault_Light";
         }
+
     }
 
     // this function is used to load and start the loader
@@ -1113,6 +1114,7 @@ public class QtActivity extends Activity
     {
         return super.onCreatePanelMenu(featureId, menu);
     }
+
     //---------------------------------------------------------------------------
 
 
@@ -1181,12 +1183,12 @@ public class QtActivity extends Activity
         else
             return super.onKeyDown(keyCode, event);
     }
+
     public boolean super_onKeyDown(int keyCode, KeyEvent event)
     {
-        return super.onKeyDown(keyCode, event);
+       return super.onKeyDown(keyCode, event);
     }
     //---------------------------------------------------------------------------
-
 
     @Override
     public boolean onKeyMultiple(int keyCode, int repeatCount, KeyEvent event)
@@ -1308,11 +1310,12 @@ public class QtActivity extends Activity
     @Override
     protected void onPause()
     {
-        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+        /*ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
         activityManager.moveTaskToFront(getTaskId(), 0);
 
         if (shouldRestoreWindowOnPause)
         {
+
             Log.i("TeleDS", "Restore Via KEYGUARD");
             KeyguardManager myKeyManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
             if(!myKeyManager.inKeyguardRestrictedInputMode())
@@ -1332,7 +1335,7 @@ public class QtActivity extends Activity
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
 
         super.onPause();
         QtApplication.invokeDelegate();
@@ -1613,7 +1616,7 @@ public class QtActivity extends Activity
     @Override
     public void onAttachedToWindow()
     {
-        getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        //getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         if (!QtApplication.invokeDelegate().invoked)

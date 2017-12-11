@@ -25,6 +25,7 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
     //calculating total play time
     items.clear();
     int maxTimeout = 0;
+
     foreach (const PlayerConfigAPI::Campaign::Area::Content &item, playlist.content)
     {
         allLength += item.duration;
@@ -33,6 +34,7 @@ void SuperPlaylist::updatePlaylist(const PlayerConfigAPI::Campaign::Area &playli
             maxTimeout = item.play_timeout;
         GlobalStatsInstance.setItemPlayTimeout(item.content_id, item.play_timeout);
     }
+
     minPlayTime = minPlayTime.addMSecs(-allLength);
     minPlayTime = minPlayTime.addSecs(-maxTimeout);
     qDebug() << minPlayTime;
@@ -81,6 +83,7 @@ QString SuperPlaylist::next()
             }
         }
     }
+
     /*
      * 1. Перемешиваем массив
     2. Считаем общую продолжительность проигрывания всех роликов ($total_video_time)
@@ -94,6 +97,7 @@ QString SuperPlaylist::next()
         2. Сортировка по return ($a['timeout'] < $b['timeout']) ? -1 : 1; // `Timeout (если ==)
     6. Проигрываем 1й элемент массива - если его играть нельзя, то переходим к проигрыванию бесплатных роликов
      * */
+
     currentItemIndex = 0;
     auto realCurrentTime = QDateTime::currentDateTimeUtc().addSecs(GlobalStatsInstance.getUTCOffset());
     qDebug() << "start next: " << QDateTime::currentDateTimeUtc().time();

@@ -82,9 +82,17 @@ void VideoDownloaderWorker::checkDownload()
             GlobalStatsInstance.setItemActivated(item.content_id, true);
         itemCount++;
     }
+
     GlobalStatsInstance.setContentPlay(itemCount);
     qDebug() << "FILES NEED TO BE DOWNLOADED: " << itemsToDownload.count();
     emit checkDownloadItemsTodownloadResult(itemsToDownload.count());
+
+    //checking for ready-to-play items
+    int readyToPlayCount = 0;
+    foreach (const PlayerConfigAPI::Campaign::Area::Content &item, allItems)
+        if (GlobalStatsInstance.isItemActivated(item.content_id))
+            readyToPlayCount++;
+    emit readyToPlayItemsCount(readyToPlayCount);
 }
 
 void VideoDownloaderWorker::onSslError(QNetworkReply *reply, QList<QSslError>)
@@ -108,6 +116,7 @@ void VideoDownloaderWorker::start()
 
 void VideoDownloaderWorker::download()
 {
+
     if (itemsToDownload.count() > currentItemIndex)
     {
         qDebug() << "Downloading " + itemsToDownload[currentItemIndex].name;
@@ -119,7 +128,49 @@ void VideoDownloaderWorker::download()
 
         if (QFile::exists(tempFileName))
         {
+            qDebug() << "Preprocessing temp file";
+            QFileInfo info(tempFileName);
+            if (info.size() > itemsToDownload[currentItemIndex].file_size)
+            {
+                qDebug() << "Temp File is corrupted. Removing and downloading new one";
+                QFile::remove(tempFileName);
+            }
+            if (getCacheFileHash(tempFileName) != itemsToDownload[currentItemIndex].file_hash &&
+                info.size() == itemsToDownload[currentItemIndex].file_size)
+            {
+                qDebug() << "Temp File has normal size but wrong hash. Removing and downloading new one";
+                QFile::remove(tempFileName);
+            }
+        }
+
+        if (QFile::exists(tempFileName))
+        {
             qDebug() << "temp file found. Resuming downloading";
+
+            qDebug() << "Server hash " << itemsToDownload[currentItemIndex].file_hash;
+            qDebug() << "tempFileHash" << getCacheFileHash(tempFileName);
+
+            if (itemsToDownload[currentItemIndex].file_hash == getCacheFileHash(tempFileName))
+            {
+                PlayerConfigAPI::Campaign::Area::Content currentItem = itemsToDownload[currentItemIndex];
+                QString currentItemId = currentItem.content_id;
+                emit fileDownloaded(currentItemIndex);
+                currentItemIndex++;
+                if (currentItem.type == "html5_zip")
+                {
+                    PlatformSpecificService.extractFile(currentItemId + currentItem.file_hash + currentItem.file_extension, currentItemId);
+                }
+                else
+                    swapper.add(VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension,
+                                VIDEO_FOLDER + currentItemId + currentItem.file_hash + currentItem.file_extension + "_");
+                swapper.start();
+                QTimer::singleShot(5000, [currentItemId, currentItem]() {
+                    qDebug() << "Item is ready " << currentItem.name;
+                    GlobalStatsInstance.setItemActivated(currentItemId, true);
+                });
+                return;
+            }
+
             QFileInfo info(tempFileName);
             file = new QFile(tempFileName);
             file->open(QFile::Append);
@@ -167,6 +218,7 @@ void VideoDownloaderWorker::download()
             reply = manager->get(request);
             QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSslError(QList<QSslError>)));
         }
+
         connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
         connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
         connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDataReadProgress(qint64,qint64)));
@@ -425,6 +477,7 @@ VideoDownloader::VideoDownloader(PlayerConfigAPI config, QObject *parent) : QThr
     connect(worker,SIGNAL(downloadProgressSingle(double,QString)), this, SIGNAL(downloadProgressSingle(double,QString)));
     connect(worker, SIGNAL(checkDownloadItemsTodownloadResult(int)),this,SIGNAL(donwloadConfigResult(int)));
     connect(worker, SIGNAL(fileDownloaded(int)),this, SIGNAL(fileDownloaded(int)));
+    connect(worker, SIGNAL(readyToPlayItemsCount(int)), this, SIGNAL(readyToPlayItemsCount(int)));
     connect(this, SIGNAL(runDownloadSignal()),worker,SLOT(runDonwload()));
     connect(this, SIGNAL(runDownloadSignalNew()),worker,SLOT(runDownloadNew()));
     //

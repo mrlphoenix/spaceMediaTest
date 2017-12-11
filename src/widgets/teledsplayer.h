@@ -33,7 +33,7 @@ public:
 
     void show();
     void updateConfig(PlayerConfigAPI &playerConfig);
-    void play(int delay = 1000);
+    void play();
     void stop();
     int nextCampaign() { return config.nextCampaign(); }
     int getCurrentCampaignIndex() { return config.currentCampaignId; }
@@ -48,6 +48,9 @@ public:
     bool isPlaying();
     QString getCurrentItem() { return status.item; }
     bool isFileCurrentlyPlaying(QString name);
+    
+    QVector<QString> getAreas(QString areaString);
+    QString packAreas(QString oldAreas, QString area);
 
 signals:
     void refreshNeeded();
@@ -62,6 +65,10 @@ public slots:
     void onKeyDown(int code);
     void onKeyUp(int code);
     //QML bindings
+    void invokeSetSpaceMediaTheme();
+    void invokeSetSpaceMediaThemeBlack();
+    void invokePlayerisReady();
+
     void invokeNextVideoMethodAdvanced(QString name, QString area_id);
     void invokeFileProgress(double p, QString name);
     void invokeProgress(double p);
@@ -88,7 +95,7 @@ public slots:
     void invokeUpdateState();
     void invokeSetAreaCount(int areaCount);
     void invokePlayCampaign(int campaignIndex);
-    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation);
+    void invokeInitArea(QString name, double campaignWidth, double campaignHeight, double x, double y, double w, double h, int rotation, double opacity, int index);
     void invokeSetPlayerVolume(int value);
     void invokeSetLicenseData();
     void invokeSetDeviceInfo();
@@ -139,6 +146,7 @@ public slots:
 
     void nextCampaignEvent();
     void nextItemEvent();
+    void invokeSetAreaMuted(int index, bool isMuted);
 protected:
     void invokeShowVideo(bool isVisible);
 

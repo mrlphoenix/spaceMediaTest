@@ -9,9 +9,9 @@ class TeleDSVersion
 {
 public:
     static const int MAJOR = 1;
-    static const int MINOR = 0;
-    static const int RELEASE = 20;
-    static const int BUILD = 1998;
+    static const int MINOR = 1;
+    static const int RELEASE = 0;
+    static const int BUILD = 2873;
 
     static QString getVersion()
     {

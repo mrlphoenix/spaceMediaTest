@@ -19,11 +19,14 @@ public slots:
     bool start();
     void eventsReady(QList<StatisticDatabase::PlayEvent> events);
     void eventsUploadResult(NonQueryResult result);
+    void requestFinished(QNetworkReply * reply);
+
+    void sendEvents(QByteArray data);
 
 
 private:
-    QNetworkAccessManager manager;
     VideoService * videoService;
+    QNetworkAccessManager * manager;
 };
 
 

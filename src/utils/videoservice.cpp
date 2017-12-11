@@ -173,7 +173,6 @@ void VideoService::performRequest(VideoServiceRequest request)
         manager->get(networkRequest);
     else
         manager->post(networkRequest, data);
-
 }
 
 void VideoService::nextRequest()
@@ -208,7 +207,7 @@ VideoServiceRequest VideoServiceRequestFabric::sendEventsRequest(QString data)
     result.methodAPI = "player/event";
     result.method = "POST";
     result.name = "statistics:events";
-    //
+
     return result;
 }
 
@@ -235,9 +234,11 @@ VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest()
     VideoServiceRequest::VideoServiceRequestParam hashParam;
     hashParam.key = "hash";
     hashParam.value = GlobalConfigInstance.getMetaProperty("playlist_hash");
+    qDebug() << "Playlist hash: " << hashParam.value;
     if (!hashParam.value.isEmpty())
         result.params.append(hashParam);
     qDebug() << "getPlaylistRequest::isAndroid";
+
     if (PlatformSpecificService.isAndroid())
     {
         qDebug() << "getPlaylistRequest::format";
@@ -251,7 +252,7 @@ VideoServiceRequest VideoServiceRequestFabric::getPlaylistRequest()
         ignoreRotationParam.value = "1";
         result.params.append(ignoreRotationParam);
     }
-    //
+
     return result;
 }
 
